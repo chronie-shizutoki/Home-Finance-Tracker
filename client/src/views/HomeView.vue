@@ -75,7 +75,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="t('expense.amount')" prop="amount">
-        <el-input v-model.number="form.amount" :placeholder="t('expense.enterAmount')" type="number" step="0.01" />
+        <el-input v-model="form.amount" :placeholder="t('expense.enterAmount')" type="text" />
       </el-form-item>
       <el-form-item :label="t('expense.date')" prop="date">
         <div class="el-input">
@@ -267,7 +267,7 @@ const updateDateTime = () => {
 const expenseTypes = ['日常用品', '奢侈品', '通讯费用', '食品', '零食糖果', '冷饮', '方便食品', '纺织品', '饮品', '调味品', '交通出行', '餐饮', '医疗费用', '水果', '其他', '水产品', '乳制品', '礼物人情', '旅行度假', '政务', '水电煤气'];
 const form = reactive({
   type: '',
-  amount: 0,
+  amount: '',
   date: '',
   remark: ''
 });
@@ -332,7 +332,7 @@ const handleAddRecord = async () => {
     await fetchData(true);
     ElMessage.success(t('expense.addSuccess'));
     // 重置表单
-    Object.assign(form, { type: '', amount: 0, date: '', remark: '' });
+    Object.assign(form, { type: '', amount: '', date: '', remark: '' });
   } catch (error) {
     console.error('添加记录失败:', error);
     console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
