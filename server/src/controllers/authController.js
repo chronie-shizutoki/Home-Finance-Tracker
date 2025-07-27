@@ -56,7 +56,7 @@ module.exports.loginWith2FA = async (req, res) => {
     return apiResponse.success(res, {
       userId: user.id,
       account: user.account,
-      token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' })
+      token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '60d' })
     })
   } catch (error) {
     console.error('登录验证错误:', error)

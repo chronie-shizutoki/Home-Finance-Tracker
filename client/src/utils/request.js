@@ -31,6 +31,10 @@ request.interceptors.request.use(
     return config;
   },
   error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem(STORAGE_KEYS.TOKEN);
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );
