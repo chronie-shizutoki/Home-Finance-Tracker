@@ -65,7 +65,8 @@ router.beforeEach(async (to, from, next) => {
     console.log(`[Route Access] ${to.name} route accessed - User-Agent: ${userAgent}`);
 
     // 检查认证状态
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const userInfo = localStorage.getItem('userInfo');
+    const isAuthenticated = !!userInfo;
     if (!isAuthenticated && to.name !== 'login' && to.name !== 'Register') {
       ElMessage.warning(i18n.global.t('login.require_auth'));
       return next({ name: 'login' });
