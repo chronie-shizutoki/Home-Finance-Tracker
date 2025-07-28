@@ -316,7 +316,7 @@ const handleAddRecord = async () => {
     // 构建符合API要求的请求数据
     const expenseData = {
       type: form.type,
-      amount: parseFloat(form.amount.toFixed(2)),
+      amount: parseFloat(parseFloat(form.amount).toFixed(2)),
       remark: form.remark,
       time: formattedDate // 服务器需要的时间字段
     };
