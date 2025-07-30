@@ -127,7 +127,7 @@ const showSettings = ref(false);
 
 // 计算属性
 const currentMonthName = computed(() => {
-  return dayjs().format('YYYY年MM月');
+  return dayjs().format('YYYY-MM');
 });
 
 const percentageClass = computed(() => {
@@ -211,7 +211,7 @@ const recommendedDailyClass = computed(() => {
 
 // 方法
 const formatAmount = (amount) => {
-  return new Intl.NumberFormat('zh-CN', {
+  return new Intl.NumberFormat('en-CA', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }).format(amount || 0);

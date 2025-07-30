@@ -124,7 +124,7 @@ const quickAmounts = [1000, 2000, 3000, 5000, 8000, 10000];
 
 // 计算属性
 const currentMonthName = computed(() => {
-  return dayjs().format('YYYY年MM月');
+  return dayjs().format('YYYY-MM');
 });
 
 const remainingClass = computed(() => {

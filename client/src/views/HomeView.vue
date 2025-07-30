@@ -51,7 +51,7 @@
   </el-upload>
   </div>
 <!-- 当前日期时间显示 -->
-<div class="current-datetime">{{ currentDateTime }}</div>
+<div class="current-datetime" style="display: flex; justify-content: center;">{{ currentDateTime }}</div>
 
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="csvExpenses" />

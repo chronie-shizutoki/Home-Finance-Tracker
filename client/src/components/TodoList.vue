@@ -154,7 +154,7 @@ onMounted(() => {
 
 <style scoped>
 .todo-list-container {
-  max-width: 800px;
+  max-width: 75%;
   margin: 0 auto;
   padding: 20px;
 }
@@ -234,7 +234,7 @@ onMounted(() => {
 @media (max-width: 768px) {
   .todo-list-container {
     padding: 16px;
-    max-width: 75%;
+    max-width: 85%;
   }
 
   .todo-header {
