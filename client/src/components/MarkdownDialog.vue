@@ -7,11 +7,9 @@
     :modal="true"
     :close-on-click-modal="false"
     :center="true"
+    :top="'10vh'"
   >
     <div class="markdown-content" v-html="renderedMarkdown"></div>
-    <template #footer>
-      <el-button @click="handleClose">{{ t('home.closeButton') }}</el-button>
-    </template>
   </el-dialog>
 </template>
 
