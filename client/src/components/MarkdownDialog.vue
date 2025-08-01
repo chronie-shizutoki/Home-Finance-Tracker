@@ -23,8 +23,6 @@ import 'highlight.js/styles/github.css';
 
 hljs.registerLanguage('markdown', markdown);
 
-
-
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -86,13 +84,9 @@ marked.setOptions({
   renderer: renderer
 });
 
-
-
 const renderedMarkdown = computed(() => {
   return marked.parse(props.content);
 });
-
-
 
 </script>
 
@@ -103,8 +97,6 @@ const renderedMarkdown = computed(() => {
   padding: 16px;
   line-height: 1.6;
 }
-
-
 
 .markdown-content h1,
 .markdown-content h2,
