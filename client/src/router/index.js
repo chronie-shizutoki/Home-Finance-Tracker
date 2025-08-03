@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus';
 import HomeView from '@/views/HomeView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
 import TodoView from '@/views/TodoView.vue';
-import InventoryView from '@/views/InventoryView.vue';
+
 /**
  * 应用路由配置
  * @module router
@@ -32,12 +32,6 @@ const router = createRouter({
       name: 'todo',
       meta: { title: 'todo.title' },
       component: TodoView
-    },
-    {
-      path: '/inventory',
-      name: 'inventory',
-      meta: { title: 'inventory.title' },
-      component: InventoryView
     },
     {
       path: '/:pathMatch(.*)*',
