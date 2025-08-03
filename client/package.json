@@ -26,7 +26,7 @@
     "@jridgewell/sourcemap-codec": "^1.5.4",
     "@rollup/plugin-replace": "^6.0.2",
     "@vitejs/plugin-vue": "^6.0.0",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "chart.js": "^4.5.0",
     "element-plus": "^2.10.4",
     "glob": "^11.0.3",
