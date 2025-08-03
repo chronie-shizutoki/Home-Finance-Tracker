@@ -7,17 +7,6 @@
     <MessageTip v-model:message="errorMessage" type="error" />
 
     <Header :title="$t('app.title')" />
-  <div v-if="userInfo" style="display: flex; align-items: center; gap: 15px;">
-    <span>{{ userInfo.username }}</span>
-    <el-button link @click="handleLogout">{{ t('auth.logout') }}</el-button>
-  </div>
-  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <el-button type="primary" @click="showQrCodeDialog = true" size="default">
-      <el-icon><Refresh /></el-icon>
-      {{ t('auth.showQrCode') }}
-    </el-button>
-    </div>
-
     <div style="display: flex; flex-wrap: wrap; gap: 10px;">
     <el-button type="primary" @click="showAddDialog = true" size="default">
     <el-icon><Plus /></el-icon>
@@ -31,11 +20,6 @@
     <el-icon><List /></el-icon>
     {{ t('todo.title') }}
   </el-button>
-<!-- 此功能因无人使用而移除 -->
-<!-- <el-button type="info" @click="$router.push('/inventory')" size="default">
-    <el-icon><Box /></el-icon>
-    {{ t('inventory.title') }}
-  </el-button> -->
   <el-upload
     class="upload-excel"
     action="/api/import/excel"
@@ -98,14 +82,6 @@
       :content="markdownContent"
     />
 
-    <!-- 二维码展示对话框 -->
-    <el-dialog v-model="showQrCodeDialog" :title="t('auth.qrCodeTitle')" :width="250">
-      <div class="qr-code-container" style="text-align: center; padding: 0px;">
-        <qrcode-vue v-show="showQrCodeDialog && qrCodeUrl" :value="qrCodeUrl" :size="120" :key="qrCodeUrl"/>
-        <p style="margin-top: 15px;">{{ t('auth.scanQrCode') }}</p>
-      </div>
-    </el-dialog>
-
     <!-- 待办事项对话框 -->
     <el-dialog v-model="showTodoDialog" :title="t('todo.title')" width="90%" top="5vh">
       <TodoList />
@@ -122,7 +98,6 @@ import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncCompone
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Papa from 'papaparse';
-import QrcodeVue from 'vue-qrcode';
 
 import { useExpenseData } from '@/composables/useExpenseData';
 import { useExcelExport } from '@/composables/useExcelExport';
@@ -138,61 +113,20 @@ const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/Spe
 const { t, locale } = useI18n();
 const router = useRouter();
 
-// 用户状态相关
 // 按钮状态变量
 const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
 const showTodoDialog = ref(false);
-const showQrCodeDialog = ref(false);
-const userInfo = ref(null);
-const qrCodeUrl = computed(() => {
-  if (!userInfo.value || !userInfo.value.totpSecret) return '';
-  return `otpauth://totp/HomeMoney:${encodeURIComponent(userInfo.value.username)}?secret=${userInfo.value.totpSecret}&issuer=HomeMoney`;
-});
 
-// 退出登录
+// 导入处理
 const handleImportSuccess = () => {
   ElMessage.success(t('import.success'));
-  fetchUserInfo(); // 刷新数据
 };
 
 const handleImportError = (error) => {
   ElMessage.error(t('import.failed'));
   console.error('Import error:', error);
 };
-
-const handleLogout = async () => {
-  try {
-    const targetUrl = encodeURIComponent(`${window.location.origin}/login`);
-    await axios.post(`/api/auth/logout?target=${targetUrl}`);
-    userInfo.value = null;
-    localStorage.removeItem('userInfo');
-    router.push('/login');
-    ElMessage.success(t('auth.logoutSuccess'));
-  } catch {
-    ElMessage.error(t('auth.logoutFailed'));
-  }
-};
-
-// 获取用户信息
-const fetchUserInfo = async () => {
-  try {
-    console.log('Fetching user info from /api/auth/user');
-    const res = await axios.get('/api/auth/user');
-    console.log('User info response:', res.data);
-    userInfo.value = res.data.data;
-    localStorage.setItem('userInfo', JSON.stringify(res.data.data)); // 只存data
-  } catch (error) {
-    console.error('Error fetching user info:', error.response?.data || error.message);
-    userInfo.value = null;
-    localStorage.removeItem('userInfo');
-  }
-};
-
-// 初始化用户信息
-onMounted(() => {
-  fetchUserInfo();
-});
 const markdownContent = ref('');
 const markdownTitle = ref('');
 // 当前日期时间状态
