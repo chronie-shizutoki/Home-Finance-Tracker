@@ -106,6 +106,64 @@ button {
   span {
     color: #e0e0e0;
   }
+/* ===== 深色模式日期选择器优化方案 ===== */
+input[type="date"] {
+  /* 基础样式 */
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #333333 !important;
+  border-radius: 4px;
+  padding: 8px 12px;
+  
+  /* 关键修复：移除默认外观 */
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  
+  /* 过渡效果 */
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* 修复焦点状态 */
+input[type="date"]:focus {
+  border-color: #4d90fe !important;  /* 更明显的蓝色 */
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.5) !important;
+}
+
+/* ===== 日历图标适配方案 ===== */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* 方案1：颜色反转（推荐） */
+  filter: invert(0.8) brightness(1.2) contrast(1.5) !important;
+  
+  /* 方案2：自定义SVG图标（备用） */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23e0e0e0" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>') !important;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+  /* 统一尺寸 */
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* ===== 文本字段修复 ===== */
+input[type="date"]::-webkit-datetime-edit {
+  color: #e0e0e0 !important;
+  padding: 2px 0; /* 垂直居中 */
+}
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  background: transparent !important; /* 移除背景 */
+}
+input[type="date"]::-webkit-datetime-edit-text {
+  color: #999 !important;
+  padding: 0 2px; /* 分隔符间距 */
+}
+
+/* ===== 下拉日历深色模式强制启用 ===== */
+  /* 触发Chrome内部深色模式 */
+  input[type="date"] {
+    color-scheme: dark !important;
+  }
 
   /* Element Plus对话框组件深色模式增强 */
   .el-dialog {
@@ -179,12 +237,7 @@ button {
         .el-input__inner::placeholder {
           color: #999999 !important;
         }
-        /* 日期选择器深色模式适配 */
-        input[type="date"] {
-          background-color: #1e1e1e !important;
-          color: #e0e0e0 !important;
-          border-color: #333333 !important;
-        }
+        /* Removed duplicate date picker styles - consolidated above */
         .el-input__wrapper.is-focus {
           border-color: #3366cc !important;
         }
