@@ -119,10 +119,6 @@ const renderedMarkdown = computed(() => {
   overflow-x: auto;
 }
 
-.markdown-content code {
-  font-family: system-ui, sans-serif;
-}
-
 .markdown-content ul,
 .markdown-content ol {
   margin-left: 2em;
