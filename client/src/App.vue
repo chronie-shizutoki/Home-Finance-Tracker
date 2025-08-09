@@ -249,6 +249,39 @@ button {
         .el-popper .el-select-dropdown__item:hover {
           background-color: #2d2d2d !important;
         }
+/* Fix the background color of el-dropdown popper in dark mode */
+.el-dropdown__popper.el-popper {
+  background-color: #1e1e1e !important;
+  border-color: #333333 !important;
+}
+
+.el-dropdown-menu {
+  background-color: #1e1e1e !important;
+}
+
+.el-dropdown-menu__item {
+  color: #e0e0e0 !important;
+  background-color: #1e1e1e !important;
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: #2d2d2d !important;
+}
+/* Element Plus textarea component dark mode adaptation */
+.el-textarea__inner {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  border-color: #333333 !important;
+}
+
+.el-textarea__inner::placeholder {
+  color: #999999 !important;
+}
+
+.el-textarea__wrapper.is-focus .el-textarea__inner {
+  border-color: #3366cc !important;
+  box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.2) !important;
+}
 
         /* Element Plus 单选按钮组深色模式适配 */
         .el-radio-button__inner {
