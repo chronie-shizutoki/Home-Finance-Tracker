@@ -230,6 +230,70 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .todo-list-container {
+    background-color: rgba(30, 30, 30, 0.7);
+    border-radius: 8px;
+  }
+
+  .todo-title {
+    color: #e0e0e0;
+  }
+
+  .todo-stats .el-tag {
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #555;
+  }
+
+  .todo-filters .el-radio-button__inner {
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #555;
+  }
+
+  .todo-filters .el-radio-button__inner:hover {
+    background-color: #444;
+  }
+
+  .todo-filters .el-radio-button.is-active .el-radio-button__inner {
+    background-color: #4073d2;
+    color: white;
+    border-color: #4073d2;
+  }
+
+  .clear-completed-btn {
+    --el-button-bg-color: #333;
+    --el-button-text-color: #e0e0e0;
+    --el-button-border-color: #555;
+  }
+
+  .empty-state .el-empty__description {
+    color: #999;
+  }
+
+  /* Element Plus 输入框组件深色模式适配 */
+  :deep(.el-input__wrapper) {
+    background-color: #333;
+    border-color: #555;
+  }
+
+  :deep(.el-input__inner) {
+    color: #e0e0e0;
+  }
+  :deep(.el-input-group__append) {
+    background-color: #333;
+  }
+  /* Element Plus 按钮组件深色模式适配 */
+  :deep(.el-button--primary) {
+    --el-button-bg-color: #4073d2 !important;
+    --el-button-text-color: white !important;
+    --el-button-border-color: #4073d2 !important;
+  }
+}
+
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .todo-list-container {

@@ -13,6 +13,17 @@
         --border-color: #e0e0e0;
       }
 
+      :deep(html), :deep(body) {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      a {
+        color: var(--link-color);
+      }
+
+      /* Element Plus 组件深色模式适配 */
       @media (prefers-color-scheme: dark) {
         :root {
           --bg-color: #121212;
@@ -21,19 +32,17 @@
           --border-color: #333333;
         }
 
-      :deep(html), :deep(body) {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        transition: background-color 0.3s ease, color 0.3s ease
-      }
-
-      a {
-        color: var(--link-color);
-      }
-
-      /* Element Plus 组件深色模式适配 */
         /* 为small标签添加深色模式样式 */
         small {
+          color: var(--text-color);
+        }
+
+        /* 全局div和span元素深色模式适配 */
+        div {
+          color: var(--text-color);
+        }
+
+        span {
           color: var(--text-color);
         }
         :deep(.el-menu-item) {

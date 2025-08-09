@@ -188,6 +188,69 @@ const cancelEdit = () => {
   color: #f56c6c;
 }
 
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .todo-item {
+    background-color: #333;
+    border-color: #555;
+  }
+
+  .todo-item:hover {
+    border-color: #666;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .todo-item.completed {
+    background-color: #2a2a2a;
+    border-color: #444;
+  }
+
+  .todo-text {
+    color: #e0e0e0;
+  }
+
+  .todo-text.completed-text {
+    color: #999;
+  }
+
+  .action-btn {
+    color: #aaa;
+  }
+
+  .edit-btn:hover {
+    color: #64b5f6;
+  }
+
+  .delete-btn:hover {
+    color: #ef4444;
+  }
+
+  /* Element Plus 复选框组件深色模式适配 */
+  :deep(.el-checkbox__inner) {
+    background-color: #444;
+    border-color: #666;
+  }
+
+  :deep(.el-checkbox__inner::after) {
+    border-color: #e0e0e0;
+  }
+
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    background-color: #4073d2;
+    border-color: #4073d2;
+  }
+
+  /* Element Plus 输入框组件深色模式适配 */
+  :deep(.el-input__wrapper) {
+    background-color: #444;
+    border-color: #666;
+  }
+
+  :deep(.el-input__inner) {
+    color: #e0e0e0;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .todo-item {
