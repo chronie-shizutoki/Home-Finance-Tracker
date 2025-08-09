@@ -81,6 +81,27 @@ onUnmounted(() => {
   word-wrap: break-word; /* 允许长单词或URL地址在必要时换行 */
 }
 
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .message-tip {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 深色模式成功消息样式 */
+  .message-tip.light.success {
+    background-color: rgba(30, 30, 30, 0.7);
+    color: #6ee7b7;
+    border-color: rgba(107, 226, 181, 0.5);
+  }
+
+  /* 深色模式错误消息样式 */
+  .message-tip.light.error {
+    background-color: rgba(30, 30, 30, 0.7);
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.5);
+  }
+}
+
 /* 浅色模式成功消息样式 */
 .message-tip.light.success {
   background-color: transparent; /* 透明背景 */

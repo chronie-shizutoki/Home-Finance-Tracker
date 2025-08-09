@@ -55,4 +55,29 @@ export default {
   border-radius: 4px;
   margin-right: 8px;
 }
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .prediction-list {
+    border-color: rgba(75, 85, 99, 0.3);
+    background: rgba(30, 30, 30, 0.5);
+  }
+
+  h4 {
+    color: #f9fafb;
+  }
+
+  .prediction-item {
+    color: #e5e7eb;
+  }
+
+  .prediction-item:hover {
+    background: rgba(75, 85, 99, 0.3);
+  }
+
+  .type-tag {
+    background: rgba(66, 153, 225, 0.2);
+    color: #93c5fd;
+  }
+}
 </style>

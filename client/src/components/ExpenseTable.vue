@@ -29,7 +29,7 @@
         <tr v-for="expense in expenses" :key="expense.id">
           <td>{{ formatDate(expense.time) }}</td>
           <td>
-            <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type) }">
+            <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
               {{ expense.type }}
             </span>
           </td>
@@ -51,6 +51,7 @@
 
 <script>
 import { getTypeColor } from '../utils/expenseUtils';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
   props: {
@@ -60,6 +61,26 @@ export default {
   },
 
   setup () {
+    const isDarkMode = ref(false);
+    
+    // 检测当前系统主题
+    const checkDarkMode = () => {
+      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    };
+    
+    // 初始化检测
+    checkDarkMode();
+    
+    // 监听主题变化
+    onMounted(() => {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkDarkMode);
+    });
+    
+    // 清理监听器
+    onUnmounted(() => {
+      window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', checkDarkMode);
+    });
+
     const formatDate = (dateString) => {
       if (!dateString) return '';
       const date = new Date(dateString);
@@ -71,7 +92,8 @@ export default {
 
     return {
       getTypeColor,
-      formatDate
+      formatDate,
+      isDarkMode
     };
   }
 };
@@ -125,7 +147,7 @@ export default {
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .amount-cell {
@@ -154,5 +176,45 @@ export default {
   color: #6c757d;
   max-width: 500px;
   margin: 0 auto;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .table-container {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .expense-table th {
+    background-color: #333;
+    color: #e0e0e0;
+  }
+
+  .expense-table td {
+    color: #e0e0e0;
+    border-bottom: 1px solid #444;
+  }
+
+  .expense-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .amount-cell {
+    color: #e0e0e0;
+  }
+
+  .type-tag {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .no-data-icon {
+    color: #333;
+  }
+
+  .no-data h3,
+  .no-data p {
+    color: #aaa;
+  }
 }
 </style>

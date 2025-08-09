@@ -7,13 +7,19 @@ const typeColorCache = {};
  * @param {string} type 消费类型
  * @returns {string} HSL颜色字符串
  */
-export function getTypeColor (type) {
-  if (!typeColorCache[type]) {
+export function getTypeColor (type, isDarkMode = false) {
+  // 为不同模式使用不同的缓存键
+  const cacheKey = isDarkMode ? `${type}_dark` : type;
+  
+  if (!typeColorCache[cacheKey]) {
     // 生成随机但一致的颜色
     const hue = Math.floor(Math.random() * 360);
-    typeColorCache[type] = `hsl(${hue}, 70%, 85%)`;
+    // 深色模式下降低亮度，提高饱和度
+    const saturation = isDarkMode ? 80 : 70;
+    const lightness = isDarkMode ? 65 : 85;
+    typeColorCache[cacheKey] = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   }
-  return typeColorCache[type];
+  return typeColorCache[cacheKey];
 }
 
 /**

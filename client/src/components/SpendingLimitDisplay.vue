@@ -422,6 +422,112 @@ onMounted(() => {
   font-size: 14px;
 }
 
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .spending-limit-display {
+    background: rgba(30, 30, 30, 0.7);
+    border-color: #333;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .display-title {
+    color: #f9fafb;
+  }
+
+  .current-month {
+    color: #9ca3af;
+  }
+
+  .current-spending {
+    color: #fbbf24;
+  }
+
+  .progress-separator {
+    color: #4b5563;
+  }
+
+  .limit-amount {
+    color: #93c5fd;
+  }
+
+  .detail-label {
+    color: #9ca3af;
+  }
+
+  .detail-value {
+    color: #e5e7eb;
+  }
+
+  .enable-prompt {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  }
+
+  .prompt-text h4 {
+    color: #f9fafb;
+  }
+
+  .prompt-text p {
+    color: #d1d5db;
+  }
+
+  /* Element Plus 组件样式调整 */
+  :deep(.el-progress-bar__outer) {
+    background-color: rgba(75, 85, 99, 0.3);
+  }
+
+  :deep(.el-progress-bar__inner) {
+    background-color: #4361ee;
+  }
+
+  :deep(.el-alert) {
+    background-color: rgba(30, 30, 30, 0.5);
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+
+  :deep(.el-alert__title) {
+    color: #f9fafb;
+  }
+
+  :deep(.el-button) {
+    --el-button-text-color: #e5e7eb;
+    --el-button-hover-text-color: #ffffff;
+    --el-button-bg-color: #374151;
+    --el-button-hover-bg-color: #4b5563;
+    --el-button-border-color: #4b5563;
+    --el-button-hover-border-color: #6b7280;
+  }
+
+  :deep(.el-button--primary) {
+    --el-button-text-color: #ffffff;
+    --el-button-bg-color: #3b82f6;
+    --el-button-hover-bg-color: #2563eb;
+    --el-button-border-color: #3b82f6;
+    --el-button-hover-border-color: #2563eb;
+  }
+
+    /* 月度预算相关元素颜色区分 */
+  .spending-amount {
+    color: #fcd34d;
+  }
+
+  .limit-amount {
+    color: #93c5fd;
+  }
+
+  .positive-amount {
+    color: #6ee7b7;
+  }
+
+  .warning-amount {
+    color: #fcd34d;
+  }
+
+  .negative-amount {
+    color: #f87171;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .spending-limit-display {

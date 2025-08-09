@@ -7,10 +7,31 @@
     <title></title>
     <style>
       :deep(body) {
-        background-color: transparent; 
-        color: #000000; /* 浅色模式文字颜色 */
+        background-color: #ffffff; 
+        color: #000000; /* Light mode text color */
       }
-      
+      @media (prefers-color-scheme: dark) {
+        :deep(body) {
+          background-color: #121212; /* Dark mode background color, more commonly used than pure black */
+          color: #ffffff; /* Dark mode text color */
+        }
+        :deep(.el-menu-item) {
+          background-color: #1e1e1e; /* Dark mode background color for menu items */
+          color: #ffffff; /* Dark mode text color for menu items */
+        }
+        :deep(.el-menu-item:hover) {
+          background-color: #2d2d2d; /* Dark mode hover background color for menu items */
+          color: #ffffff; /* Dark mode text color for menu items */
+        }
+        :deep(.el-menu-item.is-active) {
+          background-color: #3366cc; /* Dark mode active background color for menu items, more prominent */
+          color: #ffffff; /* Dark mode text color for menu items */
+        }
+        :deep(.el-menu-item.is-active:hover) {
+          background-color: #4073d2; /* Dark mode active hover background color for menu items */
+          color: #ffffff; /* Dark mode text color for menu items */
+        }
+      }
     </style>
   </head>
   <body>

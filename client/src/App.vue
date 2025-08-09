@@ -55,4 +55,25 @@ button {
   cursor: pointer;
 }
 
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  #app {
+    color: #e0e0e0;
+    background: #121212;
+  }
+
+  .app-container {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  header {
+    border-bottom: 1px solid #333;
+  }
+
+  button {
+    background-color: #333;
+    color: #e0e0e0;
+  }
+}
 </style>

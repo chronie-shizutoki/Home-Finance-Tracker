@@ -82,4 +82,29 @@ export default {
     height: 20px;
     fill: currentColor;
   }
+
+  /* 深色模式适配 */
+  @media (prefers-color-scheme: dark) {
+    .pagination button {
+      background-color: rgba(30, 30, 30, 0.5);
+      color: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(75, 85, 99, 0.3);
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background-color: #4361ee;
+      color: white;
+    }
+
+    .pagination button:disabled {
+      background-color: rgba(30, 30, 30, 0.3);
+      color: #6b7280;
+    }
+
+    .pagination button.active {
+      background-color: #4361ee;
+      color: white;
+    }
+  }
   </style>

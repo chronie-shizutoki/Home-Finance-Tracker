@@ -515,4 +515,81 @@ const addNotification = async () => {
     margin-bottom: 12px;  /* 减少表单项间距 */
   }
 }
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .header {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .header h1 {
+    color: #e0e0e0;
+  }
+
+  .earth-icon,
+  .notification-icon {
+    color: #79bbff;
+    background-color: #333;
+  }
+
+  .header :deep(.el-dropdown__popper) {
+    --dropdown-bg: #333;
+    --dropdown-text: #e0e0e0;
+    --dropdown-hover-bg: #444;
+    --dropdown-border: #555;
+  }
+
+  .header :deep(.el-dropdown-menu__item:hover) {
+    color: #79bbff !important;
+  }
+
+  .notification-header {
+    border-bottom: 1px solid #555;
+  }
+
+  .notification-divider {
+    background-color: #555;
+  }
+
+  .notification-item {
+    background-color: #333;
+    border: 1px solid #555;
+  }
+
+  .notification-item:hover {
+    background-color: #444;
+  }
+
+  .notification-time {
+    color: #aaa;
+  }
+
+  .no-notifications {
+    color: #aaa;
+  }
+
+  .header :deep(.el-dialog) {
+    --el-bg-color: #333;
+    --el-text-color-primary: #e0e0e0;
+    --el-border-color: #555;
+  }
+
+  .header :deep(.el-button) {
+    --el-button-bg-color: #444;
+    --el-button-text-color: #e0e0e0;
+    --el-button-border-color: #555;
+    --el-button-hover-bg-color: #555;
+    --el-button-hover-text-color: #fff;
+    --el-button-hover-border-color: #666;
+  }
+
+  .header :deep(.el-input__inner) {
+    --el-input-bg-color: #444;
+    --el-input-text-color: #e0e0e0;
+    --el-input-border-color: #555;
+  }
+}
+
 </style>

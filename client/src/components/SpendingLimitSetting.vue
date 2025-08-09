@@ -356,4 +356,175 @@ onMounted(() => {
     gap: 4px;
   }
 }
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .spending-limit-setting {
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid #333;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .setting-header {
+    border-bottom: 1px solid #444;
+  }
+
+  .setting-title {
+    color: #f9fafb;
+  }
+
+  .setting-label {
+    color: #9ca3af;
+  }
+
+  .threshold-value {
+    color: #93c5fd;
+  }
+
+  .currency-symbol {
+    color: #9ca3af;
+  }
+
+  .threshold-description {
+    color: #9ca3af;
+  }
+
+  .preview-card {
+    background: rgba(40, 40, 40, 0.5);
+    border: 1px solid #444;
+  }
+
+  .preview-label {
+    color: #9ca3af;
+  }
+
+  .preview-value {
+    color: #e5e7eb;
+  }
+
+  .disabled-notice {
+    color: #9ca3af;
+  }
+
+  /* Element Plus 组件深色模式适配 */
+  :deep(.el-switch__core) {
+    background-color: #444;
+  }
+
+  :deep(.el-switch__label) {
+    color: #e5e7eb;
+  }
+
+  :deep(.el-switch__label--left) {
+    color: #e5e7eb;
+  }
+
+  :deep(.el-input-number__decrease),
+  :deep(.el-input-number__increase) {
+    background-color: rgba(50, 50, 50, 0.7);
+    color: #e5e7eb;
+    border-color: #555;
+  }
+
+  :deep(.el-input-number__decrease):hover,
+  :deep(.el-input-number__increase):hover {
+    background-color: rgba(60, 60, 60, 0.7);
+  }
+
+  :deep(.el-input__wrapper) {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-color: #555;
+  }
+
+  :deep(.el-input__inner) {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-color: #555;
+    color: #e5e7eb;
+  }
+
+  /* el-input-number 深色模式适配 */
+  :deep(.el-input-number) {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-color: #555;
+  }
+
+  :deep(.el-input-number--large) {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-color: #555;
+  }
+
+  :deep(.limit-input) {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-color: #555;
+  }
+
+  :deep(.el-slider__runway) {
+    background-color: #555;
+  }
+
+  :deep(.el-slider__bar) {
+    background-color: #4361ee;
+  }
+
+  :deep(.el-slider__button) {
+    background-color: #fff;
+    border-color: #4361ee;
+  }
+
+  :deep(.el-button--default) {
+    background-color: rgba(50, 50, 50, 0.7);
+    border-color: #555;
+    color: #e5e7eb;
+  }
+
+  :deep(.el-button--primary) {
+    background-color: #4361ee;
+    border-color: #4361ee;
+  }
+
+  :deep(.el-icon) {
+    color: #9ca3af;
+  }
+
+  /* 进度条深色模式适配 */
+  :deep(.el-progress-bar__outer) {
+    background-color: rgba(75, 85, 99, 0.3);
+    border-radius: 4px;
+  }
+
+  :deep(.el-progress-bar__inner) {
+    background-color: #4361ee;
+  }
+
+  /* 调整输入框和按钮文字颜色，确保区分度 */
+  :deep(.el-input__inner) {
+    color: #e5e7eb;
+  }
+
+  :deep(.el-input-number__decrease),
+  :deep(.el-input-number__increase) {
+    color: #e5e7eb;
+  }
+
+  /* 月度预算相关元素颜色区分 */
+  .spending-amount {
+    color: #fcd34d;
+  }
+
+  .limit-amount {
+    color: #93c5fd;
+  }
+
+  .positive-amount {
+    color: #6ee7b7;
+  }
+
+  .warning-amount {
+    color: #fcd34d;
+  }
+
+  .negative-amount {
+    color: #f87171;
+  }
+}
 </style>

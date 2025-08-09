@@ -509,4 +509,102 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
     max-width: 70%;
   }
   }
+
+  /* 深色模式适配 */
+  @media (prefers-color-scheme: dark) {
+    .search-container {
+      background: rgba(30, 30, 30, 0.7);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(75, 85, 99, 0.5);
+    }
+
+    .search-header {
+      border-bottom-color: rgba(75, 85, 99, 0.3);
+    }
+
+    .search-header h2 {
+      color: #f9fafb;
+    }
+
+    .reset-button {
+      background: #1f2937;
+      color: #d1d5db;
+      border-color: #374151;
+    }
+
+    .reset-button:hover {
+      background: #374151;
+      color: #a5b4fc;
+      border-color: #4b5563;
+    }
+
+    .control-label {
+      color: #e5e7eb;
+    }
+
+    .control-label i {
+      color: #a5b4fc;
+    }
+
+    .control-input input, .styled-select {
+      background: #1f2937;
+      border-color: #374151;
+      color: #e5e7eb;
+    }
+
+    .control-input input:focus, .styled-select:focus {
+      border-color: #4361ee;
+      background: #1f2937;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .range-divider {
+      color: #9ca3af;
+    }
+
+    .slider {
+      background: #374151;
+    }
+
+    .slider::-webkit-slider-thumb {
+      background: #4361ee;
+    }
+
+    .min-slider::-webkit-slider-thumb {
+      background: #3b82f6;
+    }
+
+    .max-slider::-webkit-slider-thumb {
+      background: #ec4899;
+    }
+
+    .active-filters {
+      border-top-color: rgba(75, 85, 99, 0.3);
+    }
+
+    .filter-badge {
+      background: rgba(30, 64, 175, 0.2);
+      border-color: rgba(96, 165, 250, 0.3);
+      color: #a5b4fc;
+    }
+
+    .clear-filter {
+      color: #9ca3af;
+    }
+
+    .clear-filter:hover {
+      color: #f472b6;
+    }
+      .range-input input {
+        background: #1f2937;
+        border-color: #374151;
+        color: #e5e7eb;
+      }
+
+      .range-input input:focus {
+        border-color: #4361ee;
+        background: #1f2937;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+  }
   </style>

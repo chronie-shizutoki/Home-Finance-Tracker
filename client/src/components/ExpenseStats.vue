@@ -72,4 +72,23 @@ export default {
     font-weight: 600;
     color: #4361ee;
   }
+
+  @media (prefers-color-scheme: dark) {
+    .stats-container {
+      background: rgba(30, 30, 30, 0.7);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-item {
+      background: rgba(40, 40, 40, 0.5);
+    }
+
+    .stat-label {
+      color: #e9ecef;
+    }
+
+    .stat-value {
+      color: #a5b4fc;
+    }
+  }
   </style>
