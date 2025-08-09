@@ -62,6 +62,12 @@ button {
     background: #121212;
   }
 
+  html, body {
+    background: #121212;
+    color: #e0e0e0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
   .app-container {
     background: #1e1e1e;
     color: #e0e0e0;
