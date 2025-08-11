@@ -50,6 +50,11 @@
     </Transition>
   </div>
 
+  <!-- 悬浮刷新按钮 -->
+  <div class="floating-refresh-btn">
+    <el-button type="primary" icon="Refresh" @click="refreshPage()" size="default" circle />
+  </div>
+
   <!-- 添加记录对话框 -->
   <el-dialog v-model="showAddDialog" :title="t('expense.addDialogTitle')" width="80%">
     <el-form :model="form" :rules="rules" ref="formRef">
@@ -368,6 +373,11 @@ const loadCsvExpenses = async () => {
   }
 };
 
+// 刷新页面函数
+const refreshPage = () => {
+  window.location.reload();
+}
+
 // 生命周期
 onMounted(async () => {
   try {
@@ -564,5 +574,26 @@ onMounted(async () => {
   background: #f8f8f8;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* 悬浮刷新按钮样式 */
+.floating-refresh-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.floating-refresh-btn .el-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.floating-refresh-btn .el-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 </style>
