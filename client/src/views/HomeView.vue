@@ -373,9 +373,14 @@ const loadCsvExpenses = async () => {
   }
 };
 
-// 刷新页面函数
+// Function to force the browser to re-fetch new frontend data
 const refreshPage = () => {
-  window.location.reload();
+  // Force a full reload to bypass cache and fetch fresh data
+  // Add a timestamp parameter to ensure the cache is invalidated
+  if (window.location.reload) {
+    window.location.href = window.location.href.split('?')[0] + '?t=' + new Date().getTime();
+    window.location.reload(true);
+  }
 }
 
 // 生命周期
