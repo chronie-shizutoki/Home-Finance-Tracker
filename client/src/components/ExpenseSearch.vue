@@ -328,7 +328,7 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
 
   .search-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
   }
 
@@ -480,14 +480,25 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
   }
 
   @media (max-width: 768px) {
+    .search-container {
+      padding: 16px;
+    }
+    
     .search-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
     }
 
     .search-header {
       flex-direction: column;
       align-items: flex-start;
       gap: 15px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+    }
+
+    .search-header h2 {
+      font-size: 1.2rem;
     }
 
     .search-actions {
@@ -497,17 +508,95 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
     .search-button, .reset-button {
       flex: 1;
       justify-content: center;
+      padding: 9px 16px;
     }
+    
+    .control-input {
+      position: relative;
+      max-width: 100%;
+    }
+    
+    .control-input input, .styled-select {
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    .amount-range {
+      gap: 8px;
+    }
+    
     .range-input {
-    display: flex;
-    align-items: center;
-    max-width: 13%;
-    gap: 10px;
+      display: flex;
+      align-items: center;
+      max-width: 100%;
+      gap: 8px;
+      width: 100%;
+    }
+    
+    .range-input input {
+      flex: 1;
+      width: 20px;
+    }
+    
+    .range-slider {
+      display: none;
+    }
+    
+    .active-filters {
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+    }
+    
+    .filter-badge {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
   }
-  .control-input {
-    position: relative;
-    max-width: 70%;
-  }
+  
+  /* 手机端适配 */
+  @media (max-width: 480px) {
+    .search-container {
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    
+    .search-header {
+      gap: 12px;
+    }
+    
+    .search-header h2 {
+      font-size: 1.1rem;
+    }
+    
+    .search-grid {
+      gap: 12px;
+    }
+    
+    .control-label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    
+    .control-input input, .styled-select {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    
+    .search-button, .reset-button {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+    
+    .range-input {
+      gap: 6px;
+    }
+    
+    .range-input input {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    
   }
 
   /* 深色模式适配 */
