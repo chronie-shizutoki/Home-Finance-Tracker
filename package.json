@@ -1,6 +1,6 @@
 {
   "name": "homemoney",
-  "version": "10.0(final)",
+  "version": "2025.8.26",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/src/app.js",
     "server": "cd server && npm run server",
