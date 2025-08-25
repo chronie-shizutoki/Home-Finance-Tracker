@@ -2,96 +2,18 @@
   "import.title": "Import",
   "import.success": "Import success",
   "import.failed": "Import failed",
-"login.title": "Access Verification",
-  "login.account_placeholder": "Enter account name",
-  "login.code_placeholder": "Enter six-digit verification code",
-  "login.account_required": "Account name is required",
-  "login.code_required": "2FA code is required",
-  "login.code_length": "2FA code must be six digits",
-  "login.code_number": "2FA code can only contain numbers",
-  "login.submit": "Verify and Enter",
-  "login.success": "Verification completed, entering..." ,
-  "login.failed": "Verification failed, please try again",
-  "login.network_error": "Network error, please check connection",
-  "login.require_auth": "Please complete verification first",
-  "login.noAccount": "No account",
-  "login.registerHere": "Register here",
-  "register": {
-    "title": "User Registration",
-    "username": "Username",
-    "usernamePlaceholder": "Please enter username",
-    "usernameRequired": "Please enter username",
-    "scanQrCode": "Scan QR Code",
-    "verificationHelp": "Please scan the QR code above with your authentication app and enter the verification code",
-    "verificationCode": "Verification Code",
-    "codePlaceholder": "Please enter 6-digit verification code",
-    "codeRequired": "Please enter verification code",
-    "generateQrCode": "Generate QR Code",
-    "completeRegistration": "Complete Registration",
-    "haveAccount": "Already have an account?",
-    "loginHere": "Login here",
-    "registerSuccess": "Registration successful, please login",
-    "networkError": "Network error, please try again later"
-  },
-  "auth": {
-    "showQrCode": "Show QR Code",
-    "qrCodeTitle": "QR Code",
-    "scanQrCode": "Scan QR Code",
-    "logout": "Logout",
-    "logoutSuccess": "Logout success",
-    "logoutFailed": "Logout failed"
-  },
-   "inventory.title": "Inventory",
-  "inventory.addItem": "Add Inventory Item",
-  "inventory.editItem": "Edit Inventory Item",
-  "inventory.columns.name": "Item Name",
-  "inventory.columns.category": "Category",
-  "inventory.columns.quantity": "Quantity",
-  "inventory.columns.expiryDate": "Expiry Date",
-  "common.edit": "Edit",
-  "common.delete": "Delete",
-  "common.listSeparator": ",",
-  "inventory.form.name": "Item Name",
-  "inventory.form.category": "Category",
-  "inventory.form.quantity": "Quantity",
-  "inventory.form.unit": "Unit",
-  "inventory.form.lowStockThreshold": "Low Stock Threshold",
-  "inventory.form.expiryDate": "Expiry Date",
-  "inventory.alerts.expired": "⚠️ {count} items have expired, please handle promptly",
-  "inventory.alerts.soonExpired": "⚠️ {count} items will expire soon",
-  "inventory.alerts.lowStock": "⚠️ {count} items are low in stock",
-  "inventory.smartSuggestions.title": "Smart Suggestions",
-  "inventory.suggestions.expired": "There are {count} expired items that need to be processed.",
-"inventory.suggestions.soonExpired": "Items soon to expire: {names}",
-"inventory.suggestions.lowStock": "Low stock items: {names}",
-"inventory.suggestions.mostFrequentCategory": "Most frequent category: {category} ({count} items)",
-"inventory.suggestions.optimized": "Inventory optimization suggestions",
-  "inventory.form.selectCategory": "Select Category",
-  "inventory.form.selectDate": "Select Date",
-  "inventory.categories.food": "Food",
-  "inventory.categories.drinks": "Drinks",
-  "inventory.categories.daily": "Daily Necessities",
-  "inventory.categories.cleaning": "Cleaning Supplies",
-  "inventory.categories.personalCare": "Personal Care",
-  "inventory.categories.kitchen": "Kitchen Supplies",
-  "inventory.categories.medicine": "Medicine",
-  "inventory.categories.other": "Other",
-  "inventory.validation.name.required": "Item name is required",
-  "inventory.validation.quantity.required": "Quantity is required",
-  "inventory.validation.unit.required": "Unit is required",
+
   "common.cancel": "Cancel",
   "common.save": "Save",
+  "expense.addDialogTitle": "Add Expense",
+  "expense.addRecord": "Add Record",
   "expense.columns.time": "Expense Name",
   "expense.columns.name": "Expense Type",
   "expense.type.food": "Food",
   "expense.amountRequired": "Expense amount is required",
   "network.error": "Network error",
-  "app.testVersionWarning": "Current version: 2025/07/09 2a.m. 0.1.0beta",
   "app.loading": "Loading...",
-  "freeplan.trialQualification": "Free for 2 minutes",
-  "app.splashAd.trialQualification": "You have 2 minutes trial period",
   "expense.record.title": "Spending Ledger",
-  "app.title": "Household Expense Manager",
   "app": {
     "title": "Household Expense Manager",
     "addRecord": "Add Expense",
@@ -115,30 +37,7 @@
     "dailyTrend": "Daily Spending",
     "dailyDescending": "Highest Spending Days",
     "noData": "No expenses recorded",
-    "noDataForExport": "No data to export",
-    "type": {
-      "food": "Dining",
-      "shopping": "Shopping",
-      "entertainment": "Entertainment",
-      "transport": "Transportation",
-      "communication": "Phone/Internet",
-      "housing": "Housing",
-      "travel": "Travel",
-      "fitness": "Fitness",
-      "beauty": "Personal Care",
-      "pet": "Pets",
-      "books": "Books/Learning",
-      "digital": "Electronics",
-      "home": "Household",
-      "gift": "Gifts",
-      "office": "Office Supplies",
-      "sports": "Sports Gear",
-      "repair": "Repairs",
-      "medical": "Medical",
-      "education": "Education",
-      "utility": "Utilities",
-      "other": "Miscellaneous"
-    }
+    "noDataForExport": "No data to export"
   },
    "expense.unknownError": "Unknown error",
    "expense.selectType": "Select type",
@@ -195,34 +94,11 @@
     "pasteSuccess": "Pasted successfully",
     "amount": "Amount ($)",
     "date": "Date",
-    "remark": "Desc",
-    "note": "Notes",
+    "remark": "Description",
+    "note": "Additional Notes",
     "addFailed": "Failed to add: {error}",
     "addSuccess": "Added {count} transactions",
-    "inputValidContent": "Enter valid expense details",
-    "pastePlaceholder": "Paste data here...",
-    "entriesPreview": "Preview Entries",
-    "addRecord": "Add Expense",
-    "customAdd": "Bulk Add (BETA)",
-    "addNewEntry": "Add New",
-    "totalRecords": "Total Records",
-    "totalAmount": "Total Amount",
-    "addDialogTitle": "Add Expense",
-    "customAddDialogTitle": "Bulk Add Expenses (BETA - May contain bugs)",
-    "pasteContent": "Paste Data",
-    "pasteFromClipboard": "Paste from Clipboard",
-    "supportedFormat": "Format: Category,Description,Amount,Date",
-    "adding": "Processing...",
-    "pasteCanceled": "Paste canceled",
-    "pasteShortcutTip": "Ctrl+V (Windows) / Cmd+V (Mac)",
-    "pasteNotFound": "No data found",
-    "pasteManualPlaceholder": "Paste your data here...",
-    "confirmDelete": "Delete this record?",
-    "supportedFormat1": "Format: Category,Description,Amount,Date\nExample: Dining,Lunch,15.99,06/15/2024",
-    "exportFilename": "Expenses_{date}",
-    "food": "Dining",
-    "transport": "Transportation",
-    "housing": "Housing",
+    
     "columns": {
       "type": "Category",
       "amount": "Amount ($)",
@@ -230,48 +106,14 @@
       "remark": "Description"
     },
     "emptyText": "No expenses yet. Add your first expense!",
-    "chart": {
-      "title": "Spending by Category",
-      "legend": "Category Breakdown",
-      "trendLabel": "30-Day Spending Trend"
-    },
+    
     "common": {
       "requestCanceled": "Action canceled",
       "networkError": "Connection error. Check your network",
       "requestTimeout": "Request timed out. Try again"
-    },
-    "labels": {
-      "date": "Date (MM/DD/YYYY)",
-      "type": "Category",
-      "amount": "Amount ($)",
-      "remark": "Description (e.g. Groceries/Uber ride)"
-    },
-    "buttons": {
-      "submit": "Save"
     }
   },
-  "monthLabel.zh-CN": "{month}/{year}",
-  "validation": {
-    "inventory": {
-      "name": {
-        "required": "Item name is required"
-      },
-      "quantity": {
-        "required": "Quantity is required"
-      },
-      "unit": {
-        "required": "Unit is required"
-      }
-    },
-    "type": {
-      "required": "Select a category"
-    },
-    "content": {
-      "required": "Description required",
-      "min": "Enter at least {min} characters"
-    },
-    "agreeToCollect": "You must agree to diagnostics collection"
-  },
+ 
   "pagination": {
     "firstPage": "First",
     "prevPage": "Previous",
@@ -288,20 +130,6 @@
     "requestCanceled": "Action canceled",
     "networkError": "Network error. Try again later",
     "requestTimeout": "Request timed out"
-  },
-  "header": {
-    "notificationCenter": "Notification Center",
-    "markAllAsRead": "Read",
-    "noNotifications": "No notifications",
-    "loadFailed": "Failed to load notifications",
-    "addSuccess": "Notification added successfully",
-    "addNewNotification": "Add new notification",
-    "cancel": "Cancel",
-    "confirmAdd": "Add",
-    "addNotificationTitle": "Add Notification",
-    "addNotificationContent": "Notification content",
-    "more": "More",
-    "allNotifications": "All Notifications"
   },
   "todo": {
     "title": "Todo List",

@@ -6,88 +6,7 @@
   "expense.categoryRequired": "请输入分类",
   "expense.dateRequired": "请输入日期",
   "expense.descriptionRequired": "请输入描述",
-  "inventory.title": "库存管理",
-  "inventory.addItem": "新增物品",
-  "inventory.editItem": "编辑物品",
-  "inventory.columns.name": "物品名称",
-  "inventory.columns.category": "分类",
-  "inventory.columns.quantity": "数量",
-  "inventory.columns.expiryDate": "到期日",
-  "common.edit": "编辑",
-  "common.delete": "删除",
-  "common.listSeparator": "、",
-  "inventory.form.name": "物品名称",
-  "inventory.form.category": "分类",
-  "inventory.form.quantity": "数量",
-  "inventory.form.unit": "计量单位",
-  "inventory.form.lowStockThreshold": "库存阈值",
-  "inventory.form.expiryDate": "到期日",
-  "inventory.alerts.expired": "⚠️ {count}项已过期，请及时处理",
-  "inventory.alerts.soonExpired": "⚠️ {count}项即将到期",
-  "inventory.alerts.lowStock": "⚠️ {count}项库存不足",
-  "inventory.smartSuggestions.title": "智能建议",
-  "inventory.suggestions.expired": "有{count}件物品已过期需处理",
-  "inventory.suggestions.soonExpired": "即将到期：{names}",
-  "inventory.suggestions.lowStock": "库存不足：{names}",
-  "inventory.suggestions.mostFrequentCategory": "常用分类：{category}（{count}件）",
-  "inventory.suggestions.optimized": "库存优化建议",
-  "inventory.validation.unit.required": "计量单位不能为空",
-  "login.title": "登录验证",
-  "login.account_placeholder": "请输入账号",
-  "login.code_placeholder": "请输入6位验证码",
-  "login.account_required": "账号不能为空",
-  "login.code_required": "验证码不能为空",
-  "login.code_length": "验证码必须为6位",
-  "login.code_number": "验证码必须为数字",
-  "login.submit": "验证登录",
-  "login.success": "验证成功，正在进入...",
-  "login.failed": "验证失败，请重试",
-  "login.network_error": "网络错误，请检查连接",
-  "login.require_auth": "请先完成身份验证",
-  "login.noAccount": "没有账号？",
-  "login.registerHere": "请先注册账号",
-  "register": {
-    "title": "用户注册",
-    "username": "用户名",
-    "usernamePlaceholder": "请输入用户名",
-    "usernameRequired": "用户名不能为空",
-    "scanQrCode": "扫描二维码",
-    "verificationHelp": "请使用认证应用扫描上方二维码并输入验证码",
-    "verificationCode": "验证码",
-    "codePlaceholder": "请输入6位验证码",
-    "codeRequired": "验证码不能为空",
-    "generateQrCode": "生成二维码",
-    "completeRegistration": "完成注册",
-    "haveAccount": "已有账号？",
-    "loginHere": "前往登录",
-    "registerSuccess": "注册成功，请登录",
-    "networkError": "网络错误，请稍后重试"
-  },
-  "auth": {
-    "showQrCode": "显示二维码",
-    "qrCodeTitle": "二维码",
-    "scanQrCode": "扫描二维码",
-    "logout": "退出登录",
-    "logoutSuccess": "退出成功",
-    "logoutFailed": "退出失败"
-  },
-  "inventory.validation.quantity.required": "数量不能为空",
-  "inventory.validation.name.required": "物品名称不能为空",
-  "inventory.categories.food": "食品",
-  "common.save": "保存",
-  "inventory.categories.other": "其他",
-  "inventory.categories.drinks": "饮品",
-  "inventory.categories.daily": "日用品",
-  "inventory.categories.cleaning": "清洁用品",
-  "inventory.categories.personalCare": "个人护理",
-  "inventory.categories.kitchen": "厨房用品",
-  "inventory.categories.medicine": "药品",
-  "inventory.form.selectCategory": "选择分类",
-  "inventory.form.selectDate": "选择日期",
   "app.loading": "加载中...",
-  "freeplan.trialQualification": "获得试用资格",
-  "app.splashAd.trialQualification": "您已获得试用资格",
-  "消费记录": "消费记录",
   "expense.unknownError": "未知错误",
   "expense.selectType": "请选择消费类型",
   "expense.inputAmount": "请输入金额",
@@ -95,7 +14,6 @@
   "expense.enterRemark": "请输入备注",
   "common.confirm": "确认",
   "expense.serverError": "服务器错误",
-  "app.title": "家庭账本",
   "app": {
     "title": "家庭收支记录",
     "addRecord": "新增记录",
@@ -119,30 +37,7 @@
     "dailyTrend": "每日消费趋势",
     "dailyDescending": "按日消费降序",
     "noData": "无消费记录",
-    "noDataForExport": "无数据可导出",
-    "type": {
-      "food": "餐饮",
-      "shopping": "购物",
-      "entertainment": "娱乐",
-      "transport": "交通",
-      "communication": "通讯",
-      "housing": "住房",
-      "travel": "旅行",
-      "fitness": "健身",
-      "beauty": "美容",
-      "pet": "宠物",
-      "books": "书籍",
-      "digital": "数码产品",
-      "home": "家居",
-      "gift": "礼物",
-      "office": "办公",
-      "sports": "运动",
-      "repair": "维修",
-      "medical": "医疗",
-      "education": "教育",
-      "utility": "水电煤",
-      "other": "其他"
-    }
+    "noDataForExport": "无数据可导出"
   },
   "expense.empty.title": "无消费记录",
   "expense.empty.description": "可添加新记录或修改筛选条件",
@@ -189,7 +84,6 @@
       "button": "查询"
     },
     "type": "消费类型",
-    "pasteSuccess": "粘贴成功",
     "amount": "金额（元）",
     "date": "消费日期",
     "remark": "备注",
@@ -197,29 +91,12 @@
     "addFailed": "添加失败：{error}",
     "addSuccess": "成功添加{count}条记录",
     "inputValidContent": "请输入有效消费记录",
-    "pastePlaceholder": "粘贴内容到此处...",
-    "entriesPreview": "记录预览",
     "addRecord": "添加记录",
-    "customAdd": "自定义添加（原始格式）",
     "addNewEntry": "添加新记录",
     "totalRecords": "总记录数",
     "totalAmount": "总金额",
     "addDialogTitle": "添加消费记录",
-    "customAddDialogTitle": "自定义添加记录（原始格式，请谨慎输入）",
-    "pasteContent": "粘贴内容",
-    "pasteFromClipboard": "从剪贴板粘贴",
-    "supportedFormat": "格式：类型,备注,金额,日期（逗号分隔）",
-    "adding": "添加中...",
-    "pasteCanceled": "粘贴已取消",
-    "pasteShortcutTip": "Ctrl+V（Windows）/ Cmd+V（Mac）",
-    "pasteNotFound": "未找到粘贴内容",
-    "pasteManualPlaceholder": "粘贴内容到此处...",
-    "confirmDelete": "确定删除此记录？",
-    "supportedFormat1": "格式：类型,备注,金额,日期\n示例：餐饮,午餐,50,2023-12-15",
     "exportFilename": "消费记录_{date}",
-    "food": "餐饮",
-    "transport": "交通",
-    "housing": "住房",
     "columns": {
       "type": "消费类型",
       "amount": "金额（元）",
@@ -227,46 +104,10 @@
       "remark": "备注"
     },
     "emptyText": "无消费记录",
-    "chart": {
-      "title": "消费类型分布",
-      "legend": "消费类型图例",
-      "trendLabel": "30天消费趋势"
-    },
     "common": {
       "requestCanceled": "请求已取消",
       "networkError": "网络错误",
       "requestTimeout": "请求超时"
-    },
-    "labels": {
-      "date": "日期（年-月-日）",
-      "type": "消费类型",
-      "amount": "金额（元）",
-      "remark": "备注（例：交通费/餐饮费）"
-    },
-    "buttons": {
-      "submit": "提交"
-    }
-  },
-  "monthLabel.zh-CN": "{year}年{month}月",
-  "validation": {
-    "type": {
-      "required": "请选择类型"
-    },
-    "content": {
-      "required": "请输入备注",
-      "min": "备注至少{min}个字符"
-    },
-    "agreeToCollect": "请同意收集诊断数据"
-  },
-  "inventory.validation": {
-    "name": {
-      "required": "物品名称不能为空"
-    },
-    "quantity": {
-      "required": "数量不能为空"
-    },
-    "unit": {
-      "required": "计量单位不能为空"
     }
   },
   "pagination": {
@@ -285,20 +126,6 @@
     "requestCanceled": "请求已取消",
     "networkError": "网络错误",
     "requestTimeout": "请求超时"
-  },
-  "header": {
-    "notificationCenter": "通知中心",
-    "markAllAsRead": "已读",
-    "noNotifications": "暂无通知",
-    "loadFailed": "加载失败",
-    "addSuccess": "添加成功",
-    "addNewNotification": "新建通知",
-    "cancel": "取消",
-    "confirmAdd": "确认添加",
-    "addNotificationTitle": "新建通知",
-    "addNotificationContent": "通知内容",
-    "more": "更多",
-    "allNotifications": "全部通知"
   },
   "todo": {
     "title": "待办事项",
