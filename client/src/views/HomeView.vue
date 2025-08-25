@@ -39,6 +39,10 @@
 
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="csvExpenses" />
+    
+    <!-- 支出图表分析 -->
+    <ExpenseCharts :expenses="csvExpenses" />
+    
     <ExpenseList :expenses="csvExpenses" />
     <div :class="['header']"></div>
     <Transition name="button">
@@ -110,6 +114,7 @@ import { useExcelExport } from '@/composables/useExcelExport';
 const MessageTip = defineAsyncComponent(() => import('@/components/MessageTip.vue'));
 const Header = defineAsyncComponent(() => import('@/components/Header.vue'));
 const ExpenseList = defineAsyncComponent(() => import('@/components/ExpenseList.vue'));
+const ExpenseCharts = defineAsyncComponent(() => import('@/components/ExpenseCharts.vue'));
 const ExportButton = defineAsyncComponent(() => import('@/components/ExportButton.vue'));
 const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
 const TodoList = defineAsyncComponent(() => import('@/components/TodoList.vue'));
