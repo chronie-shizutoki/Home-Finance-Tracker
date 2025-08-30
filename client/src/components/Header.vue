@@ -51,7 +51,9 @@ const { switchLanguage, currentLanguage } = useLanguageSwitch();
 // 定义支持的语言列表
 const languages = [
   { code: 'en-US', label: 'English' },
-  { code: 'zh-CL', label: '中文' }
+  { code: 'ja-JP', label: '日本語' },
+  { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' }
 ];
 
 // 监听滚动事件，添加滚动效果

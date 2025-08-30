@@ -1,0 +1,203 @@
+{
+  "import.title": "導入",
+  "import.success": "導入成功",
+  "import.failed": "導入失敗",
+  "expense.amountRequired": "請輸入金額",
+  "expense.categoryRequired": "請輸入分類",
+  "expense.dateRequired": "請輸入日期",
+  "expense.descriptionRequired": "請輸入描述",
+  "app.loading": "載入中...",
+  "expense.unknownError": "未知錯誤",
+  "expense.selectType": "請選擇消費類型",
+  "expense.inputAmount": "請輸入金額",
+  "expense.selectDate": "請選擇日期",
+  "expense.enterRemark": "請輸入備註",
+  "common.confirm": "確認",
+  "expense.serverError": "伺服器錯誤",
+  "app": {
+    "title": "家庭收支記錄",
+    "addRecord": "新增記錄",
+    "statistics": "支出統計",
+    "export": "導出資料",
+    "recordList": "消費清單",
+    "record": "消費記錄",
+    "consumptionTrend": "消費趨勢圖",
+    "notFound": "頁面不存在",
+    "pageNotFound": "請求頁面不存在或已被移除",
+    "backToHome": "返回首頁"
+  },
+  "home": {
+    "closeButton": "關閉",
+    "expenseAnalysisReportTitle": "消費分析報告",
+    "goToAddExpenseRecord": "添加新消費",
+    "viewExpenseAnalysisReport": "查看分析報告",
+    "viewDocument": "查看消費分析報告",
+    "prevMonth": "上個月",
+    "nextMonth": "下個月",
+    "dailyTrend": "每日消費趨勢",
+    "dailyDescending": "按日消費降序",
+    "noData": "無消費記錄",
+    "noDataForExport": "無資料可導出"
+  },
+  "expense.empty.title": "無消費記錄",
+  "expense.empty.description": "可添加新記錄或修改篩選條件",
+  "expense.empty.reset": "重置篩選",
+  "expense.search.title": "消費查詢",
+  "expense.loading": "載入中...",
+  "expense.search.monthPlaceholder": "月份",
+  "expense.search.minAmountPlaceholder": "最小金額",
+  "expense.search.maxAmountPlaceholder": "最大金額",
+  "expense.search.keywordPlaceholder": "關鍵詞",
+  "expense.search.month": "月份",
+  "expense.search.type": "消費類型",
+  "expense.search.allType": "全部類型",
+  "expense.search.sort": "排序方式",
+  "expense.search.amountRange": "金額範圍",
+  "expense.search.keyword": "關鍵詞",
+  "expense.search.searchButton": "查詢",
+  "expense.noDataTitle": "無資料",
+  "expense.noDataMessage": "請修改篩選條件或添加新記錄",
+  "expense.search.reset": "重置",
+  "expense.sort.dateAsc": "日期升序",
+  "expense.sort.dateDesc": "日期降序",
+  "expense.sort.amountAsc": "金額升序",
+  "expense.sort.amountDesc": "金額降序",
+  "expense.stats.rowCount": "記錄數",
+  "expense.stats.totalAmount": "總金額",
+  "expense.stats.averageAmount": "平均金額",
+  "expense.stats.medianAmount": "金額中位數",
+  "expense.stats.amountRange": "金額範圍",
+  "expense.stats.typeCount": "類型數量",
+  "expense": {
+    "search": {
+      "month": "月份",
+      "monthPlaceholder": "選擇月份",
+      "allMonth": "所有月份",
+      "type": "消費類型",
+      "allType": "所有類型",
+      "sort": "排序方式",
+      "amountRange": "金額範圍",
+      "minAmountPlaceholder": "最小金額",
+      "maxAmountPlaceholder": "最大金額",
+      "keyword": "關鍵詞",
+      "keywordPlaceholder": "輸入關鍵詞",
+      "button": "查詢"
+    },
+    "type": "消費類型",
+    "amount": "金額（新台幣）",
+    "date": "消費日期",
+    "remark": "備註",
+    "note": "說明",
+    "addFailed": "添加失敗：{error}",
+    "addSuccess": "成功添加{count}條記錄",
+    "inputValidContent": "請輸入有效消費記錄",
+    "addRecord": "添加記錄",
+    "addNewEntry": "添加新記錄",
+    "totalRecords": "總記錄數",
+    "totalAmount": "總金額",
+    "addDialogTitle": "添加消費記錄",
+    "exportFilename": "消費記錄_{date}",
+    "columns": {
+      "type": "消費類型",
+      "amount": "金額（元）",
+      "date": "消費日期",
+      "remark": "備註"
+    },
+    "emptyText": "無消費記錄",
+    "common": {
+      "requestCanceled": "請求已取消",
+      "networkError": "網路錯誤",
+      "requestTimeout": "請求超時"
+    }
+  },
+  "pagination": {
+    "firstPage": "首頁",
+    "prevPage": "上一頁",
+    "pageInfo": "第{current}頁（共{total}頁）",
+    "nextPage": "下一頁",
+    "lastPage": "末頁",
+    "perPage": "條/頁"
+  },
+  "common": {
+    "index": "序號",
+    "action": "操作",
+    "cancel": "取消",
+    "submit": "提交",
+    "requestCanceled": "請求已取消",
+    "networkError": "網路錯誤",
+    "requestTimeout": "請求超時"
+  },
+  "todo": {
+    "title": "待辦事項",
+    "placeholder": "添加新任務...",
+    "add": "添加",
+    "total": "總計",
+    "completed": "已完成",
+    "pending": "待完成",
+    "clearCompleted": "清除已完成",
+    "confirmClearCompleted": "確定要清除所有已完成任務嗎？",
+    "warning": "警告",
+    "clearedSuccess": "已成功清除已完成任務",
+    "filter": {
+      "all": "全部",
+      "pending": "待辦",
+      "completed": "已完成"
+    },
+    "empty": {
+      "all": "暫無任務，請添加新任務",
+      "pending": "所有任務已完成，做得好！",
+      "completed": "暫無已完成任務"
+    }
+  },
+  "spending": {
+    "title": "月度預算",
+    "monthlyProgress": "月度消費進度",
+    "currentMonth": "本月",
+    "currentSpending": "已消費",
+    "monthlyLimit": "月度預算",
+    "remaining": "剩餘額度",
+    "exceeded": "已超支",
+    "dailyAverage": "日均消費",
+    "recommendedDaily": "建議日消費",
+    "settings": {
+      "title": "預算設定",
+      "enabled": "啟用",
+      "disabled": "停用",
+      "monthlyLimit": "月度預算",
+      "enterLimit": "設定預算金額",
+      "warningThreshold": "預警閾值",
+      "thresholdDescription": "達到此比例時觸發預警",
+      "quickSet": "快速設定",
+      "preview": "當前設定預覽",
+      "disabledNotice": "啟用預算功能以追蹤月度消費",
+      "pleaseSetLimit": "請設定月度預算",
+      "limitUpdated": "預算已更新為¥{amount}"
+    },
+    "status": {
+      "disabled": "預算功能已停用",
+      "normal": "消費正常",
+      "nearLimit": "接近預算",
+      "overLimit": "超出預算"
+    },
+    "alert": {
+      "normal": {
+        "title": "消費正常",
+        "description": "剩餘¥{remaining}（已用{percentage}%）"
+      },
+      "nearLimit": {
+        "title": "接近預算",
+        "description": "剩餘¥{remaining}（已用{percentage}%），請注意控制"
+      },
+      "overLimit": {
+        "title": "超出預算",
+        "description": "已超預算¥{amount}，請減少開支"
+      }
+    },
+    "enablePrompt": {
+      "title": "開啟預算追蹤",
+      "description": "設定月度預算以更好地管理開支，接近預算時將收到提醒",
+      "button": "啟用預算功能",
+      "enabled": "預算功能已啟用"
+    }
+  }
+}

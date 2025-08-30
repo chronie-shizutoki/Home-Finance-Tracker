@@ -17,6 +17,6 @@ server/uploads
 server\database.sqlite
 server\.env
 client/src/assets/markdown/expense-report.en-US.md
-client/src/assets/markdown/expense-report.zh-CL.md
+client/src/assets/markdown/expense-report.zh-CN.md
 server/.env
 server/data/expenses.db
