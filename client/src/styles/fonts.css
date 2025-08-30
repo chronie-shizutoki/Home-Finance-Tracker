@@ -1,17 +1,177 @@
 /* 
- * 字体定义文件
- * 全局应用LXGWWenKai-Regular字体
- */
+/* 字体定义文件 */
+/* 全局应用LXGWWenKai-Regular字体 */
+
+/* 自定义字体定义 */
 @font-face {
   font-family: 'LXGWWenKaiGB-Regular';
   src: url('LXGWWenKaiGB-Regular.woff2') format('woff2');
-}
-/* 全局应用自定义字体 */
-html, body, button, input, select, textarea {
-  font-family: 'LXGWWenKaiGB-Regular', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* 使用字体显示优化 */
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, 
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, 
+                 U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD,
+                 U+4e00-U+9fff, U+3400-U+4dbf, U+20000-U+2a6df, U+2a700-U+2b73f,
+                 U+2b740-U+2b81f, U+2b820-U+2ceaf, U+f900-U+faff, U+2f800-U+2fa1f;
 }
 
-/* 确保所有文本元素都使用系统字体 */
+/* 中文字体回退栈 */
+:root {
+  --font-family-base: 'LXGWWenKaiGB-Regular', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-size-base: 14px;
+  --font-size-sm: 12px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --line-height-base: 1.5;
+  --line-height-sm: 1.25;
+  --line-height-lg: 1.75;
+}
+
+/* 全局应用字体样式 */
 * {
-  font-family: 'LXGWWenKaiGB-Regular', sans-serif;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 标题字体样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: var(--line-height-sm);
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+h1 {
+  font-size: var(--font-size-xl);
+}
+
+h2 {
+  font-size: calc(var(--font-size-xl) * 0.85);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+}
+
+h4 {
+  font-size: calc(var(--font-size-lg) * 0.9);
+}
+
+h5, h6 {
+  font-size: var(--font-size-md);
+}
+
+/* 正文文本样式 */
+p {
+  margin-bottom: 1rem;
+  line-height: var(--line-height-base);
+}
+
+/* 表单元素字体样式 */
+input, textarea, select, button {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+/* 链接样式 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-time) ease;
+}
+
+a:hover {
+  color: var(--primary-hover-color);
+  text-decoration: underline;
+}
+
+/* 代码字体 */
+code, pre {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: calc(var(--font-size-base) * 0.9);
+}
+
+/* 小文本 */
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+/* 中等文本 */
+.text-md {
+  font-size: var(--font-size-md);
+}
+
+/* 大文本 */
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+
+/* 超大文本 */
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+
+/* 字重样式 */
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* 行高样式 */
+.line-height-sm {
+  line-height: var(--line-height-sm);
+}
+
+.line-height-base {
+  line-height: var(--line-height-base);
+}
+
+.line-height-lg {
+  line-height: var(--line-height-lg);
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #fff;
+  }
+  
+  * {
+    color: var(--dark-text-primary);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--dark-text-primary);
+  }
+  
+  a {
+    color: var(--dark-primary-color);
+  }
+  
+  a:hover {
+    color: var(--dark-primary-hover-color);
+  }
 }

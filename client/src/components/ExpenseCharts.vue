@@ -1069,6 +1069,7 @@ const debounce = (func, wait) => {
   .charts-container {
     background: rgba(30, 30, 30, 0.7);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: #fff !important;
   }
 }
 </style>
