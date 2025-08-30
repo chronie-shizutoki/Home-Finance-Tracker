@@ -68,7 +68,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="t('expense.amount')" prop="amount">
-        <el-input v-model="form.amount" :placeholder="t('expense.enterAmount')" type="text" />
+        <el-input v-model="form.amount" :placeholder="0" type="text" />
       </el-form-item>
       <el-form-item :label="t('expense.date')" prop="date">
         <div class="el-input">
