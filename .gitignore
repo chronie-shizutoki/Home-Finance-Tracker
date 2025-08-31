@@ -20,3 +20,5 @@ client/src/assets/markdown/expense-report.en-US.md
 client/src/assets/markdown/expense-report.zh-CN.md
 server/.env
 server/data/expenses.db
+client/src/assets/markdown/expense-report.ja-JP.md
+client/src/assets/markdown/expense-report.zh-TW.md
