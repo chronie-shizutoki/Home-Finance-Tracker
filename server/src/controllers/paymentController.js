@@ -1,5 +1,7 @@
 const axios = require('axios')
 const dayjs = require('dayjs')
+const fs = require('fs')
+const path = require('path')
 
 /**
  * 支付控制器
@@ -62,6 +64,43 @@ const donate = async (req, res) => {
       // 记录捐赠日志
       console.log(`用户${username}捐赠了${amount}元`)
       
+      // 保存捐赠记录到JSON文件
+      const donationRecord = {
+        id: Date.now().toString(),
+        username: username,
+        amount: amount,
+        timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        orderId: response.data.orderId || `DONATE_${Date.now()}`,
+        status: 'success'
+      };
+      
+      // 保存捐赠记录函数
+      const saveDonationRecord = (record) => {
+        try {
+          // 确保数据目录存在
+          const dataDir = path.join(__dirname, '../../data');
+          if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+          }
+          
+          // 捐赠记录文件路径
+          const donationFilePath = path.join(dataDir, 'donation_records.json');
+          
+          // 将记录转换为JSON字符串并添加换行符
+          const recordLine = JSON.stringify(record) + '\n';
+          
+          // 追加记录到文件，每个记录占一行
+          fs.appendFileSync(donationFilePath, recordLine, 'utf8');
+          console.log('捐赠记录已保存到文件:', donationFilePath);
+        } catch (fileError) {
+          console.error('保存捐赠记录失败:', fileError);
+          // 文件保存失败不影响主流程
+        }
+      };
+      
+      // 异步保存捐赠记录
+      saveDonationRecord(donationRecord);
+      
       // 返回第三方API的响应
       res.status(200).json({
         success: true,
@@ -76,6 +115,43 @@ const donate = async (req, res) => {
         message: '捐赠成功',
         timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss')
       };
+      
+      // 保存捐赠记录到JSON文件
+      const donationRecord = {
+        id: Date.now().toString(),
+        username: username,
+        amount: amount,
+        timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        orderId: mockResponse.orderId,
+        status: 'success'
+      };
+      
+      // 保存捐赠记录函数
+      const saveDonationRecord = (record) => {
+        try {
+          // 确保数据目录存在
+          const dataDir = path.join(__dirname, '../../data');
+          if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+          }
+          
+          // 捐赠记录文件路径
+          const donationFilePath = path.join(dataDir, 'donation_records.json');
+          
+          // 将记录转换为JSON字符串并添加换行符
+          const recordLine = JSON.stringify(record) + '\n';
+          
+          // 追加记录到文件，每个记录占一行
+          fs.appendFileSync(donationFilePath, recordLine, 'utf8');
+          console.log('捐赠记录已保存到文件:', donationFilePath);
+        } catch (fileError) {
+          console.error('保存捐赠记录失败:', fileError);
+          // 文件保存失败不影响主流程
+        }
+      };
+      
+      // 异步保存捐赠记录
+      saveDonationRecord(donationRecord);
       
       res.status(200).json({
         success: true,

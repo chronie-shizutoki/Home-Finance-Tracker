@@ -22,3 +22,4 @@ server/.env
 server/data/expenses.db
 client/src/assets/markdown/expense-report.ja-JP.md
 client/src/assets/markdown/expense-report.zh-TW.md
+server/data/donation_records.json
