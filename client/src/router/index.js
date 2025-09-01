@@ -11,6 +11,8 @@ import TodoView from '@/views/TodoView.vue';
  * @desc 使用Vue Router管理前端路由，包含历史模式配置和路由守卫
  */
 
+import DonationView from '@/views/DonationView.vue';
+
 const router = createRouter({
   history: createWebHistory(), // 启用History模式（去除URL中的#号）
   routes: [
@@ -21,17 +23,16 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/',
-      name: 'home',
-      meta: { title: 'app.title' }, // 路由元信息：对应i18n的键
-      component: HomeView
-    },
-
-    {
       path: '/todo',
       name: 'todo',
       meta: { title: 'todo.title' },
       component: TodoView
+    },
+    {
+      path: '/donation',
+      name: 'donation',
+      meta: { title: 'donation.title' },
+      component: DonationView
     },
     {
       path: '/:pathMatch(.*)*',

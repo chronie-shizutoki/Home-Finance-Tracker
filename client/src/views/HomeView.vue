@@ -20,6 +20,10 @@
     <el-icon><List /></el-icon>
     {{ t('todo.title') }}
   </el-button>
+  <el-button type="info" @click="goToDonation" size="default">
+    <el-icon><Money /></el-icon>
+    {{ t('donation.title') }}
+  </el-button>
   <el-upload
     class="upload-excel"
     action="/api/import/excel"
@@ -100,7 +104,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 
@@ -136,6 +140,11 @@ const handleImportSuccess = () => {
 const handleImportError = (error) => {
   ElMessage.error(t('import.failed'));
   console.error('Import error:', error);
+};
+
+// 跳转到捐赠页面
+const goToDonation = () => {
+  router.push('/donation');
 };
 const markdownContent = ref('');
 const markdownTitle = ref('');

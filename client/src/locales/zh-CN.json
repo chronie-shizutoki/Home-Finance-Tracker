@@ -149,6 +149,26 @@
       "completed": "暂无已完成任务"
     }
   },
+  "donation": {
+    "title": "支持我们",
+    "description": "感谢您使用家庭财务管理应用！您的捐赠将帮助我们持续改进和维护这个项目。",
+    "username": "用户名",
+    "amount": "捐赠金额",
+    "enterUsername": "请输入您的用户名",
+    "enterCustomAmount": "或输入自定义金额",
+    "submitDonation": "确认捐赠",
+    "usernameRequired": "请输入用户名",
+    "amountRequired": "请输入捐赠金额",
+    "amountMustBeNumber": "金额必须是数字",
+    "amountMustBePositive": "金额必须大于0",
+    "amountMaxTwoDecimals": "金额最多只能有两位小数",
+    "successTitle": "捐赠成功",
+    "failureTitle": "捐赠失败",
+    "successMessage": "感谢您的{amount}元捐赠！您的支持将帮助我们持续改进应用。",
+    "donationSuccess": "捐赠提交成功",
+    "donationFailure": "捐赠提交失败，请稍后重试",
+    "transactionId": "交易ID"
+  },
   "spending": {
     "title": "月度预算",
     "monthlyProgress": "月度消费进度",

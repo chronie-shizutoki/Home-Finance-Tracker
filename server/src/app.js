@@ -11,7 +11,15 @@ const app = express()
 const PORT = process.env.PORT || 3010
 
 // Middlewares
-app.use(cors())
+const corsOptions = {
+  origin: ['http://localhost:5173', 'http://192.168.0.197:5173' ,'http://192.168.0.197:3200'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -19,6 +27,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/api/expenses', require('./routes/expense'))
 app.use('/api/todos', require('./routes/todos'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
+app.use('/api/payments', require('./routes/payment'))
 app.use('/api', require('./routes/api'))
 
 // 根路径路由
