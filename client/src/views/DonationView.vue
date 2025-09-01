@@ -1,65 +1,90 @@
 <template>
-  <div class="donation-container">
-    <div class="donation-header">
-      <h1>捐赠</h1>
-      <p>请填写以下信息进行捐赠</p>
-    </div>
-    
-    <div class="donation-form">
-      <el-form :model="donationForm" :rules="donationRules" ref="donationFormRef" label-width="100px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="donationForm.username" placeholder="请输入用户名" />
-        </el-form-item>
+  <div class="donation-page-wrapper">
+    <div class="donation-container">
+      <div class="donation-header">
+        <div class="header-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>支持我们的项目</h1>
+        <p class="subtitle">您的每一份捐赠都将帮助我们持续改进和发展</p>
+      </div>
+      
+      <div class="donation-form card-shadow">
+        <el-form :model="donationForm" :rules="donationRules" ref="donationFormRef" label-width="100px">
+          <el-form-item label="用户名" prop="username" class="form-item-custom">
+            <el-input 
+              v-model="donationForm.username" 
+              placeholder="请输入用户名" 
+              class="custom-input"
+              prefix-icon="User"
+            />
+          </el-form-item>
         
-        <el-form-item label="金额" prop="amount">
-          <div class="amount-options">
+          <el-form-item label="金额" prop="amount" class="form-item-custom">
+            <div class="amount-options">
+              <el-button 
+                v-for="option in amountOptions" 
+                :key="option" 
+                type="primary" 
+                plain
+                :class="['amount-btn', { active: donationForm.amount === option }]"
+                @click="selectAmount(option)"
+              >
+                {{ option }} 元
+              </el-button>
+            </div>
+            <div class="custom-amount-wrapper">
+              <span class="currency-symbol">¥</span>
+              <el-input 
+                v-model="donationForm.amount" 
+                type="number" 
+                placeholder="自定义金额"
+                class="custom-amount-input"
+                min="0" 
+                step="0.01"
+              />
+            </div>
+          </el-form-item>
+        
+          <el-form-item class="submit-button-container">
             <el-button 
-              v-for="option in amountOptions" 
-              :key="option" 
               type="primary" 
-              :class="{ active: donationForm.amount === option }"
-              @click="selectAmount(option)"
+              @click="handleDonate" 
+              :loading="isSubmitting"
+              class="submit-donation-btn"
+              :icon="isSubmitting ? 'Loading' : ''"
             >
-              {{ option }}
+              {{ isSubmitting ? '处理中...' : '确认捐赠' }}
             </el-button>
-          </div>
-          <el-input 
-            v-model="donationForm.amount" 
-            type="number" 
-            placeholder="请输入自定义金额"
-            class="custom-amount-input"
-            min="0" 
-            step="0.01"
-          />
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button type="primary" @click="handleDonate" :loading="isSubmitting">
-            提交捐赠
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-    
-    <div v-if="donationResult" class="donation-result">
-      <el-alert 
-        :title="donationResult.success ? '捐赠成功' : '捐赠失败'"
-        :type="donationResult.success ? 'success' : 'error'"
-        closable
-        @close="resetDonationResult"
-      >
-        <template #default>
-          <p v-if="donationResult.success">
-            感谢您的捐赠，捐赠金额为 {{ donationForm.amount }}
-          </p>
-          <p v-else>
-            {{ donationResult.error }}
-          </p>
-          <p v-if="donationResult.data && donationResult.data.transaction">
-            交易ID: {{ donationResult.data.transaction.id }}
-          </p>
-        </template>
-      </el-alert>
+          </el-form-item>
+        </el-form>
+      </div>
+      
+      <div v-if="donationResult" class="donation-result animate-fade-in">
+        <el-alert 
+          :title="donationResult.success ? '捐赠成功' : '捐赠失败'"
+          :type="donationResult.success ? 'success' : 'error'"
+          closable
+          @close="resetDonationResult"
+          class="result-alert"
+        >
+          <template #default>
+            <p v-if="donationResult.success" class="success-message">
+              非常感谢您的慷慨捐赠，金额为 <span class="donation-amount-highlight">{{ donationForm.amount }} 元</span>
+            </p>
+            <p v-else class="error-message">
+              {{ donationResult.error }}
+            </p>
+            <p v-if="donationResult.data && donationResult.data.orderId" class="transaction-id">
+              订单号: <code>{{ donationResult.data.orderId }}</code>
+            </p>
+          </template>
+        </el-alert>
+      </div>
     </div>
   </div>
 </template>
@@ -165,102 +190,342 @@ const resetDonationResult = () => {
 </script>
 
 <style scoped>
-.donation-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+/* 基础样式重置和动画定义 */
+:deep(*) {
+  box-sizing: border-box;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes gradientBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 页面容器 */
+.donation-page-wrapper {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: 400% 400%;
+  animation: gradientBackground 15s ease infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donation-container {
+  max-width: 600px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* 头部样式 */
 .donation-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+}
+
+.header-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  animation: pulse 2s infinite;
 }
 
 .donation-header h1 {
-  color: #303133;
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 700;
   margin-bottom: 10px;
+  letter-spacing: -0.5px;
 }
 
-.donation-header p {
-  color: #606266;
+.subtitle {
+  color: #7f8c8d;
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* 表单样式 */
+.donation-form {
+  width: 100%;
+}
+
+.card-shadow {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+}
+
+.form-item-custom {
+  margin-bottom: 24px;
+}
+
+.form-item-custom .el-form-item__label {
+  font-weight: 600;
+  color: #555;
   font-size: 14px;
 }
 
-.donation-form {
+.custom-input {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus-within {
+  transform: translateY(-2px);
+}
+
+/* 金额选择按钮 */
+.amount-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 12px;
   margin-bottom: 20px;
 }
 
-.amount-options {
+.amount-btn {
+  transition: all 0.3s ease;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  height: 44px !important;
+  font-size: 14px !important;
+  background: #f8f9fa !important;
+  border-color: #dee2e6 !important;
+  color: #495057 !important;
+}
+
+.amount-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2) !important;
+  border-color: #409eff !important;
+  color: #409eff !important;
+}
+
+.amount-btn.active {
+  background: #409eff !important;
+  border-color: #409eff !important;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3) !important;
+}
+
+/* 自定义金额输入 */
+.custom-amount-wrapper {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+  align-items: center;
 }
 
-.amount-options .el-button {
-  flex: 1;
-  min-width: 80px;
-}
-
-.amount-options .el-button.active {
-  background-color: #409eff;
-  color: #fff;
+.currency-symbol {
+  position: absolute;
+  left: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  z-index: 1;
 }
 
 .custom-amount-input {
   width: 100%;
+  padding-left: 30px !important;
+  height: 44px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  transition: all 0.3s ease;
 }
 
+.custom-amount-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2) !important;
+}
+
+/* 提交按钮 */
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px !important;
+}
+
+.submit-donation-btn {
+  width: 100%;
+  max-width: 200px;
+  height: 48px;
+  border-radius: 24px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #409eff 0%, #3a8ee6 100%) !important;
+  border: none !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.submit-donation-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
+  background: linear-gradient(135deg, #3a8ee6 0%, #3071a9 100%) !important;
+}
+
+.submit-donation-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* 结果提示 */
 .donation-result {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.result-alert {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.success-message {
+  font-size: 16px;
+  color: #27ae60;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.donation-amount-highlight {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+.error-message {
+  font-size: 15px;
+  color: #e74c3c;
+  line-height: 1.6;
+}
+
+.transaction-id {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.transaction-id code {
+  background: #f1f3f4;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* 暗黑模式 */
 @media (prefers-color-scheme: dark) {
+  .donation-page-wrapper {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
   .donation-container {
-    background-color: #1a1a1a;
-    box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.1);
+    background-color: #2c3e50;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid #34495e;
+  }
+  
+  .card-shadow {
+    background: #34495e;
+    border-color: #455a64;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
   
   .donation-header h1 {
-    color: #e6e6e6;
+    color: #ecf0f1;
   }
   
-  .donation-header p {
-    color: #cccccc;
+  .subtitle {
+    color: #bdc3c7;
   }
   
-  .amount-options .el-button {
-    background-color: #333;
-    border-color: #4d4d4d;
-    color: #e6e6e6;
+  .form-item-custom .el-form-item__label {
+    color: #bdc3c7;
   }
   
-  .amount-options .el-button.active {
-    background-color: #409eff;
-    color: #fff;
+  .amount-btn {
+    background: #455a64 !important;
+    border-color: #546e7a !important;
+    color: #ecf0f1 !important;
   }
   
-  .el-input {
-    background-color: #333;
-    border-color: #4d4d4d;
-    color: #e6e6e6;
+  .amount-btn:hover {
+    border-color: #409eff !important;
+    color: #409eff !important;
+  }
+  
+  .currency-symbol {
+    color: #bdc3c7;
+  }
+  
+  .transaction-id code {
+    background: #455a64;
+    color: #ecf0f1;
   }
 }
 
+/* 响应式设计 */
 @media (max-width: 768px) {
+  .donation-page-wrapper {
+    padding: 20px 15px;
+  }
+  
   .donation-container {
-    padding: 15px;
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+  
+  .donation-header h1 {
+    font-size: 24px;
+  }
+  
+  .card-shadow {
+    padding: 20px;
   }
   
   .amount-options {
-    flex-direction: column;
+    grid-template-columns: repeat(3, 1fr);
   }
   
-  .amount-options .el-button {
-    width: 100%;
+  .form-item-custom .el-form-item__label {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .amount-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .submit-donation-btn {
+    max-width: 100%;
+  }
+  
+  .donation-container {
+    padding: 20px 15px;
   }
 }
 </style>
