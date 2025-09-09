@@ -51,7 +51,6 @@ const { switchLanguage, currentLanguage } = useLanguageSwitch();
 // 定义支持的语言列表
 const languages = [
   { code: 'en-US', label: 'English' },
-  { code: 'ja-JP', label: '日本語' },
   { code: 'zh-CN', label: '简体中文' },
   { code: 'zh-TW', label: '繁體中文' }
 ];

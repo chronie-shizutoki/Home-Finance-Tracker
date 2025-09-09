@@ -9,7 +9,6 @@
 
 import { createI18n } from 'vue-i18n';
 import enUS from './en-US.json';
-import jaJP from './ja-JP.json';
 import zhCN from './zh-CN.json';
 import zhTW from './zh-TW.json';
 import dayjs from 'dayjs';
@@ -20,15 +19,11 @@ import 'dayjs/locale/en'; // 英文
 const browserLanguage = navigator.language || navigator.userLanguage;
 console.log('获取到的浏览器默认语言为:', browserLanguage);
 // 定义支持的语言列表
-const supportedLanguages = ['en-US', 'zh-CN', 'zh-TW', 'ja-JP'];
+const supportedLanguages = ['en-US', 'zh-CN', 'zh-TW'];
 console.log('支持的语言列表为:', supportedLanguages);
 // 检查浏览器语言是否在支持列表中
 let defaultLocale = 'en-US'; // 默认语言
 console.log('初始默认语言设置为:', defaultLocale);
-if (browserLanguage.startsWith('ja')) {
-  defaultLocale = 'ja-JP';
-  console.log('浏览器语言为日文，默认语言更新为:', defaultLocale);
-}
 // 若浏览器语言为中文相关，默认使用 zh-CN 或 zh-TW
 if (browserLanguage.startsWith('zh')) {
   defaultLocale = 'zh-CN';
@@ -52,7 +47,6 @@ const i18n = createI18n({
   fallbackLocale: 'en-US', // 回退语言
   messages: {
     'en-US': enUS,
-    'ja-JP': jaJP,
     'zh-CN': zhCN,
     'zh-TW': zhTW
   }
