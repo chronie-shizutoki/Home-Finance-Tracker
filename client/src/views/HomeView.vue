@@ -41,6 +41,10 @@
     <el-icon><Document /></el-icon>
     {{ t('home.viewDocument') }}
   </el-button>
+  <el-button type="primary" @click="showAiAddDialog = true" size="default">
+    <el-icon><Cpu /></el-icon>
+    AI智能记录
+  </el-button>
   <el-button type="success" @click="showTodoDialog = true" size="default">
     <el-icon><List /></el-icon>
     {{ t('todo.title') }}
@@ -118,6 +122,65 @@
     </template>
   </el-dialog>
 
+  <!-- API密钥设置对话框 -->
+  <el-dialog v-model="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%">
+    <el-form :model="apiKeyForm" ref="apiKeyFormRef">
+      <el-form-item :label="'API密钥'" prop="apiKey">
+        <el-input
+          v-model="apiKeyForm.apiKey"
+          placeholder="请输入您的SiliconFlow API密钥"
+          type="password"
+          show-password
+        ></el-input>
+        <div style="margin-top: 10px; font-size: 12px; color: #606266;">
+          获取API密钥: <a href="https://console.siliconflow.cn/api-keys" target="_blank">https://console.siliconflow.cn/api-keys</a>
+        </div>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="showApiKeyDialog = false">取消</el-button>
+      <el-button type="primary" @click="handleApiKeySave">保存</el-button>
+    </template>
+  </el-dialog>
+
+  <!-- AI智能记录对话框 -->
+  <el-dialog v-model="showAiAddDialog" title="AI智能记录" width="80%">
+    <el-form :model="aiForm" ref="aiFormRef">
+      <el-form-item :label="'输入文本描述'">
+        <el-input
+          v-model="aiForm.text"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入消费记录的详细描述，例如：今天上午在超市买了苹果和牛奶，共花费56.8元。"
+        ></el-input>
+      </el-form-item>
+      <el-form-item :label="'或上传图片'">
+        <el-upload
+          v-model:file-list="aiForm.image"
+          class="avatar-uploader"
+          action=""
+          :auto-upload="false"
+          :on-change="handleImageChange"
+          :show-file-list="true"
+          accept=".jpg,.jpeg,.png,.gif"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+          <template #tip>
+            <div class="el-upload__tip">
+              请上传包含消费信息的图片（如收据、账单截图等）
+            </div>
+          </template>
+        </el-upload>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="handleAiCancel">{{ t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="handleAiGenerate" :loading="isParsing">
+        {{ isParsing ? '生成中...' : '生成记录' }}
+      </el-button>
+    </template>
+  </el-dialog>
+
     <MarkdownDialog
       v-model:visible="showMarkdownDialog"
       :title="markdownTitle"
@@ -133,7 +196,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 
@@ -160,6 +223,21 @@ const router = useRouter();
 const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
 const showTodoDialog = ref(false);
+const showAiAddDialog = ref(false);
+const aiForm = reactive({
+  text: '',
+  image: []
+});
+const isParsing = ref(false);
+
+// 导入AI API
+import { parseTextToRecord, parseImageToRecord, setApiKey } from '@/api/aiRecord';
+
+// API密钥相关
+const showApiKeyDialog = ref(false);
+const apiKeyForm = reactive({
+  apiKey: localStorage.getItem('siliconflow_api_key') || ''
+});
 
 // 全局强制捐款弹窗状态
 // 检查是否在当前会话中已完成捐款
@@ -418,12 +496,12 @@ const handleAddRecord = async () => {
     showAddDialog.value = false;
     // 添加成功后刷新数据
     await fetchData(true);
-    ElMessage.success(t('expense.addSuccess'));
-    // 重置表单
-    Object.assign(form, { type: '', amount: '', date: '', remark: '' });
-  } catch (error) {
-    console.error('添加记录失败:', error);
-    console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
+      ElMessage.success(t('expense.addSuccess'));
+      // 重置表单
+      Object.assign(form, { type: '', amount: '', date: '', remark: '' });
+    } catch (error) {
+      console.error('添加记录失败:', error);
+      console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
     // 区分表单验证错误和API错误
     // 细化错误处理
     // 细化错误类型处理
@@ -522,6 +600,93 @@ const loadCsvExpenses = async () => {
   }
 };
 
+// 处理AI智能记录生成
+const aiFormRef = ref(null);
+
+const handleImageChange = (file, fileList) => {
+  aiForm.image = fileList;
+};
+
+// 处理AI智能记录取消
+const handleAiCancel = () => {
+  showAiAddDialog.value = false;
+  // 重置AI表单
+  aiForm.text = '';
+  aiForm.image = [];
+};
+
+const handleAiGenerate = async () => {
+  try {
+    // 检查API密钥
+    if (!checkApiKey()) {
+      return;
+    }
+    
+    // 检查是否有输入
+    if (!aiForm.text && (!aiForm.image || aiForm.image.length === 0)) {
+      ElMessage.error('请输入文本描述或上传图片');
+      return;
+    }
+
+    isParsing.value = true;
+    let parsedData;
+
+    // 解析文本或图片
+    if (aiForm.text) {
+      parsedData = await parseTextToRecord(aiForm.text);
+    } else if (aiForm.image && aiForm.image.length > 0) {
+      parsedData = await parseImageToRecord(aiForm.image[0].raw);
+    }
+
+    // 填充到普通表单中
+    if (parsedData) {
+      form.type = parsedData.type || '';
+      form.amount = parsedData.amount || '';
+      form.date = parsedData.date || '';
+      form.remark = parsedData.remark || '';
+
+      // 关闭AI对话框，打开普通编辑对话框
+      showAiAddDialog.value = false;
+      showAddDialog.value = true;
+      ElMessage.success('AI已成功生成记录，请检查并确认');
+    }
+  } catch (error) {
+    console.error('AI生成记录失败:', error);
+    ElMessage.error('AI生成记录失败，请重试');
+  } finally {
+    isParsing.value = false;
+    // 重置AI表单
+    aiForm.text = '';
+    aiForm.image = [];
+  }
+};
+
+// 处理API密钥设置
+const handleApiKeySave = () => {
+  if (apiKeyForm.apiKey) {
+    localStorage.setItem('siliconflow_api_key', apiKeyForm.apiKey);
+    setApiKey(apiKeyForm.apiKey);
+    showApiKeyDialog.value = false;
+    ElMessage.success('API密钥已保存');
+  } else {
+    ElMessage.error('请输入有效的API密钥');
+  }
+};
+
+// 检查是否已设置API密钥
+const checkApiKey = () => {
+  const savedApiKey = localStorage.getItem('siliconflow_api_key');
+  if (!savedApiKey) {
+    ElMessage.warning('请先设置SiliconFlow API密钥');
+    showApiKeyDialog.value = true;
+    return false;
+  }
+  setApiKey(savedApiKey);
+  return true;
+};
+
+
+
 // Function to force the browser to re-fetch new frontend data
 const refreshPage = () => {
   // Force a full reload to bypass cache and fetch fresh data
@@ -531,7 +696,6 @@ const refreshPage = () => {
     window.location.reload(true);
   }
 }
-
 
 
 </script>
