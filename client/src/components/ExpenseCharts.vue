@@ -12,7 +12,7 @@
           :max="endDate"
           class="date-input"
         />
-        <span class="range-separator">至</span>
+        <span class="range-separator">{{ t('common.to') }}</span>
         <input
           type="date"
           v-model="endDate"
@@ -33,6 +33,7 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { ElSelect, ElOption } from 'element-plus';
 import Chart from 'chart.js/auto';
 import dayjs from 'dayjs';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'ExpenseCharts',
@@ -55,6 +56,8 @@ export default {
 const windowResizeHandler = ref(null);
 const orientationChangeHandler = ref(null);
 const canvasTouchHandlers = ref(null);
+    
+    const { t } = useI18n();
 
 // 防抖函数实现
 const debounce = (func, wait) => {
@@ -69,11 +72,11 @@ const debounce = (func, wait) => {
   };
 };
     const chartTypes = [
-      { value: 'bar', label: '柱状图' },
-      { value: 'pie', label: '饼图' },
-      { value: 'line', label: '折线图' },
-      { value: 'doughnut', label: '环形图' },
-      { value: 'radar', label: '雷达图' }
+      { value: 'bar', label: t('chart.bar') },
+      { value: 'pie', label: t('chart.pie') },
+      { value: 'line', label: t('chart.line') },
+      { value: 'doughnut', label: t('chart.doughnut') },
+      { value: 'radar', label: t('chart.radar') }
     ];
 
     // 过滤日期范围内的支出数据
@@ -177,7 +180,7 @@ const debounce = (func, wait) => {
       return {
         labels,
         datasets: [{
-          label: '支出金额',
+          label: t('expense.amount'),
           data,
           backgroundColor: [
             'rgba(255, 99, 132, 0.7)',
@@ -299,7 +302,7 @@ const debounce = (func, wait) => {
         return {
           labels: mockLabels,
           datasets: [{
-            label: '每日支出（模拟数据）',
+            label: t('expense.dailyExpense') + '（' + t('chart.mockData') + '）',
             data: mockData,
             fill: false,
             backgroundColor: 'rgba(54, 162, 235, 0.7)',
@@ -316,7 +319,7 @@ const debounce = (func, wait) => {
       return {
         labels,
         datasets: [{
-          label: '每日支出',
+          label: t('expense.dailyExpense'),
           data,
           fill: false,
           backgroundColor: 'rgba(54, 162, 235, 0.7)',
@@ -335,7 +338,15 @@ const debounce = (func, wait) => {
       // 获取所有唯一类别
       const categories = [...new Set(filteredExpenses.value.map(expense => expense.type))];
       // 获取所有唯一周几
-      const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      const weekdays = [
+        t('common.sunday'), 
+        t('common.monday'), 
+        t('common.tuesday'), 
+        t('common.wednesday'), 
+        t('common.thursday'), 
+        t('common.friday'), 
+        t('common.saturday')
+      ];
 
       // 按周几和类别分组
       const data = categories.map(category => {
@@ -448,7 +459,7 @@ const debounce = (func, wait) => {
               },
               title: {
                 display: true,
-                text: '支出类别分析',
+                text: t('chart.categoryAnalysis'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
                 }
@@ -459,7 +470,7 @@ const debounce = (func, wait) => {
                 beginAtZero: true,
                 title: {
                   display: true,
-                  text: '金额 (元)',
+                  text: t('expense.amount') + ' (' + t('common.currency') + ')',
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
                   }
@@ -473,7 +484,7 @@ const debounce = (func, wait) => {
               x: {
                 title: {
                   display: true,
-                  text: '类别',
+                  text: t('expense.type'),
                   font: {
                     size: window.innerWidth < 480 ? 10 : 12
                   }
@@ -505,7 +516,7 @@ const debounce = (func, wait) => {
               },
               title: {
                 display: true,
-                text: '支出类别占比',
+                text: t('chart.categoryPercentage'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
                 }
@@ -529,7 +540,7 @@ const debounce = (func, wait) => {
               },
               title: {
                 display: true,
-                text: '支出类别占比',
+                text: t('chart.categoryPercentage'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
                 }
@@ -602,7 +613,7 @@ const debounce = (func, wait) => {
               },
               title: {
                 display: true,
-                text: '支出趋势',
+                text: t('chart.trendAnalysis'),
                 font: { size: window.innerWidth < 480 ? 14 : 16 }
               },
               tooltip: {
@@ -630,7 +641,7 @@ const debounce = (func, wait) => {
                 beginAtZero: true,
                 title: {
                   display: true,
-                  text: '金额 (元)',
+                  text: t('expense.amount') + ' (' + t('common.currency') + ')',
                   font: { size: window.innerWidth < 480 ? 10 : 12 }
                 },
                 ticks: {
@@ -647,7 +658,7 @@ const debounce = (func, wait) => {
                 type: 'category', // 明确指定为类别轴
                 title: {
                   display: true,
-                  text: '日期',
+                  text: t('common.date'),
                   font: { size: window.innerWidth < 480 ? 10 : 12 }
                 },
                 ticks: {
@@ -698,7 +709,7 @@ const debounce = (func, wait) => {
               },
               title: {
                 display: true,
-                text: '周几支出分析',
+                text: t('chart.weekdayAnalysis'),
                 font: {
                   size: window.innerWidth < 480 ? 14 : 16
                 }
@@ -924,7 +935,8 @@ const debounce = (func, wait) => {
       endDate,
       handleStartDateChange,
       handleEndDateChange,
-      renderChart
+      renderChart,
+      t
     };
   }
 };
