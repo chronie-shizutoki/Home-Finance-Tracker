@@ -549,11 +549,198 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 基础样式 - 浅色模式 */
 .debt-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .debt-container {
+    color: #e0e0e0;
+  }
+
+  .filter-container {
+    background-color: #2a2a2a !important;
+  }
+
+  .debt-card {
+    background-color: #2a2a2a !important;
+   color: #fffdfd !important;
+  }
+  
+  .debt-card .el-card__header {
+    background-color: #2a2a2a !important;
+  }
+  
+  .dialog-content {
+    background-color: rgb(0, 0, 0) !important;
+  }
+  /* 按钮样式 - 深色模式 */
+  .btn {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #444;
+  }
+  
+  .btn:hover {
+    background-color: #444;
+  }
+  
+  /* 筛选区域样式 - 深色模式 */
+  .filter-container {
+    background-color: #2a2a2a;
+  }
+  
+  .filter-select,
+  .filter-input,
+  .date-input,
+  .form-select,
+  .form-input,
+  .form-textarea {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+  
+  .filter-select:focus,
+  .filter-input:focus,
+  .date-input:focus,
+  .form-select:focus,
+  .form-input:focus,
+  .form-textarea:focus {
+    border-color: #409eff;
+    background-color: #333;
+  }
+  
+  .range-separator,
+  .switch-label,
+  .pagination-info,
+  .page-info {
+    color: #aaa;
+  }
+  
+  /* 表格样式 - 深色模式 */
+  .debt-table {
+    background-color: #2a2a2a;
+  }
+  
+  .debt-table th,
+  .debt-table td {
+    border-color: #444;
+    color: #e0e0e0;
+  }
+  
+  .debt-table th {
+    background-color: #333;
+    color: #e0e0e0;
+  }
+  
+  .debt-table tr:hover {
+    background-color: #333;
+  }
+  
+  /* 类型标签 - 深色模式 */
+  .tag-success {
+    background-color: #1a362a;
+    color: #67c23a;
+  }
+  
+  .tag-warning {
+    background-color: #3a301a;
+    color: #e6a23c;
+  }
+  
+  /* 开关样式 - 深色模式 */
+  .form-switch {
+    background-color: #555;
+  }
+  
+  /* 分页样式 - 深色模式 */
+  .page-size-select {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+  
+  /* 对话框样式 - 深色模式 */
+  .dialog-content {
+    background-color: #2a2a2a;
+  }
+  
+  .dialog-header,
+  .dialog-footer {
+    border-color: #444;
+  }
+  
+  .dialog-header h3 {
+    color: #e0e0e0;
+  }
+  
+  .dialog-close {
+    color: #aaa;
+  }
+  
+  .dialog-close:hover {
+    background-color: #333;
+    color: #e0e0e0;
+  }
+  
+  .form-item label {
+    color: #e0e0e0;
+  }
+  
+  /* 加载状态样式 - 深色模式 */
+  .loading-container {
+    background-color: #2a2a2a;
+  }
+  
+  /* 卡片布局样式 - 深色模式 */
+  .debt-card {
+    background-color: #2a2a2a;
+  }
+  
+  .card-header,
+  .card-footer {
+    background-color: #333 !important;
+    border-color: #444;
+  }
+  
+  .card-index {
+    color: #aaa;
+  }
+  
+  .card-row.remark {
+    border-color: #444;
+  }
+  
+  .card-row.remark .value {
+    color: #aaa;
+  }
+  
+  .label {
+    color: #e0e0e0;
+  }
+  
+  .value {
+    color: #f0f0f0;
+  }
+  
+  /* 空状态样式 - 深色模式 */
+  .empty-state {
+    color: #aaa;
+    background-color: #2a2a2a;
+  }
+
+.form-item label {
+  color: #fdfdfd !important;
+}
+
+}
+
+/* 基础样式 - 继续 */
 
 .header-actions {
   display: flex;
@@ -1039,6 +1226,13 @@ onMounted(() => {
   background-color: #dcdfe6;
   border-radius: 20px;
   transition: background-color 0.3s;
+}
+
+/* 状态开关深色模式 */
+@media (prefers-color-scheme: dark) {
+  .status-switch .slider {
+    background-color: #555;
+  }
 }
 
 .status-switch input:checked + .slider {
