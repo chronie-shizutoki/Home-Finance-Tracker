@@ -60,6 +60,9 @@
     "noData": "No expenses recorded",
     "noDataForExport": "No data to export"
   },
+  "expense.noRecords": "No expenses recorded",
+  "expense.record": "Expense Record",
+  "common.selectAll": "Select All",
    "expense.unknownError": "Unknown error",
    "expense.selectType": "Select type",
    "expense.inputAmount": "Enter amount",

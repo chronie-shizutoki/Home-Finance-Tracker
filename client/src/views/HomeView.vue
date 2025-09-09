@@ -181,6 +181,51 @@
     </template>
   </el-dialog>
 
+  <!-- 多条记录编辑对话框 -->
+  <el-dialog v-model="showMultiRecordsDialog" title="AI生成的多条记录" width="90%">
+    <div v-if="multiRecords.length === 0" class="no-records">
+      {{ t('expense.noRecords') }}
+    </div>
+    <div v-else class="multi-records-container">
+      <!-- 全选功能 -->
+      <div class="select-all-container" style="margin-bottom: 20px;">
+        <el-checkbox v-model="selectAll" @change="handleSelectAllChange">{{ t('common.selectAll') }}</el-checkbox>
+      </div>
+      
+      <!-- 记录列表 -->
+      <div v-for="(record, index) in multiRecords" :key="index" class="record-item" style="margin-bottom: 15px; padding: 15px; border: 1px solid #e4e7ed; border-radius: 4px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <el-checkbox v-model="record.selected" @change="handleRecordSelectChange"></el-checkbox>
+          <span style="margin-left: 10px; font-weight: 500;">{{ t('expense.record') }} {{ index + 1 }}</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+          <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px;">{{ t('expense.type') }}:</label>
+            <el-select v-model="record.type" :placeholder="t('expense.selectType')" style="width: 100%;">
+              <el-option v-for="type in expenseTypes" :key="type" :label="type" :value="type"></el-option>
+            </el-select>
+          </div>
+          <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px;">{{ t('expense.amount') }}:</label>
+            <el-input v-model="record.amount" :placeholder="0" type="text" style="width: 100%;" />
+          </div>
+          <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px;">{{ t('expense.date') }}:</label>
+            <input type="date" v-model="record.date" :placeholder="t('expense.selectDate')" class="el-input__inner" style="width: 100%;">
+          </div>
+        </div>
+        <div style="margin-top: 15px;">
+          <label style="display: block; margin-bottom: 5px;">{{ t('expense.remark') }}:</label>
+          <el-input v-model="record.remark" :placeholder="t('expense.enterRemark')" type="textarea" :rows="2" style="width: 100%;"></el-input>
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <el-button @click="handleMultiRecordsCancel">{{ t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="handleMultiRecordsSubmit">{{ t('common.submit') }} ({{ selectedRecordsCount }}/{{ multiRecords.length }})</el-button>
+    </template>
+  </el-dialog>
+
     <MarkdownDialog
       v-model:visible="showMarkdownDialog"
       :title="markdownTitle"
@@ -224,11 +269,22 @@ const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
 const showTodoDialog = ref(false);
 const showAiAddDialog = ref(false);
+// 新增：显示多条记录的对话框
+const showMultiRecordsDialog = ref(false);
 const aiForm = reactive({
   text: '',
   image: []
 });
 const isParsing = ref(false);
+// 新增：存储多条记录的数据结构
+const multiRecords = ref([]);
+// 新增：全选状态
+const selectAll = ref(false);
+
+// 新增：计算已选择的记录数量
+const selectedRecordsCount = computed(() => {
+  return multiRecords.value.filter(record => record.selected).length;
+});
 
 // 导入AI API
 import { parseTextToRecord, parseImageToRecord, setApiKey } from '@/api/aiRecord';
@@ -615,6 +671,96 @@ const handleAiCancel = () => {
   aiForm.image = [];
 };
 
+// 新增：处理全选/取消全选
+const handleSelectAllChange = (value) => {
+  multiRecords.value.forEach(record => {
+    record.selected = value;
+  });
+};
+
+// 新增：处理单个记录选择变化
+const handleRecordSelectChange = () => {
+  const allSelected = multiRecords.value.every(record => record.selected);
+  const noneSelected = multiRecords.value.every(record => !record.selected);
+  
+  selectAll.value = allSelected;
+  // 处理半选中状态
+  if (!allSelected && !noneSelected) {
+    selectAll.value = undefined;
+  }
+};
+
+// 新增：处理多条记录对话框取消
+const handleMultiRecordsCancel = () => {
+  showMultiRecordsDialog.value = false;
+  multiRecords.value = [];
+  selectAll.value = false;
+};
+
+// 新增：处理多条记录提交
+const handleMultiRecordsSubmit = async () => {
+  try {
+    // 获取所有选中的记录
+    const selectedRecords = multiRecords.value.filter(record => record.selected);
+    
+    if (selectedRecords.length === 0) {
+      ElMessage.warning('请至少选择一条记录');
+      return;
+    }
+    
+    // 验证并格式化所有记录
+    const validRecords = [];
+    for (const record of selectedRecords) {
+      // 验证金额
+      if (!record.amount || isNaN(record.amount) || Number(record.amount) <= 0) {
+        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的金额无效`);
+      }
+      
+      // 验证类型
+      if (!record.type) {
+        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的类型不能为空`);
+      }
+      
+      // 验证日期
+      if (!record.date) {
+        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的日期不能为空`);
+      }
+      
+      // 格式化记录
+      validRecords.push({
+        type: record.type,
+        amount: parseFloat(parseFloat(record.amount).toFixed(2)),
+        remark: record.remark || '',
+        time: record.date // 服务器需要的时间字段
+      });
+    }
+    
+    // 提交所有记录
+    for (const record of validRecords) {
+      await axios.post('/api/expenses', record, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    
+    // 关闭对话框
+    showMultiRecordsDialog.value = false;
+    
+    // 刷新数据
+    await fetchData(true);
+    
+    ElMessage.success(`${validRecords.length}条记录添加成功`);
+    
+    // 重置数据
+    multiRecords.value = [];
+    selectAll.value = false;
+  } catch (error) {
+    console.error('批量添加记录失败:', error);
+    ElMessage.error(`添加记录失败: ${error.message}`);
+  }
+};
+
 const handleAiGenerate = async () => {
   try {
     // 检查API密钥
@@ -629,26 +775,40 @@ const handleAiGenerate = async () => {
     }
 
     isParsing.value = true;
-    let parsedData;
+    let parsedDataList;
 
     // 解析文本或图片
     if (aiForm.text) {
-      parsedData = await parseTextToRecord(aiForm.text);
+      parsedDataList = await parseTextToRecord(aiForm.text);
     } else if (aiForm.image && aiForm.image.length > 0) {
-      parsedData = await parseImageToRecord(aiForm.image[0].raw);
+      parsedDataList = await parseImageToRecord(aiForm.image[0].raw);
     }
 
-    // 填充到普通表单中
-    if (parsedData) {
-      form.type = parsedData.type || '';
-      form.amount = parsedData.amount || '';
-      form.date = parsedData.date || '';
-      form.remark = parsedData.remark || '';
+    // 处理解析结果
+    if (parsedDataList && parsedDataList.length > 0) {
+      if (parsedDataList.length === 1) {
+        // 只有一条记录，保持原有逻辑
+        const parsedData = parsedDataList[0];
+        form.type = parsedData.type || '';
+        form.amount = parsedData.amount || '';
+        form.date = parsedData.date || '';
+        form.remark = parsedData.remark || '';
 
-      // 关闭AI对话框，打开普通编辑对话框
-      showAiAddDialog.value = false;
-      showAddDialog.value = true;
-      ElMessage.success('AI已成功生成记录，请检查并确认');
+        // 关闭AI对话框，打开普通编辑对话框
+        showAiAddDialog.value = false;
+        showAddDialog.value = true;
+        ElMessage.success('AI已成功生成记录，请检查并确认');
+      } else {
+        // 多条记录，显示多条记录对话框
+        multiRecords.value = parsedDataList.map(record => ({
+          ...record,
+          date: record.date || '',
+          amount: record.amount || ''
+        }));
+        showAiAddDialog.value = false;
+        showMultiRecordsDialog.value = true;
+        ElMessage.success(`AI已成功生成${parsedDataList.length}条记录，请检查并确认`);
+      }
     }
   } catch (error) {
     console.error('AI生成记录失败:', error);

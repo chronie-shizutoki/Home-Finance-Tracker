@@ -60,6 +60,9 @@
     "noData": "无消费记录",
     "noDataForExport": "无数据可导出"
   },
+  "expense.noRecords": "无消费记录",
+  "expense.record": "消费记录",
+  "common.selectAll": "全选",
   "expense.empty.title": "无消费记录",
   "expense.empty.description": "可添加新记录或修改筛选条件",
   "expense.empty.reset": "重置筛选",
