@@ -865,7 +865,6 @@ onMounted(() => {
 }
 
 .debt-table th {
-  background-color: #fafafa;
   font-weight: 600;
   color: #303133;
 }
@@ -1230,6 +1229,24 @@ onMounted(() => {
 
 /* 状态开关深色模式 */
 @media (prefers-color-scheme: dark) {
+  .empty-state {
+    background-color: #20222a !important;
+  }
+
+.debt-table th,
+.debt-table td {
+  background-color: #20222a !important;
+  color: #fff !important;
+}
+
+  .table-container {
+    background-color: #20222a !important;
+  }
+
+  .cards-container {
+    background-color: #20222a !important;
+  }
+
   .status-switch .slider {
     background-color: #555;
   }

@@ -472,5 +472,14 @@ button {
     --el-button-bg-color: #2255bb !important;
     --el-button-border-color: #2255bb !important;
   }
+
+  .el-table {
+    background-color: #20222a !important;
+  }
+  .el-table th,
+  .el-table td {
+    background-color: #20222a !important;
+    color: #fff !important;
+  }
 }
 </style>
