@@ -146,7 +146,6 @@ onUnmounted(() => {
 
 /* 地球图标动画 */
 .earth-icon::after {
-  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -163,22 +162,6 @@ onUnmounted(() => {
 .earth-icon:hover::after {
   opacity: 1;
   animation: pulse 2s infinite ease-in-out; /* 脉冲动画 - 更柔和 */
-}
-
-/* 脉冲动画 */
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0.4;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.05);
-    opacity: 0.2;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0.4;
-  }
 }
 
 /* 针对 Element Plus 下拉菜单的样式覆盖 */
