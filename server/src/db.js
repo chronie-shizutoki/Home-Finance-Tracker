@@ -4,6 +4,7 @@ const sequelize = new Sequelize({ dialect: 'sqlite', storage: path.join(__dirnam
 
 const Expense = require('./models/expense')(sequelize)
 const Todo = require('./models/todo')(sequelize)
+const Debt = require('./models/debt')(sequelize)
 
 const syncDatabase = async () => {
   try {
@@ -19,5 +20,6 @@ module.exports = {
   sequelize,
   Expense,
   Todo,
+  Debt,
   syncDatabase
 }

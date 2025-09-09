@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { ExpenseAPI } from './expenses';
+import { DebtAPI } from './debts';
 
 const api = axios.create({
   baseURL: '/api',
@@ -6,3 +8,4 @@ const api = axios.create({
 });
 
 export default api;
+export { ExpenseAPI, DebtAPI };

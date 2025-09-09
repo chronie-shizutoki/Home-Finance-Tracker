@@ -49,6 +49,10 @@
     <el-icon><Money /></el-icon>
     {{ t('donation.title') }}
   </el-button>
+  <el-button type="warning" @click="goToDebts" size="default">
+    <el-icon><CreditCard /></el-icon>
+    {{ t('debt.title') }}
+  </el-button>
   <el-upload
     class="upload-excel"
     action="/api/import/excel"
@@ -129,7 +133,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 
@@ -164,6 +168,11 @@ const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedC
 const showDonationModal = ref(!hasCompletedCurrentSessionDonation); 
 const donationAmount = ref(30); // 默认捐款金额为30元
 let donationStatusTimer = null;
+
+// 前往债务管理页面
+const goToDebts = () => {
+  router.push('/debts');
+};
 
 // 前往捐款页面
 const proceedToDonation = () => {
