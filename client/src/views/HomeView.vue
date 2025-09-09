@@ -1,4 +1,29 @@
 <template>
+  <!-- 全局强制捐款弹窗 -->
+  <div v-if="showDonationModal" class="donation-modal-overlay">
+    <div class="donation-modal-content">
+      <h2 class="donation-modal-title">请支持我们的项目</h2>
+      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少30元。完成捐款后您可以继续使用应用。</p>
+      <div class="donation-amount-container">
+        <label for="donation-amount">捐款金额</label>
+        <input 
+          id="donation-amount"
+          type="number" 
+          v-model.number="donationAmount"
+          min="30"
+          step="10"
+          class="donation-amount-input"
+        >
+        <span class="donation-currency">元</span>
+      </div>
+      <div class="donation-modal-footer">
+        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 30">
+          前往捐款
+        </el-button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <!-- 主弹窗 -->
     <div v-if="isLoadingCsv" class="loading-alert">{{ t('app.loading') }}</div>
@@ -132,6 +157,85 @@ const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
 const showTodoDialog = ref(false);
 
+// 全局强制捐款弹窗状态
+// 检查是否在当前会话中已完成捐款
+const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
+// 如果没有完成捐款，则显示弹窗
+const showDonationModal = ref(!hasCompletedCurrentSessionDonation); 
+const donationAmount = ref(30); // 默认捐款金额为30元
+let donationStatusTimer = null;
+
+// 前往捐款页面
+const proceedToDonation = () => {
+  if (donationAmount.value >= 30) {
+    // 保存用户选择的捐款金额到localStorage
+    localStorage.setItem('donationAmount', donationAmount.value.toString());
+    // 保存当前页面作为重定向目标
+    const currentPath = window.location.pathname + window.location.search;
+    localStorage.setItem('redirectAfterDonation', currentPath);
+    // 跳转到捐款页面
+    router.push('/donation');
+  }
+};
+
+// 防止用户通过ESC键关闭弹窗
+const preventEscClose = (e) => {
+  if (e.key === 'Escape' && showDonationModal.value) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+};
+
+// 防止用户右键菜单
+const preventContextMenu = (e) => {
+  if (showDonationModal.value) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+};
+
+// 定期检查捐款状态
+const checkDonationStatus = () => {
+  // 清除之前可能存在的定时器
+  if (donationStatusTimer) {
+    clearInterval(donationStatusTimer);
+  }
+  
+  // 每2秒检查一次捐款状态
+  donationStatusTimer = setInterval(() => {
+    const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
+    showDonationModal.value = !hasCompletedCurrentSessionDonation;
+  }, 2000);
+};
+
+// 监听路由变化，确保用户无法绕过捐款
+const handleRouteChange = () => {
+  if (showDonationModal.value) {
+    // 除非用户在捐款页面，否则强制显示弹窗
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/donation') {
+      showDonationModal.value = true;
+    }
+  }
+};
+
+
+
+// 组件卸载时清理事件监听器
+onBeforeUnmount(() => {
+  if (dateTimeTimer) {
+    clearInterval(dateTimeTimer);
+  }
+  
+  if (donationStatusTimer) {
+    clearInterval(donationStatusTimer);
+  }
+  
+  document.removeEventListener('keydown', preventEscClose);
+  document.removeEventListener('contextmenu', preventContextMenu);
+  window.removeEventListener('popstate', handleRouteChange);
+});
+
 // 导入处理
 const handleImportSuccess = () => {
   ElMessage.success(t('import.success'));
@@ -184,19 +288,41 @@ const loadMarkdownReport = async () => {
 };
 
 // 初始加载和语言变化时重新加载
-onMounted(() => {
+onMounted(async () => {
   loadMarkdownReport();
   // 初始化并启动日期时间更新
   updateDateTime();
   dateTimeTimer = setInterval(updateDateTime, 1000);
+  
+  // 添加新的事件监听器以强制捐款弹窗
+  document.addEventListener('keydown', preventEscClose);
+  document.addEventListener('contextmenu', preventContextMenu);
+  
+  // 启动捐款状态检查机制
+  checkDonationStatus();
+  
+  // 监听路由变化
+  window.addEventListener('popstate', handleRouteChange);
+  
+  try {
+    await fetchData(false);
+  } catch (err) {
+    console.error('Failed to initialize data:', err);
+    error.value = t('error.dataInitializationFailed');
+  }
 });
 watch(locale, loadMarkdownReport);
 
-// 清理定时器
+// 清理定时器和事件监听器
 onBeforeUnmount(() => {
   if (dateTimeTimer) {
     clearInterval(dateTimeTimer);
   }
+  
+  // 移除强制捐款弹窗相关的事件监听器
+  document.removeEventListener('keydown', preventEscClose);
+  document.removeEventListener('contextmenu', preventContextMenu);
+  window.removeEventListener('popstate', handleRouteChange);
 });
 
 // 更新日期时间函数
@@ -397,15 +523,7 @@ const refreshPage = () => {
   }
 }
 
-// 生命周期
-onMounted(async () => {
-  try {
-    await fetchData(false);
-  } catch (err) {
-    console.error('Failed to initialize data:', err);
-    error.value = t('error.dataInitializationFailed');
-  }
-});
+
 
 </script>
 
@@ -424,6 +542,7 @@ onMounted(async () => {
   --primary-color: #4CAF50;
   --error-bg: #ffebee;
   --error-border: #ffcdd2;
+  --donation-modal-overlay: rgba(0, 0, 0, 0.8);
 }
 
 .container {
@@ -614,5 +733,102 @@ onMounted(async () => {
 .floating-refresh-btn .el-button:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 全局强制捐款弹窗样式 */
+.donation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999; /* 确保在最顶层 */
+  overflow: hidden;
+}
+
+.donation-modal-content {
+  background: var(--popup-content-bg);
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: donationModalAppear 0.5s ease-out;
+}
+
+@keyframes donationModalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.donation-modal-title {
+  font-size: 1.8rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.donation-modal-message {
+  font-size: 1.1rem;
+  color: white;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.donation-amount-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.donation-amount-input {
+  width: 120px;
+  padding: 0.75rem 1rem;
+  font-size: 1.2rem;
+  border: 2px solid var(--border-primary);
+  border-radius: 6px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.donation-amount-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.donation-currency {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.donation-modal-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.donation-modal-footer .el-button {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+}
+
+/* 阻止背景滚动 */
+body.donation-modal-open {
+  overflow: hidden;
 }
 </style>

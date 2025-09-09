@@ -202,7 +202,25 @@ const handleDonate = async () => {
     donationResult.value = result
     
     if (result.success) {
+      // 捐款成功，设置会话级别的完成标志（确保用户每次打开新会话都需要捐款）
+      sessionStorage.setItem('hasCompletedCurrentSessionDonation', 'true');
+      
       ElMessage.success('捐赠成功')
+      
+      // 显示成功消息后延迟跳转回首页
+      setTimeout(() => {
+        // 获取捐赠前的重定向URL，如果有的话
+        const redirectUrl = localStorage.getItem('redirectAfterDonation');
+        
+        if (redirectUrl && redirectUrl !== '/donation') {
+          // 清除重定向URL并跳转到该页面
+          localStorage.removeItem('redirectAfterDonation');
+          window.location.href = redirectUrl;
+        } else {
+          // 默认跳转到首页
+          window.location.href = '/';
+        }
+      }, 2000);
     } else {
       ElMessage.error('捐赠失败')
     }
