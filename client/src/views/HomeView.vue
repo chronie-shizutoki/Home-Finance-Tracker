@@ -45,6 +45,10 @@
     <el-icon><Cpu /></el-icon>
     AI智能记录
   </el-button>
+  <el-button type="primary" @click="showAiReportDialog = true" size="default">
+    <el-icon><Document /></el-icon>
+    AI消费报告
+  </el-button>
   <el-button type="success" @click="showTodoDialog = true" size="default">
     <el-icon><List /></el-icon>
     {{ t('todo.title') }}
@@ -226,6 +230,43 @@
     </template>
   </el-dialog>
 
+  <!-- AI消费报告对话框 -->
+  <el-dialog v-model="showAiReportDialog" title="AI消费报告" width="90%" height="80vh">
+    <div class="ai-report-container">
+      <!-- 问题输入区域 -->
+      <div class="report-question-section" style="margin-bottom: 20px;">
+        <el-form label-position="top">
+          <el-form-item label="输入您的问题（可选）">
+            <el-input
+              v-model="reportQuestion"
+              type="textarea"
+              :rows="3"
+              placeholder="您可以向AI提问关于您的消费情况，例如：'我本月的主要消费类别是什么？'或'如何减少我的日常开支？'"
+            />
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+              <el-button type="primary" @click="handleGenerateReport" :loading="isGeneratingReport">
+                {{ isGeneratingReport ? '生成中...' : '生成报告' }}
+              </el-button>
+              <el-button @click="clearReportQuestion">清空问题</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </div>
+      
+      <!-- 报告内容显示区域 -->
+      <div class="report-content-section">
+        <div v-if="!reportContent" class="no-report-content">
+          请点击"生成报告"按钮开始分析您的消费数据
+        </div>
+        <div v-else class="report-content" v-html="renderedReportContent" style="white-space: pre-wrap;">
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <el-button @click="showAiReportDialog = false">关闭</el-button>
+    </template>
+  </el-dialog>
+
     <MarkdownDialog
       v-model:visible="showMarkdownDialog"
       :title="markdownTitle"
@@ -244,6 +285,7 @@ import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, El
 import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
+import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -271,6 +313,8 @@ const showTodoDialog = ref(false);
 const showAiAddDialog = ref(false);
 // 新增：显示多条记录的对话框
 const showMultiRecordsDialog = ref(false);
+// 新增：显示AI报告对话框
+const showAiReportDialog = ref(false);
 const aiForm = reactive({
   text: '',
   image: []
@@ -280,6 +324,21 @@ const isParsing = ref(false);
 const multiRecords = ref([]);
 // 新增：全选状态
 const selectAll = ref(false);
+// 新增：报告相关状态
+const isGeneratingReport = ref(false);
+const reportContent = ref('');
+const reportQuestion = ref('');
+
+// 配置marked选项
+marked.setOptions({
+  breaks: true,
+  gfm: true
+});
+
+// 渲染报告内容为HTML
+const renderedReportContent = computed(() => {
+  return marked.parse(reportContent.value);
+});
 
 // 新增：计算已选择的记录数量
 const selectedRecordsCount = computed(() => {
@@ -287,7 +346,7 @@ const selectedRecordsCount = computed(() => {
 });
 
 // 导入AI API
-import { parseTextToRecord, parseImageToRecord, setApiKey } from '@/api/aiRecord';
+import { parseTextToRecord, parseImageToRecord, setApiKey, generateExpenseReport } from '@/api/aiRecord';
 
 // API密钥相关
 const showApiKeyDialog = ref(false);
@@ -821,6 +880,41 @@ const handleAiGenerate = async () => {
   }
 };
 
+// 处理AI报告生成
+const handleGenerateReport = async () => {
+  try {
+    // 检查API密钥
+    if (!checkApiKey()) {
+      return;
+    }
+    
+    // 检查是否有消费数据
+    if (!csvExpenses || csvExpenses.length === 0) {
+      ElMessage.error('没有足够的消费数据来生成报告');
+      return;
+    }
+
+    isGeneratingReport.value = true;
+    reportContent.value = '';
+    
+    // 生成报告
+    const content = await generateExpenseReport(csvExpenses.value, reportQuestion.value);
+    reportContent.value = content;
+    
+    ElMessage.success('AI已成功生成消费报告');
+  } catch (error) {
+    console.error('AI生成报告失败:', error);
+    ElMessage.error('AI生成报告失败，请重试');
+  } finally {
+    isGeneratingReport.value = false;
+  }
+};
+
+// 清空报告问题
+const clearReportQuestion = () => {
+  reportQuestion.value = '';
+};
+
 // 处理API密钥设置
 const handleApiKeySave = () => {
   if (apiKeyForm.apiKey) {
@@ -1163,5 +1257,152 @@ const refreshPage = () => {
 /* 阻止背景滚动 */
 body.donation-modal-open {
   overflow: hidden;
+}
+
+/* AI报告内容的Markdown样式 */
+.report-content {
+  line-height: 1.6;
+  padding: 10px 0;
+}
+
+.report-content h1,
+.report-content h2,
+.report-content h3,
+.report-content h4,
+.report-content h5,
+.report-content h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.report-content h1 {
+  font-size: 1.8em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.3em;
+}
+
+.report-content h2 {
+  font-size: 1.5em;
+}
+
+.report-content h3 {
+  font-size: 1.2em;
+}
+
+.report-content p {
+  margin-bottom: 1em;
+  color: var(--text-primary);
+}
+
+.report-content ul,
+.report-content ol {
+  margin-left: 2em;
+  margin-bottom: 1em;
+  color: var(--text-primary);
+}
+
+.report-content li {
+  margin-bottom: 0.5em;
+}
+
+.report-content strong {
+  font-weight: 600;
+}
+
+.report-content em {
+  font-style: italic;
+}
+
+.report-content code {
+  background-color: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+.report-content pre {
+  background-color: #f5f5f5;
+  padding: 1em;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.report-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.report-content blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 1em;
+  color: #666;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1em;
+}
+
+.report-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+.report-content th,
+.report-content td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+}
+
+.report-content th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+.report-content tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .report-content h1,
+  .report-content h2,
+  .report-content h3,
+  .report-content p,
+  .report-content ul,
+  .report-content ol {
+    color: #e5e7eb;
+  }
+  
+  .report-content h1 {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .report-content code,
+  .report-content pre {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .report-content blockquote {
+    border-left-color: rgba(255, 255, 255, 0.2);
+    color: #9ca3af;
+  }
+  
+  .report-content th {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .report-content tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .report-content th,
+  .report-content td {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
 }
 </style>
