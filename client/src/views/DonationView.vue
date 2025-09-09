@@ -9,26 +9,26 @@
             <path d="M2 12L12 17L22 12" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1>支持我们的项目</h1>
-        <p class="subtitle">您的每一份捐赠都将帮助我们持续改进和发展</p>
+        <h1>{{ t('donation.title') }}</h1>
+        <p class="subtitle">{{ t('donation.description') }}</p>
       </div>
       
       <div class="donation-form card-shadow">
         <el-form :model="donationForm" :rules="donationRules" ref="donationFormRef" label-width="100px">
-          <el-form-item label="用户名" prop="username" class="form-item-custom">
+          <el-form-item :label="t('donation.username')" prop="username" class="form-item-custom">
             <el-input 
               v-model="donationForm.username" 
-              placeholder="请输入用户名" 
+              :placeholder="t('donation.enterUsername')" 
               class="custom-input"
               prefix-icon="User"
             />
           </el-form-item>
         
-          <el-form-item label="金额" prop="amount" class="form-item-custom">
+          <el-form-item :label="t('donation.amount')" prop="amount" class="form-item-custom">
             <div class="amount-selection-container">
               <el-select 
                 v-model="donationForm.amount" 
-                placeholder="选择金额" 
+                :placeholder="t('donation.amount')" 
                 class="amount-select"
                 clearable
               >
@@ -38,7 +38,7 @@
                   :label="`${option} 元`" 
                   :value="option"
                 />
-                <el-option label="自定义金额" value="custom" />
+                <el-option :label="t('donation.enterCustomAmount')" value="custom" />
               </el-select>
               
               <div v-if="donationForm.amount === 'custom' || donationForm.amount === ''" class="custom-amount-wrapper">
@@ -46,7 +46,7 @@
                 <el-input 
                   v-model="customAmount" 
                   type="number" 
-                  placeholder="请输入自定义金额"
+                  :placeholder="t('donation.enterCustomAmount')"
                   class="custom-amount-input"
                   min="0" 
                   step="0.01"
@@ -56,7 +56,7 @@
               </div>
               
               <div v-else class="selected-amount-display">
-                <span class="selected-amount-label">已选择：</span>
+                <span class="selected-amount-label">{{ t('donation.amount') }}：</span>
                 <span class="selected-amount-value">¥{{ donationForm.amount }}</span>
               </div>
             </div>
@@ -70,7 +70,7 @@
               class="submit-donation-btn"
               :icon="isSubmitting ? 'Loading' : ''"
             >
-              {{ isSubmitting ? '处理中...' : '确认捐赠' }}
+              {{ isSubmitting ? '处理中...' : t('donation.submitDonation') }}
             </el-button>
           </el-form-item>
         </el-form>
@@ -78,7 +78,7 @@
       
       <div v-if="donationResult" class="donation-result animate-fade-in">
         <el-alert 
-          :title="donationResult.success ? '捐赠成功' : '捐赠失败'"
+          :title="donationResult.success ? t('donation.successTitle') : t('donation.failureTitle')"
           :type="donationResult.success ? 'success' : 'error'"
           closable
           @close="resetDonationResult"
@@ -86,13 +86,13 @@
         >
           <template #default>
             <p v-if="donationResult.success" class="success-message">
-              非常感谢您的慷慨捐赠，金额为 <span class="donation-amount-highlight">{{ donationForm.amount }} 元</span>
+              {{ t('donation.successMessage', { amount: donationForm.amount }) }}
             </p>
             <p v-else class="error-message">
               {{ donationResult.error }}
             </p>
             <p v-if="donationResult.data && donationResult.data.orderId" class="transaction-id">
-              订单号: <code>{{ donationResult.data.orderId }}</code>
+              {{ t('donation.transactionId') }}: <code>{{ donationResult.data.orderId }}</code>
             </p>
           </template>
         </el-alert>
@@ -105,6 +105,9 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { donate } from '@/api/payments'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Define donation form data
 const donationForm = reactive({
@@ -115,26 +118,26 @@ const donationForm = reactive({
 // Define donation form validation rules
 const donationRules = {
   username: [
-    { required: true, message: '用户名不能为空', trigger: 'blur' }
+    { required: true, message: t('donation.usernameRequired'), trigger: 'blur' }
   ],
   amount: [
-    { required: true, message: '金额不能为空', trigger: 'blur' },
+    { required: true, message: t('donation.amountRequired'), trigger: 'blur' },
     { 
       validator: (rule, value, callback) => {
         // Skip validation if value is 'custom' (user is entering custom amount)
         if (value === 'custom') {
           callback()
         } else if (!value || isNaN(parseFloat(value))) {
-          callback(new Error('金额必须为数字'))
+          callback(new Error(t('donation.amountMustBeNumber')))
         } else {
           const numValue = parseFloat(value)
           if (numValue <= 0) {
-            callback(new Error('金额必须为正数'))
+            callback(new Error(t('donation.amountMustBePositive')))
           } else {
             // Validate maximum two decimal places
             const decimalPart = numValue.toString().split('.')[1]
             if (decimalPart && decimalPart.length > 2) {
-              callback(new Error('金额最多保留两位小数'))
+              callback(new Error(t('donation.amountMaxTwoDecimals')))
             } else {
               callback()
             }
@@ -177,7 +180,7 @@ const handleDonate = async () => {
   try {
     // Check if user selected custom amount but hasn't entered it yet
     if (donationForm.amount === 'custom' && (!customAmount.value || parseFloat(customAmount.value) <= 0)) {
-      ElMessage.warning('请输入自定义金额')
+      ElMessage.warning(t('donation.enterCustomAmount'))
       return
     }
     
@@ -205,7 +208,7 @@ const handleDonate = async () => {
       // 捐款成功，设置会话级别的完成标志（确保用户每次打开新会话都需要捐款）
       sessionStorage.setItem('hasCompletedCurrentSessionDonation', 'true');
       
-      ElMessage.success('捐赠成功')
+      ElMessage.success(t('donation.donationSuccess'))
       
       // 显示成功消息后延迟跳转回首页
       setTimeout(() => {
@@ -222,11 +225,11 @@ const handleDonate = async () => {
         }
       }, 2000);
     } else {
-      ElMessage.error('捐赠失败')
+      ElMessage.error(t('donation.donationFailure'))
     }
   } catch (error) {
     console.error('捐赠失败:', error)
-    ElMessage.error('捐赠失败')
+    ElMessage.error(t('donation.donationFailure'))
   } finally {
     // Reset submission status
     isSubmitting.value = false

@@ -15,7 +15,7 @@
   "common.confirm": "确认",
   "expense.serverError": "服务器错误",
   "app": {
-    "title": "家庭收支记录",
+    "title": "家庭收支记录（中国）",
     "addRecord": "新增记录",
     "statistics": "支出统计",
     "export": "导出数据",

@@ -15,7 +15,7 @@
   "app.loading": "Loading...",
   "expense.record.title": "Spending Ledger",
   "app": {
-    "title": "Household Expense Manager",
+    "title": "Household Expense Manager (China)",
     "addRecord": "Add Expense",
     "statistics": "Spending Insights",
     "export": "Export Data",
@@ -84,15 +84,15 @@
       "allType": "All Categories",
       "sort": "Sort",
       "amountRange": "Amount Range",
-      "minAmountPlaceholder": "Min $",
-      "maxAmountPlaceholder": "Max $",
+      "minAmountPlaceholder": "Min",
+      "maxAmountPlaceholder": "Max",
       "keyword": "Keywords",
       "keywordPlaceholder": "Search description...",
       "button": "Apply"
     },
     "type": "Category",
     "pasteSuccess": "Pasted successfully",
-    "amount": "Amount ($)",
+    "amount": "Amount",
     "date": "Date",
     "remark": "Description",
     "note": "Additional Notes",
@@ -101,7 +101,7 @@
     
     "columns": {
       "type": "Category",
-      "amount": "Amount ($)",
+      "amount": "Amount",
       "date": "Date",
       "remark": "Description"
     },
@@ -152,6 +152,26 @@
       "pending": "All todos completed! Great job!",
       "completed": "No completed todos yet."
     }
+  },
+    "donation": {
+    "title": "Support Us",
+    "description": "Thank you for using the Household Finance Management App! Your donation will help us continuously improve and maintain this project.",
+    "username": "Username",
+    "amount": "Donation Amount",
+    "enterUsername": "Please enter your username",
+    "enterCustomAmount": "Or enter a custom amount",
+    "submitDonation": "Confirm Donation",
+    "usernameRequired": "Please enter your username",
+    "amountRequired": "Please enter the donation amount",
+    "amountMustBeNumber": "Amount must be a number",
+    "amountMustBePositive": "Amount must be greater than 0",
+    "amountMaxTwoDecimals": "Amount can have a maximum of two decimal places",
+    "successTitle": "Donation Successful",
+    "failureTitle": "Donation Failed",
+    "successMessage": "Thank you for your ${amount} donation! Your support will help us continuously improve the app.",
+    "donationSuccess": "Donation submitted successfully",
+    "donationFailure": "Donation submission failed. Please try again later.",
+    "transactionId": "Transaction ID"
   },
   "spending": {
     "title": "Monthly Spending Limit",

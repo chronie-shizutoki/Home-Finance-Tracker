@@ -15,7 +15,7 @@
   "common.confirm": "確認",
   "expense.serverError": "伺服器錯誤",
   "app": {
-    "title": "家庭收支記錄",
+    "title": "家庭收支記錄（中國）",
     "addRecord": "新增記錄",
     "statistics": "支出統計",
     "export": "導出資料",
@@ -84,7 +84,7 @@
       "button": "查詢"
     },
     "type": "消費類型",
-    "amount": "金額（新台幣）",
+    "amount": "金額",
     "date": "消費日期",
     "remark": "備註",
     "note": "說明",
@@ -99,7 +99,7 @@
     "exportFilename": "消費記錄_{date}",
     "columns": {
       "type": "消費類型",
-      "amount": "金額（元）",
+      "amount": "金額",
       "date": "消費日期",
       "remark": "備註"
     },
@@ -148,6 +148,26 @@
       "pending": "所有任務已完成，做得好！",
       "completed": "暫無已完成任務"
     }
+  },
+    "donation": {
+    "title": "支持我們",
+    "description": "感謝您使用家庭財務管理應用程式！您的捐款將幫助我們持續改進和維護此專案。",
+    "username": "使用者名稱",
+    "amount": "捐款金額",
+    "enterUsername": "請輸入您的使用者名稱",
+    "enterCustomAmount": "或輸入自訂金額",
+    "submitDonation": "確認捐款",
+    "usernameRequired": "請輸入使用者名稱",
+    "amountRequired": "請輸入捐款金額",
+    "amountMustBeNumber": "金額必須為數字",
+    "amountMustBePositive": "金額必須大於0",
+    "amountMaxTwoDecimals": "金額最多只能有兩位小數",
+    "successTitle": "捐款成功",
+    "failureTitle": "捐款失敗",
+    "successMessage": "感謝您的{amount}元捐款！您的支持將幫助我們持續改進應用程式。",
+    "donationSuccess": "捐款提交成功",
+    "donationFailure": "捐款提交失敗，請稍後再試",
+    "transactionId": "交易ID"
   },
   "spending": {
     "title": "月度預算",
