@@ -81,8 +81,11 @@
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="csvExpenses" />
     
-    <!-- 支出图表分析 -->
-    <ExpenseCharts :expenses="csvExpenses" />
+    <!-- 图表分析按钮 -->
+    <el-button type="primary" @click="goToCharts" size="default" style="margin-bottom: 20px;">
+      <el-icon><PieChart /></el-icon>
+      {{ t('chart.title') }}
+    </el-button>
     
     <ExpenseList :expenses="csvExpenses" />
     <div :class="['header']"></div>
@@ -282,7 +285,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';
@@ -365,6 +368,11 @@ let donationStatusTimer = null;
 // 前往债务管理页面
 const goToDebts = () => {
   router.push('/debts');
+};
+
+// 前往图表页面
+const goToCharts = () => {
+  router.push('/charts');
 };
 
 // 前往捐款页面

@@ -1,4 +1,7 @@
-{  
+{
+  "common.back": "Back",
+  "error.dataInitializationFailed": "Data initialization failed, please try again later",
+  "chart.title": "Expense Charts Analysis",
   "chart.bar": "Bar Chart",
   "chart.pie": "Pie Chart",
   "chart.line": "Line Chart",

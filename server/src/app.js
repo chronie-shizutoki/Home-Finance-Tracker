@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3010
 
 // Middlewares
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://192.168.0.197:5173' ,'http://192.168.0.197:3200'],
+  origin: ['http://localhost:5173', 'http://192.168.0.197:5173' ,'http://192.168.0.197:3200' ,'http://192.168.0.197:8000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

@@ -13,6 +13,7 @@ import TodoView from '@/views/TodoView.vue';
 
 import DonationView from '@/views/DonationView.vue';
 import DebtView from '@/views/DebtView.vue';
+import ChartsView from '@/views/ChartsView.vue';
 
 const router = createRouter({
   history: createWebHistory(), // 启用History模式（去除URL中的#号）
@@ -40,6 +41,12 @@ const router = createRouter({
       name: 'debts',
       meta: { title: 'debt.title' },
       component: DebtView
+    },
+    {
+      path: '/charts',
+      name: 'charts',
+      meta: { title: 'chart.title' },
+      component: ChartsView
     },
     {
       path: '/:pathMatch(.*)*',

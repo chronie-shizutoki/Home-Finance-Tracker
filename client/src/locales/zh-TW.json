@@ -1,4 +1,7 @@
 {
+  "common.back": "返回",
+  "error.dataInitializationFailed": "資料初始化失敗，請稍後再試",
+  "chart.title": "支出圖表分析",
   "chart.bar": "柱狀圖",
   "chart.pie": "圓餅圖",
   "chart.line": "折線圖",

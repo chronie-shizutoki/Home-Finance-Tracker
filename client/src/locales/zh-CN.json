@@ -1,5 +1,8 @@
 {
+  "common.back": "返回",
+  "chart.title": "支出图表分析",
   "chart.bar": "柱状图",
+  "error.dataInitializationFailed": "数据初始化失败，请稍后重试",
   "chart.pie": "饼图",
   "chart.line": "折线图",
   "chart.doughnut": "环形图",
