@@ -4,18 +4,6 @@
     <div class="donation-modal-content">
       <h2 class="donation-modal-title">请支持我们的项目</h2>
       <p class="donation-modal-message">为了继续提供优质服务，请捐款至少30元。完成捐款后您可以继续使用应用。</p>
-      <div class="donation-amount-container">
-        <label for="donation-amount">捐款金额</label>
-        <input 
-          id="donation-amount"
-          type="number" 
-          v-model.number="donationAmount"
-          min="30"
-          step="10"
-          class="donation-amount-input"
-        >
-        <span class="donation-currency">元</span>
-      </div>
       <div class="donation-modal-footer">
         <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 30">
           前往捐款
