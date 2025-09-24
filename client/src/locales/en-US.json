@@ -243,6 +243,7 @@
     "amountRequired": "Please enter the donation amount",
     "amountMustBeNumber": "Amount must be a number",
     "amountMustBePositive": "Amount must be greater than 0",
+    "amountMustBeAtLeast30": "Amount must be at least 30",
     "amountMaxTwoDecimals": "Amount can have a maximum of two decimal places",
     "successTitle": "Donation Successful",
     "failureTitle": "Donation Failed",

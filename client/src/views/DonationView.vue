@@ -131,8 +131,8 @@ const donationRules = {
           callback(new Error(t('donation.amountMustBeNumber')))
         } else {
           const numValue = parseFloat(value)
-          if (numValue <= 0) {
-            callback(new Error(t('donation.amountMustBePositive')))
+          if (numValue < 30) {
+            callback(new Error(t('donation.amountMustBeAtLeast30')))
           } else {
             // Validate maximum two decimal places
             const decimalPart = numValue.toString().split('.')[1]
@@ -179,8 +179,8 @@ const handleDonate = async () => {
   
   try {
     // Check if user selected custom amount but hasn't entered it yet
-    if (donationForm.amount === 'custom' && (!customAmount.value || parseFloat(customAmount.value) <= 0)) {
-      ElMessage.warning(t('donation.enterCustomAmount'))
+    if (donationForm.amount === 'custom' && (!customAmount.value || parseFloat(customAmount.value) < 30)) {
+      ElMessage.warning(t('donation.amountMustBeAtLeast30'))
       return
     }
     

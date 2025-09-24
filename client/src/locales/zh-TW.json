@@ -239,6 +239,7 @@
     "amountRequired": "請輸入捐款金額",
     "amountMustBeNumber": "金額必須為數字",
     "amountMustBePositive": "金額必須大於0",
+    "amountMustBeAtLeast30": "金額必須大於或等於30元",
     "amountMaxTwoDecimals": "金額最多只能有兩位小數",
     "successTitle": "捐款成功",
     "failureTitle": "捐款失敗",
