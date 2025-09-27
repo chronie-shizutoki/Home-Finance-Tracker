@@ -63,6 +63,9 @@
     "noData": "No expenses recorded",
     "noDataForExport": "No data to export"
   },
+  "feedback": {
+    "title": "Feedback"
+  },
   "expense.noRecords": "No expenses recorded",
   "expense.record": "Expense Record",
   "common.selectAll": "Select All",

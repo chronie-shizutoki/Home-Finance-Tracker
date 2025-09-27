@@ -49,6 +49,10 @@
     <el-icon><CreditCard /></el-icon>
     {{ t('debt.title') }}
   </el-button>
+  <el-button type="primary" @click="handleFeedback" size="default">
+    <el-icon><Message /></el-icon>
+    {{ t('feedback.title') }}
+  </el-button>
   <el-upload
     class="upload-excel"
     action="/api/import/excel"
@@ -273,7 +277,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';
@@ -935,7 +939,16 @@ const checkApiKey = () => {
   return true;
 };
 
-
+// 处理反馈按钮点击事件
+const handleFeedback = () => {
+  try {
+    const feedbackUrl = 'https://wj.qq.com/s2/24109109/3572/';
+    window.open(feedbackUrl, '_blank');
+  } catch (error) {
+    console.error('打开反馈链接失败:', error);
+    ElMessage.error('打开反馈链接失败，请重试');
+  }
+};
 
 // Function to force the browser to re-fetch new frontend data
 const refreshPage = () => {

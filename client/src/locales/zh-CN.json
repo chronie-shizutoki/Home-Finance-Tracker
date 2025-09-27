@@ -63,6 +63,9 @@
     "noData": "无消费记录",
     "noDataForExport": "无数据可导出"
   },
+  "feedback": {
+    "title": "反馈"
+  },
   "expense.noRecords": "无消费记录",
   "expense.record": "消费记录",
   "common.selectAll": "全选",
