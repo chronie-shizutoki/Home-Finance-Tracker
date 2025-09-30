@@ -305,5 +305,11 @@
       "button": "Enable Spending Limit",
       "enabled": "Spending limit enabled successfully"
     }
+  },
+  "function": {
+    "primary": "Primary",
+    "aiFeatures": "AI",
+    "other": "Other",
+    "aboutus": "About Us"
   }
 }

@@ -243,6 +243,13 @@ button {
     background-color: #1e1e1e !important;
   }
 
+  .el-card {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--box-shadow) !important;
+  }
+
   /* 下拉菜单组件 */
   .el-select, 
   .el-select__wrapper {

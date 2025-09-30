@@ -298,5 +298,11 @@
       "button": "啟用預算功能",
       "enabled": "預算功能已啟用"
     }
+  },
+  "function": {
+    "primary": "主要",
+    "aiFeatures": "AI",
+    "other": "其他",
+    "aboutus": "關於我們"
   }
 }

@@ -301,5 +301,11 @@
       "button": "启用预算功能",
       "enabled": "预算功能已启用"
     }
+  },
+  "function": {
+    "primary": "主要",
+    "aiFeatures": "AI",
+    "other": "其他",
+    "aboutus": "关于我们"
   }
 }
