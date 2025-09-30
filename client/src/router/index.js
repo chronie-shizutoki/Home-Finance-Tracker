@@ -49,6 +49,12 @@ const router = createRouter({
       component: ChartsView
     },
     {
+      path: '/photo.html',
+      name: 'photo',
+      meta: { title: 'photo.title' },
+      component: () => import('@/../photo.html')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView

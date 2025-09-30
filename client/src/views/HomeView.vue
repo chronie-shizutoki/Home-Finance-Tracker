@@ -461,18 +461,16 @@ const checkDonationStatus = () => {
   }, 2000);
 };
 
-// 监听路由变化，确保用户无法绕过捐款
+// Listen for route changes to ensure users cannot bypass donation
 const handleRouteChange = () => {
   if (showDonationModal.value) {
-    // 除非用户在捐款页面，否则强制显示弹窗
+    // Unless the user is on the donation page or photo.html, force the pop-up to show
     const currentPath = window.location.pathname;
-    if (currentPath !== '/donation') {
+    if (currentPath !== '/donation' && currentPath !== '/photo.html') {
       showDonationModal.value = true;
     }
   }
 };
-
-
 
 // 组件卸载时清理事件监听器
 onBeforeUnmount(() => {
