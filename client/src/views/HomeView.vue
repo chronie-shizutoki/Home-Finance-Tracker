@@ -21,6 +21,9 @@
 
     <Header :title="$t('app.title')" />
     
+    <!-- 当前日期时间显示 -->
+    <div class="current-datetime" style="display: flex; justify-content: center;">{{ currentDateTime }}</div>
+
     <!-- 主要功能组 -->
     <el-card class="mb-4" :body-style="{padding: '15px'}">
       <template #header>
@@ -109,8 +112,6 @@
         </el-button>
       </div>
     </el-card>
-<!-- 当前日期时间显示 -->
-<div class="current-datetime" style="display: flex; justify-content: center;">{{ currentDateTime }}</div>
 
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="csvExpenses" />
