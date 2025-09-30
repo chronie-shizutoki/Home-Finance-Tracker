@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导出数据图片</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind CSS 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            success: '#00B42A',
+          }
+        },
+      }
+    }
+  </script>
+  
+  <!-- 基础样式 -->
+  <style>
+    body {
+      background-color: #f8fafc;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1a202c;
+      }
+    }
+    /* 隐藏canvas元素 */
+    #dataCanvas {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <!-- 导出按钮 -->
+  <button id="exportBtn" class="bg-success text-white px-8 py-4 rounded-lg shadow hover:bg-success/90 transition-all duration-300 text-lg flex items-center justify-center">
+    <i class="fa fa-download mr-2"></i>导出本月数据图片
+  </button>
+  
+  <!-- 导出成功提示 -->
+  <div id="successToast" class="fixed bottom-4 right-4 bg-success text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
+    <i class="fa fa-check-circle mr-2 text-xl"></i>
+    <span>图片导出成功</span>
+  </div>
+  
+  <!-- 导出失败提示 -->
+  <div id="errorToast" class="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 flex items-center z-50">
+    <i class="fa fa-times-circle mr-2 text-xl"></i>
+    <span>图片导出失败</span>
+  </div>
+  
+  <!-- Canvas元素用于绘制数据 -->
+  <canvas id="dataCanvas"></canvas>
+  
+  <!-- JavaScript代码 -->
+  <script>
+    // API基础地址
+    const API_BASE_URL = 'http://192.168.0.197:3010/api';
+    
+    // DOM元素
+    const exportBtn = document.getElementById('exportBtn');
+    const successToast = document.getElementById('successToast');
+    const errorToast = document.getElementById('errorToast');
+    const dataCanvas = document.getElementById('dataCanvas');
+    const ctx = dataCanvas.getContext('2d');
+    
+    // 辅助函数：补零
+    function padZero(num) {
+      return num.toString().padStart(2, '0');
+    }
+    
+    // 显示成功提示
+    function showSuccessToast() {
+      successToast.classList.remove('translate-y-20', 'opacity-0');
+      successToast.classList.add('translate-y-0', 'opacity-100');
+      
+      // 3秒后隐藏
+      setTimeout(() => {
+        successToast.classList.remove('translate-y-0', 'opacity-100');
+        successToast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+    
+    // 显示错误提示
+    function showErrorToast() {
+      errorToast.classList.remove('translate-y-20', 'opacity-0');
+      errorToast.classList.add('translate-y-0', 'opacity-100');
+      
+      // 3秒后隐藏
+      setTimeout(() => {
+        errorToast.classList.remove('translate-y-0', 'opacity-100');
+        errorToast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+    
+    // 在Canvas上绘制数据文本
+    function drawDataOnCanvas(data, currentMonth) {
+      // 设置Canvas大小
+      const width = 800;
+      const height = Math.max(600, data.length * 30 + 200); // 根据数据量动态调整高度
+      dataCanvas.width = width;
+      dataCanvas.height = height;
+      
+      // 清空Canvas
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      
+      // 设置文本样式
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 20px Arial';
+      
+      // 绘制标题
+      const title = `${currentMonth}消费数据`;
+      const titleWidth = ctx.measureText(title).width;
+      ctx.fillText(title, (width - titleWidth) / 2, 50);
+      
+      // 绘制表格标题行
+      ctx.font = 'bold 16px Arial';
+      ctx.fillStyle = '#165DFF';
+      
+      const columns = ['消费类型', '金额(元)', '日期时间', '备注'];
+      const columnWidths = [150, 100, 200, 300];
+      let x = 50;
+      
+      for (let i = 0; i < columns.length; i++) {
+        ctx.fillText(columns[i], x, 100);
+        x += columnWidths[i] + 20;
+      }
+      
+      // 绘制分隔线
+      ctx.strokeStyle = '#dddddd';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(50, 110);
+      ctx.lineTo(width - 50, 110);
+      ctx.stroke();
+      
+      // 绘制数据行
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#000000';
+      
+      let y = 150;
+      data.forEach((item, index) => {
+        // 绘制行分隔线
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(50, y - 15);
+        ctx.lineTo(width - 50, y - 15);
+        ctx.stroke();
+        
+        // 绘制数据
+        x = 50;
+        
+        // 消费类型
+        ctx.fillText(item['消费类型'], x, y);
+        x += columnWidths[0] + 20;
+        
+        // 金额
+        ctx.textAlign = 'right';
+        ctx.fillText(item['金额(元)'].toString(), x + columnWidths[1], y);
+        ctx.textAlign = 'left';
+        x += columnWidths[1] + 20;
+        
+        // 日期时间
+        ctx.fillText(item['日期时间'], x, y);
+        x += columnWidths[2] + 20;
+        
+        // 备注（可能需要换行）
+        const remarkText = item['备注'] || '';
+        const maxWidth = columnWidths[3];
+        const words = remarkText.split(' ');
+        let line = '';
+        let testLine = '';
+        let lineHeight = 20;
+        let currentY = y;
+        
+        for (let n = 0; n < words.length; n++) {
+          testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          const testWidth = metrics.width;
+          
+          if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, x, currentY);
+            line = words[n] + ' ';
+            currentY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, x, currentY);
+        
+        // 调整行高
+        if (currentY > y) {
+          y = currentY + lineHeight;
+        } else {
+          y += 30;
+        }
+      });
+    }
+    
+    // 导出Canvas为图片
+    function exportCanvasAsImage() {
+      // 创建一个临时链接
+      const link = document.createElement('a');
+      
+      // 获取图片数据URL
+      const now = new Date();
+      const monthStr = `${now.getFullYear()}${padZero(now.getMonth() + 1)}`;
+      const filename = `家庭财务记录_${monthStr}.png`;
+      
+      // 设置下载属性
+      link.download = filename;
+      link.href = dataCanvas.toDataURL('image/png');
+      
+      // 触发下载
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // 处理导出
+    async function handleExport() {
+      exportBtn.disabled = true;
+      exportBtn.textContent = '生成图片中...';
+      
+      try {
+        // 获取当月日期范围
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const currentMonth = `${now.getFullYear()}年${now.getMonth() + 1}月`;
+        
+        // 从API获取数据
+        const response = await fetch(`${API_BASE_URL}/expenses?limit=10000`, {
+          timeout: 10000
+        });
+        
+        if (!response.ok) {
+          throw new Error('获取数据失败');
+        }
+        
+        const data = await response.json();
+        
+        // 过滤当月数据
+        const filteredData = Array.isArray(data.data) ? data.data.filter(expense => {
+          if (!expense || !expense.time) return false;
+          const expenseDate = new Date(expense.time);
+          return expenseDate >= startOfMonth && expenseDate <= endOfMonth;
+        }) : [];
+        
+        // 按日期排序（从新到旧）
+        filteredData.sort((a, b) => new Date(b.time) - new Date(a.time));
+        
+        // 准备导出数据
+        const exportData = filteredData.map(expense => ({
+          '消费类型': expense.type || '未知类型',
+          '金额(元)': expense.amount,
+          '日期时间': new Date(expense.time).toLocaleString('zh-CN'),
+          '备注': expense.remark || ''
+        }));
+        
+        // 在Canvas上绘制数据
+        drawDataOnCanvas(exportData, currentMonth);
+        
+        // 导出为图片
+        exportCanvasAsImage();
+        
+        // 显示成功提示
+        showSuccessToast();
+      } catch (error) {
+        console.error('导出图片失败:', error);
+        showErrorToast();
+      } finally {
+        // 重置按钮状态
+        setTimeout(() => {
+          exportBtn.disabled = false;
+          exportBtn.innerHTML = '<i class="fa fa-download mr-2"></i>导出本月数据图片';
+        }, 1000);
+      }
+    }
+    
+    // 绑定事件
+    exportBtn.addEventListener('click', handleExport);
+  </script>
+</body>
+</html>

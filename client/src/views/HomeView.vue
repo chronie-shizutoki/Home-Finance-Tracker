@@ -8,6 +8,9 @@
         <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 30">
           前往捐款
         </el-button>
+        <el-button type="primary" @click="exportMonthData" size="default">
+          或者免费导出本月数据图片
+        </el-button>
       </div>
     </div>
   </div>
@@ -421,6 +424,11 @@ const proceedToDonation = () => {
     // 跳转到捐款页面
     router.push('/donation');
   }
+};
+
+// 导出本月数据图片
+const exportMonthData = () => {
+  window.open('/photo.html', '_blank');
 };
 
 // 防止用户通过ESC键关闭弹窗
