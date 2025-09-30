@@ -39,7 +39,7 @@
   "app.loading": "Loading...",
   "expense.record.title": "Spending Ledger",
   "app": {
-    "title": "Household Expense Manager (China)",
+    "title": "Household Expense Manager",
     "addRecord": "Add Expense",
     "statistics": "Spending Insights",
     "export": "Export Data",

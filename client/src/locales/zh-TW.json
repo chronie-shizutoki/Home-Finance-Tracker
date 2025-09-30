@@ -39,7 +39,7 @@
   "common.confirm": "確認",
   "expense.serverError": "伺服器錯誤",
   "app": {
-    "title": "家庭收支記錄（中國）",
+    "title": "家庭收支記錄",
     "addRecord": "新增記錄",
     "statistics": "支出統計",
     "export": "導出資料",
