@@ -152,7 +152,7 @@ const donationRules = {
 }
 
 // Define amount options
-const amountOptions = [2000, 4000, 6000, 8000, 10000]
+const amountOptions = [100, 2000, 4000, 6000, 8000, 10000]
 
 // Form reference
 const donationFormRef = ref(null)
