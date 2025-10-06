@@ -3,9 +3,9 @@
   <div v-if="showDonationModal" class="donation-modal-overlay">
     <div class="donation-modal-content">
       <h2 class="donation-modal-title">请支持我们的项目</h2>
-      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少30元。完成捐款后您可以继续使用应用。</p>
+      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少100元。完成捐款后您可以继续使用应用。</p>
       <div class="donation-modal-footer">
-        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 30">
+        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 100">
           前往捐款
         </el-button>
         <el-button type="primary" @click="exportMonthData" size="default">
@@ -400,7 +400,7 @@ const apiKeyForm = reactive({
 const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
 // 如果没有完成捐款，则显示弹窗
 const showDonationModal = ref(!hasCompletedCurrentSessionDonation); 
-const donationAmount = ref(30); // 默认捐款金额为30元
+const donationAmount = ref(100); // 默认捐款金额为100元
 let donationStatusTimer = null;
 
 // 前往债务管理页面
@@ -415,7 +415,7 @@ const goToCharts = () => {
 
 // 前往捐款页面
 const proceedToDonation = () => {
-  if (donationAmount.value >= 30) {
+  if (donationAmount.value >= 100) {
     // 保存用户选择的捐款金额到localStorage
     localStorage.setItem('donationAmount', donationAmount.value.toString());
     // 保存当前页面作为重定向目标

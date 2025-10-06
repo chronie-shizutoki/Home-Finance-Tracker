@@ -242,7 +242,7 @@
     "amountRequired": "请输入捐赠金额",
     "amountMustBeNumber": "金额必须是数字",
     "amountMustBePositive": "金额必须大于0",
-    "amountMustBeAtLeast30": "金额必须大于或等于30元",
+    "amountMustBeAtLeast100": "金额必须大于或等于100元",
     "amountMaxTwoDecimals": "金额最多只能有两位小数",
     "successTitle": "捐赠成功",
     "failureTitle": "捐赠失败",
