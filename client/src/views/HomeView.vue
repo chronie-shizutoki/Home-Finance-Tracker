@@ -25,7 +25,10 @@
     <Header :title="$t('app.title')" />
     
     <!-- 当前日期时间显示 -->
-    <div class="current-datetime" style="display: flex; justify-content: center;">{{ currentDateTime }}</div>
+    <div class="datetime-container">
+      <div class="date-part">{{ formattedDate }}</div>
+      <div class="time-part">{{ formattedTime }}</div>
+    </div>
 
     <!-- 功能组网格布局 -->
     <div class="card-grid">
@@ -508,6 +511,8 @@ const markdownContent = ref('');
 const markdownTitle = ref('');
 // 当前日期时间状态
 const currentDateTime = ref('');
+const formattedDate = ref('');
+const formattedTime = ref('');
 let dateTimeTimer = null;
 
 // 根据当前语言加载对应的Markdown报告
@@ -583,7 +588,7 @@ onBeforeUnmount(() => {
 const updateDateTime = () => {
   const now = new Date();
   // 根据当前语言环境和设备时区格式化日期时间
-  const options = {
+  const fullOptions = {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -593,7 +598,24 @@ const updateDateTime = () => {
     second: '2-digit',
     hour12: false
   };
-  currentDateTime.value = now.toLocaleString(locale.value, options);
+  
+  const dateOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'long'
+  };
+  
+  const timeOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  };
+  
+  currentDateTime.value = now.toLocaleString(locale.value, fullOptions);
+  formattedDate.value = now.toLocaleDateString(locale.value, dateOptions);
+  formattedTime.value = now.toLocaleTimeString(locale.value, timeOptions);
 };
 
 // 对话框相关数据
@@ -1122,6 +1144,70 @@ const refreshPage = () => {
 .button-leave-to {
   opacity: 0;
 }
+/* 日期时间显示样式 */
+.datetime-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.datetime-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.date-part {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.time-part {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  animation: timePulse 1s ease-in-out infinite;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .datetime-container {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .date-part {
+    color: #e5e7eb;
+  }
+  
+  .time-part {
+    color: #4ade80;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .datetime-container {
+    margin: 1rem 0;
+    padding: 0.8rem;
+  }
+  
+  .date-part {
+    font-size: 1rem;
+  }
+  
+  .time-part {
+    font-size: 1.2rem;
+  }
+}
+
 /* 输入框容器（修正选择器确保生效） */
 .confirm-input-container {
   position: relative;
