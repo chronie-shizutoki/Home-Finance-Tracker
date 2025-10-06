@@ -12,18 +12,34 @@
       </div>
 
       <div class="search-grid">
-        <!-- 月份选择 -->        <div class="search-control">
+        <!-- 月份选择 -->
+        <div class="search-control">
           <label class="control-label" for="month">
             <i class="icon-calendar"></i>
             {{ $t('expense.search.month') }}
           </label>
           <div class="control-input">
-            <select v-model="month" id="month" name="month" class="styled-select">
-              <option value="">{{ $t('expense.search.allMonth') }}</option>
-              <option v-for="option in monthOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
+            <!-- 自定义月份下拉菜单 -->
+            <div class="custom-select" :class="{ 'open': isMonthOpen }" @click.stop="toggleDropdown('month')">
+              <div class="select-trigger">
+                <span>{{ month ? formatMonthLabelByLocale(month, props.locale) : $t('expense.search.allMonth') }}</span>
+                <i class="select-icon"></i>
+              </div>
+              <div v-if="isMonthOpen" class="select-dropdown">
+                <div class="select-option" :class="{ 'selected': !month }" @click.stop="setDropdownValue('month', '')">
+                  {{ $t('expense.search.allMonth') }}
+                </div>
+                <div 
+                  v-for="option in monthOptions" 
+                  :key="option.value" 
+                  class="select-option" 
+                  :class="{ 'selected': month === option.value }" 
+                  @click.stop="setDropdownValue('month', option.value)"
+                >
+                  {{ option.label }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -34,10 +50,27 @@
             {{ $t('expense.search.type') }}
           </label>
           <div class="control-input">
-            <select v-model="type" id="type" name="type" class="styled-select">
-              <option value="">{{ $t('expense.search.allType') }}</option>
-              <option v-for="type in uniqueTypes" :key="type" :value="type">{{ type }}</option>
-            </select>
+            <!-- 自定义类型下拉菜单 -->
+            <div class="custom-select" :class="{ 'open': isTypeOpen }" @click.stop="toggleDropdown('type')">
+              <div class="select-trigger">
+                <span>{{ type || $t('expense.search.allType') }}</span>
+                <i class="select-icon"></i>
+              </div>
+              <div v-if="isTypeOpen" class="select-dropdown">
+                <div class="select-option" :class="{ 'selected': !type }" @click.stop="setDropdownValue('type', '')">
+                  {{ $t('expense.search.allType') }}
+                </div>
+                <div 
+                  v-for="item in uniqueTypes" 
+                  :key="item" 
+                  class="select-option" 
+                  :class="{ 'selected': type === item }" 
+                  @click.stop="setDropdownValue('type', item)"
+                >
+                  {{ item }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -48,12 +81,32 @@
             {{ $t('expense.search.sort') }}
           </label>
           <div class="control-input">
-            <select v-model="sortOption" id="sortOption" name="sortOption" class="styled-select">
-              <option value="dateDesc">{{ $t('expense.sort.dateDesc') }}</option>
-              <option value="dateAsc">{{ $t('expense.sort.dateAsc') }}</option>
-              <option value="amountDesc">{{ $t('expense.sort.amountDesc') }}</option>
-              <option value="amountAsc">{{ $t('expense.sort.amountAsc') }}</option>
-            </select>
+            <!-- 自定义排序下拉菜单 -->
+            <div class="custom-select" :class="{ 'open': isSortOpen }" @click.stop="toggleDropdown('sort')">
+              <div class="select-trigger">
+                <span>
+                  {{ sortOption === 'dateDesc' ? $t('expense.sort.dateDesc') :
+                     sortOption === 'dateAsc' ? $t('expense.sort.dateAsc') :
+                     sortOption === 'amountDesc' ? $t('expense.sort.amountDesc') :
+                     $t('expense.sort.amountAsc') }}
+                </span>
+                <i class="select-icon"></i>
+              </div>
+              <div v-if="isSortOpen" class="select-dropdown">
+                <div class="select-option" :class="{ 'selected': sortOption === 'dateDesc' }" @click.stop="setDropdownValue('sort', 'dateDesc')">
+                  {{ $t('expense.sort.dateDesc') }}
+                </div>
+                <div class="select-option" :class="{ 'selected': sortOption === 'dateAsc' }" @click.stop="setDropdownValue('sort', 'dateAsc')">
+                  {{ $t('expense.sort.dateAsc') }}
+                </div>
+                <div class="select-option" :class="{ 'selected': sortOption === 'amountDesc' }" @click.stop="setDropdownValue('sort', 'amountDesc')">
+                  {{ $t('expense.sort.amountDesc') }}
+                </div>
+                <div class="select-option" :class="{ 'selected': sortOption === 'amountAsc' }" @click.stop="setDropdownValue('sort', 'amountAsc')">
+                  {{ $t('expense.sort.amountAsc') }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -116,7 +169,7 @@
   </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { formatMonthLabelByLocale } from '@/utils/dateFormatter';
 
@@ -143,6 +196,58 @@ const minAmount = ref(props.initialMinAmount || '');
 const maxAmount = ref(props.initialMaxAmount || '');
 const sortOption = ref(props.initialSortOption || 'dateDesc');
 const monthOptions = ref([]);
+
+// 下拉菜单状态
+const isMonthOpen = ref(false);
+const isTypeOpen = ref(false);
+const isSortOpen = ref(false);
+
+// 处理点击外部关闭下拉菜单
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.custom-select')) {
+    isMonthOpen.value = false;
+    isTypeOpen.value = false;
+    isSortOpen.value = false;
+  }
+};
+
+// 监听文档点击
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+// 切换下拉菜单显示状态
+const toggleDropdown = (dropdownType) => {
+  // 先关闭所有下拉菜单
+  isMonthOpen.value = false;
+  isTypeOpen.value = false;
+  isSortOpen.value = false;
+  
+  // 再打开被点击的下拉菜单
+  if (dropdownType === 'month') {
+    isMonthOpen.value = true;
+  } else if (dropdownType === 'type') {
+    isTypeOpen.value = true;
+  } else if (dropdownType === 'sort') {
+    isSortOpen.value = true;
+  }
+};
+
+// 设置下拉菜单选中值
+const setDropdownValue = (dropdownType, value) => {
+  if (dropdownType === 'month') {
+    month.value = value;
+  } else if (dropdownType === 'type') {
+    type.value = value;
+  } else if (dropdownType === 'sort') {
+    sortOption.value = value;
+  }
+  
+  // 设置值后关闭所有下拉菜单
+  isMonthOpen.value = false;
+  isTypeOpen.value = false;
+  isSortOpen.value = false;
+};
 
 // 计算属性
 const monthDisplay = computed(() => {
@@ -266,7 +371,7 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
     padding: 20px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     margin-bottom: 25px;
-    overflow: hidden;
+    overflow: visible;
 }
 
   .search-header {
@@ -356,9 +461,9 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
     position: relative;
   }
 
-  .control-input input, .styled-select {
+  .control-input input {
     width: auto;
-    max-width: 50%;
+    max-width: 100%;
     padding: 12px 15px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -368,7 +473,113 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
     box-sizing: border-box;
 }
 
-  .control-input input:focus, .styled-select:focus {
+  /* 自定义下拉菜单样式 */
+  .custom-select {
+    position: relative;
+    width: auto;
+    max-width: 60%;
+    font-size: 14px;
+  }
+  
+  .select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .select-trigger:hover {
+    border-color: #cbd5e0;
+    background: #fff;
+  }
+  
+  .select-trigger:focus {
+    outline: none;
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+  
+  .select-icon {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+  
+  .select-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #495057;
+    border-bottom: 2px solid #495057;
+    transform: translateY(-60%) rotate(45deg);
+  }
+  
+  .custom-select.open .select-icon {
+    transform: rotate(180deg);
+  }
+  
+  .select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  /* 自定义滚动条样式 - 正常模式 */
+  .select-dropdown::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .select-dropdown::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+    margin: 4px 0;
+  }
+
+  .select-dropdown::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  .select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  .select-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .select-option:hover {
+    background: #f0f7ff;
+    color: #4361ee;
+  }
+  
+  .select-option.selected {
+    background: #4361ee;
+    color: #fff;
+  }
+
+  .control-input input:focus {
     border-color: #4361ee;
     outline: none;
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
@@ -384,7 +595,7 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
   .range-input {
     display: flex;
     align-items: center;
-    max-width: 20.9%;
+    max-width: 80px;
     gap: 10px;
   }
 
@@ -404,11 +615,7 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
   }
 
   .range-slider {
-    display: flex;
-    align-items: center;
-    max-width: 30%;
-    gap: 10px;
-    padding: 5px 0;
+    display: none
   }
 
   .slider {
@@ -516,8 +723,12 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
       max-width: 100%;
     }
     
-    .control-input input, .styled-select {
+    .control-input input {
       width: 100%;
+      max-width: 100%;
+    }
+    
+    .custom-select {
       max-width: 100%;
     }
     
@@ -578,7 +789,12 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
       margin-bottom: 6px;
     }
     
-    .control-input input, .styled-select {
+    .control-input input {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    
+    .select-trigger {
       padding: 10px 12px;
       font-size: 13px;
     }
@@ -635,16 +851,74 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
       color: #a5b4fc;
     }
 
-    .control-input input, .styled-select {
+    .control-input input {
       background: #1f2937;
       border-color: #374151;
       color: #e5e7eb;
     }
 
-    .control-input input:focus, .styled-select:focus {
+    .control-input input:focus {
       border-color: #4361ee;
       background: #1f2937;
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    /* 深色模式下的自定义下拉菜单样式 */
+    .select-trigger {
+      background: #1f2937;
+      border-color: #374151;
+      color: #e5e7eb;
+    }
+    
+    .select-trigger:hover {
+      background: #374151;
+      border-color: #4b5563;
+    }
+    
+    .select-icon::before {
+      border-right-color: #9ca3af;
+      border-bottom-color: #9ca3af;
+    }
+    
+    .select-dropdown {
+      background: #1f2937;
+      border-color: #374151;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 自定义滚动条样式 - 深色模式 */
+    .select-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .select-dropdown::-webkit-scrollbar-track {
+      background: #374151;
+      border-radius: 3px;
+      margin: 4px 0;
+    }
+
+    .select-dropdown::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 3px;
+      transition: background 0.2s ease;
+    }
+
+    .select-dropdown::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+    
+    .select-option {
+      color: #e5e7eb;
+    }
+    
+    .select-option:hover {
+      background: #374151;
+      color: #a5b4fc;
+    }
+    
+    .select-option.selected {
+      background: #4361ee;
+      color: #fff;
     }
 
     .range-divider {
