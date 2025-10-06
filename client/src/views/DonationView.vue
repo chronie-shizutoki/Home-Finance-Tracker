@@ -2,6 +2,7 @@
   <div class="donation-page-wrapper">
     <div class="donation-container">
       <div class="donation-header">
+            <Header title="支持 Support Us" />
         <div class="header-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -106,6 +107,7 @@ import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { donate } from '@/api/payments'
 import { useI18n } from 'vue-i18n'
+import Header from '@/components/Header.vue'
 
 const { t } = useI18n()
 

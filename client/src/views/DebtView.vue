@@ -5,6 +5,7 @@
       <button class="btn-primary" @click="showAddDialog">
         {{ t('debt.addNewRecord') }}
       </button>
+      <Header title="" />
     </div>
 
     <!-- 筛选区域 -->
@@ -304,6 +305,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DebtAPI } from '@/api';
+import Header from '@/components/Header.vue';
 
 defineOptions({ name: 'DebtView' });
 

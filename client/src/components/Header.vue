@@ -2,25 +2,17 @@
   <div ref="headerRef" :class="['header']">
     <h1>{{ title }}</h1>
 
-    <ElDropdown trigger="click" placement="bottom-end">
-      <span class="earth-icon" role="button" aria-haspopup="true" aria-expanded="false" aria-label="切换语言">🌍</span>
-
-      <template #dropdown>
-        <ElDropdownMenu>
-          <ElDropdownItem
-            v-for="lang in languages"
-            :key="lang.code"
-            @click="switchLanguage(lang.code)"
-            :class="{ 'is-active': currentLanguage === lang.code }"
-          >
-            {{ lang.label }}
-            <template v-if="currentLanguage === lang.code">
-              <ElIcon class="ml-2"><Check /></ElIcon>
-            </template>
-          </ElDropdownItem>
-        </ElDropdownMenu>
-      </template>
-    </ElDropdown>
+    <div class="language-buttons">
+      <button
+        v-for="lang in languages"
+        :key="lang.code"
+        @click="switchLanguage(lang.code)"
+        :class="['language-btn', { 'active': currentLanguage === lang.code }]"
+        :aria-label="`切换到${lang.label}`"
+      >
+        {{ lang.shortLabel }}
+      </button>
+    </div>
 
   </div>
 </template>
@@ -29,14 +21,6 @@
 // 恢复导入你原有的 useLanguageSwitch composable
 import { useLanguageSwitch } from '@/composables/useLanguageSwitch';
 import { ref, onMounted, onUnmounted } from 'vue';
-// 导入 Element Plus 的下拉菜单相关组件
-import {
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
-  ElIcon
-} from 'element-plus';
-import { Check } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 defineOptions({ name: 'AppHeader' });
@@ -50,9 +34,9 @@ const { switchLanguage, currentLanguage } = useLanguageSwitch();
 
 // 定义支持的语言列表
 const languages = [
-  { code: 'en-US', label: 'English' },
-  { code: 'zh-CN', label: '简体中文' },
-  { code: 'zh-TW', label: '繁體中文' }
+  { code: 'en-US', label: 'English', shortLabel: 'EN' },
+  { code: 'zh-CN', label: '简体中文', shortLabel: '简' },
+  { code: 'zh-TW', label: '繁體中文', shortLabel: '繁' }
 ];
 
 // 监听滚动事件，添加滚动效果
@@ -119,110 +103,49 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-/* 地球图标样式 */
-.earth-icon {
-  font-size: 28px; /* 图标字体大小 */
-  cursor: pointer; /* 鼠标悬停时显示手型光标 */
-  color: var(--el-color-primary, #409eff); /* 图标颜色，使用 Element Plus 主题色 */
+/* 语言按钮容器 */
+.language-buttons {
+  display: flex; /* 使用 Flexbox 布局 */
+  gap: 0.5rem; /* 按钮之间的间距 */
   margin-left: 1rem; /* 左侧外边距 */
-  display: flex; /* 使用 flex 布局确保图标居中 */
-  align-items: center; /* 垂直居中 */
-  justify-content: center; /* 水平居中 */
-  width: 45px; /* 固定宽度 */
-  height: 45px; /* 固定高度 */
-  border-radius: 50%; /* 圆形 */
-  background-color: transparent; /* 背景色 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 阴影效果 */
-  position: relative; /* 相对定位，用于伪元素 */
 }
 
-/* 地球图标悬停效果 */
-.earth-icon:hover {
-  color: var(--el-color-primary-light-3, #79bbff); /* 悬停时颜色变亮 */
-  transform: scale(1.1) rotate(5deg); /* 悬停时放大并旋转 */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* 增加阴影 */
-  background-color: white; /* 背景色变白 */
+/* 语言按钮样式 */
+.language-btn {
+  padding: 8px 16px; /* 内边距 */
+  border: 1px solid var(--el-border-color, #dcdfe6); /* 边框 */
+  border-radius: var(--el-border-radius-base, 6px); /* 圆角 */
+  background-color: var(--el-bg-color, #ffffff); /* 背景色 */
+  color: var(--el-text-color-regular, #606266); /* 文本颜色 */
+  font-size: 14px; /* 字体大小 */
+  font-weight: 500; /* 字体粗细 */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  transition: all 0.3s ease; /* 过渡效果 */
+  white-space: nowrap; /* 禁止文本换行 */
+  outline: none; /* 移除默认轮廓 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 阴影效果 */
 }
 
-/* 地球图标动画 */
-.earth-icon::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle, rgba(64,158,255,0.2) 0%, rgba(64,158,255,0) 70%);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+/* 语言按钮悬停效果 */
+.language-btn:hover {
+  border-color: var(--el-color-primary, #409eff); /* 边框颜色变为主题色 */
+  color: var(--el-color-primary, #409eff); /* 文本颜色变为主题色 */
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15); /* 增强阴影 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
-.earth-icon:hover::after {
-  opacity: 1;
-  animation: pulse 2s infinite ease-in-out; /* 脉冲动画 - 更柔和 */
+/* 选中状态的语言按钮 */
+.language-btn.active {
+  background-color: var(--el-color-primary, #409eff); /* 背景色变为主题色 */
+  color: white; /* 文本颜色变为白色 */
+  border-color: var(--el-color-primary, #409eff); /* 边框颜色变为主题色 */
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.2); /* 增强阴影 */
 }
 
-/* 针对 Element Plus 下拉菜单的样式覆盖 */
-/* 使用 :deep() 穿透作用域样式，修改 Element Plus 组件内部样式 */
-.header :deep(.el-dropdown__popper) {
-  /* 明亮模式默认值 */
-  --dropdown-bg: var(--el-bg-color-overlay, #ffffff);
-  --dropdown-text: var(--el-text-color-regular, #606266);
-  --dropdown-hover-bg: var(--el-fill-color-light, #f5f5f5);
-  --dropdown-border: var(--el-border-color-light, #e4e7ed);
-
-  background: var(--dropdown-bg) !important;
-  border: 1px solid var(--dropdown-border) !important;
-  border-radius: var(--el-border-radius-base, 8px) !important; /* 更大的圆角 */
-  box-shadow: 0 12px 32px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04) !important; /* 增强阴影 */
-  padding: 8px 0 !important; /* 增加内边距 */
-  overflow: hidden; /* 隐藏溢出内容 */
-}
-
-.header :deep(.el-dropdown-menu .el-dropdown-menu__item) {
-  padding: 10px 20px !important; /* 增加内边距 */
-  color: var(--dropdown-text) !important;
-  transition: all 0.3s ease;
-  font-size: var(--el-font-size-base, 14px);
-  line-height: 1.5 !important;
-  border-radius: 6px !important; /* 圆角 */
-  margin: 0 8px !important; /* 外边距 */
-}
-
-.header :deep(.el-dropdown-menu__item:hover) {
-  background: var(--dropdown-hover-bg) !important;
-  color: var(--el-color-primary) !important;
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 增加悬停阴影 */
-}
-
-/* 动画效果 */
-.header :deep(.el-dropdown-menu) {
-  transform: translateY(-10px);
-  opacity: 0;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  max-height: 400px; /* 最大高度 */
-  overflow-y: auto; /* 超出部分添加滚动条 */
-}
-
-.header :deep(.el-dropdown-menu.el-dropdown-menu--show) {
-  transform: translateY(0);
-  opacity: 1;
-  animation: fadeIn 0.3s ease; /* 淡入动画 */
-}
-
-/* 淡入动画 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 选中状态的语言按钮悬停效果 */
+.language-btn.active:hover {
+  background-color: var(--el-color-primary-dark-2, #3a8ee6); /* 背景色稍微变深 */
+  border-color: var(--el-color-primary-dark-2, #3a8ee6); /* 边框颜色稍微变深 */
 }
 
 /* 移动端适配 */
@@ -270,21 +193,29 @@ onUnmounted(() => {
     -webkit-text-fill-color: transparent;
   }
 
-  .earth-icon {
-    color: #79bbff;
+  .language-btn {
     background-color: #333;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #e0e0e0;
+    border-color: #555;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
-  .header :deep(.el-dropdown__popper) {
-    --dropdown-bg: #333;
-    --dropdown-text: #e0e0e0;
-    --dropdown-hover-bg: #444;
-    --dropdown-border: #555;
+  .language-btn:hover {
+    border-color: #79bbff;
+    color: #79bbff;
+    box-shadow: 0 4px 12px rgba(121, 187, 255, 0.15);
   }
 
-  .header :deep(.el-dropdown-menu__item:hover) {
-    color: #79bbff !important;
+  .language-btn.active {
+    background-color: #79bbff;
+    color: #1a1a1a;
+    border-color: #79bbff;
+    box-shadow: 0 4px 16px rgba(121, 187, 255, 0.25);
+  }
+
+  .language-btn.active:hover {
+    background-color: #5da8ff;
+    border-color: #5da8ff;
   }
 }
 
