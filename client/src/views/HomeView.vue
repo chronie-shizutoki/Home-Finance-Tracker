@@ -27,94 +27,97 @@
     <!-- 当前日期时间显示 -->
     <div class="current-datetime" style="display: flex; justify-content: center;">{{ currentDateTime }}</div>
 
-    <!-- 主要功能组 -->
-    <el-card class="mb-4" :body-style="{padding: '15px'}">
-      <template #header>
-        <div class="card-header">
-          <span>{{ t('function.primary') }}</span>
-        </div>
-      </template>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <el-button type="primary" @click="showAddDialog = true" size="default">
-          <el-icon><Plus /></el-icon>
-          {{ t('expense.addRecord') }}
-        </el-button>
-        <el-button type="primary" @click="showMarkdownDialog = true" size="default">
-          <el-icon><Document /></el-icon>
-          {{ t('home.viewDocument') }}
-        </el-button>
-        <el-upload
-          class="upload-excel"
-          action="/api/import/excel"
-          :show-file-list="false"
-          :on-success="handleImportSuccess"
-          :on-error="handleImportError"
-          accept=".xlsx, .xls"
-        >
-          <el-button type="warning" size="default">
-            <el-icon><Upload /></el-icon>
-            {{ t('import.title') }}
+    <!-- 功能组网格布局 -->
+    <div class="card-grid">
+      <!-- 主要功能组 -->
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('function.primary') }}</span>
+          </div>
+        </template>
+        <div class="card-content">
+          <el-button type="primary" @click="showAddDialog = true" size="default">
+            <el-icon><Plus /></el-icon>
+            {{ t('expense.addRecord') }}
           </el-button>
-        </el-upload>
-      </div>
-    </el-card>
-    
-    <!-- AI功能组 -->
-    <el-card class="mb-4" :body-style="{padding: '15px'}">
-      <template #header>
-        <div class="card-header">
-          <span>{{ t('function.aiFeatures') }}</span>
+          <el-button type="primary" @click="showMarkdownDialog = true" size="default">
+            <el-icon><Document /></el-icon>
+            {{ t('home.viewDocument') }}
+          </el-button>
+          <el-upload
+            class="upload-excel"
+            action="/api/import/excel"
+            :show-file-list="false"
+            :on-success="handleImportSuccess"
+            :on-error="handleImportError"
+            accept=".xlsx, .xls"
+          >
+            <el-button type="warning" size="default">
+              <el-icon><Upload /></el-icon>
+              {{ t('import.title') }}
+            </el-button>
+          </el-upload>
         </div>
-      </template>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <el-button type="primary" @click="showAiAddDialog = true" size="default">
-          <el-icon><Cpu /></el-icon>
-          AI智能记录
-        </el-button>
-        <el-button type="primary" @click="showAiReportDialog = true" size="default">
-          <el-icon><Document /></el-icon>
-          AI消费报告
-        </el-button>
-      </div>
-    </el-card>
-    
-    <!-- 其他组件组 -->
-    <el-card class="mb-4" :body-style="{padding: '15px'}">
-      <template #header>
-        <div class="card-header">
-          <span>{{ t('function.other') }}</span>
+      </el-card>
+      
+      <!-- AI功能组 -->
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('function.aiFeatures') }}</span>
+          </div>
+        </template>
+        <div class="card-content">
+          <el-button type="primary" @click="showAiAddDialog = true" size="default">
+            <el-icon><Cpu /></el-icon>
+            AI智能记录
+          </el-button>
+          <el-button type="primary" @click="showAiReportDialog = true" size="default">
+            <el-icon><Document /></el-icon>
+            AI消费报告
+          </el-button>
         </div>
-      </template>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <el-button type="success" @click="showTodoDialog = true" size="default">
-          <el-icon><List /></el-icon>
-          {{ t('todo.title') }}
-        </el-button>
-        <el-button type="warning" @click="goToDebts" size="default">
-          <el-icon><CreditCard /></el-icon>
-          {{ t('debt.title') }}
-        </el-button>
-      </div>
-    </el-card>
-    
-    <!-- 关于我们组 -->
-    <el-card class="mb-4" :body-style="{padding: '15px'}">
-      <template #header>
-        <div class="card-header">
-          <span>{{ t('function.aboutus') }}</span>
+      </el-card>
+      
+      <!-- 其他组件组 -->
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('function.other') }}</span>
+          </div>
+        </template>
+        <div class="card-content">
+          <el-button type="success" @click="showTodoDialog = true" size="default">
+            <el-icon><List /></el-icon>
+            {{ t('todo.title') }}
+          </el-button>
+          <el-button type="warning" @click="goToDebts" size="default">
+            <el-icon><CreditCard /></el-icon>
+            {{ t('debt.title') }}
+          </el-button>
         </div>
-      </template>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <el-button type="info" @click="goToDonation" size="default">
-          <el-icon><Money /></el-icon>
-          {{ t('donation.title') }}
-        </el-button>
-        <el-button type="primary" @click="handleFeedback" size="default">
-          <el-icon><Message /></el-icon>
-          {{ t('feedback.title') }}
-        </el-button>
-      </div>
-    </el-card>
+      </el-card>
+      
+      <!-- 关于我们组 -->
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('function.aboutus') }}</span>
+          </div>
+        </template>
+        <div class="card-content">
+          <el-button type="info" @click="goToDonation" size="default">
+            <el-icon><Money /></el-icon>
+            {{ t('donation.title') }}
+          </el-button>
+          <el-button type="primary" @click="handleFeedback" size="default">
+            <el-icon><Message /></el-icon>
+            {{ t('feedback.title') }}
+          </el-button>
+        </div>
+      </el-card>
+    </div>
 
     <!-- 月度消费限制显示 -->
     <SpendingLimitDisplay :expenses="csvExpenses" />
