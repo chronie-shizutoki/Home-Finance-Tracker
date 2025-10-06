@@ -36,7 +36,7 @@
                 <el-option 
                   v-for="option in amountOptions" 
                   :key="option" 
-                  :label="`${option} 元`" 
+                  :label="`${option} `" 
                   :value="option"
                 />
                 <el-option :label="t('donation.enterCustomAmount')" value="custom" />
