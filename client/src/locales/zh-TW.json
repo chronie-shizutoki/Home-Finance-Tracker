@@ -88,6 +88,16 @@
   "expense.sort.dateAsc": "日期升序",
   "expense.sort.dateDesc": "日期降序",
   "expense.sort.amountAsc": "金額升序",
+  "miniapp": {
+    "title": "小程序",
+    "emptyList": "暫無可用的小程序",
+    "loading": "載入小程序中...",
+    "openApp": "打開應用",
+    "appName": "應用名稱",
+    "appDescription": "描述",
+    "author": "作者",
+    "version": "版本"
+  },
   "expense.sort.amountDesc": "金額降序",
   "expense.stats.rowCount": "記錄數",
   "expense.stats.totalAmount": "總金額",

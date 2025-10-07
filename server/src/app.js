@@ -29,6 +29,7 @@ app.use('/api/todos', require('./routes/todos'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
 app.use('/api/payments', require('./routes/payment'))
 app.use('/api/debts', require('./routes/debt'))
+app.use('/api/miniapp', require('./routes/miniapp'))
 app.use('/api', require('./routes/api'))
 
 // 根路径路由

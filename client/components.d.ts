@@ -38,6 +38,7 @@ declare module 'vue' {
     Header: typeof import('./src/components/Header.vue')['default']
     MarkdownDialog: typeof import('./src/components/MarkdownDialog.vue')['default']
     MessageTip: typeof import('./src/components/MessageTip.vue')['default']
+    MiniAppManager: typeof import('./src/components/MiniAppManager.vue')['default']
     PredictionDropdown: typeof import('./src/components/PredictionDropdown.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -45,5 +46,8 @@ declare module 'vue' {
     SpendingLimitSetting: typeof import('./src/components/SpendingLimitSetting.vue')['default']
     TodoItem: typeof import('./src/components/TodoItem.vue')['default']
     TodoList: typeof import('./src/components/TodoList.vue')['default']
+  }
+  export interface GlobalDirectives {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

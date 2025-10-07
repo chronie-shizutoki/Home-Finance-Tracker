@@ -102,6 +102,21 @@
         </div>
       </el-card>
       
+      <!-- 小程序功能组 -->
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('miniapp.title') }}</span>
+          </div>
+        </template>
+        <div class="card-content">
+          <el-button type="primary" @click="showMiniAppManager = true" size="default">
+            <el-icon><Box /></el-icon>
+            {{ t('miniapp.title') }}
+          </el-button>
+        </div>
+      </el-card>
+      
       <!-- 关于我们组 -->
       <el-card>
         <template #header>
@@ -323,7 +338,15 @@
     <!-- 待办事项对话框 -->
     <el-dialog v-model="showTodoDialog" :title="t('todo.title')" width="90%" top="5vh">
       <TodoList />
-    </el-dialog>
+  </el-dialog>
+  
+  <!-- 小程序管理器对话框 -->
+  <el-dialog v-model="showMiniAppManager" :title="t('miniapp.title')" width="90%" top="10vh">
+    <MiniAppManager />
+    <template #footer>
+      <el-button @click="showMiniAppManager = false">{{ t('common.cancel') }}</el-button>
+    </template>
+  </el-dialog>
 
 </template>
 
@@ -349,6 +372,7 @@ const ExportButton = defineAsyncComponent(() => import('@/components/ExportButto
 const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
 const TodoList = defineAsyncComponent(() => import('@/components/TodoList.vue'));
 const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/SpendingLimitDisplay.vue'));
+const MiniAppManager = defineAsyncComponent(() => import('@/components/MiniAppManager.vue'));
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -362,6 +386,8 @@ const showAiAddDialog = ref(false);
 const showMultiRecordsDialog = ref(false);
 // 新增：显示AI报告对话框
 const showAiReportDialog = ref(false);
+// 新增：显示小程序管理器对话框
+const showMiniAppManager = ref(false);
 const aiForm = reactive({
   text: '',
   image: []
