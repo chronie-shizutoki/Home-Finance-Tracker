@@ -7,9 +7,5 @@
   "type": "module",
   "dependencies": {
     "crypto-js": "^4.2.0"
-  },
-  "scripts": {
-    "test": "echo \"项目已成功创建！\"",
-    "cli": "node cli.js"
   }
 }
