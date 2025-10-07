@@ -1,7 +1,7 @@
 # Household Finance Manager
 
 ## Project Overview
-The Household Finance Manager is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities.
+The Household Finance Manager is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
 
 ## Key Features
 - **Multilingual Support**: Auto-adapting UI text and date formats (English, Chinese, etc.)
@@ -14,6 +14,14 @@ The Household Finance Manager is a modern multilingual financial management appl
 - **Budget Management**: Set and track monthly spending limits with warnings
 - **Security Features**: Data encryption and secure storage
 - **Responsive Design**: Optimized for both desktop and mobile devices
+- **Mini-Applications System**:
+  - Built-in mini-app manager for discovering and launching applications
+  - Support for automatic scanning of mini-applications in the public directory
+  - Custom metadata definition via package.json
+  - Example calculator mini-application included
+- **Debt Management**: Track and manage debts with detailed records
+- **To-Do List**: Manage tasks and reminders related to financial activities
+- **Donation Tracking**: Record and track charitable donations
 
 ## Setup & Usage
 ### Requirements
@@ -35,7 +43,23 @@ npm run dev:server  # Starts backend development server
 
 ## Project Structure
 - `client/`: Vue.js frontend application
+  - `public/`: Static assets and mini-applications
+    - `miniapp/`: Mini-applications directory containing individual apps
+  - `src/`: Source code
+    - `components/`: Reusable UI components
+    - `views/`: Application views/pages
+    - `api/`: API service calls
+    - `utils/`: Utility functions
+    - `assets/`: Static assets
+    - `styles/`: CSS stylesheets
+    - `locales/`: Internationalization files
 - `server/`: Node.js/Express backend server
+  - `src/`: Source code
+    - `controllers/`: Request handlers
+    - `models/`: Database models
+    - `routes/`: API routes
+    - `utils/`: Server utilities
+  - `data/`: Database files and migrations
 - `common.css`: Shared CSS styles
 - `start.bat`: Windows startup script
 
@@ -57,7 +81,24 @@ npm run dev:server  # Starts backend development server
 - `npm run test`: Run backend tests
 
 ## Tech Stack
-- **Frontend**: Vue 3, Vite, Element Plus, Chart.js, Vue I18n, Pinia, Vue Router
-- **Backend**: Express.js, SQLite3, Sequelize ORM
-- **Utilities**: Day.js (date handling), Papa Parse (CSV parsing), bcrypt (encryption)
-- **Dev Tools**: ESLint, Jest
+- **Frontend**:
+  - Vue 3 (JavaScript framework)
+  - Vite (build tool)
+  - Element Plus (Vue 3 UI component library)
+  - Chart.js (data visualization)
+  - Vue I18n (internationalization)
+  - Pinia (state management)
+  - Vue Router (client-side routing)
+  - Axios (HTTP client)
+- **Backend**:
+  - Express.js (web server framework)
+  - SQLite3 (database)
+  - Sequelize ORM (database abstraction)
+- **Utilities**:
+  - Day.js (date handling)
+  - Papa Parse (CSV parsing)
+  - bcrypt (encryption)
+- **Dev Tools**:
+  - ESLint (code quality)
+  - Jest (testing)
+  - nodemon (development auto-reload)
