@@ -326,7 +326,7 @@
 
     <!-- 添加/编辑对话框 -->
     <div v-if="dialogVisible" class="dialog-overlay">
-      <div class="dialog-content">
+      <div class="dialog-content" style="background-color: var(--bg-color-light);">
         <div class="dialog-header">
           <h3>{{ editingDebt ? t('debt.editDialogTitle') : t('debt.addDialogTitle') }}</h3>
           <button class="dialog-close" @click="cancelDialog">&times;</button>
@@ -1378,6 +1378,9 @@ onMounted(() => {
   margin-top: 4px;
   z-index: 100;
   animation: dropdownFadeIn 0.2s ease-out;
+  /* 确保下拉菜单背景不透明 */
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
 }
 
 /* 下拉菜单进入动画 */
@@ -1564,6 +1567,8 @@ onMounted(() => {
 
 .dialog-content {
   background-color: var(--bg-color-light);
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
   border-radius: var(--radius-large);
   width: 90%;
   max-width: 600px;
@@ -1572,6 +1577,8 @@ onMounted(() => {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   animation: dialogFadeIn 0.3s ease-out;
   border: 1px solid var(--border-light);
+  /* 确保背景不透明的最终保障 */
+  position: relative;
 }
 
 /* 对话框进入动画 */
