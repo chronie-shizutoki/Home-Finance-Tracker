@@ -84,3 +84,25 @@ function calculate() {
 
 // 初始化显示
 clearDisplay();
+
+// 主题检测和响应
+function checkSystemTheme() {
+    // 检测系统主题偏好
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // 可以在这里添加一些基于主题的额外处理
+    // 例如：在深色模式下调整某些特定的显示效果
+    
+    // 监听主题变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const newDarkMode = e.matches;
+        // 当主题变化时可以执行一些操作
+        console.log(`系统主题已切换为${newDarkMode ? '深色' : '浅色'}`);
+        
+        // 可以在这里添加需要的额外处理
+        // 例如：更新一些不通过CSS变量控制的元素
+    });
+}
+
+// 页面加载完成后检查系统主题
+document.addEventListener('DOMContentLoaded', checkSystemTheme);
