@@ -1,29 +1,97 @@
 <template>
   <div class="debt-container">
+    <Header :title="t('debt.title')" />
+    
     <div class="header-actions">
-      <h2>{{ t('debt.title') }}</h2>
       <button class="btn-primary" @click="showAddDialog">
+        <el-icon><Plus /></el-icon>
         {{ t('debt.addNewRecord') }}
       </button>
-      <Header title="" />
     </div>
 
     <!-- 筛选区域 -->
     <div class="filter-container">
       <div class="filter-row mb-4">
         <div class="filter-item">
-          <select v-model="filterType" class="filter-select">
-            <option value="">{{ t('debt.allTypes') }}</option>
-            <option value="lend">{{ t('debt.lend') }}</option>
-            <option value="borrow">{{ t('debt.borrow') }}</option>
-          </select>
+          <div class="custom-dropdown" ref="filterTypeDropdown">
+            <div 
+              class="dropdown-toggle filter-select"
+              @click="toggleDropdown('filterType')"
+            >
+              <span>{{ filterType ? t(`debt.${filterType}`) : t('debt.allTypes') }}</span>
+              <span class="dropdown-arrow" :class="{ 'open': dropdowns.filterType.isOpen }"></span>
+            </div>
+            <div 
+              class="dropdown-menu"
+              v-show="dropdowns.filterType.isOpen"
+              @click.stop
+            >
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': !filterType }"
+                @click="selectOption('filterType', '', filterType, '')"
+              >
+                {{ t('debt.allTypes') }}
+              </div>
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': filterType === 'lend' }"
+                @click="selectOption('filterType', 'lend', filterType, '')"
+              >
+                {{ t('debt.lend') }}
+              </div>
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': filterType === 'borrow' }"
+                @click="selectOption('filterType', 'borrow', filterType, '')"
+              >
+                {{ t('debt.borrow') }}
+              </div>
+            </div>
+          </div>
         </div>
         <div class="filter-item">
-          <select v-model="filterRepaid" class="filter-select">
-            <option value="">{{ t('debt.allStatus') }}</option>
-            <option value="true">{{ t('debt.repaid') }}</option>
-            <option value="false">{{ t('debt.unrepaid') }}</option>
-          </select>
+          <label>{{ t('debt.repaymentStatus') }}</label>
+          <div class="custom-dropdown" ref="filterRepaidDropdown">
+            <div 
+              class="dropdown-toggle filter-select"
+              @click="toggleDropdown('filterRepaid')"
+            >
+              <span>{{ 
+                filterRepaid === '' ? t('debt.allStatus') : 
+                filterRepaid === 'true' ? t('debt.repaid') : 
+                t('debt.unrepaid') 
+              }}</span>
+              <span class="dropdown-arrow" :class="{ 'open': dropdowns.filterRepaid.isOpen }"></span>
+            </div>
+            <div 
+              class="dropdown-menu"
+              v-show="dropdowns.filterRepaid.isOpen"
+              @click.stop
+            >
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': filterRepaid === '' }"
+                @click="selectOption('filterRepaid', '', filterRepaid, '')"
+              >
+                {{ t('debt.allStatus') }}
+              </div>
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': filterRepaid === 'true' }"
+                @click="selectOption('filterRepaid', 'true', filterRepaid, '')"
+              >
+                {{ t('debt.repaid') }}
+              </div>
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': filterRepaid === 'false' }"
+                @click="selectOption('filterRepaid', 'false', filterRepaid, '')"
+              >
+                {{ t('debt.unrepaid') }}
+              </div>
+            </div>
+          </div>
         </div>
         <div class="filter-item">
           <input 
@@ -193,12 +261,49 @@
     <div class="pagination-container" v-if="total > 0">
       <div class="pagination-info">{{ t('common.total') }}: {{ total }}</div>
       <div class="pagination-controls">
-        <select v-model="pagination.pageSize" @change="handleSizeChange" class="page-size-select">
-          <option value="10">10 {{ t('common.perPage') }}</option>
-          <option value="20">20 {{ t('common.perPage') }}</option>
-          <option value="50">50 {{ t('common.perPage') }}</option>
-          <option value="100">100 {{ t('common.perPage') }}</option>
-        </select>
+        <div class="custom-dropdown" ref="pageSizeDropdown">
+          <div 
+            class="dropdown-toggle page-size-select"
+            @click="toggleDropdown('pageSize')"
+          >
+            <span>{{ pagination.pageSize }} {{ t('common.perPage') }}</span>
+            <span class="dropdown-arrow" :class="{ 'open': dropdowns.pageSize.isOpen }"></span>
+          </div>
+          <div 
+            class="dropdown-menu"
+            v-show="dropdowns.pageSize.isOpen"
+            @click.stop
+          >
+            <div 
+              class="dropdown-item"
+              :class="{ 'selected': pagination.pageSize === 10 }"
+              @click="selectOption('pageSize', 10, pagination, 'pageSize')"
+            >
+              10 {{ t('common.perPage') }}
+            </div>
+            <div 
+              class="dropdown-item"
+              :class="{ 'selected': pagination.pageSize === 20 }"
+              @click="selectOption('pageSize', 20, pagination, 'pageSize')"
+            >
+              20 {{ t('common.perPage') }}
+            </div>
+            <div 
+              class="dropdown-item"
+              :class="{ 'selected': pagination.pageSize === 50 }"
+              @click="selectOption('pageSize', 50, pagination, 'pageSize')"
+            >
+              50 {{ t('common.perPage') }}
+            </div>
+            <div 
+              class="dropdown-item"
+              :class="{ 'selected': pagination.pageSize === 100 }"
+              @click="selectOption('pageSize', 100, pagination, 'pageSize')"
+            >
+              100 {{ t('common.perPage') }}
+            </div>
+          </div>
+        </div>
         <button 
           class="btn-small" 
           @click="handleCurrentChange(pagination.currentPage - 1)"
@@ -229,10 +334,35 @@
         <div class="dialog-body">
         <div class="form-item">
           <label>{{ t('debt.type') }} *</label>
-          <select v-model="debtForm.type" class="form-select">
-            <option value="lend">{{ t('debt.lend') }}</option>
-            <option value="borrow">{{ t('debt.borrow') }}</option>
-          </select>
+          <div class="custom-dropdown" ref="dialogTypeDropdown">
+            <div 
+              class="dropdown-toggle form-select"
+              @click="toggleDropdown('dialogType')"
+            >
+              <span>{{ t(`debt.${debtForm.type}`) }}</span>
+              <span class="dropdown-arrow" :class="{ 'open': dropdowns.dialogType.isOpen }"></span>
+            </div>
+            <div 
+              class="dropdown-menu"
+              v-show="dropdowns.dialogType.isOpen"
+              @click.stop
+            >
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': debtForm.type === 'lend' }"
+                @click="selectOption('dialogType', 'lend', debtForm, 'type')"
+              >
+                {{ t('debt.lend') }}
+              </div>
+              <div 
+                class="dropdown-item"
+                :class="{ 'selected': debtForm.type === 'borrow' }"
+                @click="selectOption('dialogType', 'borrow', debtForm, 'type')"
+              >
+                {{ t('debt.borrow') }}
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-item">
           <label>{{ t('debt.person') }} *</label>
@@ -302,7 +432,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DebtAPI } from '@/api';
 import Header from '@/components/Header.vue';
@@ -324,6 +454,53 @@ const filterType = ref('');
 const filterRepaid = ref('');
 const filterPerson = ref('');
 const dateRange = ref([]);
+
+// 自定义下拉菜单状态
+const dropdowns = reactive({
+  filterType: { isOpen: false },
+  filterRepaid: { isOpen: false },
+  pageSize: { isOpen: false },
+  dialogType: { isOpen: false }
+});
+
+// 关闭所有下拉菜单
+const closeAllDropdowns = () => {
+  Object.keys(dropdowns).forEach(key => {
+    dropdowns[key].isOpen = false;
+  });
+};
+
+// 切换下拉菜单
+const toggleDropdown = (key) => {
+  // 如果点击的是同一个下拉菜单，则切换状态；否则关闭其他下拉菜单并打开当前菜单
+  if (dropdowns[key].isOpen) {
+    dropdowns[key].isOpen = false;
+  } else {
+    closeAllDropdowns();
+    dropdowns[key].isOpen = true;
+  }
+};
+
+// 选择下拉菜单选项
+const selectOption = (key, value, updateModel = null, modelValue = null) => {
+  dropdowns[key].isOpen = false;
+  if (updateModel && modelValue !== undefined) {
+    updateModel[modelValue] = value;
+  }
+};
+
+// 点击外部关闭下拉菜单
+const handleClickOutside = (event) => {
+  // 如果点击不在任何下拉菜单内，关闭所有下拉菜单
+  if (!event.target.closest('.custom-dropdown')) {
+    closeAllDropdowns();
+  }
+};
+
+// 监听点击事件，用于关闭下拉菜单
+nextTick(() => {
+  document.addEventListener('click', handleClickOutside);
+});
 
 // 分页数据
 const pagination = reactive({
@@ -551,252 +728,378 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 基础样式 - 浅色模式 */
+/* 全局CSS变量定义 */
+:root {
+  /* 主题色 */
+  --primary-color: #409eff;
+  --primary-hover: #66b1ff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --danger-hover: #f78989;
+  
+  /* 背景色 */
+  --bg-color: #f5f7fa;
+  --bg-color-light: #ffffff;
+  --bg-color-dark: #f0f2f5;
+  
+  /* 文字颜色 */
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  --text-placeholder: #c0c4cc;
+  
+  /* 边框颜色 */
+  --border-color: #dcdfe6;
+  --border-light: #ebeef5;
+  --border-lighter: #f5f7fa;
+  
+  /* 阴影 */
+  --shadow-base: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-light: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+  
+  /* 圆角 */
+  --radius-small: 4px;
+  --radius-base: 6px;
+  --radius-large: 8px;
+}
+
+/* 深色模式变量 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 主题色 */
+    --primary-color: #409eff;
+    --primary-hover: #66b1ff;
+    
+    /* 背景色 */
+    --bg-color: #1a1a1a;
+    --bg-color-light: #2a2a2a;
+    --bg-color-dark: #333;
+    
+    /* 文字颜色 */
+    --text-primary: #e0e0e0;
+    --text-regular: #cccccc;
+    --text-secondary: #aaa;
+    --text-placeholder: #888;
+    
+    /* 边框颜色 */
+    --border-color: #444;
+    --border-light: #555;
+    --border-lighter: #666;
+    
+    /* 阴影 */
+    --shadow-base: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    --shadow-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 基础样式 */
 .debt-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  color: var(--text-primary);
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
-/* 深色模式适配 */
+/* 渐入动画效果 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-container,
+.table-container,
+.cards-container,
+.pagination-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 深色模式适配 - 覆盖特定样式 */
 @media (prefers-color-scheme: dark) {
-  .debt-container {
-    color: #e0e0e0;
-  }
-
-  .filter-container {
-    background-color: #2a2a2a !important;
-  }
-
-  .debt-card {
-    background-color: #2a2a2a !important;
-   color: #fffdfd !important;
-  }
-  
-  .debt-card .el-card__header {
-    background-color: #2a2a2a !important;
-  }
-  
-  .dialog-content {
-    background-color: rgb(0, 0, 0) !important;
-  }
-  /* 按钮样式 - 深色模式 */
-  .btn {
-    background-color: #333;
-    color: #e0e0e0;
-    border: 1px solid #444;
-  }
-  
-  .btn:hover {
-    background-color: #444;
-  }
-  
-  /* 筛选区域样式 - 深色模式 */
-  .filter-container {
-    background-color: #2a2a2a;
-  }
-  
-  .filter-select,
-  .filter-input,
-  .date-input,
-  .form-select,
-  .form-input,
-  .form-textarea {
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    border-color: #444;
-  }
-  
-  .filter-select:focus,
-  .filter-input:focus,
-  .date-input:focus,
-  .form-select:focus,
-  .form-input:focus,
-  .form-textarea:focus {
-    border-color: #409eff;
-    background-color: #333;
-  }
-  
-  .range-separator,
-  .switch-label,
-  .pagination-info,
-  .page-info {
-    color: #aaa;
-  }
-  
-  /* 表格样式 - 深色模式 */
-  .debt-table {
-    background-color: #2a2a2a;
-  }
-  
-  .debt-table th,
-  .debt-table td {
-    border-color: #444;
-    color: #e0e0e0;
-  }
-  
-  .debt-table th {
-    background-color: #333;
-    color: #e0e0e0;
-  }
-  
-  .debt-table tr:hover {
-    background-color: #333;
-  }
-  
   /* 类型标签 - 深色模式 */
   .tag-success {
-    background-color: #1a362a;
-    color: #67c23a;
+    background-color: rgba(103, 194, 58, 0.15);
+    color: var(--success-color);
   }
   
   .tag-warning {
-    background-color: #3a301a;
-    color: #e6a23c;
+    background-color: rgba(230, 162, 60, 0.15);
+    color: var(--warning-color);
   }
   
   /* 开关样式 - 深色模式 */
   .form-switch {
-    background-color: #555;
+    background-color: var(--border-light);
   }
   
-  /* 分页样式 - 深色模式 */
-  .page-size-select {
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    border-color: #444;
+  /* 空状态样式 - 深色模式 */
+  .empty-state {
+    background-color: var(--bg-color-light);
+    color: var(--text-secondary);
   }
   
-  /* 对话框样式 - 深色模式 */
-  .dialog-content {
-    background-color: #2a2a2a;
+  /* 自定义下拉菜单 - 深色模式 */
+  .dropdown-menu {
+    background-color: var(--bg-color-light);
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-hover);
   }
   
-  .dialog-header,
-  .dialog-footer {
-    border-color: #444;
+  .dropdown-item {
+    color: var(--text-primary);
   }
   
-  .dialog-header h3 {
-    color: #e0e0e0;
+  .dropdown-item:hover {
+    background-color: var(--bg-color-dark);
+    color: var(--primary-color);
   }
   
-  .dialog-close {
-    color: #aaa;
+  .dropdown-item.selected {
+    background-color: var(--bg-color-dark);
+    color: var(--primary-color);
   }
   
-  .dialog-close:hover {
-    background-color: #333;
-    color: #e0e0e0;
+  /* 分页控件 - 深色模式 */
+  .pagination-controls .dropdown-toggle.page-size-select {
+    background-color: var(--bg-color-light);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
   
-  .form-item label {
-    color: #e0e0e0;
+  /* 移除未使用的硬编码样式 - 确保统一使用CSS变量 */
+  .debt-table th {
+    color: var(--text-primary) !important;
   }
   
-  /* 加载状态样式 - 深色模式 */
-  .loading-container {
+  .debt-table tr:hover {
+    background-color: var(--bg-color-dark) !important;
+  }
+  
+  .switch-label {
+    color: var(--text-regular);
+  }
+  
+  .btn-danger-small {
+    background-color: var(--danger-color);
+  }
+  
+  .btn-danger-small:hover {
+    background-color: var(--danger-hover);
+  }
+  
+  .btn-primary-small {
+    background-color: var(--primary-color);
+  }
+  
+  .btn-primary-small:hover {
+    background-color: var(--primary-hover);
+  }
+}
+
+/* 加载状态样式 - 深色模式 */
+.loading-container {
     background-color: #2a2a2a;
   }
   
   /* 卡片布局样式 - 深色模式 */
   .debt-card {
-    background-color: #2a2a2a;
+    background-color: var(--bg-color-light);
   }
   
   .card-header,
   .card-footer {
-    background-color: #333 !important;
-    border-color: #444;
+    background-color: var(--bg-color-dark) !important;
+    border-color: var(--border-color);
   }
   
   .card-index {
-    color: #aaa;
+    color: var(--text-secondary);
   }
   
   .card-row.remark {
-    border-color: #444;
+    border-color: var(--border-color);
   }
   
   .card-row.remark .value {
-    color: #aaa;
+    color: var(--text-secondary);
   }
   
   .label {
-    color: #e0e0e0;
+    color: var(--text-regular);
   }
   
   .value {
-    color: #f0f0f0;
+    color: var(--text-primary);
   }
   
   /* 空状态样式 - 深色模式 */
   .empty-state {
-    color: #aaa;
-    background-color: #2a2a2a;
+    color: var(--text-secondary);
+    background-color: var(--bg-color-light);
   }
 
 .form-item label {
-  color: #fdfdfd !important;
+  color: var(--text-primary) !important;
 }
 
+/* 基础样式 */
+.debt-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--text-primary);
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
-/* 基础样式 - 继续 */
-
+/* 头部操作区域 */
 .header-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
-.header-actions h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-/* 按钮样式 */
+/* 按钮样式 - 微交互增强 */
 .btn,
 .btn-primary {
   padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-base);
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  box-shadow: var(--shadow-base);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* 按钮悬停效果 - 背景渐变 */
+.btn::before,
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: width 0.5s ease;
+  z-index: -1;
+}
+
+.btn:hover::before,
+.btn-primary:hover::before {
+  width: 120%;
 }
 
 .btn {
-  background-color: #f5f5f5;
-  color: #606266;
+  background-color: var(--bg-color);
+  color: var(--text-regular);
+  border: 1px solid var(--border-color);
 }
 
 .btn:hover {
-  background-color: #e6e6e6;
+  background-color: var(--border-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
 }
 
 .btn-primary {
-  background-color: #409eff;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #66b1ff;
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
 }
 
 .btn-primary:disabled {
-  background-color: #c0c4cc;
+  background-color: var(--text-placeholder);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* 筛选区域样式 */
+/* 按钮点击动画 */
+.btn:active,
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-base);
+}
+
+.btn-small,
+.btn-primary-small,
+.btn-danger-small {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-small);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+}
+
+.btn-small {
+  background-color: var(--bg-color);
+  color: var(--text-regular);
+  border: 1px solid var(--border-color);
+}
+
+.btn-small:hover {
+  background-color: var(--border-light);
+}
+
+.btn-primary-small {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-primary-small:hover {
+  background-color: #66b1ff;
+}
+
+.btn-danger-small {
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+}
+
+.btn-danger-small:hover {
+  background-color: #f78989;
+}
+
+/* 筛选区域样式 - 增强视觉层次 */
 .filter-container {
-  background-color: #f5f7fa;
-  padding: 16px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  background-color: var(--bg-color-light);
+  padding: 24px;
+  border-radius: var(--radius-large);
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-base);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-light);
+}
+
+/* 筛选区域悬停效果 */
+.filter-container:hover {
+  box-shadow: var(--shadow-light);
+  transform: translateY(-1px);
 }
 
 .filter-row {
@@ -811,22 +1114,35 @@ onMounted(() => {
   min-width: 200px;
 }
 
+/* 筛选区域输入框样式 - 增强视觉效果 */
 .filter-select,
 .filter-input,
 .date-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-base);
   font-size: 14px;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background-color: var(--bg-color-light);
+  color: var(--text-primary);
 }
 
+/* 输入框聚焦效果 */
 .filter-select:focus,
 .filter-input:focus,
 .date-input:focus {
   outline: none;
-  border-color: #409eff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 输入框悬停效果 */
+.filter-select:hover,
+.filter-input:hover,
+.date-input:hover {
+  border-color: var(--primary-color);
 }
 
 .date-range {
@@ -851,19 +1167,37 @@ onMounted(() => {
   align-items: flex-end;
 }
 
-/* 表格样式 */
+/* 表格样式 - 增强视觉层次感 */
 .debt-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-color-light);
+  box-shadow: var(--shadow-base);
+  border-radius: var(--radius-large);
+  overflow: hidden;
 }
 
 .debt-table th,
 .debt-table td {
-  padding: 12px;
-  border: 1px solid #ebeef5;
+  padding: 14px 16px;
+  border: 1px solid var(--border-light);
   text-align: left;
+  transition: all 0.3s ease;
+}
+
+/* 表格头部增强 */
+.debt-table th {
+  background-color: var(--bg-color-dark);
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+}
+
+/* 表格行悬停效果 */
+.debt-table tr:hover {
+  background-color: var(--bg-color-dark);
+  transform: scale(1.002);
+  transition: all 0.2s ease;
 }
 
 .debt-table th {
@@ -889,6 +1223,84 @@ onMounted(() => {
 .tag-warning {
   background-color: #fdf6ec;
   color: #e6a23c;
+}
+
+/* 自定义下拉菜单样式 */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 10;
+}
+
+.dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dropdown-arrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--text-secondary);
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--bg-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-hover);
+  margin-top: 4px;
+  z-index: 100;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+/* 下拉菜单进入动画 */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+  background-color: var(--bg-color-dark);
+  color: var(--primary-color);
+}
+
+.dropdown-item.selected {
+  background-color: var(--bg-color-dark);
+  color: var(--primary-color);
+  font-weight: 500;
 }
 
 /* 开关样式 */
@@ -973,17 +1385,22 @@ onMounted(() => {
   background-color: #f78989;
 }
 
-/* 分页样式 */
+/* 分页样式 - 增强视觉效果 */
 .pagination-container {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background-color: var(--bg-color-light);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-base);
+  border: 1px solid var(--border-light);
 }
 
 .pagination-info {
   font-size: 14px;
-  color: #606266;
+  color: var(--text-regular);
 }
 
 .pagination-controls {
@@ -992,11 +1409,28 @@ onMounted(() => {
   gap: 12px;
 }
 
-.page-size-select {
-  padding: 4px 8px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+/* 分页下拉菜单特殊样式 */
+.pagination-controls .custom-dropdown {
+  width: auto;
+  min-width: 120px;
+}
+
+.pagination-controls .dropdown-toggle.page-size-select {
+  padding: 4px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-base);
   font-size: 14px;
+  background-color: var(--bg-color-light);
+  color: var(--text-primary);
+  min-width: 100px;
+}
+
+.pagination-controls .dropdown-toggle.page-size-select:hover {
+  border-color: var(--primary-color);
+}
+
+.pagination-controls .dropdown-menu {
+  min-width: 120px;
 }
 
 .page-info {
@@ -1004,7 +1438,7 @@ onMounted(() => {
   color: #606266;
 }
 
-/* 对话框样式 */
+/* 对话框样式 - 增强视觉效果 */
 .dialog-overlay {
   position: fixed;
   top: 0;
@@ -1016,15 +1450,25 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .dialog-content {
-  background-color: white;
-  border-radius: 4px;
+  background-color: var(--bg-color-light);
+  border-radius: var(--radius-large);
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: dialogFadeIn 0.3s ease-out;
+  border: 1px solid var(--border-light);
+}
+
+/* 对话框进入动画 */
+@keyframes dialogFadeIn {
+  from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .dialog-header {
@@ -1065,27 +1509,46 @@ onMounted(() => {
   padding: 20px;
 }
 
-/* 表单样式 */
+/* 表单样式 - 增强视觉效果 */
 .form-item {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-item label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #303133;
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
 .form-select,
 .form-input,
 .form-textarea {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-base);
   font-size: 14px;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background-color: var(--bg-color-light);
+  color: var(--text-primary);
+}
+
+/* 表单元素聚焦效果 */
+.form-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+/* 表单元素悬停效果 */
+.form-select:hover,
+.form-input:hover,
+.form-textarea:hover {
+  border-color: var(--primary-color);
 }
 
 .form-select:focus,
@@ -1136,7 +1599,7 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-/* 卡片布局样式 */
+/* 卡片布局样式 - 增强视觉效果 */
 .cards-container {
   display: none;
   gap: 16px;
@@ -1144,10 +1607,18 @@ onMounted(() => {
 }
 
 .debt-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-color-light);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-base);
   overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-light);
+}
+
+/* 卡片悬停效果 */
+.debt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
 }
 
 .card-header {
@@ -1232,25 +1703,68 @@ onMounted(() => {
 /* 状态开关深色模式 */
 @media (prefers-color-scheme: dark) {
   .empty-state {
-    background-color: #20222a !important;
+    background-color: var(--bg-color-light) !important;
   }
 
-.debt-table th,
-.debt-table td {
-  background-color: #20222a !important;
-  color: #fff !important;
-}
+  .debt-table th,
+  .debt-table td {
+    background-color: var(--bg-color-light) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+  }
+
+  .debt-table th {
+    background-color: var(--bg-color-dark) !important;
+  }
 
   .table-container {
-    background-color: #20222a !important;
+    background-color: var(--bg-color-light) !important;
   }
 
   .cards-container {
-    background-color: #20222a !important;
+    background-color: var(--bg-color-light) !important;
   }
 
   .status-switch .slider {
-    background-color: #555;
+    background-color: var(--border-light);
+  }
+  
+  /* 对话框深色模式优化 */
+  .dialog-content {
+    background-color: var(--bg-color-light) !important;
+    border-color: var(--border-color);
+  }
+  
+  .dialog-header,
+  .dialog-footer {
+    border-color: var(--border-color);
+  }
+  
+  .dialog-close:hover {
+    background-color: var(--bg-color-dark);
+  }
+  
+  /* 卡片组件深色模式优化 */
+  .card-header,
+  .card-footer {
+    background-color: var(--bg-color-dark) !important;
+    border-color: var(--border-color);
+  }
+  
+  .label {
+    color: var(--text-regular);
+  }
+  
+  .value {
+    color: var(--text-primary);
+  }
+  
+  .card-row.remark {
+    border-color: var(--border-color);
+  }
+  
+  .card-row.remark .value {
+    color: var(--text-secondary);
   }
 }
 
