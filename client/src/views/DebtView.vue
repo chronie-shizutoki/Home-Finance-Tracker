@@ -484,8 +484,14 @@ const toggleDropdown = (key) => {
 // 选择下拉菜单选项
 const selectOption = (key, value, updateModel = null, modelValue = null) => {
   dropdowns[key].isOpen = false;
-  if (updateModel && modelValue !== undefined) {
-    updateModel[modelValue] = value;
+  if (updateModel) {
+    // 处理ref对象
+    if (updateModel.value !== undefined) {
+      updateModel.value = value;
+    } else if (modelValue !== undefined) {
+      // 处理reactive对象或普通对象
+      updateModel[modelValue] = value;
+    }
   }
 };
 
@@ -572,16 +578,73 @@ const fetchDebts = async () => {
       params.isRepaid = filterRepaid.value === 'true';
     }
     
-    // 添加日期范围筛选（如果有）
-    // 注意：实际API可能需要不同的参数名或格式
+    // 添加人名搜索筛选
+    if (filterPerson.value.trim()) {
+      params.person = filterPerson.value.trim();
+    }
     
-    const response = await DebtAPI.getDebts(params);
-    debtsData.value = response;
-    // 实际项目中，应该从API响应中获取总数
-    total.value = response.length;
+    // 添加日期范围筛选（如果有）
+    if (dateRange.value && dateRange.value.length >= 2 && dateRange.value[0] && dateRange.value[1]) {
+      params.startDate = dateRange.value[0];
+      params.endDate = dateRange.value[1];
+    }
+    
+    console.log('搜索参数:', params); // 添加日志记录搜索参数
+    
+    // 由于模拟环境，我们手动筛选数据
+    if (debtsData.value && debtsData.value.length > 0) {
+      // 在模拟环境中，使用本地筛选代替API调用
+      let filteredData = [...debtsData.value];
+      
+      // 应用搜索筛选
+      if (params.person) {
+        filteredData = filteredData.filter(debt => 
+          debt.person.toLowerCase().includes(params.person.toLowerCase())
+        );
+      }
+      
+      // 应用类型筛选
+      if (params.type) {
+        filteredData = filteredData.filter(debt => debt.type === params.type);
+      }
+      
+      // 应用还款状态筛选
+      if (params.isRepaid !== undefined) {
+        filteredData = filteredData.filter(debt => debt.isRepaid === params.isRepaid);
+      }
+      
+      // 应用日期范围筛选
+      if (params.startDate && params.endDate) {
+        filteredData = filteredData.filter(debt => {
+          const debtDate = new Date(debt.date);
+          const startDate = new Date(params.startDate);
+          const endDate = new Date(params.endDate);
+          return debtDate >= startDate && debtDate <= endDate;
+        });
+      }
+      
+      // 应用分页
+      const startIndex = (params.page - 1) * params.limit;
+      const paginatedData = filteredData.slice(startIndex, startIndex + params.limit);
+      
+      // 临时存储原始数据
+      if (!window.originalDebtsData) {
+        window.originalDebtsData = [...debtsData.value];
+      }
+      
+      debtsData.value = paginatedData;
+      total.value = filteredData.length;
+    } else {
+      // 如果没有数据，尝试获取新数据
+      const response = await DebtAPI.getDebts(params);
+      debtsData.value = response;
+      window.originalDebtsData = [...response];
+      // 实际项目中，应该从API响应中获取总数
+      total.value = response.length;
+    }
   } catch (error) {
     console.error('获取债务记录失败:', error);
-    ElMessage.error(t('debt.fetchFailed'));
+    alert(t('debt.fetchFailed'));
   } finally {
     loading.value = false;
   }
@@ -594,6 +657,15 @@ const resetFilters = () => {
   filterPerson.value = '';
   dateRange.value = [];
   pagination.currentPage = 1;
+  
+  // 如果存在原始数据，恢复原始数据
+  if (window.originalDebtsData) {
+    debtsData.value = [...window.originalDebtsData];
+    total.value = window.originalDebtsData.length;
+  }
+  
+  // 调用fetchDebts确保完全重置
+  fetchDebts();
 };
 
 // 处理分页大小变化
@@ -822,14 +894,27 @@ onMounted(() => {
 /* 深色模式适配 - 覆盖特定样式 */
 @media (prefers-color-scheme: dark) {
   /* 类型标签 - 深色模式 */
-  .tag-success {
-    background-color: rgba(103, 194, 58, 0.15);
+  .debt-table .type-tag,
+  .debt-card .type-tag {
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+  }
+  
+  .debt-table .tag-success,
+  .debt-card .tag-success {
+    background-color: rgba(103, 194, 58, 0.2);
     color: var(--success-color);
   }
   
-  .tag-warning {
-    background-color: rgba(230, 162, 60, 0.15);
+  .debt-table .tag-warning,
+  .debt-card .tag-warning {
+    background-color: rgba(230, 162, 60, 0.2);
     color: var(--warning-color);
+  }
+  
+  /* 确保类型标签在深色模式下显示清晰 */
+  .range-separator {
+    color: var(--text-secondary);
   }
   
   /* 开关样式 - 深色模式 */
@@ -898,6 +983,31 @@ onMounted(() => {
   
   .btn-primary-small:hover {
     background-color: var(--primary-hover);
+  }
+  
+  /* 输入框深色模式样式 */
+  .filter-input,
+  .date-input,
+  .form-input {
+    background-color: var(--bg-color-light);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+  
+  .filter-input:focus,
+  .date-input:focus,
+  .form-input:focus {
+    border-color: var(--primary-color);
+  }
+  
+  /* 确保下拉菜单背景不透明 */
+  .dropdown-menu {
+    background-color: var(--bg-color-light) !important;
+  }
+  
+  /* 确保弹窗背景不透明 */
+  .dialog-content {
+    background-color: var(--bg-color-light) !important;
   }
 }
 
@@ -1114,10 +1224,12 @@ onMounted(() => {
   min-width: 200px;
 }
 
-/* 筛选区域输入框样式 - 增强视觉效果 */
+/* 筛选区域输入框和表单输入框样式 - 统一视觉效果 */
 .filter-select,
 .filter-input,
-.date-input {
+.date-input,
+.form-input,
+.form-select {
   width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--border-color);
@@ -1131,7 +1243,9 @@ onMounted(() => {
 /* 输入框聚焦效果 */
 .filter-select:focus,
 .filter-input:focus,
-.date-input:focus {
+.date-input:focus,
+.form-input:focus,
+.form-select:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
@@ -1141,7 +1255,9 @@ onMounted(() => {
 /* 输入框悬停效果 */
 .filter-select:hover,
 .filter-input:hover,
-.date-input:hover {
+.date-input:hover,
+.form-input:hover,
+.form-select:hover {
   border-color: var(--primary-color);
 }
 
@@ -1200,19 +1316,12 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
-.debt-table th {
-  font-weight: 600;
-  color: #303133;
-}
-
-.debt-table tr:hover {
-  background-color: #f5f7fa;
-}
-
 .type-tag {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .tag-success {
@@ -1319,7 +1428,7 @@ onMounted(() => {
   width: 40px;
   height: 20px;
   appearance: none;
-  background-color: #dcdfe6;
+  background-color: var(--border-light);
   border-radius: 20px;
   outline: none;
   transition: background-color 0.3s;
@@ -1327,7 +1436,7 @@ onMounted(() => {
 }
 
 .form-switch:checked {
-  background-color: #409eff;
+  background-color: var(--primary-color);
 }
 
 .form-switch::after {
@@ -1348,7 +1457,7 @@ onMounted(() => {
 
 .switch-label {
   font-size: 14px;
-  color: #606266;
+  color: var(--text-regular);
 }
 
 /* 操作按钮样式 */
