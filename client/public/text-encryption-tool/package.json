@@ -1,0 +1,15 @@
+{
+  "name": "文本加密工具",
+  "description": "使用AES-256加密算法的文本加密工具，支持将加密结果转换为拟声词组合",
+  "version": "1.0.0",
+  "author": "胖猪",
+  "main": "index.html",
+  "type": "module",
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  },
+  "scripts": {
+    "test": "echo \"项目已成功创建！\"",
+    "cli": "node cli.js"
+  }
+}
