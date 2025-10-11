@@ -62,6 +62,18 @@
               </div>
             </div>
           </el-form-item>
+          
+          <!-- 金流服务费用提示 -->
+          <div class="payment-fee-notice">
+            <el-alert
+              :title="t('donation.feeNoticeTitle')"
+              type="info"
+              :closable="false"
+              class="fee-alert"
+            >
+              <p class="fee-message">{{ t('donation.feeNoticeContent') }}</p>
+            </el-alert>
+          </div>
         
           <el-form-item class="submit-button-container">
             <el-button 
@@ -398,6 +410,35 @@ const resetDonationResult = () => {
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
+}
+
+/* 金流服务费用提示样式 */
+.payment-fee-notice {
+  margin-bottom: 24px;
+}
+
+/* 液态玻璃效果的提示框 */
+:deep(.fee-alert.el-alert--info) {
+  background: rgba(144, 147, 153, 0.15) !important;
+  border-color: rgba(144, 147, 153, 0.3) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(144, 147, 153, 0.15);
+}
+
+:deep(.fee-alert .el-alert__title) {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px;
+}
+
+.fee-message {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 

@@ -258,6 +258,8 @@
     "amountMustBePositive": "Amount must be greater than 0",
     "amountMustBeAtLeast100": "Amount must be at least 100",
     "amountMaxTwoDecimals": "Amount can have a maximum of two decimal places",
+    "feeNoticeTitle": "Fee Notice",
+    "feeNoticeContent": "Using payment gateway may incur a 30% service fee. This page displays the original amount without the service fee.",
     "successTitle": "Donation Successful",
     "failureTitle": "Donation Failed",
     "successMessage": "Thank you for your ${amount} donation! Your support will help us continuously improve the app.",

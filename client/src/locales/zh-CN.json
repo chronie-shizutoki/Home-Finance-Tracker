@@ -254,6 +254,8 @@
     "amountMustBePositive": "金额必须大于0",
     "amountMustBeAtLeast100": "金额必须大于或等于100元",
     "amountMaxTwoDecimals": "金额最多只能有两位小数",
+    "feeNoticeTitle": "费用说明",
+    "feeNoticeContent": "使用金流可能需要向金流支付服务提供商支付30%的服务费用，此页面向您展示的费用为不包含服务费用的原始价格",
     "successTitle": "捐赠成功",
     "failureTitle": "捐赠失败",
     "successMessage": "感谢您的{amount}元捐赠！您的支持将帮助我们持续改进应用。",
