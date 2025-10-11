@@ -50,9 +50,12 @@ const donate = async (req, res) => {
       thirdPartyId: process.env.THIRD_PARTY_ID || 'HomeMoney',
       thirdPartyName: process.env.THIRD_PARTY_NAME || '家庭财务管理应用',
       description: `
-        用户${username}的捐赠 - 金额：${amount} - 时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')} \n若有问题请联系我们：https://wj.qq.com/s2/24109109/3572/ \n,
-        用戶${username}的捐贈 - 金額：${amount} - 時間：${dayjs().format('YYYY-MM-DD HH:mm:ss')} \n若有問題請聯繫我們：https://wj.qq.com/s2/24109109/3572/ \n,
-        Donation by user ${username} - Amount: ${amount} - Time: ${dayjs().format('YYYY-MM-DD HH:mm:ss')} \nIf you have any questions, please contact us: https://wj.qq.com/s2/24109109/3572/ \n
+        Donation by user ${username}的捐赠
+        金额 Amount：${amount}
+        时间 Time：${dayjs().format('YYYY-MM-DD HH:mm:ss')}
+        若有问题请联系我们：
+        If you have any questions, please contact us: 
+        https://wj.qq.com/s2/24109109/3572/
       `
     }
     
