@@ -377,6 +377,163 @@ const MiniAppManager = defineAsyncComponent(() => import('@/components/MiniAppMa
 const { t, locale } = useI18n();
 const router = useRouter();
 
+// 播放警报声 - 支持循环多秒
+const playAlertSound = (duration = 5) => {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    
+    // 创建循环效果
+    let currentTime = audioContext.currentTime;
+    const cycleDuration = 1; // 每次循环的持续时间（秒）
+    const cycles = Math.ceil(duration / cycleDuration);
+    
+    // 生成多个频率变化的循环
+    for (let i = 0; i < cycles; i++) {
+      const startTime = currentTime + i * cycleDuration;
+      
+      // 设置上升和下降的音调变化
+      oscillator.frequency.setValueAtTime(1000, startTime);
+      oscillator.frequency.exponentialRampToValueAtTime(1200, startTime + 0.3);
+      oscillator.frequency.exponentialRampToValueAtTime(800, startTime + 0.7);
+      oscillator.frequency.exponentialRampToValueAtTime(1000, startTime + 1);
+    }
+    
+    // 最后淡出
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + duration - 0.5);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch (error) {
+    console.error('播放警报声失败:', error);
+  }
+}
+
+// 显示大额消费警告 - 支持回调
+let warningCallback = null;
+const showLargeExpenseWarning = (callback = null) => {
+  playAlertSound(5); // 播放5秒的循环警报声
+  
+  // 存储回调函数
+  warningCallback = callback;
+  
+  // 创建全屏警告弹窗
+  const warningContainer = document.createElement('div');
+  warningContainer.id = 'largeExpenseWarning'; // 添加ID以便查找
+  warningContainer.style.position = 'fixed';
+  warningContainer.style.top = '0';
+  warningContainer.style.left = '0';
+  warningContainer.style.width = '100%';
+  warningContainer.style.height = '100%';
+  warningContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+  warningContainer.style.zIndex = '99999'; // 提高z-index确保显示在最上层
+  warningContainer.style.display = 'flex';
+  warningContainer.style.flexDirection = 'column';
+  warningContainer.style.justifyContent = 'center';
+  warningContainer.style.alignItems = 'center';
+  warningContainer.style.color = 'white';
+  warningContainer.style.fontSize = '3rem';
+  warningContainer.style.fontWeight = 'bold';
+  warningContainer.style.textAlign = 'center';
+  warningContainer.style.padding = '2rem';
+  warningContainer.style.animation = 'blink 0.5s infinite alternate';
+  
+  // 添加闪烁动画样式
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'largeExpenseWarningStyle';
+  styleSheet.textContent = `
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.7; }
+    }
+    #largeExpenseWarning {
+      position: fixed !important;
+      z-index: 99999 !important;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+  
+  const warningText = document.createElement('div');
+  warningText.textContent = t('expense.largeExpense.warning');
+  warningText.style.marginBottom = '2rem';
+  warningText.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
+  
+  const confirmButton = document.createElement('button');
+  confirmButton.id = 'largeExpenseConfirmButton';
+  confirmButton.textContent = t('expense.largeExpense.confirm');
+  confirmButton.style.padding = '0.8rem 2rem';
+  confirmButton.style.fontSize = '1.2rem';
+  confirmButton.style.backgroundColor = 'white';
+  confirmButton.style.color = 'red';
+  confirmButton.style.border = 'none';
+  confirmButton.style.borderRadius = '4px';
+  confirmButton.style.cursor = 'pointer';
+  confirmButton.style.fontWeight = 'bold';
+  confirmButton.style.zIndex = '100000'; // 确保按钮也在最上层
+  
+  confirmButton.addEventListener('click', () => {
+    document.body.removeChild(warningContainer);
+    document.head.removeChild(styleSheet);
+    // 执行回调函数
+    if (typeof warningCallback === 'function') {
+      warningCallback();
+      warningCallback = null;
+    }
+  });
+  
+  // 确保即使在对话框后面也能看到警告
+  const dialogs = document.querySelectorAll('.el-dialog__wrapper');
+  dialogs.forEach(dialog => {
+    dialog.style.zIndex = '99998'; // 让对话框在警告后面
+  });
+  
+  warningContainer.appendChild(warningText);
+  warningContainer.appendChild(confirmButton);
+  document.body.appendChild(warningContainer);
+};
+
+// 检查并显示大额消费警告
+const checkAndShowLargeExpenseWarning = async (records) => {
+  // 检查是否有单笔大于500元的消费
+  const hasLargeExpense = records.some(record => parseFloat(record.amount) > 500);
+  
+  if (hasLargeExpense) {
+    // 创建一个Promise来等待用户点击确认按钮
+    return new Promise(resolve => {
+      // 使用回调函数支持
+      showLargeExpenseWarning(() => {
+        resolve();
+      });
+      
+      // 添加超时机制，确保即使用户不点击也能继续
+      setTimeout(() => {
+        // 尝试找到并点击确认按钮
+        const confirmButton = document.getElementById('largeExpenseConfirmButton');
+        if (confirmButton) {
+          confirmButton.click();
+        } else {
+          // 如果找不到按钮，直接解析Promise
+          resolve();
+          // 清理警告弹窗
+          const warningContainer = document.getElementById('largeExpenseWarning');
+          const styleSheet = document.getElementById('largeExpenseWarningStyle');
+          if (warningContainer) document.body.removeChild(warningContainer);
+          if (styleSheet) document.head.removeChild(styleSheet);
+          warningCallback = null;
+        }
+      }, 10000); // 10秒超时
+    });
+  }
+};
+
 // 按钮状态变量
 const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
@@ -676,14 +833,6 @@ const handleAddRecord = async () => {
     if (form.amount === undefined || form.amount === null) {
       throw new Error(t('expense.amountUndefined'));
     }
-    // 检查金额是否存在且为有效数字
-    if (form.amount === undefined || form.amount === null) {
-      throw new Error(t('expense.amountUndefined'));
-    }
-    // 检查金额是否存在且为有效数字
-    if (form.amount === undefined || form.amount === null) {
-      throw new Error(t('expense.amountUndefined'));
-    }
     // 处理可能的undefined/null值并转换为字符串
     const amountStr = form.amount.toString().replace(',', '.');
     const amount = Number(amountStr);
@@ -702,6 +851,9 @@ const handleAddRecord = async () => {
       time: formattedDate // 服务器需要的时间字段
     };
 
+    // 检查是否有单笔大于500元的消费
+    await checkAndShowLargeExpenseWarning([expenseData]);
+
     // 使用与Expenses.vue相同的批量提交接口，明确指定为1条记录
     await axios.post('/api/expenses', expenseData, {
       headers: {
@@ -711,15 +863,13 @@ const handleAddRecord = async () => {
     showAddDialog.value = false;
     // 添加成功后刷新数据
     await fetchData(true);
-      ElMessage.success(t('expense.addSuccess'));
-      // 重置表单
-      Object.assign(form, { type: '', amount: '', date: '', remark: '' });
-    } catch (error) {
-      console.error('添加记录失败:', error);
-      console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
+    ElMessage.success(t('expense.addSuccess'));
+    // 重置表单
+    Object.assign(form, { type: '', amount: '', date: '', remark: '' });
+  } catch (error) {
+    console.error('添加记录失败:', error);
+    console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
     // 区分表单验证错误和API错误
-    // 细化错误处理
-    // 细化错误类型处理
     let errorMsg;
     if (error.name === 'ValidationError') {
       errorMsg = error.message;
@@ -805,7 +955,7 @@ const loadCsvExpenses = async () => {
     const errorInfo = err.response
       ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
       : err.message;
-    errorMessage.value = t('error.loadCsvFailed', { error: errorInfo });
+    errorMessage.value = t('common.loadFailed', { error: errorInfo });
     error.value = errorMessage.value;
 
     console.error('loadCsvExpenses: Error Details:', err);
@@ -893,6 +1043,9 @@ const handleMultiRecordsSubmit = async () => {
         time: record.date // 服务器需要的时间字段
       });
     }
+    
+    // 检查是否有单笔大于500元的消费
+    await checkAndShowLargeExpenseWarning(validRecords);
     
     // 提交所有记录
     for (const record of validRecords) {

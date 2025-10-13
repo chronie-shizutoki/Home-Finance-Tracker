@@ -1,4 +1,5 @@
 {
+  "common.loadFailed": "載入失敗，請稍後再試",
   "common.back": "返回",
   "error.dataInitializationFailed": "資料初始化失敗，請稍後再試",
   "chart.title": "支出圖表分析",
@@ -139,12 +140,16 @@
       "amount": "金額",
       "date": "消費日期",
       "remark": "備註"
-    },
+    },  
     "emptyText": "無消費記錄",
     "common": {
       "requestCanceled": "請求已取消",
       "networkError": "網路錯誤",
       "requestTimeout": "請求超時"
+    },
+    "largeExpense": {
+      "warning": "開源節流，勤儉節約！",
+      "confirm": "明白了"
     }
   },
   "pagination": {

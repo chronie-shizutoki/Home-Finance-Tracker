@@ -1,4 +1,5 @@
 {
+  "common.loadFailed": "加载失败，请稍后重试",
   "common.back": "返回",
   "chart.title": "支出图表分析",
   "chart.bar": "柱状图",
@@ -148,6 +149,10 @@
       "requestCanceled": "请求已取消",
       "networkError": "网络错误",
       "requestTimeout": "请求超时"
+    },
+    "largeExpense": {
+      "warning": "开源节流，勤俭节约！",
+      "confirm": "好的"
     }
   },
   "pagination": {

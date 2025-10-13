@@ -1,4 +1,5 @@
 {
+  "common.loadFailed": "Load failed, please try again later",
   "common.back": "Back",
   "error.dataInitializationFailed": "Data initialization failed, please try again later",
   "chart.title": "Expense Charts Analysis",
@@ -144,6 +145,10 @@
       "amount": "Amount",
       "date": "Date",
       "remark": "Description"
+    },
+    "largeExpense": {
+      "warning": "Rationalize your financial management and avoid excessive spending that leads to debt accumulation!",
+      "confirm": "OK"
     },
     "emptyText": "No expenses yet. Add your first expense!",
     

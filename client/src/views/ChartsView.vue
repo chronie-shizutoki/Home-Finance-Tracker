@@ -82,7 +82,7 @@ const loadCsvExpenses = async () => {
     const errorInfo = err.response
       ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
       : err.message;
-    errorMessage.value = t('error.loadCsvFailed', { error: errorInfo });
+    errorMessage.value = t('common.loadFailed', { error: errorInfo });
     error.value = errorMessage.value;
 
     console.error('ChartsView: Error Details:', err);
