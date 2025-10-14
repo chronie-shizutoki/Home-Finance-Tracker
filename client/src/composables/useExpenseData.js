@@ -50,8 +50,8 @@ export function useExpenseData () {
     console.log('useExpenseData: fetchData called.');
     try {
       const res = await ExpenseAPI.getExpenses();
-      // 确保 res.data 是一个数组，即使 API 返回 null 或 undefined
-      const newData = Array.isArray(res?.data) ? res.data : [];
+      // 确保 res.data.data 是一个数组，即使 API 返回 null 或 undefined
+      const newData = res && res.data && res.data.data && Array.isArray(res.data.data) ? res.data.data : [];
 
       // 当强制刷新时直接更新数据，否则检查内容变化
       if (forceRefresh || JSON.stringify(expenses.value) !== JSON.stringify(newData)) {

@@ -43,7 +43,8 @@
         <!-- 表格组件 -->
         <ExpenseTable
           :expenses="paginatedExpenses"
-          :sortOption="searchParams.sortOption"
+          :sort-field="searchParams.sortOption === 'dateAsc' || searchParams.sortOption === 'dateDesc' ? 'time' : 'amount'"
+          :sort-order="searchParams.sortOption === 'dateAsc' || searchParams.sortOption === 'amountAsc' ? 'asc' : 'desc'"
           @sort="sortBy"
         />
 
@@ -61,7 +62,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as math from 'mathjs';
 import ExpenseStats from './ExpenseStats.vue';
@@ -69,6 +70,7 @@ import ExpenseSearch from './ExpenseSearch.vue';
 import ExpenseTable from './ExpenseTable.vue';
 import ExpensePagination from './ExpensePagination.vue';
 import { getTypeColor } from '../utils/expenseUtils';
+import { ExpenseAPI } from '../api/expenses';
 
 export default {
   components: {
@@ -78,11 +80,7 @@ export default {
     ExpensePagination
   },
 
-  props: {
-    expenses: { type: Array, default: () => [] }
-  },
-
-  setup (props) {
+  setup () {
     const { t } = useI18n();
     const searchComponent = ref(null);
     const loading = ref(true);
@@ -100,99 +98,147 @@ export default {
     // 分页相关状态
     const currentPage = ref(1);
     const pageSize = ref(10);
+    const totalItems = ref(0);
+    const expenses = ref([]);
+    
+    // 添加缺失的变量定义
+    const uniqueTypes = ref([]);
+    const availableMonths = ref([]);
+    
+    // 实现实际的筛选逻辑
+    const filteredExpenses = computed(() => {
+      if (!expenses.value || expenses.value.length === 0) return [];
+      
+      return expenses.value.filter(expense => {
+        // 关键词筛选
+        if (searchParams.value.keyword) {
+          const keyword = searchParams.value.keyword.toLowerCase();
+          const hasKeyword = 
+            (expense.remark && expense.remark.toLowerCase().includes(keyword)) ||
+            (expense.type && expense.type.toLowerCase().includes(keyword)) ||
+            (expense.amount && expense.amount.toString().includes(keyword));
+          if (!hasKeyword) return false;
+        }
+        
+        // 类型筛选
+        if (searchParams.value.type && expense.type !== searchParams.value.type) {
+          return false;
+        }
+        
+        // 月份筛选
+        if (searchParams.value.month) {
+          const expenseDate = new Date(expense.date || expense.time);
+          const expenseMonth = `${expenseDate.getFullYear()}-${String(expenseDate.getMonth() + 1).padStart(2, '0')}`;
+          if (expenseMonth !== searchParams.value.month) {
+            return false;
+          }
+        }
+        
+        // 金额范围筛选
+        const amount = Number(expense.amount);
+        if (searchParams.value.minAmount !== null && amount < searchParams.value.minAmount) {
+          return false;
+        }
+        if (searchParams.value.maxAmount !== null && amount > searchParams.value.maxAmount) {
+          return false;
+        }
+        
+        return true;
+      });
+    });
+
+    // 获取分页数据
+    const fetchPaginatedData = async () => {
+      loading.value = true;
+      try {
+        // 添加排序参数到请求中
+        const params = new URLSearchParams();
+        params.append('page', currentPage.value);
+        params.append('limit', pageSize.value);
+        
+        // 添加搜索参数
+        if (searchParams.value.keyword) params.append('keyword', searchParams.value.keyword);
+        if (searchParams.value.type) params.append('type', searchParams.value.type);
+        if (searchParams.value.month) params.append('month', searchParams.value.month);
+        // 验证金额参数是否为有效数字
+        const minAmount = parseFloat(searchParams.value.minAmount);
+        const maxAmount = parseFloat(searchParams.value.maxAmount);
+        if (searchParams.value.minAmount !== null && !isNaN(minAmount)) {
+          params.append('minAmount', minAmount.toString());
+        }
+        if (searchParams.value.maxAmount !== null && !isNaN(maxAmount)) {
+          params.append('maxAmount', maxAmount.toString());
+        }
+        if (searchParams.value.sortOption) params.append('sort', searchParams.value.sortOption);
+        
+        const response = await ExpenseAPI.getExpenses(currentPage.value, pageSize.value, params);
+        
+        // 适配后端返回的分页格式
+        if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
+          expenses.value = response.data.data;
+          totalItems.value = response.data.total || 0;
+          
+          // 更新类型和月份数据
+          if (response.data.meta) {
+            uniqueTypes.value = response.data.meta.uniqueTypes || [];
+            availableMonths.value = response.data.meta.availableMonths || [];
+          } else {
+            // 从当前页数据中提取类型和月份信息
+            const types = [...new Set(expenses.value.map(e => e.type))];
+            const months = [...new Set(expenses.value.map(e => {
+              const date = new Date(e.date || e.time);
+              return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            }))];
+            
+            uniqueTypes.value = types.filter(type => type && type.trim() !== '');
+            availableMonths.value = months.filter(month => month && month.trim() !== '');
+          }
+        } else if (Array.isArray(response)) {
+          // 兼容旧格式
+          expenses.value = response;
+          totalItems.value = response.length;
+        }
+      } catch (error) {
+        console.error('获取分页数据失败:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     // 搜索处理
     const handleSearch = (params) => {
       searchParams.value = { ...params };
       currentPage.value = 1;
+      fetchPaginatedData();
+      fetchStatistics(); // 更新统计数据
     };
 
-    // 重置所有筛选条件
+    // 重置筛选条件
     const resetFilters = () => {
       if (searchComponent.value) {
         searchComponent.value.handleReset();
       }
+      searchParams.value = {
+        keyword: '',
+        type: '',
+        month: '',
+        minAmount: null,
+        maxAmount: null,
+        sortOption: 'dateDesc'
+      };
+      currentPage.value = 1;
+      fetchPaginatedData();
+      fetchStatistics(); // 更新统计数据
     };
-
-    // 预先计算所有可能类型
-    const uniqueTypes = computed(() => {
-      return [...new Set(props.expenses.map(expense => expense.type))];
-    });
-
-    const availableMonths = computed(() => {
-      const months = props.expenses.map(expense => {
-        const date = new Date(expense.time);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      });
-      return [...new Set(months)].sort().reverse();
-    });
-
-    // 过滤和排序组合
-    const filteredExpenses = computed(() => {
-      const { keyword, type, month, minAmount, maxAmount, sortOption } = searchParams.value;
-      const keywordLower = keyword.toLowerCase();
-
-      // 过滤逻辑
-      const results = props.expenses.filter(expense => {
-        // 类型筛选
-        if (type && expense.type !== type) return false;
-
-        // 月份筛选
-        if (month) {
-          try {
-            const expenseDate = new Date(expense.time);
-            if (isNaN(expenseDate.getTime())) return false;
-            const expenseMonth = expenseDate.toISOString().slice(0, 7);
-            if (expenseMonth !== month) return false;
-          } catch {
-            return false;
-          }
-        }
-
-        // 金额范围筛选
-        const amount = Number(expense.amount);
-        if (minAmount !== null && amount < minAmount) return false;
-        if (maxAmount !== null && amount > maxAmount) return false;
-
-        // 关键词筛选
-        if (keyword) {
-          const fields = [expense.time, expense.type, expense.remark];
-          const matches = fields.some(field =>
-            field && String(field).toLowerCase().includes(keywordLower)
-          );
-          if (!matches) return false;
-        }
-
-        return true;
-      });
-
-      // 排序逻辑
-      return [...results].sort((a, b) => {
-        const aTime = new Date(a.time).getTime();
-        const bTime = new Date(b.time).getTime();
-        const aAmount = Number(a.amount);
-        const bAmount = Number(b.amount);
-
-        switch (sortOption) {
-        case 'dateAsc': return aTime - bTime;
-        case 'dateDesc': return bTime - aTime;
-        case 'amountAsc': return aAmount - bAmount;
-        case 'amountDesc': return bAmount - aAmount;
-        default: return 0;
-        }
-      });
-    });
 
     // 分页处理
     const paginatedExpenses = computed(() => {
-      const start = (currentPage.value - 1) * pageSize.value;
-      const end = start + pageSize.value;
-      return filteredExpenses.value.slice(start, end);
+      return expenses.value;
     });
 
     // 总页数
     const totalPages = computed(() => {
-      return Math.ceil(filteredExpenses.value.length / pageSize.value) || 1;
+      return Math.ceil(totalItems.value / pageSize.value) || 1;
     });
 
     // 引入 window 以方便测试模拟
@@ -223,64 +269,80 @@ export default {
       return pages;
     });
 
-    // 统计计算
-    const statistics = computed(() => {
-      const amounts = filteredExpenses.value.map(e => Number(e.amount));
-      const count = amounts.length;
-
-      if (count === 0) {
-        return {
-          count: 0,
-          totalAmount: '0.00',
-          averageAmount: '0.00',
-          medianAmount: '0.00',
-          minAmount: '0.00',
-          maxAmount: '0.00',
-          uniqueTypeCount: 0,
-          typeDistribution: {}
-        };
-      }
-
-      const total = math.sum(amounts);
-      const average = total / count;
-      const sorted = [...amounts].sort((a, b) => a - b);
-      const median = count % 2 === 0
-        ? (sorted[count / 2 - 1] + sorted[count / 2]) / 2
-        : sorted[Math.floor(count / 2)];
-
-      // 类型分布统计
-      const typeDistribution = {};
-      filteredExpenses.value.forEach(expense => {
-        const type = expense.type || t('expense.unknownType');
-        if (!typeDistribution[type]) {
-          typeDistribution[type] = { count: 0, amount: 0 };
-        }
-        typeDistribution[type].count++;
-        typeDistribution[type].amount += Number(expense.amount);
-      });
-
-      // 计算每种类型的占比
-      Object.keys(typeDistribution).forEach(type => {
-        typeDistribution[type].percentage =
-          Math.round((typeDistribution[type].count / count) * 100);
-      });
-
-      return {
-        count,
-        totalAmount: total.toFixed(2),
-        averageAmount: average.toFixed(2),
-        medianAmount: median.toFixed(2),
-        minAmount: math.min(...amounts).toFixed(2),
-        maxAmount: math.max(...amounts).toFixed(2),
-        uniqueTypeCount: Object.keys(typeDistribution).length,
-        typeDistribution
-      };
+    // 使用ref存储从后端获取的统计数据，而不是基于当前页数据计算
+    const statistics = ref({
+      count: 0,
+      totalAmount: '0.00',
+      averageAmount: '0.00',
+      medianAmount: '0.00',
+      minAmount: '0.00',
+      maxAmount: '0.00',
+      uniqueTypeCount: 0,
+      typeDistribution: {}
     });
+
+    // 定义获取统计数据的函数
+    const fetchStatistics = async () => {
+      try {
+        // 构建与getExpenses相同的查询参数
+        const statsSearchParams = new URLSearchParams();
+        if (searchParams.value.keyword) statsSearchParams.set('keyword', searchParams.value.keyword);
+        if (searchParams.value.type) statsSearchParams.set('type', searchParams.value.type);
+        if (searchParams.value.month) statsSearchParams.set('month', searchParams.value.month);
+        
+        // 添加金额范围参数，确保是有效数字
+        const validMinAmount = parseFloat(searchParams.value.minAmount);
+        const validMaxAmount = parseFloat(searchParams.value.maxAmount);
+        if (!isNaN(validMinAmount)) {
+          statsSearchParams.set('minAmount', validMinAmount.toString());
+        }
+        if (!isNaN(validMaxAmount)) {
+          statsSearchParams.set('maxAmount', validMaxAmount.toString());
+        }
+
+        // 调用后端统计API获取完整数据
+        const statsData = await ExpenseAPI.getStatistics(statsSearchParams);
+        
+        // 格式化数字以保持一致性
+        if (statsData && !statsData.error) {
+          statistics.value = {
+            count: statsData.count || 0,
+            totalAmount: (statsData.totalAmount || 0).toFixed(2),
+            averageAmount: (statsData.averageAmount || 0).toFixed(2),
+            medianAmount: (statsData.medianAmount || 0).toFixed(2),
+            minAmount: (statsData.minAmount || 0).toFixed(2),
+            maxAmount: (statsData.maxAmount || 0).toFixed(2),
+            uniqueTypeCount: statsData.uniqueTypeCount || 0,
+            typeDistribution: statsData.typeDistribution || {}
+          };
+        }
+      } catch (error) {
+        console.error('获取统计数据失败:', error);
+        // 出错时保持原有的统计数据
+      }
+    };
+
+    // 当筛选条件变化时重新获取统计数据
+    watchEffect(() => {
+      // 明确引用所有需要监听的筛选条件
+      const { keyword, type, month, minAmount, maxAmount, sortOption } = searchParams.value;
+      
+      // 延迟执行，避免频繁请求
+      const timer = setTimeout(() => {
+        fetchStatistics();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    });
+
+    // 初始加载时获取统计数据
+    fetchStatistics();
 
     // 页面切换方法
     const changePage = (page) => {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
+        fetchPaginatedData();
         // 查找可排序元素
         const sortableElement = document.querySelector('.sortable');
         // 查找头部元素，假设头部类名为 header
@@ -316,14 +378,20 @@ export default {
 
       if (newSort) {
         searchParams.value.sortOption = newSort;
+        currentPage.value = 1;
+        fetchPaginatedData();
       }
     };
 
-    // 模拟加载延迟
+    // 监听pageSize变化
+    watch(pageSize, () => {
+      currentPage.value = 1;
+      fetchPaginatedData();
+    });
+
+    // 初始化时加载数据
     onMounted(() => {
-      setTimeout(() => {
-        loading.value = false;
-      }, 800);
+      fetchPaginatedData();
     });
 
     return {

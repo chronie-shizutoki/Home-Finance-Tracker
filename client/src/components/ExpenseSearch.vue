@@ -268,6 +268,26 @@ const maxSliderValue = computed(() => {
   return props.maxAmountRange || 5000;
 });
 
+// 生成搜索参数对象的计算属性
+const searchParams = computed(() => {
+  // 验证并转换数值类型
+  const min = minAmount.value !== '' ? Number(minAmount.value) : undefined;
+  const max = maxAmount.value !== '' ? Number(maxAmount.value) : undefined;
+
+  // 确保数值有效性
+  const validMin = !isNaN(min) ? min : undefined;
+  const validMax = !isNaN(max) ? max : undefined;
+
+  return {
+    keyword: keyword.value,
+    type: type.value,
+    month: month.value,
+    minAmount: validMin,
+    maxAmount: validMax,
+    sort: sortOption.value
+  };
+});
+
 // 根据表格数据生成月份选项，无数据时显示最近12个月
 const generateMonthOptions = () => {
   let options = [];
@@ -295,29 +315,20 @@ const generateMonthOptions = () => {
 
 // 搜索处理
 const handleSearch = () => {
-  // 验证并转换数值类型
-  const min = minAmount.value !== '' ? Number(minAmount.value) : undefined;
-  const max = maxAmount.value !== '' ? Number(maxAmount.value) : undefined;
-
-  // 确保数值有效性
-  const validMin = !isNaN(min) ? min : undefined;
-  const validMax = !isNaN(max) ? max : undefined;
-
   // 验证金额范围逻辑
-  if (validMin !== undefined && validMax !== undefined && validMin > validMax) {
+  const { minAmount, maxAmount } = searchParams.value;
+  if (minAmount !== undefined && maxAmount !== undefined && minAmount > maxAmount) {
     // 如果最小值大于最大值，交换它们
-    minAmount.value = validMax;
-    maxAmount.value = validMin;
+    minAmount.value = maxAmount;
+    maxAmount.value = minAmount;
     return;
   }
 
+  // 由于我们已经在searchParams计算属性中处理了数据验证，
+  // 这里可以直接使用该属性的值
   emit('search', {
-    keyword: keyword.value,
-    type: type.value,
-    month: month.value,
-    minAmount: validMin,
-    maxAmount: validMax,
-    sortOption: sortOption.value
+    ...searchParams.value,
+    sortOption: sortOption.value // 保留向后兼容性
   });
 };
 
