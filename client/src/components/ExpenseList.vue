@@ -1,13 +1,6 @@
 <!-- ExpenseList.vue -->
 <template>
   <div class="expense-list">
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <div class="loader"></div>
-      <p>{{ $t('expense.loading') }}</p>
-    </div>
-
-    <template v-else>
       <!-- 搜索组件 -->
       <ExpenseSearch
   ref="searchComponent"
@@ -57,7 +50,6 @@
           @page-change="changePage"
         />
       </template>
-    </template>
   </div>
 </template>
 
@@ -83,7 +75,6 @@ export default {
   setup () {
     const { t } = useI18n();
     const searchComponent = ref(null);
-    const loading = ref(true);
 
     // 统一搜索参数
     const searchParams = ref({
@@ -103,7 +94,17 @@ export default {
     
     // 添加缺失的变量定义
     const uniqueTypes = ref([]);
-    const availableMonths = ref([]);
+    // 初始化时提供默认的模拟月份数据，确保即使在API请求完成前，下拉菜单也有选项可显示
+    const defaultMonths = [];
+    const now = new Date();
+    // 生成最近120个月的月份数据
+    for (let i = 0; i < 120; i++) {
+      const year = now.getFullYear();
+      const month = now.getMonth() - i;
+      const date = new Date(year, month);
+      defaultMonths.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+    }
+    const availableMonths = ref(defaultMonths);
     
     // 实现实际的筛选逻辑
     const filteredExpenses = computed(() => {
@@ -149,8 +150,12 @@ export default {
 
     // 获取分页数据
     const fetchPaginatedData = async () => {
-      loading.value = true;
       try {
+        // 添加空值检查，确保searchParams.value存在
+        if (!searchParams.value) {
+          return;
+        }
+        
         // 添加排序参数到请求中
         const params = new URLSearchParams();
         params.append('page', currentPage.value);
@@ -181,7 +186,11 @@ export default {
           // 更新类型和月份数据
           if (response.data.meta) {
             uniqueTypes.value = response.data.meta.uniqueTypes || [];
-            availableMonths.value = response.data.meta.availableMonths || [];
+            // 只有当API返回了有效的月份数据时，才替换默认数据
+            if (response.data.meta.availableMonths && response.data.meta.availableMonths.length > 0) {
+              // 对月份进行排序，从新到旧
+              availableMonths.value = response.data.meta.availableMonths.sort((a, b) => b.localeCompare(a));
+            }
           } else {
             // 从当前页数据中提取类型和月份信息
             const types = [...new Set(expenses.value.map(e => e.type))];
@@ -191,7 +200,12 @@ export default {
             }))];
             
             uniqueTypes.value = types.filter(type => type && type.trim() !== '');
-            availableMonths.value = months.filter(month => month && month.trim() !== '');
+            // 只有当提取到有效月份时，才替换默认数据
+            const filteredMonths = months.filter(month => month && month.trim() !== '');
+            if (filteredMonths.length > 0) {
+              // 对月份进行排序，从新到旧
+              availableMonths.value = filteredMonths.sort((a, b) => b.localeCompare(a));
+            }
           }
         } else if (Array.isArray(response)) {
           // 兼容旧格式
@@ -200,8 +214,6 @@ export default {
         }
       } catch (error) {
         console.error('获取分页数据失败:', error);
-      } finally {
-        loading.value = false;
       }
     };
 
@@ -284,6 +296,11 @@ export default {
     // 定义获取统计数据的函数
     const fetchStatistics = async () => {
       try {
+        // 添加空值检查，确保searchParams.value存在
+        if (!searchParams.value) {
+          return;
+        }
+        
         // 构建与getExpenses相同的查询参数
         const statsSearchParams = new URLSearchParams();
         if (searchParams.value.keyword) statsSearchParams.set('keyword', searchParams.value.keyword);
@@ -324,6 +341,11 @@ export default {
 
     // 当筛选条件变化时重新获取统计数据
     watchEffect(() => {
+      // 添加空值检查，确保searchParams.value存在
+      if (!searchParams.value) {
+        return;
+      }
+      
       // 明确引用所有需要监听的筛选条件
       const { keyword, type, month, minAmount, maxAmount, sortOption } = searchParams.value;
       
@@ -396,7 +418,6 @@ export default {
 
     return {
       searchComponent,
-      loading,
       searchParams,
       currentPage,
       pageSize,
@@ -423,15 +444,6 @@ export default {
   flex-direction: column;
   gap: 25px;
   padding: 0 10px;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 20px;
 }
 
 .loader {

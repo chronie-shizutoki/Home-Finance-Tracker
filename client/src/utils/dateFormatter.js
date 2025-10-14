@@ -32,13 +32,20 @@ export const formatMonthLabelByLocale = (yearMonth, locale) => {
   if (!d.isValid()) return '';
 
   const year = d.year();
-  const month = d.month() + 1;
+  const monthNumber = d.month(); // 0-11
 
   switch (locale) {
   case 'en-US': {
     const names = monthNames[locale];
-    if (!names) return d.format('YYYY-MM');
+    if (names && names[monthNumber]) {
+      return `${names[monthNumber]} ${year}`;
+    }
+    return d.format('YYYY-MM');
   }
+  case 'zh-CN':
+    return `${year}年${monthNumber + 1}月`;
+    case 'zh-TW':
+    return `${year}年${monthNumber + 1}月`;
   default:
     return d.format('YYYY-MM');
   }

@@ -369,10 +369,20 @@ const clearAmountFilter = () => {
 // 初始化月份选项
 onMounted(generateMonthOptions);
 
+// 监听availableMonths变化，当数据从父组件更新时重新生成月份选项
+watch(() => props.availableMonths, () => {
+  generateMonthOptions();
+}, { deep: true });
+
 // 监听所有筛选条件变化
 watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
   handleSearch();
 }, { deep: true });
+
+// 暴露方法给父组件
+defineExpose({
+  handleReset
+});
 </script>
 
   <style scoped>
