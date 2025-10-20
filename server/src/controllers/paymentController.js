@@ -28,10 +28,10 @@ const donate = async (req, res) => {
       })
     }
     
-    if (typeof amount !== 'number' || amount <= 0) {
+    if (typeof amount !== 'number' || amount < 1) {
       return res.status(400).json({ 
         success: false, 
-        error: '金额必须是大于0的数字'
+        error: '金额必须是大于或等于1的数字'
       })
     }
     

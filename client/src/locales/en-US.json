@@ -261,7 +261,7 @@
     "amountRequired": "Please enter the donation amount",
     "amountMustBeNumber": "Amount must be a number",
     "amountMustBePositive": "Amount must be greater than 0",
-    "amountMustBeAtLeast100": "Amount must be at least 100",
+    "amountMustBeAtLeast": "Amount must be at least 5 cents",
     "amountMaxTwoDecimals": "Amount can have a maximum of two decimal places",
     "feeNoticeTitle": "Fee Notice",
     "feeNoticeContent": "Using payment gateway may incur a 30% service fee. This page displays the original amount without the service fee.",

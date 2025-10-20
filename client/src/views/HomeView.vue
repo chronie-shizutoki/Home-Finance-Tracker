@@ -2,10 +2,10 @@
   <!-- 全局强制捐款弹窗 -->
   <div v-if="showDonationModal" class="donation-modal-overlay">
     <div class="donation-modal-content">
-      <h2 class="donation-modal-title">请支持我们的项目</h2>
-      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少100元。完成捐款后您可以继续使用应用。</p>
+      <h2 class="donation-modal-title">请支持我们的项目<br>Support our project</h2>
+      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少5美分。完成捐款后您可以继续使用应用。<br>To support our project, please donate at least 5 cents. After completing the donation, you can continue to use the application.</p>
       <div class="donation-modal-footer">
-        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 100">
+        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 1">
           前往捐款
         </el-button>
         <el-button type="primary" @click="exportMonthData" size="default">

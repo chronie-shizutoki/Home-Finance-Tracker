@@ -254,7 +254,7 @@
     "amountRequired": "請輸入捐款金額",
     "amountMustBeNumber": "金額必須為數字",
     "amountMustBePositive": "金額必須大於0",
-    "amountMustBeAtLeast100": "金額必須大於或等於100元",
+    "amountMustBeAtLeast": "金額必須大於或等於5美分",
     "amountMaxTwoDecimals": "金額最多只能有兩位小數",
     "feeNoticeTitle": "費用說明",
     "feeNoticeContent": "使用金流可能需要向金流支付服務提供商支付30%的服務費用，此頁面向您展示的費用為不包含服務費用的原始金額",
