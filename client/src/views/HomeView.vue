@@ -2,15 +2,15 @@
   <!-- 全局强制捐款弹窗 -->
   <div v-if="showDonationModal" class="donation-modal-overlay">
     <div class="donation-modal-content">
-      <h2 class="donation-modal-title">请支持我们的项目<br>Support our project</h2>
-      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少5美分。完成捐款后您可以继续使用应用。<br>To support our project, please donate at least 5 cents. After completing the donation, you can continue to use the application.</p>
+      <h2 class="donation-modal-title">请支持我们的项目<br>Fiscal Underwriting Solicitation</h2>
+      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少5美分。完成捐款后您可以继续使用应用。<br>The perpetuation of this computational initiative necessitates philanthropic engagement. A minimum monetary endowment of $0.05 constitutes the foundational threshold for participatory support. Subsequent to transactional fulfillment, comprehensive application accessibility shall be reinstated and perpetuated.</p>
       <div class="donation-modal-footer">
-        <el-button type="primary" @click="proceedToDonation" :disabled="donationAmount < 1">
-          前往捐款
-        </el-button>
-        <el-button type="primary" @click="exportMonthData" size="default">
-          或者免费导出本月数据图片
-        </el-button>
+        <button type="primary" @click="proceedToDonation" :disabled="donationAmount < 1">
+          前往捐款<br>Navigate to the Philanthropic Contribution interface
+        </button>
+        <button type="primary" @click="exportMonthData" size="default">
+          或者免费导出本月数据图片<br>Or avail yourself of the complimentary exportation for the current month's data schematic
+        </button>
       </div>
     </div>
   </div>
@@ -1571,13 +1571,17 @@ const refreshPage = () => {
 
 .donation-modal-footer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.donation-modal-footer .el-button {
+.donation-modal-footer button {
   padding: 0.75rem 2rem;
   font-size: 1.1rem;
   border-radius: 8px;
+  width: 100%;
+  max-width: 320px;
 }
 
 /* 阻止背景滚动 */
