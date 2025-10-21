@@ -1,12 +1,12 @@
-# Household Finance Manager
+# Domestic Fiscal Resource Management System（DFRMS）
 
 ## Project Overview
-The Household Finance Manager is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
+The Domestic Fiscal Resource Management System（DFRMS） is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
 
 ## Key Features
 - **Multilingual Support**: Auto-adapting UI text and date formats (English, Chinese, etc.)
 - **Expense Tracking**: Add/view records with details including type, amount, date, and notes
-- **Data Export & Import**: Generate CSV reports and support data backup/restore functionality
+- **Data Export & Import**: Generate Excel reports and support data backup/restore functionality
 - **Smart Analytics**:
   - Category breakdowns (food, shopping, transportation, etc.)
   - Interactive spending trend charts with multiple visualization options (bar, pie, line, doughnut, radar charts)
