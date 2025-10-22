@@ -9,6 +9,7 @@
 
 import { createI18n } from 'vue-i18n';
 import enUS from './en-US.json';
+import enAN from './en-AN.json';
 import zhCN from './zh-CN.json';
 import zhTW from './zh-TW.json';
 import dayjs from 'dayjs';
@@ -19,7 +20,7 @@ import 'dayjs/locale/en'; // 英文
 const browserLanguage = navigator.language || navigator.userLanguage;
 console.log('获取到的浏览器默认语言为:', browserLanguage);
 // 定义支持的语言列表
-const supportedLanguages = ['en-US', 'zh-CN', 'zh-TW'];
+const supportedLanguages = ['en-US', 'en-AN', 'zh-CN', 'zh-TW'];
 console.log('支持的语言列表为:', supportedLanguages);
 // 检查浏览器语言是否在支持列表中
 let defaultLocale = 'en-US'; // 默认语言
@@ -48,7 +49,8 @@ const i18n = createI18n({
   messages: {
     'en-US': enUS,
     'zh-CN': zhCN,
-    'zh-TW': zhTW
+    'zh-TW': zhTW,
+    'en-AN': enAN
   }
 });
 
