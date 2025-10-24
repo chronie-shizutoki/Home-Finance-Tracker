@@ -95,17 +95,6 @@
             <el-icon><CreditCard /></el-icon>
             {{ t('debt.title') }}
           </el-button>
-        </div>
-      </el-card>
-      
-      <!-- 小程序功能组 -->
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('miniapp.title') }}</span>
-          </div>
-        </template>
-        <div class="card-content">
           <el-button type="primary" @click="showMiniAppManager = true" size="default">
             <el-icon><Box /></el-icon>
             {{ t('miniapp.title') }}
