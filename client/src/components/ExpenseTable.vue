@@ -27,8 +27,8 @@
             <th>{{ $t('expense.remark') }}</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="expense in expenses" :key="expense.id">
+        <transition-group name="row-fade" tag="tbody">
+          <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
             <td>{{ formatDate(expense.time) }}</td>
             <td>
               <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
@@ -38,30 +38,32 @@
             <td class="amount-cell">¥{{ expense.amount.toFixed(2) }}</td>
             <td>{{ expense.remark || '-' }}</td>
           </tr>
-        </tbody>
+        </transition-group>
       </table>
     </div>
 
     <!-- 小屏幕卡片视图 -->
     <div class="card-view">
-      <div v-for="expense in expenses" :key="expense.id" class="expense-card">
-        <div class="card-header">
-          <div class="date">{{ formatDate(expense.time) }}</div>
-          <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
-        </div>
-        <div class="card-body">
-          <div class="type-section">
-            <span class="type-label">{{ $t('expense.type') }}:</span>
-            <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
-              {{ expense.type }}
-            </span>
+      <transition-group name="row-fade" tag="div">
+        <div v-for="(expense, index) in expenses" :key="expense.id" class="expense-card" :data-index="index">
+          <div class="card-header">
+            <div class="date">{{ formatDate(expense.time) }}</div>
+            <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
           </div>
-          <div v-if="expense.remark" class="remark-section">
-            <span class="remark-label">{{ $t('expense.remark') }}:</span>
-            <span class="remark-text">{{ expense.remark }}</span>
+          <div class="card-body">
+            <div class="type-section">
+              <span class="type-label">{{ $t('expense.type') }}:</span>
+              <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
+                {{ expense.type }}
+              </span>
+            </div>
+            <div v-if="expense.remark" class="remark-section">
+              <span class="remark-label">{{ $t('expense.remark') }}:</span>
+              <span class="remark-text">{{ expense.remark }}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </transition-group>
     </div>
 
     <!-- 空数据状态 -->
@@ -277,6 +279,42 @@ export default {
   max-width: 500px;
   margin: 0 auto;
 }
+
+/* 表格行动画效果 */
+.row-fade-enter-active,
+.row-fade-leave-active {
+  transition: all 0.3s ease-out;
+  position: relative;
+}
+
+.row-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.row-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.row-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+/* 为每行添加不同的延迟，实现逐行动画 */
+.row-fade-enter-active > [data-index="0"] { transition-delay: 0ms; }
+.row-fade-enter-active > [data-index="1"] { transition-delay: 30ms; }
+.row-fade-enter-active > [data-index="2"] { transition-delay: 60ms; }
+.row-fade-enter-active > [data-index="3"] { transition-delay: 90ms; }
+.row-fade-enter-active > [data-index="4"] { transition-delay: 120ms; }
+.row-fade-enter-active > [data-index="5"] { transition-delay: 150ms; }
+.row-fade-enter-active > [data-index="6"] { transition-delay: 180ms; }
+.row-fade-enter-active > [data-index="7"] { transition-delay: 210ms; }
+.row-fade-enter-active > [data-index="8"] { transition-delay: 240ms; }
+.row-fade-enter-active > [data-index="9"] { transition-delay: 270ms; }
 
 /* 响应式设计 - 小屏幕使用卡片视图 */
 @media (max-width: 768px) {
