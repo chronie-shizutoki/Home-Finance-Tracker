@@ -71,6 +71,9 @@ export default {
     ExpenseTable,
     ExpensePagination
   },
+  props: {
+    // 该组件不接受props，内部自行获取数据
+  },
 
   setup () {
     const { t } = useI18n();

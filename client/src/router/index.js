@@ -3,7 +3,6 @@ import i18n from '@/locales/i18n';
 import { ElMessage } from 'element-plus';
 import HomeView from '@/views/HomeView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
-import TodoView from '@/views/TodoView.vue';
 
 /**
  * 应用路由配置
@@ -24,12 +23,7 @@ const router = createRouter({
       meta: { title: 'app.title' }, // 路由元信息：对应i18n的键
       component: HomeView
     },
-    {
-      path: '/todo',
-      name: 'todo',
-      meta: { title: 'todo.title' },
-      component: TodoView
-    },
+
     {
       path: '/donation',
       name: 'donation',

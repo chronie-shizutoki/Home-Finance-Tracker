@@ -91,10 +91,6 @@
           </div>
         </template>
         <div class="card-content">
-          <el-button type="success" @click="showTodoDialog = true" size="default">
-            <el-icon><List /></el-icon>
-            {{ t('todo.title') }}
-          </el-button>
           <el-button type="warning" @click="goToDebts" size="default">
             <el-icon><CreditCard /></el-icon>
             {{ t('debt.title') }}
@@ -146,7 +142,7 @@
       {{ t('chart.title') }}
     </el-button>
     
-    <ExpenseList :expenses="csvExpenses" />
+    <ExpenseList />
     <div :class="['header']"></div>
     <Transition name="button">
       <ExportButton
@@ -334,11 +330,6 @@
       :title="markdownTitle"
       :content="markdownContent"
     />
-
-    <!-- 待办事项对话框 -->
-    <el-dialog v-model="showTodoDialog" :title="t('todo.title')" width="90%" top="5vh">
-      <TodoList />
-  </el-dialog>
   
   <!-- 小程序管理器对话框 -->
   <el-dialog v-model="showMiniAppManager" :title="t('miniapp.title')" width="90%" top="10vh">
@@ -370,7 +361,6 @@ const ExpenseList = defineAsyncComponent(() => import('@/components/ExpenseList.
 const ExpenseCharts = defineAsyncComponent(() => import('@/components/ExpenseCharts.vue'));
 const ExportButton = defineAsyncComponent(() => import('@/components/ExportButton.vue'));
 const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
-const TodoList = defineAsyncComponent(() => import('@/components/TodoList.vue'));
 const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/SpendingLimitDisplay.vue'));
 const MiniAppManager = defineAsyncComponent(() => import('@/components/MiniAppManager.vue'));
 
@@ -537,7 +527,6 @@ const checkAndShowLargeExpenseWarning = async (records) => {
 // 按钮状态变量
 const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
-const showTodoDialog = ref(false);
 const showAiAddDialog = ref(false);
 // 新增：显示多条记录的对话框
 const showMultiRecordsDialog = ref(false);

@@ -223,28 +223,6 @@
    "common.perPage": "条/页",
    "common.prev": "上一页",
    "common.next": "下一页",
-  "todo": {
-    "title": "待办事项",
-    "placeholder": "添加新任务...",
-    "add": "添加",
-    "total": "总计",
-    "completed": "已完成",
-    "pending": "待完成",
-    "clearCompleted": "清除已完成",
-    "confirmClearCompleted": "确定要清除所有已完成任务吗？",
-    "warning": "警告",
-    "clearedSuccess": "已成功清除已完成任务",
-    "filter": {
-      "all": "全部",
-      "pending": "待办",
-      "completed": "已完成"
-    },
-    "empty": {
-      "all": "暂无任务，请添加新任务",
-      "pending": "所有任务已完成，做得好！",
-      "completed": "暂无已完成任务"
-    }
-  },
   "donation": {
     "title": "支持我们",
     "description": "感谢您使用家庭财务管理应用！您的捐赠将帮助我们持续改进和维护这个项目。",

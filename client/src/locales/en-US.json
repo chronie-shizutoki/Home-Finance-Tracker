@@ -223,28 +223,6 @@
   "common.perPage": "entries per folio",
   "common.prev": "Preceding",
   "common.next": "Succeeding",
-  "todo": {
-    "title": "Task Management Interface",
-    "placeholder": "Input new task designation...",
-    "add": "Append Task",
-    "total": "Task Aggregate",
-    "completed": "Fulfilled Objectives",
-    "pending": "Pending Objectives",
-    "clearCompleted": "Purge Fulfilled Objectives",
-    "confirmClearCompleted": "Confirm comprehensive purgation of all fulfilled objectives?",
-    "warning": "System Alert",
-    "clearedSuccess": "Fulfilled objectives purgation completed successfully",
-    "filter": {
-      "all": "Comprehensive View",
-      "pending": "Pending Objectives",
-      "completed": "Fulfilled Objectives"
-    },
-    "empty": {
-      "all": "No task objectives documented. Commence by instantiating your inaugural task!",
-      "pending": "All objectives successfully fulfilled! Commendable efficiency!",
-      "completed": "No fulfilled objectives currently documented."
-    }
-  },
   "donation": {
     "title": "Project Patronage",
     "description": "Gratitude for utilizing the Domestic Fiscal Resource Management System! Your patronage facilitates continuous enhancement and maintenance of this initiative.",

@@ -223,28 +223,6 @@
   "common.perPage": "per leaf",
   "common.prev": "Earlier",
   "common.next": "Next",
-  "todo": {
-    "title": "To-Do List",
-    "placeholder": "Write a new to-do...",
-    "add": "Add to-do",
-    "total": "All to-dos",
-    "completed": "Done",
-    "pending": "Not done",
-    "clearCompleted": "Clear done to-dos",
-    "confirmClearCompleted": "Clear all done to-dos?",
-    "warning": "Heads-up",
-    "clearedSuccess": "Clearing is done",
-    "filter": {
-      "all": "All",
-      "pending": "Not done",
-      "completed": "Done"
-    },
-    "empty": {
-      "all": "No to-dos. Go ahead and add your first one!",
-      "pending": "All to-dos are done! Good work!",
-      "completed": "No done to-dos."
-    }
-  },
   "donation": {
     "title": "Back the work",
     "description": "Thank you for using the Household Money Steering Tool! Your backing helps make it better and keep it going.",

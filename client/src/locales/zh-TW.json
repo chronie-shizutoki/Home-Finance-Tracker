@@ -220,28 +220,6 @@
   "common.perPage": "條/頁",
   "common.prev": "上一頁",
   "common.next": "下一頁",
-  "todo": {
-    "title": "待辦事項",
-    "placeholder": "添加新任務...",
-    "add": "添加",
-    "total": "總計",
-    "completed": "已完成",
-    "pending": "待完成",
-    "clearCompleted": "清除已完成",
-    "confirmClearCompleted": "確定要清除所有已完成任務嗎？",
-    "warning": "警告",
-    "clearedSuccess": "已成功清除已完成任務",
-    "filter": {
-      "all": "全部",
-      "pending": "待辦",
-      "completed": "已完成"
-    },
-    "empty": {
-      "all": "暫無任務，請添加新任務",
-      "pending": "所有任務已完成，做得好！",
-      "completed": "暫無已完成任務"
-    }
-  },
     "donation": {
     "title": "支持我們",
     "description": "感謝您使用家庭財務管理應用程式！您的捐款將幫助我們持續改進和維護此專案。",

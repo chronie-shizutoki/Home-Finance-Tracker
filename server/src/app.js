@@ -25,7 +25,6 @@ app.use(express.urlencoded({ extended: true }))
 
 // API Routes
 app.use('/api/expenses', require('./routes/expense'))
-app.use('/api/todos', require('./routes/todos'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
 app.use('/api/payments', require('./routes/payment'))
 app.use('/api/debts', require('./routes/debt'))
