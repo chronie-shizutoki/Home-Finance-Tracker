@@ -24,21 +24,23 @@
               <div class="select-trigger">
                 <span>{{ month ? formatMonthLabelByLocale(month, props.locale) : $t('expense.search.allMonth') }}</span>
                 <i class="select-icon"></i>
-              </div>
-              <div v-if="isMonthOpen" class="select-dropdown">
-                <div class="select-option" :class="{ 'selected': !month }" @click.stop="setDropdownValue('month', '')">
-                  {{ $t('expense.search.allMonth') }}
+                    </div>
+              <transition name="dropdown-fade">
+                <div v-if="isMonthOpen" class="select-dropdown">
+                  <div class="select-option" :class="{ 'selected': !month }" @click.stop="setDropdownValue('month', '')">
+                    {{ $t('expense.search.allMonth') }}
+                  </div>
+                  <div 
+                    v-for="option in monthOptions" 
+                    :key="option.value" 
+                    class="select-option" 
+                    :class="{ 'selected': month === option.value }" 
+                    @click.stop="setDropdownValue('month', option.value)"
+                  >
+                    {{ option.label }}
+                  </div>
                 </div>
-                <div 
-                  v-for="option in monthOptions" 
-                  :key="option.value" 
-                  class="select-option" 
-                  :class="{ 'selected': month === option.value }" 
-                  @click.stop="setDropdownValue('month', option.value)"
-                >
-                  {{ option.label }}
-                </div>
-              </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -56,20 +58,22 @@
                 <span>{{ type || $t('expense.search.allType') }}</span>
                 <i class="select-icon"></i>
               </div>
-              <div v-if="isTypeOpen" class="select-dropdown">
-                <div class="select-option" :class="{ 'selected': !type }" @click.stop="setDropdownValue('type', '')">
-                  {{ $t('expense.search.allType') }}
+              <transition name="dropdown-fade">
+                <div v-if="isTypeOpen" class="select-dropdown">
+                  <div class="select-option" :class="{ 'selected': !type }" @click.stop="setDropdownValue('type', '')">
+                    {{ $t('expense.search.allType') }}
+                  </div>
+                  <div 
+                    v-for="item in uniqueTypes" 
+                    :key="item" 
+                    class="select-option" 
+                    :class="{ 'selected': type === item }" 
+                    @click.stop="setDropdownValue('type', item)"
+                  >
+                    {{ item }}
+                  </div>
                 </div>
-                <div 
-                  v-for="item in uniqueTypes" 
-                  :key="item" 
-                  class="select-option" 
-                  :class="{ 'selected': type === item }" 
-                  @click.stop="setDropdownValue('type', item)"
-                >
-                  {{ item }}
-                </div>
-              </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -92,20 +96,22 @@
                 </span>
                 <i class="select-icon"></i>
               </div>
-              <div v-if="isSortOpen" class="select-dropdown">
-                <div class="select-option" :class="{ 'selected': sortOption === 'dateDesc' }" @click.stop="setDropdownValue('sort', 'dateDesc')">
-                  {{ $t('expense.sort.dateDesc') }}
+              <transition name="dropdown-fade">
+                <div v-if="isSortOpen" class="select-dropdown">
+                  <div class="select-option" :class="{ 'selected': sortOption === 'dateDesc' }" @click.stop="setDropdownValue('sort', 'dateDesc')">
+                    {{ $t('expense.sort.dateDesc') }}
+                  </div>
+                  <div class="select-option" :class="{ 'selected': sortOption === 'dateAsc' }" @click.stop="setDropdownValue('sort', 'dateAsc')">
+                    {{ $t('expense.sort.dateAsc') }}
+                  </div>
+                  <div class="select-option" :class="{ 'selected': sortOption === 'amountDesc' }" @click.stop="setDropdownValue('sort', 'amountDesc')">
+                    {{ $t('expense.sort.amountDesc') }}
+                  </div>
+                  <div class="select-option" :class="{ 'selected': sortOption === 'amountAsc' }" @click.stop="setDropdownValue('sort', 'amountAsc')">
+                    {{ $t('expense.sort.amountAsc') }}
+                  </div>
                 </div>
-                <div class="select-option" :class="{ 'selected': sortOption === 'dateAsc' }" @click.stop="setDropdownValue('sort', 'dateAsc')">
-                  {{ $t('expense.sort.dateAsc') }}
-                </div>
-                <div class="select-option" :class="{ 'selected': sortOption === 'amountDesc' }" @click.stop="setDropdownValue('sort', 'amountDesc')">
-                  {{ $t('expense.sort.amountDesc') }}
-                </div>
-                <div class="select-option" :class="{ 'selected': sortOption === 'amountAsc' }" @click.stop="setDropdownValue('sort', 'amountAsc')">
-                  {{ $t('expense.sort.amountAsc') }}
-                </div>
-              </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -539,10 +545,10 @@ defineExpose({
   }
   
   .select-icon {    
-    width: 16px;
-    height: 16px;
-    position: relative;
-    transition: transform 0.25s ease;
+    width: 16px;    
+    height: 16px;    
+    position: relative;    
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);    
   }
   
   .select-icon::before {
@@ -559,6 +565,7 @@ defineExpose({
   
   .custom-select.open .select-icon {
     transform: rotate(180deg);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   
   .select-dropdown {
@@ -574,20 +581,45 @@ defineExpose({
     max-height: 240px;
     overflow-y: auto;
     z-index: 1000;
-    /* 添加过渡动画 */
-    opacity: 0;
-    transform: translateY(-12px) scale(0.95);
     transform-origin: top center;
-    visibility: hidden;
-    /* 使用更强的过渡效果 */
-    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.35s ease;
   }
   
-  /* 下拉菜单打开时的动画效果 */
-  .custom-select.open .select-dropdown {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    visibility: visible;
+  /* Vue过渡动画类 - 增强版 */
+  .dropdown-fade-enter-active,
+  .dropdown-fade-leave-active {
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .dropdown-fade-enter-from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.9);
+    visibility: hidden;
+  }
+  
+  .dropdown-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.95);
+    visibility: hidden;
+  }
+  
+  /* 确保深色模式下也能看到动画 */
+  :deep(.dropdown-fade-enter-active),
+  :deep(.dropdown-fade-leave-active) {
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  :deep(.dropdown-fade-enter-from),
+  :deep(.dropdown-fade-leave-to) {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  :deep(.dropdown-fade-enter-from) {
+    transform: translateY(-15px) scale(0.9);
+  }
+  
+  :deep(.dropdown-fade-leave-to) {
+    transform: translateY(-5px) scale(0.95);
   }
 
   /* 自定义滚动条样式 - 正常模式 */
