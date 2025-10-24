@@ -368,25 +368,6 @@ export default {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
         fetchPaginatedData();
-        // 查找可排序元素
-        const sortableElement = document.querySelector('.sortable');
-        // 查找头部元素，假设头部类名为 header
-        const headerElement = document.querySelector('.header');
-        // 获取头部高度，如果没找到头部元素则默认为 0
-        const headerHeight = headerElement ? headerElement.offsetHeight : 0;
-
-        if (sortableElement) {
-          // 获取可排序元素相对于视口的位置
-          const rect = sortableElement.getBoundingClientRect();
-          // 计算滚动目标位置，考虑头部高度
-          const scrollTop = window.pageYOffset + rect.top - headerHeight;
-
-          // 平滑滚动到计算后的位置
-          window.scrollTo({
-            top: scrollTop,
-            behavior: 'smooth'
-          });
-        }
       }
     };
 
