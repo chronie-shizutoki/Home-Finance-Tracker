@@ -218,18 +218,26 @@ onMounted(() => {
 
 // 切换下拉菜单显示状态
 const toggleDropdown = (dropdownType) => {
+  // 如果点击的是当前打开的下拉菜单，则关闭它
+  const isCurrentlyOpen = 
+    (dropdownType === 'month' && isMonthOpen.value) ||
+    (dropdownType === 'type' && isTypeOpen.value) ||
+    (dropdownType === 'sort' && isSortOpen.value);
+  
   // 先关闭所有下拉菜单
   isMonthOpen.value = false;
   isTypeOpen.value = false;
   isSortOpen.value = false;
   
-  // 再打开被点击的下拉菜单
-  if (dropdownType === 'month') {
-    isMonthOpen.value = true;
-  } else if (dropdownType === 'type') {
-    isTypeOpen.value = true;
-  } else if (dropdownType === 'sort') {
-    isSortOpen.value = true;
+  // 如果当前点击的不是打开的菜单，则打开它
+  if (!isCurrentlyOpen) {
+    if (dropdownType === 'month') {
+      isMonthOpen.value = true;
+    } else if (dropdownType === 'type') {
+      isTypeOpen.value = true;
+    } else if (dropdownType === 'sort') {
+      isSortOpen.value = true;
+    }
   }
 };
 
@@ -517,6 +525,7 @@ defineExpose({
   .select-trigger:hover {
     border-color: #cbd5e0;
     background: #fff;
+    transition: all 0.2s ease;
   }
   
   .select-trigger:focus {
@@ -525,11 +534,15 @@ defineExpose({
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
   }
   
-  .select-icon {
+  .select-trigger {
+    transition: all 0.2s ease;
+  }
+  
+  .select-icon {    
     width: 16px;
     height: 16px;
     position: relative;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s ease;
   }
   
   .select-icon::before {
@@ -561,6 +574,20 @@ defineExpose({
     max-height: 240px;
     overflow-y: auto;
     z-index: 1000;
+    /* 添加过渡动画 */
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+    transform-origin: top center;
+    visibility: hidden;
+    /* 使用更强的过渡效果 */
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.35s ease;
+  }
+  
+  /* 下拉菜单打开时的动画效果 */
+  .custom-select.open .select-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
   }
 
   /* 自定义滚动条样式 - 正常模式 */
