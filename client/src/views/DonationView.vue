@@ -1,13 +1,14 @@
 <template>
-  <div class="donation-page-wrapper">
-    <div class="donation-container">
+  <div class="container">
+    <Header :title="t('donation.title')" />
+    
+    <div class="donation-content">
       <div class="donation-header">
-            <Header title="支持 Project Patronage" />
         <div class="header-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="#409eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <h1>{{ t('donation.title') }}</h1>
@@ -89,13 +90,12 @@
         </el-form>
       </div>
       
-      <div v-if="donationResult" class="donation-result animate-fade-in">
+      <div v-if="donationResult" class="donation-result">
         <el-alert 
           :title="donationResult.success ? t('donation.successTitle') : t('donation.failureTitle')"
           :type="donationResult.success ? 'success' : 'error'"
           closable
           @close="resetDonationResult"
-          class="result-alert"
         >
           <template #default>
             <p v-if="donationResult.success" class="success-message">
@@ -257,149 +257,82 @@ const resetDonationResult = () => {
 </script>
 
 <style scoped>
-/* 基础样式重置和动画定义 */
-:deep(*) {
-  box-sizing: border-box;
+/* 定义 CSS 变量 */
+:root {
+  --text-primary: #333;
+  --text-secondary: #666;
+  --bg-primary: #fff;
+  --border-primary: #e0e0e0;
+  --primary-color: #4CAF50;
+  --success-color: #67C23A;
+  --danger-color: #F56C6C;
+  --warning-color: #E6A23C;
+  --info-color: #909399;
 }
 
+/* 主内容容器 */
+.donation-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* 过渡动画 */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
-@keyframes gradientBackground {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 液态玻璃效果动画 */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-/* 页面容器 */
-.donation-page-wrapper {
-  min-height: 100vh;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-size: 400% 400%;
-  animation: gradientBackground 15s ease infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* 背景装饰气泡 */
-.donation-page-wrapper::before,
-.donation-page-wrapper::after {
-  content: '';
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  z-index: 0;
-}
-
-.donation-page-wrapper::before {
-  top: -100px;
-  left: -100px;
-  animation: float 8s ease-in-out infinite;
-}
-
-.donation-page-wrapper::after {
-  bottom: -100px;
-  right: -100px;
-  animation: float 10s ease-in-out infinite reverse;
-}
-
-/* 主容器 - 液态玻璃效果 */
-.donation-container {
-  max-width: 600px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  animation: fadeIn 0.8s ease-out;
-  position: relative;
-  z-index: 1;
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
 }
 
 /* 头部样式 */
 .donation-header {
   text-align: center;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 2;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .header-icon {
   margin-bottom: 20px;
   display: flex;
   justify-content: center;
-  animation: pulse 2s infinite;
 }
 
-/* SVG图标调整 */
 .header-icon svg {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  width: 48px;
+  height: 48px;
 }
 
 .donation-header h1 {
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 28px;
-  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 600;
   margin-bottom: 10px;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 16px;
+  color: var(--text-secondary);
+  font-size: 15px;
   line-height: 1.5;
   max-width: 400px;
   margin: 0 auto;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* 表单样式 */
 .donation-form {
   width: 100%;
-  position: relative;
-  z-index: 2;
 }
 
-/* 液态玻璃卡片效果 */
+/* 卡片效果 */
 .card-shadow {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  transition: all 0.3s ease;
-}
-
-.card-shadow:hover {
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
-  transform: translateY(-2px);
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-primary);
 }
 
 .form-item-custom {
@@ -407,8 +340,8 @@ const resetDonationResult = () => {
 }
 
 .form-item-custom .el-form-item__label {
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
@@ -417,18 +350,15 @@ const resetDonationResult = () => {
   margin-bottom: 24px;
 }
 
-/* 液态玻璃效果的提示框 */
+/* 费用提示框 */
 :deep(.fee-alert.el-alert--info) {
-  background: rgba(144, 147, 153, 0.15) !important;
-  border-color: rgba(144, 147, 153, 0.3) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(144, 147, 153, 0.15);
+  background-color: #f0f9ff;
+  border-color: #d9ecff;
+  border-radius: 6px !important;
 }
 
 :deep(.fee-alert .el-alert__title) {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--info-color) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   margin-bottom: 4px;
@@ -436,42 +366,14 @@ const resetDonationResult = () => {
 
 .fee-message {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* 输入框液态玻璃效果 */
+/* 输入框样式 */
 .custom-input {
   width: 100%;
-  transition: all 0.3s ease;
-}
-
-:deep(.custom-input .el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-:deep(.custom-input .el-input__wrapper:hover) {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.custom-input .el-input__wrapper:focus-within) {
-  border-color: #409eff !important;
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-:deep(.custom-input .el-input__inner) {
-  color: rgba(255, 255, 255, 0.9) !important;
-  background: transparent !important;
 }
 
 /* 金额选择容器 */
@@ -479,69 +381,10 @@ const resetDonationResult = () => {
   width: 100%;
 }
 
-/* 金额选择下拉菜单 - 液态玻璃风格 */
+/* 金额选择下拉菜单 */
 .amount-select {
   width: 100%;
   margin-bottom: 16px;
-}
-
-:deep(.amount-select .el-select__wrapper) {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-:deep(.amount-select .el-select__wrapper:hover) {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.amount-select .el-select__wrapper:focus-within) {
-  border-color: #409eff !important;
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-:deep(.amount-select .el-select__placeholder) {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-:deep(.amount-select .el-select__input) {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-:deep(.amount-select .el-select__icon) {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* 下拉菜单选项样式 */
-:deep(.amount-select .el-select-dropdown) {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.amount-select .el-select-dropdown__item) {
-  color: rgba(255, 255, 255, 0.9) !important;
-  padding: 12px 16px;
-  transition: all 0.3s ease;
-}
-
-:deep(.amount-select .el-select-dropdown__item:hover) {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: #409eff !important;
-}
-
-:deep(.amount-select .el-select-dropdown__item.selected) {
-  background: rgba(64, 158, 255, 0.2) !important;
-  color: #409eff !important;
 }
 
 /* 已选金额显示 */
@@ -549,23 +392,22 @@ const resetDonationResult = () => {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(64, 158, 255, 0.15);
-  border-radius: 12px;
-  border: 1px solid rgba(64, 158, 255, 0.3);
+  background-color: #f0f9ff;
+  border-radius: 6px;
+  border: 1px solid #d9ecff;
   margin-top: 8px;
 }
 
 .selected-amount-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 14px;
   margin-right: 8px;
 }
 
 .selected-amount-value {
-  color: #409eff;
+  color: var(--primary-color);
   font-size: 18px;
   font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* 自定义金额输入 */
@@ -580,35 +422,12 @@ const resetDonationResult = () => {
   left: 15px;
   font-size: 16px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   z-index: 1;
 }
 
-/* 自定义金额输入框液态玻璃效果 */
-:deep(.custom-amount-input .el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-:deep(.custom-amount-input .el-input__wrapper:hover) {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-:deep(.custom-amount-input .el-input__wrapper:focus-within) {
-  border-color: #409eff !important;
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.3);
-  transform: translateY(-1px);
-}
-
+/* 自定义金额输入框 */
 :deep(.custom-amount-input .el-input__inner) {
-  color: rgba(255, 255, 255, 0.9) !important;
-  background: transparent !important;
   padding-left: 12px !important;
   font-size: 16px !important;
   height: 44px !important;
@@ -621,259 +440,131 @@ const resetDonationResult = () => {
   margin-top: 32px !important;
 }
 
-/* 提交按钮液态玻璃风格 */
+/* 提交按钮 */
 .submit-donation-btn {
   width: 100%;
   max-width: 200px;
-  height: 48px;
-  border-radius: 24px !important;
+  height: 44px;
+  border-radius: 6px !important;
   font-size: 16px !important;
   font-weight: 600 !important;
-  background: linear-gradient(135deg, #409eff 0%, #3a8ee6 100%) !important;
-  border: none !important;
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-/* 提交按钮发光效果 */
-.submit-donation-btn::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transform: rotate(45deg);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
 }
 
 .submit-donation-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
-  background: linear-gradient(135deg, #3a8ee6 0%, #3071a9 100%) !important;
+  background-color: #45a049 !important;
+  border-color: #45a049 !important;
 }
 
-.submit-donation-btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-/* 结果提示 - 液态玻璃风格 */
+/* 结果提示 */
 .donation-result {
   margin-top: 30px;
-  position: relative;
-  z-index: 2;
-}
-
-.animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
 
 /* 成功提示样式 */
-:deep(.result-alert.el-alert--success) {
-  background: rgba(39, 174, 96, 0.15) !important;
-  border-color: rgba(39, 174, 96, 0.3) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
-}
-
-/* 错误提示样式 */
-:deep(.result-alert.el-alert--error) {
-  background: rgba(231, 76, 60, 0.15) !important;
-  border-color: rgba(231, 76, 60, 0.3) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
-}
-
 .success-message {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   font-weight: 500;
   line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .donation-amount-highlight {
   font-size: 18px;
   font-weight: 700;
-  color: #27ae60;
-  text-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+  color: var(--success-color);
 }
 
 .error-message {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .transaction-id {
   margin-top: 8px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  color: var(--text-secondary);
 }
 
 .transaction-id code {
-  background: rgba(255, 255, 255, 0.15);
+  background-color: #f5f5f5;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-family: monospace;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .result-alert {
-  border-radius: 12px !important;
-  overflow: hidden;
+  border-radius: 6px !important;
 }
 
-/* 暗黑模式 - 液态玻璃效果增强版 */
+/* 暗黑模式适配 */
 @media (prefers-color-scheme: dark) {
-  .donation-page-wrapper {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  :root {
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --bg-primary: #1f2937;
+    --border-primary: #374151;
   }
   
-  .donation-page-wrapper::before,
-  .donation-page-wrapper::after {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  
-  .donation-container {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  .donation-header {
+    border-bottom-color: var(--border-primary);
   }
   
   .card-shadow {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-  }
-  
-  .donation-header h1 {
-    color: rgba(255, 255, 255, 0.95);
-  }
-  
-  .subtitle {
-    color: rgba(255, 255, 255, 0.75);
-  }
-  
-  .form-item-custom .el-form-item__label {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  /* 暗黑模式下的输入框 */
-  :deep(.custom-input .el-input__wrapper),
-  :deep(.custom-amount-input .el-input__wrapper) {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  }
-  
-  :deep(.custom-input .el-input__wrapper:hover),
-  :deep(.custom-amount-input .el-input__wrapper:hover) {
-    border-color: rgba(255, 255, 255, 0.3) !important;
-  }
-  
-  :deep(.custom-input .el-input__inner),
-  :deep(.custom-amount-input .el-input__inner) {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  
-  /* 暗黑模式下的按钮 */
-  .amount-btn {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-  
-  .amount-btn:hover {
-    background: rgba(255, 255, 255, 0.12) !important;
-  }
-  
-  .currency-symbol {
-    color: rgba(255, 255, 255, 0.7);
-  }
-  
-  /* 暗黑模式下的结果提示 */
-  .success-message,
-  .error-message,
-  .transaction-id {
-    color: rgba(255, 255, 255, 0.85);
-  }
-  
-  .transaction-id code {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
+    background-color: var(--bg-primary);
+    border-color: var(--border-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
   
   /* 暗黑模式下的提示框 */
-  :deep(.result-alert.el-alert--success) {
-    background: rgba(39, 174, 96, 0.1) !important;
-    border-color: rgba(39, 174, 96, 0.2) !important;
+  :deep(.fee-alert.el-alert--info) {
+    background-color: rgba(144, 147, 153, 0.1);
+    border-color: rgba(144, 147, 153, 0.2);
   }
   
-  :deep(.result-alert.el-alert--error) {
-    background: rgba(231, 76, 60, 0.1) !important;
-    border-color: rgba(231, 76, 60, 0.2) !important;
+  /* 暗黑模式下的成功提示框 */
+  :deep(.donation-result .el-alert--success) {
+    background-color: rgba(103, 194, 58, 0.1);
+    border-color: rgba(103, 194, 58, 0.2);
+  }
+  
+  /* 暗黑模式下的错误提示框 */
+  :deep(.donation-result .el-alert--error) {
+    background-color: rgba(245, 108, 108, 0.1);
+    border-color: rgba(245, 108, 108, 0.2);
+  }
+  
+  .selected-amount-display {
+    background-color: rgba(64, 158, 255, 0.1);
+    border-color: rgba(64, 158, 255, 0.2);
+  }
+  
+  .transaction-id code {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: var(--text-primary);
   }
 }
 
 /* 响应式设计优化 */
 @media (max-width: 768px) {
-  .donation-page-wrapper {
-    padding: 20px 15px;
-  }
-  
-  .donation-container {
-    padding: 30px 20px;
-    border-radius: 16px;
+  .donation-content {
+    padding: 15px 0;
   }
   
   .donation-header h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
   
   .card-shadow {
-    padding: 25px;
-  }
-  
-  .amount-options {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  
-  .form-item-custom .el-form-item__label {
-    font-size: 13px;
-  }
-  
-  /* 移动端背景装饰调整 */
-  .donation-page-wrapper::before,
-  .donation-page-wrapper::after {
-    width: 200px;
-    height: 200px;
-  }
-  
-  .donation-page-wrapper::before {
-    top: -50px;
-    left: -50px;
-  }
-  
-  .donation-page-wrapper::after {
-    bottom: -50px;
-    right: -50px;
+    padding: 20px;
   }
 }
 
@@ -882,74 +573,22 @@ const resetDonationResult = () => {
     max-width: 100%;
   }
   
-  .donation-container {
-    padding: 25px 15px;
-  }
-  
   .card-shadow {
-    padding: 20px;
+    padding: 16px;
   }
   
-  /* 小屏幕选项菜单优化 */
-  :deep(.amount-select .el-select__wrapper) {
-    border-radius: 10px !important;
-  }
-  
-  /* 小屏幕输入框优化 */
-  :deep(.custom-input .el-input__wrapper),
-  :deep(.custom-amount-input .el-input__wrapper) {
-    border-radius: 10px !important;
-  }
-  
-  /* 小屏幕下拉菜单优化 */
-  :deep(.amount-select .el-select-dropdown) {
-    border-radius: 10px !important;
-    max-height: 200px;
-  }
-  
-  :deep(.amount-select .el-select-dropdown__item) {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-  
-  /* 小屏幕已选金额显示优化 */
-  .selected-amount-display {
-    padding: 10px 12px;
-    margin-top: 6px;
-  }
-  
-  .selected-amount-label {
-    font-size: 13px;
-  }
-  
-  .selected-amount-value {
-    font-size: 16px;
-  }
-  
-  /* 小屏幕图标调整 */
   .header-icon svg {
     width: 40px;
     height: 40px;
   }
-}
-
-/* 高分辨率屏幕优化 */
-@media (-webkit-device-pixel-ratio: 2), (resolution: 192dpi) {
-  .donation-container,
-  .card-shadow,
-  .custom-input .el-input__wrapper,
-  .custom-amount-input .el-input__wrapper {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+  
+  .donation-header h1 {
+    font-size: 20px;
   }
 }
 
 /* 触摸设备优化 */
 @media (hover: none) and (pointer: coarse) {
-  .amount-btn:active {
-    transform: scale(0.98);
-  }
-  
   .submit-donation-btn:active:not(:disabled) {
     transform: scale(0.98);
   }
