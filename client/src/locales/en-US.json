@@ -235,7 +235,7 @@
     "amountRequired": "Please input patronage quantification",
     "amountMustBeNumber": "Quantification must be numerical",
     "amountMustBePositive": "Quantification must exceed zero",
-    "amountMustBeAtLeast": "Quantification must meet minimum threshold of 5 currency units",
+    "amountMustBeAtLeast": "Quantification must meet minimum threshold of 33 currency units",
     "amountMaxTwoDecimals": "Quantification permits maximum of two decimal precision",
     "feeNoticeTitle": "Transaction Levy Notification",
     "feeNoticeContent": "Payment gateway utilization may incur 30% service levy. This interface displays pre-levy quantification.",

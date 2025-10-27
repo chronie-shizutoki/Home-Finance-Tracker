@@ -235,7 +235,7 @@
     "amountRequired": "Backing amount is needed",
     "amountMustBeNumber": "Amount must be a number",
     "amountMustBePositive": "Amount must be more than nothing",
-    "amountMustBeAtLeast": "Amount must be at least 5",
+    "amountMustBeAtLeast": "Amount must be at least 33 cents",
     "amountMaxTwoDecimals": "Amount can have up to two numbers after the dot",
     "feeNoticeTitle": "Heads-up on fees",
     "feeNoticeContent": "The payment gateway may take 30% as a fee. This shows the amount before the fee.",

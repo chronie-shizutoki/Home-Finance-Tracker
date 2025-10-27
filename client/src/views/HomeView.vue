@@ -3,7 +3,7 @@
   <div v-if="showDonationModal" class="donation-modal-overlay">
     <div class="donation-modal-content">
       <h2 class="donation-modal-title">请支持我们的项目<br>Fiscal Underwriting Solicitation</h2>
-      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少5美分。完成捐款后您可以继续使用应用。<br>The perpetuation of this computational initiative necessitates philanthropic engagement. A minimum monetary endowment of $0.05 constitutes the foundational threshold for participatory support. Subsequent to transactional fulfillment, comprehensive application accessibility shall be reinstated and perpetuated.</p>
+      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少33美分。完成捐款后您可以继续使用应用。<br>The perpetuation of this computational initiative necessitates philanthropic engagement. A minimum monetary endowment of $0.33 constitutes the foundational threshold for participatory support. Subsequent to transactional fulfillment, comprehensive application accessibility shall be reinstated and perpetuated.</p>
       <div class="donation-modal-footer">
         <button type="primary" @click="proceedToDonation" :disabled="donationAmount < 1">
           前往捐款<br>Navigate to the Philanthropic Contribution interface
