@@ -13,6 +13,7 @@ import NotFoundView from '@/views/NotFoundView.vue';
 import DonationView from '@/views/DonationView.vue';
 import DebtView from '@/views/DebtView.vue';
 import ChartsView from '@/views/ChartsView.vue';
+import MembershipView from '@/views/MembershipView.vue';
 
 const router = createRouter({
   history: createWebHistory(), // 启用History模式（去除URL中的#号）
@@ -41,6 +42,12 @@ const router = createRouter({
       name: 'charts',
       meta: { title: 'chart.title' },
       component: ChartsView
+    },
+    {
+      path: '/membership',
+      name: 'membership',
+      meta: { title: 'membership.title' },
+      component: MembershipView
     },
     {
       path: '/photo.html',

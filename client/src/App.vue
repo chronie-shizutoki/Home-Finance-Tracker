@@ -19,72 +19,6 @@ const router = useRouter();
 watchEffect(() => {
   document.title = t('app.title');
 });
-
-// 全局防护：防止用户绕过捐款
-const enforceDonation = () => {
-  // 检查是否已捐款的标志（使用sessionStorage保持会话级别）
-  const hasDonated = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
-  
-  // 当前路由路径
-  const currentPath = window.location.pathname;
-  
-  // 只有捐款页面和根页面（用于显示强制弹窗）可以访问
-  if (!hasDonated && currentPath !== '/donation' && currentPath !== '/') {
-    // 重定向到根页面，显示强制捐款弹窗
-    router.push('/');
-  }
-};
-
-// 阻止用户通过各种键盘快捷键关闭弹窗
-const preventBypassKeys = (e) => {
-  // 阻止F5刷新、Ctrl+R刷新、Ctrl+W关闭标签页等
-  const blockedKeys = {
-    'F5': true,
-    'r': e.ctrlKey,
-    'w': e.ctrlKey,
-    't': e.ctrlKey,
-    'Escape': true
-  };
-  
-  if (blockedKeys[e.key] || blockedKeys[e.key.toLowerCase()]) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-};
-
-// 阻止右键菜单
-const preventContextMenu = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-};
-
-// 防止刷新页面绕过捐款
-const handleBeforeUnload = (e) => {
-  const hasDonated = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
-  if (!hasDonated) {
-    // 显示自定义消息
-    e.preventDefault();
-    e.returnValue = '您还没有完成捐款，确定要离开吗？';
-    return '您还没有完成捐款，确定要离开吗？';
-  }
-};
-
-onMounted(() => {
-  // 添加全局事件监听器
-  document.addEventListener('keydown', preventBypassKeys);
-  document.addEventListener('contextmenu', preventContextMenu);
-  window.addEventListener('beforeunload', handleBeforeUnload);
-  
-  // 强制检查捐款状态
-  enforceDonation();
-});
-
-onBeforeUnmount(() => {
-  // 清理事件监听器
-  document.removeEventListener('keydown', preventBypassKeys);
-  document.removeEventListener('contextmenu', preventContextMenu);
-  window.removeEventListener('beforeunload', handleBeforeUnload);
-});
 </script>
 
 <style>
@@ -495,6 +429,12 @@ button {
   .el-table td {
     background-color: #20222a !important;
     color: #fff !important;
+  }
+  .el-tag {
+    background-color: #333 !important;
+    color: var(--text-primary) !important;
+    border-color: #444 !important;
+    border-radius: 16px !important;
   }
 }
 </style>

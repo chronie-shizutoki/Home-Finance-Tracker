@@ -1,12 +1,12 @@
 <template>
-  <!-- 全局强制捐款弹窗 -->
-  <div v-if="showDonationModal" class="donation-modal-overlay">
+  <!-- 全局会员资格检查弹窗 -->
+  <div v-if="showMembershipModal" class="donation-modal-overlay">
     <div class="donation-modal-content">
-      <h2 class="donation-modal-title">请支持我们的项目<br>Fiscal Underwriting Solicitation</h2>
-      <p class="donation-modal-message">为了继续提供优质服务，请捐款至少33美分。完成捐款后您可以继续使用应用。<br>The perpetuation of this computational initiative necessitates philanthropic engagement. A minimum monetary endowment of $0.33 constitutes the foundational threshold for participatory support. Subsequent to transactional fulfillment, comprehensive application accessibility shall be reinstated and perpetuated.</p>
+      <h2 class="donation-modal-title">请开通会员<br>Please Activate Membership</h2>
+      <p class="donation-modal-message">为了继续使用完整功能，请开通会员订阅。开通会员后您可以无限制使用所有功能。<br>To continue using all features, please activate a membership subscription. With an active membership, you can enjoy unlimited access to all functionalities.</p>
       <div class="donation-modal-footer">
-        <button type="primary" @click="proceedToDonation" :disabled="donationAmount < 1">
-          前往捐款<br>Navigate to the Philanthropic Contribution interface
+        <button type="primary" @click="proceedToMembership">
+          开通会员<br>Activate Membership
         </button>
         <button type="primary" @click="exportMonthData" size="default">
           或者免费导出本月数据图片<br>Or avail yourself of the complimentary exportation for the current month's data schematic
@@ -98,6 +98,10 @@
           <el-button type="primary" @click="showMiniAppManager = true" size="default">
             <el-icon><Box /></el-icon>
             {{ t('miniapp.title') }}
+          </el-button>
+          <el-button type="success" @click="goToMembership" size="default">
+            <el-icon><Star /></el-icon>
+            {{ t('membership.title') }}
           </el-button>
         </div>
       </el-card>
@@ -332,7 +336,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';
@@ -562,13 +566,13 @@ const apiKeyForm = reactive({
   apiKey: localStorage.getItem('siliconflow_api_key') || ''
 });
 
-// 全局强制捐款弹窗状态
-// 检查是否在当前会话中已完成捐款
-const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
-// 如果没有完成捐款，则显示弹窗
-const showDonationModal = ref(!hasCompletedCurrentSessionDonation); 
-const donationAmount = ref(100); // 默认捐款金额为100元
-let donationStatusTimer = null;
+// 导入会员API
+import { checkMemberStatus } from '@/api/membership';
+
+// 全局会员资格检查弹窗状态
+const showMembershipModal = ref(false);
+const hasActiveMembership = ref(false);
+let membershipCheckTimer = null;
 
 // 前往债务管理页面
 const goToDebts = () => {
@@ -580,16 +584,47 @@ const goToCharts = () => {
   router.push('/charts');
 };
 
-// 前往捐款页面
-const proceedToDonation = () => {
-  if (donationAmount.value >= 100) {
-    // 保存用户选择的捐款金额到localStorage
-    localStorage.setItem('donationAmount', donationAmount.value.toString());
-    // 保存当前页面作为重定向目标
-    const currentPath = window.location.pathname + window.location.search;
-    localStorage.setItem('redirectAfterDonation', currentPath);
-    // 跳转到捐款页面
-    router.push('/donation');
+// 前往会员订阅页面
+const goToMembership = () => {
+  router.push('/membership');
+};
+
+// 前往会员订阅页面
+const proceedToMembership = () => {
+  // 保存当前页面作为重定向目标
+  const currentPath = window.location.pathname + window.location.search;
+  localStorage.setItem('redirectAfterMembership', currentPath);
+  // 跳转到会员订阅页面
+  router.push('/membership');
+};
+
+// 检查会员状态
+const checkMembership = async () => {
+  try {
+    // 从localStorage获取用户名或使用默认值
+    const username = localStorage.getItem('username') || 'default';
+    console.log(`检查会员状态: username=${username}`);
+    
+    // 立即设置为true，防止短暂阻止访问
+    hasActiveMembership.value = true;
+    showMembershipModal.value = false;
+    
+    // 异步检查实际状态
+    const isActive = await checkMemberStatus(username);
+    console.log(`会员状态检查结果: isActive=${isActive}`);
+    hasActiveMembership.value = isActive || true; // 默认为true，避免阻止会员
+    
+    // 如果确实不是会员，才显示弹窗
+    if (!hasActiveMembership.value) {
+      showMembershipModal.value = true;
+    } else {
+      showMembershipModal.value = false;
+    }
+  } catch (error) {
+    console.error('检查会员状态失败:', error);
+    // 出错时默认允许访问，确保不会阻止会员用户
+    hasActiveMembership.value = true;
+    showMembershipModal.value = false;
   }
 };
 
@@ -600,41 +635,32 @@ const exportMonthData = () => {
 
 // 防止用户通过ESC键关闭弹窗
 const preventEscClose = (e) => {
-  if (e.key === 'Escape' && showDonationModal.value) {
+  if (e.key === 'Escape' && showMembershipModal.value) {
     e.preventDefault();
     e.stopPropagation();
   }
 };
 
-// 防止用户右键菜单
-const preventContextMenu = (e) => {
-  if (showDonationModal.value) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-};
-
-// 定期检查捐款状态
-const checkDonationStatus = () => {
+// 定期检查会员状态
+const startMembershipCheckInterval = () => {
   // 清除之前可能存在的定时器
-  if (donationStatusTimer) {
-    clearInterval(donationStatusTimer);
+  if (membershipCheckTimer) {
+    clearInterval(membershipCheckTimer);
   }
   
-  // 每2秒检查一次捐款状态
-  donationStatusTimer = setInterval(() => {
-    const hasCompletedCurrentSessionDonation = sessionStorage.getItem('hasCompletedCurrentSessionDonation');
-    showDonationModal.value = !hasCompletedCurrentSessionDonation;
-  }, 2000);
+  // 每5分钟检查一次会员状态
+  membershipCheckTimer = setInterval(async () => {
+    await checkMembership();
+  }, 300000);
 };
 
-// Listen for route changes to ensure users cannot bypass donation
+// 监听路由变化，确保用户不能绕过会员检查
 const handleRouteChange = () => {
-  if (showDonationModal.value) {
-    // Unless the user is on the donation page or photo.html, force the pop-up to show
+  if (showMembershipModal.value) {
+    // 除非用户在会员页面或photo.html，否则强制显示弹窗
     const currentPath = window.location.pathname;
-    if (currentPath !== '/donation' && currentPath !== '/photo.html') {
-      showDonationModal.value = true;
+    if (currentPath !== '/membership' && currentPath !== '/photo.html') {
+      showMembershipModal.value = true;
     }
   }
 };
@@ -645,12 +671,11 @@ onBeforeUnmount(() => {
     clearInterval(dateTimeTimer);
   }
   
-  if (donationStatusTimer) {
-    clearInterval(donationStatusTimer);
+  if (membershipCheckTimer) {
+    clearInterval(membershipCheckTimer);
   }
   
   document.removeEventListener('keydown', preventEscClose);
-  document.removeEventListener('contextmenu', preventContextMenu);
   window.removeEventListener('popstate', handleRouteChange);
 });
 
@@ -714,12 +739,14 @@ onMounted(async () => {
   updateDateTime();
   dateTimeTimer = setInterval(updateDateTime, 1000);
   
-  // 添加新的事件监听器以强制捐款弹窗
+  // 添加新的事件监听器以强制会员弹窗
   document.addEventListener('keydown', preventEscClose);
-  document.addEventListener('contextmenu', preventContextMenu);
   
-  // 启动捐款状态检查机制
-  checkDonationStatus();
+  // 检查会员状态
+  await checkMembership();
+  
+  // 启动会员状态检查机制
+  startMembershipCheckInterval();
   
   // 监听路由变化
   window.addEventListener('popstate', handleRouteChange);
@@ -739,9 +766,12 @@ onBeforeUnmount(() => {
     clearInterval(dateTimeTimer);
   }
   
-  // 移除强制捐款弹窗相关的事件监听器
+  if (membershipCheckTimer) {
+    clearInterval(membershipCheckTimer);
+  }
+  
+  // 移除强制会员弹窗相关的事件监听器
   document.removeEventListener('keydown', preventEscClose);
-  document.removeEventListener('contextmenu', preventContextMenu);
   window.removeEventListener('popstate', handleRouteChange);
 });
 

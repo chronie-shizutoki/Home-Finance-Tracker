@@ -13,7 +13,6 @@
         </div>
         <h1>{{ t('donation.title') }}</h1>
         <p class="subtitle">{{ t('donation.description') }}</p>
-        <p>自2025年10月28日起，使用1次的价格下调至33美分。</p>
         <p>当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href="http://192.168.0.197:3100" target="_blank">点击这里</a>查看您的金流账户。</p>
       </div>
       
@@ -147,7 +146,7 @@ const donationRules = {
           callback(new Error(t('donation.amountMustBeNumber')))
         } else {
           const numValue = parseFloat(value)
-          if (numValue < 6.8) {
+          if (numValue < 0.01) {
             callback(new Error(t('donation.amountMustBeAtLeast')))
           } else {
             // Validate maximum two decimal places
@@ -166,7 +165,7 @@ const donationRules = {
 }
 
 // Define amount options
-const amountOptions = [6.8, 10, 20, 40, 60, 80, 100]
+const amountOptions = [5, 10, 20, 40, 60, 80, 100]
 
 // Form reference
 const donationFormRef = ref(null)

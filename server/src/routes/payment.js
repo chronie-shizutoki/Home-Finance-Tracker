@@ -11,4 +11,7 @@ const paymentController = require('../controllers/paymentController')
 // 捐赠路由
 router.post('/donate', paymentController.donate)
 
+// 会员订阅支付路由
+router.post('/subscribe', paymentController.subscribePayment)
+
 module.exports = router
