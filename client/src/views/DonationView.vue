@@ -147,7 +147,7 @@ const donationRules = {
           callback(new Error(t('donation.amountMustBeNumber')))
         } else {
           const numValue = parseFloat(value)
-          if (numValue < 10) {
+          if (numValue < 6.8) {
             callback(new Error(t('donation.amountMustBeAtLeast')))
           } else {
             // Validate maximum two decimal places
