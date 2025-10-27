@@ -24,6 +24,11 @@
 
     <Header :title="$t('app.title')" />
     
+    <!-- 七彩欢迎信息 -->
+    <div class="welcome-text">
+      欢迎，{{ username || '用户' }}！
+    </div>
+    
     <!-- 当前日期时间显示 -->
     <div class="datetime-container">
       <div class="date-part">{{ formattedDate }}</div>
@@ -691,6 +696,9 @@ const goToDonation = () => {
 };
 const markdownContent = ref('');
 const markdownTitle = ref('');
+
+const username = ref(localStorage.getItem('username') || '用户');
+
 // 当前日期时间状态
 const currentDateTime = ref('');
 const formattedDate = ref('');
@@ -1245,6 +1253,32 @@ const refreshPage = () => {
   color: var(--text-primary);
   background: transparent;
   transition: all 0.3s ease;
+}
+
+/* 七彩欢迎文本样式 */
+.welcome-text {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowText 3s ease infinite;
+}
+
+@keyframes rainbowText {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .error-alert {
