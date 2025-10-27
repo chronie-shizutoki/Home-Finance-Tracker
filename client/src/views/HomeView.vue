@@ -737,6 +737,127 @@ const loadMarkdownReport = async () => {
 };
 
 // 初始加载和语言变化时重新加载
+// 创建闪烁星星效果
+const createSparkles = () => {
+  const welcomeText = document.querySelector('.welcome-text');
+  if (!welcomeText) return;
+  
+  // 清除已有的星星效果
+  const existingSparkles = welcomeText.querySelectorAll('.sparkle');
+  existingSparkles.forEach(sparkle => sparkle.remove());
+  
+  const textRect = welcomeText.getBoundingClientRect();
+  const numSparkles = 15;
+  
+  for (let i = 0; i < numSparkles; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.classList.add('sparkle');
+    
+    // 随机位置
+    const x = Math.random() * textRect.width;
+    const y = Math.random() * textRect.height;
+    
+    sparkle.style.left = `${x}px`;
+    sparkle.style.top = `${y}px`;
+    
+    // 随机动画延迟和持续时间
+    const delay = Math.random() * 5;
+    const duration = 1 + Math.random() * 2;
+    
+    sparkle.style.animation = `sparkleAnimation ${duration}s ${delay}s infinite`;
+    
+    welcomeText.appendChild(sparkle);
+  }
+};
+
+// 创建脉动光环
+const createPulseRings = () => {
+  const welcomeText = document.querySelector('.welcome-text');
+  if (!welcomeText) return;
+  
+  // 清除已有的光环
+  const existingRings = welcomeText.querySelectorAll('.pulse-ring');
+  existingRings.forEach(ring => ring.remove());
+  
+  const numRings = 3;
+  
+  for (let i = 0; i < numRings; i++) {
+    const ring = document.createElement('div');
+    ring.classList.add('pulse-ring');
+    
+    const delay = i * 1.5;
+    const duration = 4.5;
+    
+    ring.style.animation = `pulse ${duration}s ${delay}s infinite`;
+    
+    welcomeText.appendChild(ring);
+  }
+};
+
+// 创建浮动粒子
+const createFloatingParticles = () => {
+  // 检查是否已存在粒子容器
+  let particlesContainer = document.querySelector('.floating-particles');
+  
+  // 如果不存在，创建一个新的
+  if (!particlesContainer) {
+    particlesContainer = document.createElement('div');
+    particlesContainer.classList.add('floating-particles');
+    document.body.appendChild(particlesContainer);
+  } else {
+    // 清除已有的粒子
+    particlesContainer.innerHTML = '';
+  }
+  
+  const numParticles = 30;
+  
+  for (let i = 0; i < numParticles; i++) {
+    const particle = document.createElement('div');
+    particle.classList.add('particle');
+    
+    // 随机位置
+    const startX = Math.random() * 100;
+    const startY = Math.random() * 100;
+    
+    // 随机移动距离
+    const tx = (Math.random() - 0.5) * 200;
+    const ty = (Math.random() - 0.5) * 200;
+    
+    particle.style.setProperty('--tx', `${tx}%`);
+    particle.style.setProperty('--ty', `${ty}%`);
+    
+    particle.style.left = `${startX}%`;
+    particle.style.top = `${startY}%`;
+    
+    // 随机大小和颜色
+    const size = 2 + Math.random() * 6;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    
+    const hue = Math.random() * 360;
+    particle.style.background = `hsla(${hue}, 100%, 70%, 0.7)`;
+    
+    // 随机动画延迟和持续时间
+    const delay = Math.random() * 15;
+    const duration = 10 + Math.random() * 20;
+    
+    particle.style.animationDelay = `${delay}s`;
+    particle.style.animationDuration = `${duration}s`;
+    
+    particlesContainer.appendChild(particle);
+  }
+};
+
+// 初始化华丽欢迎效果
+const initWelcomeEffects = () => {
+  // 延迟执行以确保DOM已经渲染
+  setTimeout(() => {
+    createSparkles();
+    createPulseRings();
+    createFloatingParticles();
+  }, 100);
+};
+
 onMounted(async () => {
   loadMarkdownReport();
   // 初始化并启动日期时间更新
@@ -754,6 +875,9 @@ onMounted(async () => {
   
   // 监听路由变化
   window.addEventListener('popstate', handleRouteChange);
+  
+  // 初始化华丽欢迎效果
+  initWelcomeEffects();
   
   try {
     await fetchData(false);
@@ -1255,18 +1379,104 @@ const refreshPage = () => {
   transition: all 0.3s ease;
 }
 
-/* 七彩欢迎文本样式 */
+/* 华丽七彩欢迎文本样式 */
 .welcome-text {
+  position: relative;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 10px 0;
-  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-  background-size: 200% 200%;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 20px 0;
+  padding: 20px 40px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, 
+    #ff0000, #ff7f00, #ffff00, #00ff00, 
+    #0000ff, #4b0082, #9400d3, #ff0000);
+  background-size: 400% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: rainbowText 3s ease infinite;
+  animation: rainbowText 3s linear infinite, float 6s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  z-index: 2;
+}
+
+.welcome-text::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: inherit;
+  background-size: 400% 100%;
+  filter: blur(20px);
+  opacity: 0.7;
+  z-index: -1;
+  animation: rainbowText 3s linear infinite;
+}
+
+.welcome-text::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(255, 0, 0, 0.2), 
+    rgba(255, 127, 0, 0.2), 
+    rgba(255, 255, 0, 0.2), 
+    rgba(0, 255, 0, 0.2), 
+    rgba(0, 0, 255, 0.2), 
+    rgba(75, 0, 130, 0.2), 
+    rgba(148, 0, 211, 0.2));
+  background-size: 400% 400%;
+  border-radius: 15px;
+  z-index: -2;
+  animation: gradientShift 8s ease infinite;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  z-index: 1;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  opacity: 0;
+  z-index: -1;
+}
+
+.floating-particles {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: floatAround 15s linear infinite;
 }
 
 @keyframes rainbowText {
@@ -1278,6 +1488,63 @@ const refreshPage = () => {
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes sparkleAnimation {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes floatAround {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(360deg);
+    opacity: 0;
   }
 }
 
