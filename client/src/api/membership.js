@@ -119,12 +119,12 @@ export const checkMemberStatus = async (username) => {
     const response = await fetch(`/api/members/members/${encodeURIComponent(username)}/current-subscription?cacheBust=${Date.now()}`)
     const subscription = await response.json()
     
-    // 只要有活跃订阅（totalActiveSubscriptions > 0）或返回了有效订阅数据，就认为是会员
-    return subscription.success && (subscription.totalActiveSubscriptions > 0 || !!subscription.data)
+    // 严格验证：必须有活跃订阅且totalActiveSubscriptions > 0，才能认为是会员
+    return subscription.success && subscription.totalActiveSubscriptions > 0 && !!subscription.data
   } catch (error) {
     console.error('检查会员状态失败:', error)
-    // 出错时默认允许访问，避免阻止会员用户
-    return true
+    // 出错时默认返回false，确保未付费用户不能访问
+    return false
   }
 }
 

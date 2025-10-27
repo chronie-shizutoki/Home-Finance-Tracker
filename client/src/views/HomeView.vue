@@ -605,26 +605,22 @@ const checkMembership = async () => {
     const username = localStorage.getItem('username') || 'default';
     console.log(`检查会员状态: username=${username}`);
     
-    // 立即设置为true，防止短暂阻止访问
-    hasActiveMembership.value = true;
-    showMembershipModal.value = false;
+    // 初始状态：默认不是会员，显示弹窗
+    hasActiveMembership.value = false;
+    showMembershipModal.value = true;
     
     // 异步检查实际状态
     const isActive = await checkMemberStatus(username);
     console.log(`会员状态检查结果: isActive=${isActive}`);
-    hasActiveMembership.value = isActive || true; // 默认为true，避免阻止会员
+    hasActiveMembership.value = isActive;
     
-    // 如果确实不是会员，才显示弹窗
-    if (!hasActiveMembership.value) {
-      showMembershipModal.value = true;
-    } else {
-      showMembershipModal.value = false;
-    }
+    // 根据实际状态更新弹窗显示
+    showMembershipModal.value = !hasActiveMembership.value;
   } catch (error) {
     console.error('检查会员状态失败:', error);
-    // 出错时默认允许访问，确保不会阻止会员用户
-    hasActiveMembership.value = true;
-    showMembershipModal.value = false;
+    // 出错时保持默认状态（非会员），显示弹窗
+    hasActiveMembership.value = false;
+    showMembershipModal.value = true;
   }
 };
 
