@@ -48,6 +48,11 @@
       </el-button>
     </div>
     
+    <div style="text-align: center;">
+    <p>当前付款方式仅限金流 (𝙲𝚑𝚛𝚢𝚜𝚘𝚛𝚛𝚑𝚘𝚎)，<a href="http://192.168.0.197:3100" target="_blank">点击这里</a>查看您的金流账户。</p>
+    <br>
+    </div>
+
     <!-- 订阅计划列表 -->
     <div class="plans-container">
       <h2>{{ $t('membership.selectPlan') }}</h2>
@@ -81,6 +86,19 @@
         </div>
       </div>
     </div>
+
+    <!-- 金流服务费用提示 -->
+    <div class="payment-fee-notice">
+    <el-alert
+      :title="$t('donation.feeNoticeTitle')"
+        type="info"
+      :closable="false"
+        class="fee-alert"
+      >
+    <p class="fee-message">{{ $t('donation.feeNoticeContent') }}</p>
+    </el-alert>
+    <br>
+  </div>
     
     <!-- 订阅历史记录 -->
     <div class="history-container" v-if="subscriptionHistory.length > 0">
