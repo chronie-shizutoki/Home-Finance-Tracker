@@ -11,26 +11,26 @@ const initSubscriptionPlans = async () => {
     // 默认订阅计划配置
     const defaultPlans = [
       {
-        name: '月度会员',
-        description: '享受30天的高级会员服务',
+        name: '月度体验',
+        description: '开启您的30天高级之旅，随心所用，零负担入门',
         duration: 30,
-        price: 199.99,
+        price: 99.99,
         period: 'monthly',
         isActive: true
       },
       {
-        name: '季度会员',
-        description: '享受90天的高级会员服务，比月度更优惠',
+        name: '精英季度（热门之选）',
+        description: '「立省16%」90天无忧存取，精明用户的首选方案',
         duration: 90,
-        price: 499.99,
+        price: 249.99,
         period: 'quarterly',
         isActive: true
       },
       {
-        name: '年度会员',
-        description: '享受365天的高级会员服务，最划算的选择',
+        name: '至尊年度（终极性价比）',
+        description: '「立省高达200！」每天仅需约 ¥2.74，解锁全年最高价值',
         duration: 365,
-        price: 1999.99,
+        price: 999.99,
         period: 'yearly',
         isActive: true
       }
