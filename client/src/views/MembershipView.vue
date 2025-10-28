@@ -29,6 +29,8 @@
       <p v-if="!currentSubscription">
         {{ $t('membership.noActiveSubscription') }}
       </p>
+      <!--
+      取消订阅功能，此功能未完成，当前取消订阅不会为用户退款，当前不应该启用此功能
       <el-button 
         v-if="currentSubscription" 
         type="danger" 
@@ -36,7 +38,7 @@
         :loading="isCancelling"
       >
         {{ $t('membership.cancelSubscription') }}
-      </el-button>
+      </el-button> -->
       <el-button 
         type="warning" 
         @click="logout"
@@ -84,7 +86,11 @@
     <div class="history-container" v-if="subscriptionHistory.length > 0">
       <h2>{{ $t('membership.subscriptionHistory') }}</h2>
       <el-table :data="subscriptionHistory" style="width: 100%">
-        <el-table-column prop="SubscriptionPlan?.name" label="计划"></el-table-column>
+        <el-table-column label="计划">
+          <template #default="scope">
+            {{ scope.row.SubscriptionPlan?.name || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="startDate" label="开始日期">
           <template #default="scope">
             {{ formatDate(scope.row.startDate) }}
