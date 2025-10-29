@@ -794,60 +794,6 @@ const createPulseRings = () => {
   }
 };
 
-// 创建浮动粒子
-const createFloatingParticles = () => {
-  // 检查是否已存在粒子容器
-  let particlesContainer = document.querySelector('.floating-particles');
-  
-  // 如果不存在，创建一个新的
-  if (!particlesContainer) {
-    particlesContainer = document.createElement('div');
-    particlesContainer.classList.add('floating-particles');
-    document.body.appendChild(particlesContainer);
-  } else {
-    // 清除已有的粒子
-    particlesContainer.innerHTML = '';
-  }
-  
-  const numParticles = 30;
-  
-  for (let i = 0; i < numParticles; i++) {
-    const particle = document.createElement('div');
-    particle.classList.add('particle');
-    
-    // 随机位置
-    const startX = Math.random() * 100;
-    const startY = Math.random() * 100;
-    
-    // 随机移动距离
-    const tx = (Math.random() - 0.5) * 200;
-    const ty = (Math.random() - 0.5) * 200;
-    
-    particle.style.setProperty('--tx', `${tx}%`);
-    particle.style.setProperty('--ty', `${ty}%`);
-    
-    particle.style.left = `${startX}%`;
-    particle.style.top = `${startY}%`;
-    
-    // 随机大小和颜色
-    const size = 2 + Math.random() * 6;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    
-    const hue = Math.random() * 360;
-    particle.style.background = `hsla(${hue}, 100%, 70%, 0.7)`;
-    
-    // 随机动画延迟和持续时间
-    const delay = Math.random() * 15;
-    const duration = 10 + Math.random() * 20;
-    
-    particle.style.animationDelay = `${delay}s`;
-    particle.style.animationDuration = `${duration}s`;
-    
-    particlesContainer.appendChild(particle);
-  }
-};
-
 // 初始化华丽欢迎效果
 const initWelcomeEffects = () => {
   // 延迟执行以确保DOM已经渲染
@@ -1460,25 +1406,6 @@ const refreshPage = () => {
   z-index: -1;
 }
 
-.floating-particles {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: floatAround 15s linear infinite;
-}
-
 @keyframes rainbowText {
   0% {
     background-position: 0% 50%;
@@ -1527,23 +1454,6 @@ const refreshPage = () => {
   }
   100% {
     transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
-}
-
-@keyframes floatAround {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--tx), var(--ty)) rotate(360deg);
     opacity: 0;
   }
 }
