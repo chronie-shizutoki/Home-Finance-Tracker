@@ -572,6 +572,32 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 金流服务费用提示样式 */
+.payment-fee-notice {
+  margin-bottom: 24px;
+}
+
+/* 费用提示框 */
+:deep(.fee-alert.el-alert--info) {
+  background-color: #f0f9ff;
+  border-color: #d9ecff;
+  border-radius: 6px !important;
+}
+
+:deep(.fee-alert .el-alert__title) {
+  color: var(--info-color) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px;
+}
+
+.fee-message {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .plans-grid {
     grid-template-columns: 1fr;
@@ -608,6 +634,12 @@ export default {
   
   .el-input__wrapper {
     background-color: #303030;
+  }
+
+  /* 暗黑模式下的提示框 */
+  :deep(.fee-alert.el-alert--info) {
+    background-color: rgba(144, 147, 153, 0.1);
+    border-color: rgba(144, 147, 153, 0.2);
   }
 }
 </style>
