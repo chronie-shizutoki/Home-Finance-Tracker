@@ -5,10 +5,10 @@
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
       <el-form :model="loginForm" :rules="loginRules" ref="loginFormRef" @submit.prevent="handleLogin">
-        <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
+        <el-form-item label="金流用户名" :label-width="formLabelWidth" prop="username">
           <el-input 
             v-model="loginForm.username" 
-            placeholder="请输入用户名（仅限大小写英文字母）" 
+            placeholder="仅限大小写英文字母" 
             required
             show-word-limit
             maxlength="20"
@@ -159,7 +159,7 @@ export default {
     const loginForm = ref({
       username: ''
     })
-    const formLabelWidth = '80px'
+    const formLabelWidth = '100px'
     
     // 登录表单验证规则
     const loginRules = {
