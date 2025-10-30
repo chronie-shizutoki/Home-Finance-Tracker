@@ -1,6 +1,6 @@
 <template>
   <div class="membership-container">
-    <h1 class="page-title">{{ $t('membership.title') }}</h1>
+    <Header :title="$t('membership.title')" />
     
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
@@ -142,6 +142,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import Header from '@/components/Header.vue';
 
 export default {
   name: 'MembershipView',
@@ -503,7 +504,7 @@ export default {
 
 .login-form {
   max-width: 400px;
-  margin: 0 auto 30px;
+  margin: 50px auto 30px;
   padding: 20px;
   background: #fff;
   border-radius: 8px;
@@ -512,6 +513,19 @@ export default {
 
 .dark .login-form {
   background-color: #202020;
+}
+
+:deep(.el-form-item__content){
+   margin: 5px;
+   justify-content: center;
+}
+
+.user-info-card {
+  margin: 50px auto;
+  width: 300px;
+  max-width: 95%;
+  justify-content: center;
+  text-align: center;
 }
 
 .plans-container {
