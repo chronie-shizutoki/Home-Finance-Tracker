@@ -14,23 +14,23 @@ const initSubscriptionPlans = async () => {
         name: '月度体验',
         description: '开启您的30天高级之旅，随心所用，零负担入门',
         duration: 30,
-        price: 99.99,
+        price: 49.99,
         period: 'monthly',
         isActive: true
       },
       {
         name: '精英季度（热门之选）',
-        description: '「立省16%」90天无忧存取，精明用户的首选方案',
+        description: '「立省15%」90天无忧存取，精明用户的首选方案',
         duration: 90,
-        price: 249.99,
+        price: 129.99,
         period: 'quarterly',
         isActive: true
       },
       {
         name: '至尊年度（终极性价比）',
-        description: '「立省高达200！」每天仅需约 ¥2.74，解锁全年最高价值',
+        description: '「立省高达200！」每天仅需约1.1，解锁全年最低价',
         duration: 365,
-        price: 999.99,
+        price: 399.99,
         period: 'yearly',
         isActive: true
       }

@@ -4,9 +4,15 @@
     
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
-      <el-form :model="loginForm" @submit.prevent="handleLogin">
-        <el-form-item label="用户名" :label-width="formLabelWidth">
-          <el-input v-model="loginForm.username" placeholder="请输入用户名" required></el-input>
+      <el-form :model="loginForm" :rules="loginRules" ref="loginFormRef" @submit.prevent="handleLogin">
+        <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
+          <el-input 
+            v-model="loginForm.username" 
+            placeholder="请输入用户名（仅限大小写英文字母）" 
+            required
+            show-word-limit
+            maxlength="20"
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleLogin" :loading="isLoggingIn">
@@ -149,10 +155,20 @@ export default {
     const currentSubscription = ref(null)
     const subscriptionHistory = ref([])
     const isLoggedIn = ref(false)
+    const loginFormRef = ref(null)
     const loginForm = ref({
       username: ''
     })
     const formLabelWidth = '80px'
+    
+    // 登录表单验证规则
+    const loginRules = {
+      username: [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
+        { pattern: /^[A-Za-z]+$/, message: '用户名只能包含大小写英文字母', trigger: 'blur' },
+        { min: 1, max: 20, message: '用户名长度应在1-20个字符之间', trigger: 'blur' }
+      ]
+    }
     
     // 从本地存储获取用户名
     const getUsername = () => {
@@ -281,6 +297,13 @@ export default {
     const handleLogin = async () => {
       if (!loginForm.value.username.trim()) {
         ElMessage.warning('请输入用户名')
+        return
+      }
+      
+      // 验证用户名格式，只允许大小写英文字母
+      const usernamePattern = /^[A-Za-z]+$/
+      if (!usernamePattern.test(loginForm.value.username)) {
+        ElMessage.warning('用户名只能包含大小写英文字母')
         return
       }
       
@@ -443,6 +466,8 @@ export default {
       subscriptionHistory,
       isLoggedIn,
       loginForm,
+      loginFormRef,
+      loginRules,
       formLabelWidth,
       selectPlan,
       subscribe,
@@ -640,6 +665,11 @@ export default {
   :deep(.fee-alert.el-alert--info) {
     background-color: rgba(144, 147, 153, 0.1);
     border-color: rgba(144, 147, 153, 0.2);
+  }
+
+  :deep(.el-input .el-input__count .el-input__count-inner) {
+    background-color: #303030 !important;
+    color: #c0c4cc !important;
   }
 }
 </style>
