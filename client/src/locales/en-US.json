@@ -173,6 +173,7 @@
     "requestTimeout": "Request temporal threshold exceeded"
   },
   "debt": {
+    "emptyState": "No Liability Entries",
     "title": "Liability Management Interface",
     "addNewRecord": "Instantiate New Liability Entry",
     "addDialogTitle": "Liability Record Creation Interface",

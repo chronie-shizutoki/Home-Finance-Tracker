@@ -9,19 +9,19 @@
         <div 
           v-if="includeEmptyOption" 
           class="select-option" 
-          :class="{ 'selected': !modelValue }" 
+          :class="{ 'selected': !modelValue && modelValue !== 0 }" 
           @click.stop="selectValue('')"
         >
           {{ emptyOptionLabel }}
         </div>
         <div 
           v-for="option in options" 
-          :key="option.value || option" 
+          :key="typeof option === 'object' ? option[props.optionValueKey] : option" 
           class="select-option" 
           :class="{ 'selected': isSelected(option) }" 
-          @click.stop="selectValue(option.value || option)"
+          @click.stop="selectValue(typeof option === 'object' ? option[props.optionValueKey] : option)"
         >
-          {{ option.label || option }}
+          {{ typeof option === 'object' ? option[props.optionLabelKey] : option }}
         </div>
       </div>
     </transition>
@@ -70,24 +70,60 @@ const dropdownRef = ref(null);
 
 // 计算显示文本
 const displayText = computed(() => {
-  if (!props.modelValue) {
+  // 处理空值情况
+  if (!props.modelValue && props.modelValue !== 0) {
     return props.emptyOptionLabel;
   }
   
+  // 强制字符串比较以处理可能的类型差异
+  const modelValueStr = String(props.modelValue);
+  
+  // 1. 首先检查是否有值匹配
+  // 支持对象格式和非对象格式的选项
+  for (const option of props.options) {
+    if (typeof option === 'object') {
+      // 对象格式选项
+      const optionValue = option[props.optionValueKey];
+      
+      // 尝试多种比较方式，确保类型差异不影响匹配
+      const isMatch = 
+        optionValue === props.modelValue || 
+        String(optionValue) === modelValueStr ||
+        (typeof optionValue === 'string' && typeof props.modelValue === 'string' && 
+         optionValue.trim() === props.modelValue.trim());
+      
+      if (isMatch) {
+        // 找到匹配项，返回其label属性
+        const label = option[props.optionLabelKey];
+        return label !== undefined && label !== null ? String(label) : modelValueStr;
+      }
+    } else {
+      // 非对象格式选项，直接比较
+      if (option === props.modelValue || String(option) === modelValueStr) {
+        return String(option);
+      }
+    }
+  }
+  
+  // 2. 如果直接匹配失败，尝试从选项的label中查找
+  // 这是为了处理可能的特殊情况，如选项顺序变化等
+  for (const option of props.options) {
+    if (typeof option === 'object') {
+      const optionValue = option[props.optionValueKey];
+      // 尝试宽松比较
+      if (String(optionValue).toLowerCase() === modelValueStr.toLowerCase()) {
+        return String(option[props.optionLabelKey]);
+      }
+    }
+  }
+  
+  // 3. 如果提供了自定义格式化函数，使用它
   if (props.valueFormatter) {
     return props.valueFormatter(props.modelValue);
   }
   
-  const selectedOption = props.options.find(option => {
-    const optionValue = typeof option === 'object' ? option[props.optionValueKey] : option;
-    return optionValue === props.modelValue;
-  });
-  
-  if (selectedOption) {
-    return typeof selectedOption === 'object' ? selectedOption[props.optionLabelKey] : selectedOption;
-  }
-  
-  return props.modelValue;
+  // 4. 如果以上都失败，最后兜底返回modelValue的字符串表示
+  return modelValueStr;
 });
 
 // 切换下拉菜单
@@ -104,8 +140,22 @@ const selectValue = (value) => {
 
 // 检查是否选中
 const isSelected = (option) => {
-  const optionValue = typeof option === 'object' ? option[props.optionValueKey] : option;
-  return optionValue === props.modelValue;
+  if (!props.modelValue && props.modelValue !== 0) {
+    return false;
+  }
+  
+  const modelValueStr = String(props.modelValue);
+  
+  if (typeof option === 'object') {
+    const optionValue = option[props.optionValueKey];
+    // 多种比较方式，确保类型差异不影响判断
+    return optionValue === props.modelValue || 
+           String(optionValue) === modelValueStr ||
+           (typeof optionValue === 'string' && typeof props.modelValue === 'string' &&
+            optionValue.trim() === props.modelValue.trim());
+  } else {
+    return option === props.modelValue || String(option) === modelValueStr;
+  }
 };
 
 // 点击外部关闭下拉菜单

@@ -170,6 +170,7 @@
     "requestTimeout": "請求超時"
   },
     "debt": {
+    "emptyState": "無債務記錄",
     "title": "債務管理",
     "addNewRecord": "新增債務記錄",
     "addDialogTitle": "新增債務記錄",

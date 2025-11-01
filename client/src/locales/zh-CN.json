@@ -173,6 +173,7 @@
     "requestTimeout": "请求超时"
   },
   "debt": {
+    "emptyState": "无债务记录",
     "title": "债务管理",
     "addNewRecord": "添加新记录",
     "addDialogTitle": "添加债务记录",

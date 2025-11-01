@@ -13,85 +13,25 @@
     <div class="filter-container">
       <div class="filter-row mb-4">
         <div class="filter-item">
-          <div class="custom-dropdown" ref="filterTypeDropdown">
-            <div 
-              class="dropdown-toggle filter-select"
-              @click="toggleDropdown('filterType')"
-            >
-              <span>{{ filterType ? t(`debt.${filterType}`) : t('debt.allTypes') }}</span>
-              <span class="dropdown-arrow" :class="{ 'open': dropdowns.filterType.isOpen }"></span>
-            </div>
-            <div 
-              class="dropdown-menu"
-              v-show="dropdowns.filterType.isOpen"
-              @click.stop
-            >
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': !filterType }"
-                @click="selectOption('filterType', '', filterType, '')"
-              >
-                {{ t('debt.allTypes') }}
-              </div>
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': filterType === 'lend' }"
-                @click="selectOption('filterType', 'lend', filterType, '')"
-              >
-                {{ t('debt.lend') }}
-              </div>
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': filterType === 'borrow' }"
-                @click="selectOption('filterType', 'borrow', filterType, '')"
-              >
-                {{ t('debt.borrow') }}
-              </div>
-            </div>
-          </div>
+          <CustomSelect 
+            v-model="filterType" 
+            :options="[
+              { label: t('debt.lend'), value: 'lend' },
+              { label: t('debt.borrow'), value: 'borrow' }
+            ]"
+            :empty-option-label="t('debt.allTypes')"
+          />
         </div>
         <div class="filter-item">
           <label>{{ t('debt.repaymentStatus') }}</label>
-          <div class="custom-dropdown" ref="filterRepaidDropdown">
-            <div 
-              class="dropdown-toggle filter-select"
-              @click="toggleDropdown('filterRepaid')"
-            >
-              <span>{{ 
-                filterRepaid === '' ? t('debt.allStatus') : 
-                filterRepaid === 'true' ? t('debt.repaid') : 
-                t('debt.unrepaid') 
-              }}</span>
-              <span class="dropdown-arrow" :class="{ 'open': dropdowns.filterRepaid.isOpen }"></span>
-            </div>
-            <div 
-              class="dropdown-menu"
-              v-show="dropdowns.filterRepaid.isOpen"
-              @click.stop
-            >
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': filterRepaid === '' }"
-                @click="selectOption('filterRepaid', '', filterRepaid, '')"
-              >
-                {{ t('debt.allStatus') }}
-              </div>
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': filterRepaid === 'true' }"
-                @click="selectOption('filterRepaid', 'true', filterRepaid, '')"
-              >
-                {{ t('debt.repaid') }}
-              </div>
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': filterRepaid === 'false' }"
-                @click="selectOption('filterRepaid', 'false', filterRepaid, '')"
-              >
-                {{ t('debt.unrepaid') }}
-              </div>
-            </div>
-          </div>
+          <CustomSelect 
+            v-model="filterRepaid" 
+            :options="[
+              { label: t('debt.repaid'), value: 'true' },
+              { label: t('debt.unrepaid'), value: 'false' }
+            ]"
+            :empty-option-label="t('debt.allStatus')"
+          />
         </div>
         <div class="filter-item">
           <input 
@@ -261,49 +201,16 @@
     <div class="pagination-container" v-if="total > 0">
       <div class="pagination-info">{{ t('common.total') }}: {{ total }}</div>
       <div class="pagination-controls">
-        <div class="custom-dropdown" ref="pageSizeDropdown">
-          <div 
-            class="dropdown-toggle page-size-select"
-            @click="toggleDropdown('pageSize')"
-          >
-            <span>{{ pagination.pageSize }} {{ t('common.perPage') }}</span>
-            <span class="dropdown-arrow" :class="{ 'open': dropdowns.pageSize.isOpen }"></span>
-          </div>
-          <div 
-            class="dropdown-menu"
-            v-show="dropdowns.pageSize.isOpen"
-            @click.stop
-          >
-            <div 
-              class="dropdown-item"
-              :class="{ 'selected': pagination.pageSize === 10 }"
-              @click="selectOption('pageSize', 10, pagination, 'pageSize')"
-            >
-              10 {{ t('common.perPage') }}
-            </div>
-            <div 
-              class="dropdown-item"
-              :class="{ 'selected': pagination.pageSize === 20 }"
-              @click="selectOption('pageSize', 20, pagination, 'pageSize')"
-            >
-              20 {{ t('common.perPage') }}
-            </div>
-            <div 
-              class="dropdown-item"
-              :class="{ 'selected': pagination.pageSize === 50 }"
-              @click="selectOption('pageSize', 50, pagination, 'pageSize')"
-            >
-              50 {{ t('common.perPage') }}
-            </div>
-            <div 
-              class="dropdown-item"
-              :class="{ 'selected': pagination.pageSize === 100 }"
-              @click="selectOption('pageSize', 100, pagination, 'pageSize')"
-            >
-              100 {{ t('common.perPage') }}
-            </div>
-          </div>
-        </div>
+        <CustomSelect 
+            v-model="pagination.pageSize" 
+            :options="[
+              { label: `10 ${t('common.perPage')}`, value: 10 },
+              { label: `20 ${t('common.perPage')}`, value: 20 },
+              { label: `50 ${t('common.perPage')}`, value: 50 },
+              { label: `100 ${t('common.perPage')}`, value: 100 }
+            ]"
+            :include-empty-option="false"
+          />
         <button 
           class="btn-small" 
           @click="handleCurrentChange(pagination.currentPage - 1)"
@@ -334,35 +241,14 @@
         <div class="dialog-body">
         <div class="form-item">
           <label>{{ t('debt.type') }} *</label>
-          <div class="custom-dropdown" ref="dialogTypeDropdown">
-            <div 
-              class="dropdown-toggle form-select"
-              @click="toggleDropdown('dialogType')"
-            >
-              <span>{{ t(`debt.${debtForm.type}`) }}</span>
-              <span class="dropdown-arrow" :class="{ 'open': dropdowns.dialogType.isOpen }"></span>
-            </div>
-            <div 
-              class="dropdown-menu"
-              v-show="dropdowns.dialogType.isOpen"
-              @click.stop
-            >
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': debtForm.type === 'lend' }"
-                @click="selectOption('dialogType', 'lend', debtForm, 'type')"
-              >
-                {{ t('debt.lend') }}
-              </div>
-              <div 
-                class="dropdown-item"
-                :class="{ 'selected': debtForm.type === 'borrow' }"
-                @click="selectOption('dialogType', 'borrow', debtForm, 'type')"
-              >
-                {{ t('debt.borrow') }}
-              </div>
-            </div>
-          </div>
+          <CustomSelect 
+            v-model="debtForm.type" 
+            :options="[
+              { label: t('debt.lend'), value: 'lend' },
+              { label: t('debt.borrow'), value: 'borrow' }
+            ]"
+            :include-empty-option="false"
+          />
         </div>
         <div class="form-item">
           <label>{{ t('debt.person') }} *</label>
@@ -436,6 +322,7 @@ import { ref, reactive, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DebtAPI } from '@/api';
 import Header from '@/components/Header.vue';
+import CustomSelect from '../components/CustomSelect.vue';
 
 defineOptions({ name: 'DebtView' });
 
@@ -455,58 +342,7 @@ const filterRepaid = ref('');
 const filterPerson = ref('');
 const dateRange = ref([]);
 
-// 自定义下拉菜单状态
-const dropdowns = reactive({
-  filterType: { isOpen: false },
-  filterRepaid: { isOpen: false },
-  pageSize: { isOpen: false },
-  dialogType: { isOpen: false }
-});
 
-// 关闭所有下拉菜单
-const closeAllDropdowns = () => {
-  Object.keys(dropdowns).forEach(key => {
-    dropdowns[key].isOpen = false;
-  });
-};
-
-// 切换下拉菜单
-const toggleDropdown = (key) => {
-  // 如果点击的是同一个下拉菜单，则切换状态；否则关闭其他下拉菜单并打开当前菜单
-  if (dropdowns[key].isOpen) {
-    dropdowns[key].isOpen = false;
-  } else {
-    closeAllDropdowns();
-    dropdowns[key].isOpen = true;
-  }
-};
-
-// 选择下拉菜单选项
-const selectOption = (key, value, updateModel = null, modelValue = null) => {
-  dropdowns[key].isOpen = false;
-  if (updateModel) {
-    // 处理ref对象
-    if (updateModel.value !== undefined) {
-      updateModel.value = value;
-    } else if (modelValue !== undefined) {
-      // 处理reactive对象或普通对象
-      updateModel[modelValue] = value;
-    }
-  }
-};
-
-// 点击外部关闭下拉菜单
-const handleClickOutside = (event) => {
-  // 如果点击不在任何下拉菜单内，关闭所有下拉菜单
-  if (!event.target.closest('.custom-dropdown')) {
-    closeAllDropdowns();
-  }
-};
-
-// 监听点击事件，用于关闭下拉菜单
-nextTick(() => {
-  document.addEventListener('click', handleClickOutside);
-});
 
 // 分页数据
 const pagination = reactive({
