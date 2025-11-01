@@ -800,7 +800,6 @@ const initWelcomeEffects = () => {
   setTimeout(() => {
     createSparkles();
     createPulseRings();
-    createFloatingParticles();
   }, 100);
 };
 
