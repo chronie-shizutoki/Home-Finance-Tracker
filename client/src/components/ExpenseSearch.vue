@@ -14,7 +14,7 @@
       <div class="search-grid">
         <!-- 月份选择 -->
         <div class="search-control">
-          <label class="control-label" for="month">
+          <label class="control-label">
             <i class="icon-calendar"></i>
             {{ $t('expense.search.month') }}
           </label>
@@ -31,7 +31,7 @@
 
         <!-- 类型选择 -->
         <div class="search-control">
-          <label class="control-label" for="type">
+          <label class="control-label">
             <i class="icon-category"></i>
             {{ $t('expense.search.type') }}
           </label>
@@ -47,7 +47,7 @@
 
         <!-- 排序方式 -->
         <div class="search-control">
-          <label class="control-label" for="sortOption">
+          <label class="control-label">
             <i class="icon-sort"></i>
             {{ $t('expense.search.sort') }}
           </label>
