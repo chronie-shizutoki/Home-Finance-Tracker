@@ -160,9 +160,11 @@
   <el-dialog v-model="showAddDialog" :title="t('expense.addDialogTitle')" width="80%">
     <el-form :model="form" :rules="rules" ref="formRef">
       <el-form-item :label="t('expense.type')" prop="type">
-        <el-select v-model="form.type" :placeholder="t('expense.selectType')">
-          <el-option v-for="type in expenseTypes" :key="type" :label="type" :value="type"></el-option>
-        </el-select>
+        <CustomSelect 
+          v-model="form.type" 
+          :options="expenseTypes.map(type => ({ label: type, value: type }))"
+          :empty-option-label="t('expense.selectType')"
+        />
       </el-form-item>
       <el-form-item :label="t('expense.amount')" prop="amount">
         <el-input v-model="form.amount" :placeholder="0" type="text" />
@@ -261,9 +263,12 @@
         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.type') }}:</label>
-            <el-select v-model="record.type" :placeholder="t('expense.selectType')" style="width: 100%;">
-              <el-option v-for="type in expenseTypes" :key="type" :label="type" :value="type"></el-option>
-            </el-select>
+            <CustomSelect 
+              v-model="record.type" 
+              :options="expenseTypes.map(type => ({ label: type, value: type }))"
+              :empty-option-label="t('expense.selectType')"
+              style="width: 100%;"
+            />
           </div>
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; margin-bottom: 5px;">{{ t('expense.amount') }}:</label>

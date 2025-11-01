@@ -1,9 +1,12 @@
 <template>
   <div class="charts-container">
     <div class="chart-controls">
-      <el-select v-model="activeChart" @change="renderChart">
-        <el-option v-for="chart in chartTypes" :key="chart.value" :label="chart.label" :value="chart.value" />
-      </el-select>
+      <CustomSelect 
+        v-model="activeChart" 
+        :options="chartTypes"
+        @change="renderChart"
+        :include-empty-option="false"
+      />
       <div class="date-range-picker">
         <input
           type="date"

@@ -29,20 +29,15 @@
         
           <el-form-item :label="t('donation.amount')" prop="amount" class="form-item-custom">
             <div class="amount-selection-container">
-              <el-select 
+              <CustomSelect 
                 v-model="donationForm.amount" 
-                :placeholder="t('donation.amount')" 
+                :options="[
+                  ...amountOptions.map(option => ({ label: `${option} `, value: option })),
+                  { label: t('donation.enterCustomAmount'), value: 'custom' }
+                ]"
+                :empty-option-label="t('donation.amount')"
                 class="amount-select"
-                clearable
-              >
-                <el-option 
-                  v-for="option in amountOptions" 
-                  :key="option" 
-                  :label="`${option} `" 
-                  :value="option"
-                />
-                <el-option :label="t('donation.enterCustomAmount')" value="custom" />
-              </el-select>
+              />
               
               <div v-if="donationForm.amount === 'custom' || donationForm.amount === ''" class="custom-amount-wrapper">
                 <span class="currency-symbol">¥</span>
