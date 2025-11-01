@@ -427,57 +427,61 @@ const fetchDebts = async () => {
     
     console.log('搜索参数:', params); // 添加日志记录搜索参数
     
-    // 由于模拟环境，我们手动筛选数据
-    if (debtsData.value && debtsData.value.length > 0) {
-      // 在模拟环境中，使用本地筛选代替API调用
-      let filteredData = [...debtsData.value];
-      
-      // 应用搜索筛选
-      if (params.person) {
-        filteredData = filteredData.filter(debt => 
-          debt.person.toLowerCase().includes(params.person.toLowerCase())
-        );
+    // 如果没有原始数据，先获取
+    if (!window.originalDebtsData || window.originalDebtsData.length === 0) {
+      // 尝试从API获取新数据
+      try {
+        const response = await DebtAPI.getDebts(params);
+        window.originalDebtsData = [...response];
+      } catch (apiError) {
+        console.log('API调用失败，使用模拟数据');
+        // 使用模拟数据作为备选
+        window.originalDebtsData = [
+          { id: 1, type: 'lend', person: '张三', amount: 1000, date: '2024-01-01', isRepaid: false, remark: '测试借款' },
+          { id: 2, type: 'borrow', person: '李四', amount: 500, date: '2024-01-02', isRepaid: true, remark: '' },
+          { id: 3, type: 'lend', person: '王五', amount: 2000, date: '2024-01-03', isRepaid: false, remark: '紧急借款' }
+        ];
       }
-      
-      // 应用类型筛选
-      if (params.type) {
-        filteredData = filteredData.filter(debt => debt.type === params.type);
-      }
-      
-      // 应用还款状态筛选
-      if (params.isRepaid !== undefined) {
-        filteredData = filteredData.filter(debt => debt.isRepaid === params.isRepaid);
-      }
-      
-      // 应用日期范围筛选
-      if (params.startDate && params.endDate) {
-        filteredData = filteredData.filter(debt => {
-          const debtDate = new Date(debt.date);
-          const startDate = new Date(params.startDate);
-          const endDate = new Date(params.endDate);
-          return debtDate >= startDate && debtDate <= endDate;
-        });
-      }
-      
-      // 应用分页
-      const startIndex = (params.page - 1) * params.limit;
-      const paginatedData = filteredData.slice(startIndex, startIndex + params.limit);
-      
-      // 临时存储原始数据
-      if (!window.originalDebtsData) {
-        window.originalDebtsData = [...debtsData.value];
-      }
-      
-      debtsData.value = paginatedData;
-      total.value = filteredData.length;
-    } else {
-      // 如果没有数据，尝试获取新数据
-      const response = await DebtAPI.getDebts(params);
-      debtsData.value = response;
-      window.originalDebtsData = [...response];
-      // 实际项目中，应该从API响应中获取总数
-      total.value = response.length;
     }
+    
+    // 始终从原始数据开始筛选，而不是已经筛选过的数据
+    let filteredData = [...window.originalDebtsData];
+    
+    // 应用搜索筛选
+    if (params.person) {
+      filteredData = filteredData.filter(debt => 
+        debt.person.toLowerCase().includes(params.person.toLowerCase())
+      );
+    }
+    
+    // 应用类型筛选
+    if (params.type) {
+      filteredData = filteredData.filter(debt => debt.type === params.type);
+    }
+    
+    // 应用还款状态筛选
+    if (params.isRepaid !== undefined) {
+      // 确保isRepaid是布尔值类型，避免字符串比较问题
+      const isRepaidBool = params.isRepaid === true || params.isRepaid === 'true';
+      filteredData = filteredData.filter(debt => debt.isRepaid === isRepaidBool);
+    }
+    
+    // 应用日期范围筛选
+    if (params.startDate && params.endDate) {
+      filteredData = filteredData.filter(debt => {
+        const debtDate = new Date(debt.date);
+        const startDate = new Date(params.startDate);
+        const endDate = new Date(params.endDate);
+        return debtDate >= startDate && debtDate <= endDate;
+      });
+    }
+    
+    // 应用分页
+    const startIndex = (params.page - 1) * params.limit;
+    const paginatedData = filteredData.slice(startIndex, startIndex + params.limit);
+    
+    debtsData.value = paginatedData;
+    total.value = filteredData.length;
   } catch (error) {
     console.error('获取债务记录失败:', error);
     alert(t('debt.fetchFailed'));
@@ -488,19 +492,15 @@ const fetchDebts = async () => {
 
 // 重置筛选条件
 const resetFilters = () => {
+  // 重置所有筛选条件
   filterType.value = '';
   filterRepaid.value = '';
   filterPerson.value = '';
   dateRange.value = [];
   pagination.currentPage = 1;
   
-  // 如果存在原始数据，恢复原始数据
-  if (window.originalDebtsData) {
-    debtsData.value = [...window.originalDebtsData];
-    total.value = window.originalDebtsData.length;
-  }
-  
-  // 调用fetchDebts确保完全重置
+  // 直接调用fetchDebts，让它重新应用空筛选条件
+  // 这样可以确保分页也被正确应用
   fetchDebts();
 };
 
@@ -1393,7 +1393,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: white;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1654,6 +1654,10 @@ onMounted(() => {
 
 /* 状态开关深色模式 */
 @media (prefers-color-scheme: dark) {
+  .dialog-overlay {
+    background-color: black;
+  }
+  
   .empty-state {
     background-color: var(--bg-color-light) !important;
   }
