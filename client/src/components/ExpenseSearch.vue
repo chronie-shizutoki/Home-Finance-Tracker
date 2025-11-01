@@ -209,14 +209,13 @@ const generateMonthOptions = () => {
   // 检查是否有可用的月份数据，并且数据数组不为空
   if (props.availableMonths?.length) {
     // 使用提供的月份数据，将每个月份转换为包含值和显示标签的对象
-    const { locale } = useI18n();
+    // 直接使用props.locale而不是再次调用useI18n()
     options = props.availableMonths.map(month => {
       // 标准化语言环境以支持更多格式
       const localeMap = {
         en: 'en-US'
       };
-      const currentLocale = locale.value;
-      const normalizedLocale = localeMap[currentLocale] || currentLocale || 'en-US';
+      const normalizedLocale = localeMap[props.locale] || props.locale || 'en-US';
       return {
         value: month,
         label: formatMonthLabelByLocale(month, normalizedLocale)
