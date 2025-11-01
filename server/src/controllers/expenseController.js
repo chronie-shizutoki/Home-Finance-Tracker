@@ -268,7 +268,6 @@ const getStatistics = async (req, res) => {
       medianAmount: medianAmount || 0,
       minAmount: parseFloat(stats.minAmount) || 0,
       maxAmount: parseFloat(stats.maxAmount) || 0,
-      uniqueTypeCount: Object.keys(typeDistribution).length,
       typeDistribution
     })
   } catch (error) {

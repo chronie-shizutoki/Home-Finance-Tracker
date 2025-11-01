@@ -108,7 +108,6 @@
   "expense.stats.averageAmount": "平均金额",
   "expense.stats.medianAmount": "金额中位数",
   "expense.stats.amountRange": "金额范围",
-  "expense.stats.typeCount": "类型数量",
   "expense": {
     "search": {
       "month": "月份",

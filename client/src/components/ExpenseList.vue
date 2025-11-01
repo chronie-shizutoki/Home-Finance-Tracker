@@ -292,7 +292,6 @@ export default {
       medianAmount: '0.00',
       minAmount: '0.00',
       maxAmount: '0.00',
-      uniqueTypeCount: 0,
       typeDistribution: {}
     });
 
@@ -332,7 +331,6 @@ export default {
             medianAmount: (statsData.medianAmount || 0).toFixed(2),
             minAmount: (statsData.minAmount || 0).toFixed(2),
             maxAmount: (statsData.maxAmount || 0).toFixed(2),
-            uniqueTypeCount: statsData.uniqueTypeCount || 0,
             typeDistribution: statsData.typeDistribution || {}
           };
         }

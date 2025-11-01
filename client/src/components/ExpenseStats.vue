@@ -22,10 +22,6 @@
           <span class="stat-label">{{ $t('expense.stats.amountRange') }}：</span>
           <span class="stat-value">¥{{ statistics.minAmount }}-¥{{ statistics.maxAmount }}</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">{{ $t('expense.stats.typeCount') }}：</span>
-          <span class="stat-value">{{ statistics.uniqueTypeCount }}</span>
-        </div>
       </div>
     </div>
   </template>

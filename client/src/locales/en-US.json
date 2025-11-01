@@ -114,7 +114,6 @@
   "expense.stats.averageAmount": "Arithmetic Mean",
   "expense.stats.medianAmount": "Median Value",
   "expense.stats.amountRange": "Monetary Distribution Spectrum",
-  "expense.stats.typeCount": "Utilized Categorical Classifications",
   "expense": {
     "search": {
       "month": "Lunar Cycle",
