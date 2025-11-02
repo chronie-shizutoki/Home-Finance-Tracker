@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import axios from 'axios';
 import { setupAxiosInterceptors } from './utils/offlineDataSync.js';
-import { initGlobalErrorMonitoring, tryReportFailedLogs, logUserAction } from './utils/operationLogger.js';
+import { initGlobalErrorMonitoring, tryReportFailedLogs, logUserAction, initConsoleLogging } from './utils/operationLogger.js';
 
 import './styles/common.css'; // 导入公共样式文件
 import './styles/fonts.css'; // 导入自定义字体
@@ -24,6 +24,15 @@ initGlobalErrorMonitoring();
 
 // 尝试上报失败的日志
 tryReportFailedLogs();
+
+// 初始化控制台日志捕获
+// 配置选项：
+// - levels: 要捕获的日志级别
+// - maxLength: 单个日志消息的最大长度，防止过大的日志数据
+initConsoleLogging({
+  levels: ['log', 'error', 'warn', 'info'],
+  maxLength: 5000
+});
 
 export { i18n };
 const pinia = createPinia();

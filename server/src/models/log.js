@@ -46,49 +46,112 @@ const initLogTable = async (sequelize) => {
 const saveLog = async (logData, sequelize) => {
   try {
     // 调试信息
-    console.log('Received log data type:', logData.type);
-    console.log('Has request field:', !!logData.request);
-    console.log('Has response field:', !!logData.response);
+    console.log('Log type:', logData.type);
     
-    // 直接使用整个logData来构建details字段
-    // 这样可以确保所有重要信息都被保留
-    let detailsToSave = {
-      // 复制所有可能有用的字段
-      method: logData.request?.method,
-      url: logData.request?.url,
-      params: logData.request?.params,
-      body: logData.request?.body,
-      status: logData.response?.status,
-      responseData: logData.response?.data,
-      duration: logData.duration,
-      timestamp: logData.timestamp,
-      // 保留原始details（如果有）
-      ...logData.details
-    };
+    // 直接从logData获取字段值
+    const timestamp = logData.timestamp || new Date().toISOString();
+    const type = logData.type;
+    const action = logData.action || null;
+    const requestId = logData.requestId || null;
+    
+    // 构建detailsToSave，根据不同日志类型提取关键信息
+    let detailsToSave = {};
+    
+    // 根据日志类型处理不同的信息
+    switch (type) {
+      case 'api_request':
+      case 'api_response':
+      case 'api_error':
+        // API相关日志处理
+        if (logData.request) {
+          detailsToSave = {
+            ...detailsToSave,
+            method: logData.request.method,
+            url: logData.request.url,
+            params: logData.request.params,
+            body: logData.request.body,
+            hasBody: logData.request.hasBody,
+            bodyType: logData.request.bodyType,
+            bodySize: logData.request.bodySize
+          };
+        }
+        
+        if (logData.response) {
+          detailsToSave = {
+            ...detailsToSave,
+            status: logData.response.status,
+            statusText: logData.response.statusText,
+            responseData: logData.response.data,
+            responseHeaders: logData.response.headers,
+            truncated: logData.response.data?.truncated
+          };
+        }
+        
+        if (logData.error) {
+          detailsToSave.error = logData.error;
+        }
+        
+        if (logData.duration) {
+          detailsToSave.duration = logData.duration;
+        }
+        break;
+        
+      case 'console_log':
+        // 控制台日志特殊处理
+        detailsToSave = {
+          ...detailsToSave,
+          level: logData.level,
+          message: logData.message
+        };
+        break;
+        
+      case 'page_error':
+      case 'user_action':
+      case 'performance':
+      default:
+        // 其他类型日志的通用处理
+        if (logData.error) {
+          detailsToSave.error = logData.error;
+        }
+        
+        if (logData.details) {
+          detailsToSave = {
+            ...detailsToSave,
+            ...logData.details
+          };
+        }
+        
+        if (type === 'performance') {
+          detailsToSave.metric = logData.metric;
+          detailsToSave.value = logData.value;
+          detailsToSave.context = logData.context;
+        }
+        break;
+    }
+    
+    // 移除undefined值
+    Object.keys(detailsToSave).forEach(key => {
+      if (detailsToSave[key] === undefined) {
+        delete detailsToSave[key];
+      }
+    });
     
     // 确保我们不会存储空对象
     if (Object.keys(detailsToSave).length === 0) {
       detailsToSave = null;
-    } else {
-      // 移除undefined值
-      Object.keys(detailsToSave).forEach(key => {
-        if (detailsToSave[key] === undefined) {
-          delete detailsToSave[key];
-        }
-      });
     }
     
-    // 使用原始SQL插入数据，直接从logData中获取字段
+    // 使用原始SQL插入数据
     const [result] = await sequelize.query(
       `INSERT INTO operation_logs 
        (timestamp, type, action, request_id, user_info, device_info, page_info, details) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
-          logData.timestamp || new Date().toISOString(),
-          logData.type,
-          logData.action || null,
-          logData.requestId || null,
+          timestamp,
+          type,
+          action,
+          requestId,
           logData.user ? JSON.stringify(logData.user) : null,
           logData.device ? JSON.stringify(logData.device) : null,
           logData.page ? JSON.stringify(logData.page) : null,

@@ -401,6 +401,70 @@ export function tryReportFailedLogs() {
 }
 
 /**
+ * 初始化控制台日志捕获
+ * @param {Object} options - 配置选项
+ * @param {Array<string>} options.levels - 要捕获的日志级别，默认为['log', 'error', 'warn', 'info']
+ * @param {number} options.maxLength - 单个日志消息的最大长度，默认为5000
+ */
+export function initConsoleLogging(options = {}) {
+  const {
+    levels = ['log', 'error', 'warn', 'info'],
+    maxLength = 5000
+  } = options;
+
+  // 存储原始console方法
+  const originalConsole = {};
+
+  levels.forEach(level => {
+    if (typeof console[level] === 'function') {
+      originalConsole[level] = console[level];
+      
+      // 重写console方法
+      console[level] = function(...args) {
+        // 调用原始方法，确保控制台正常显示
+        originalConsole[level].apply(console, args);
+        
+        // 处理日志参数
+        try {
+          // 尝试序列化参数，处理不同类型的值
+          const formattedArgs = args.map(arg => {
+            try {
+              if (arg instanceof Error) {
+                return {
+                  message: arg.message,
+                  stack: arg.stack,
+                  name: arg.name
+                };
+              }
+              return typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
+            } catch (e) {
+              return '[无法序列化的值]';
+            }
+          });
+          
+          // 限制日志长度
+          let logMessage = formattedArgs.join(' ');
+          if (logMessage.length > maxLength) {
+            logMessage = logMessage.substring(0, maxLength) + '... [截断]';
+          }
+          
+          // 上报控制台日志
+          reportLog({
+            type: 'console_log',
+            level,
+            message: logMessage,
+            timestamp: new Date().toISOString()
+          });
+        } catch (e) {
+          // 如果日志处理出错，使用原始console记录错误，但不上报
+          originalConsole.error('控制台日志捕获失败:', e);
+        }
+      };
+    }
+  });
+}
+
+/**
  * 导出默认对象
  */
 export default {
@@ -411,5 +475,6 @@ export default {
   logPageError,
   logPerformanceMetric,
   initGlobalErrorMonitoring,
-  tryReportFailedLogs
+  tryReportFailedLogs,
+  initConsoleLogging
 };
