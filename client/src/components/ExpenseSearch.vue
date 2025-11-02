@@ -228,9 +228,12 @@ const generateMonthOptions = () => {
 
 // 搜索处理
 const handleSearch = () => {
+  console.log('Search initiated with params:', searchParams.value);
+  
   // 验证金额范围逻辑
   const { minAmount, maxAmount } = searchParams.value;
   if (minAmount !== undefined && maxAmount !== undefined && minAmount > maxAmount) {
+    console.warn('Amount range invalid - min > max, swapping values', { minAmount, maxAmount });
     // 如果最小值大于最大值，交换它们
     minAmount.value = maxAmount;
     maxAmount.value = minAmount;
@@ -239,25 +242,31 @@ const handleSearch = () => {
 
   // 由于我们已经在searchParams计算属性中处理了数据验证，
   // 这里可以直接使用该属性的值
-  emit('search', {
+  const searchData = {
     ...searchParams.value,
     sortOption: sortOption.value // 保留向后兼容性
-  });
+  };
+  
+  console.log('Emitting search event:', searchData);
+  emit('search', searchData);
 };
 
 // 重置搜索条件
 const handleReset = () => {
+  console.log('Resetting all search filters');
   keyword.value = '';
   type.value = '';
   month.value = '';
   minAmount.value = '';
   maxAmount.value = '';
   sortOption.value = 'dateDesc';
+  console.log('Filters reset completed, triggering search');
   handleSearch();
 };
 
 // 清除单个过滤器
 const clearFilter = (filterName) => {
+  console.log('Clearing filter:', filterName);
   switch (filterName) {
   case 'month':
     month.value = '';
@@ -274,6 +283,7 @@ const clearFilter = (filterName) => {
 
 // 清除金额过滤器
 const clearAmountFilter = () => {
+  console.log('Clearing amount range filters');
   minAmount.value = '';
   maxAmount.value = '';
   handleSearch();
@@ -281,6 +291,11 @@ const clearAmountFilter = () => {
 
 // 初始化月份选项
 onMounted(() => {
+  console.log('ExpenseSearch component mounted with initial props:', {
+    locale: props.locale,
+    uniqueTypesCount: props.uniqueTypes?.length || 0,
+    availableMonthsCount: props.availableMonths?.length || 0
+  });
   generateMonthOptions();
 });
 
@@ -290,7 +305,15 @@ watch(() => props.availableMonths, () => {
 }, { deep: true });
 
 // 监听所有筛选条件变化
-watch([keyword, type, month, minAmount, maxAmount, sortOption], () => {
+watch([keyword, type, month, minAmount, maxAmount, sortOption], (newValues) => {
+  console.log('Filter condition changed:', {
+    keyword: newValues[0],
+    type: newValues[1],
+    month: newValues[2],
+    minAmount: newValues[3],
+    maxAmount: newValues[4],
+    sortOption: newValues[5]
+  });
   handleSearch();
 }, { deep: true });
 

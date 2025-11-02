@@ -159,6 +159,12 @@ export default {
           return;
         }
         
+        console.log('Fetching paginated expenses:', {
+          page: currentPage.value,
+          pageSize: pageSize.value,
+          searchParams: { ...searchParams.value }
+        });
+        
         // 添加排序参数到请求中
         const params = new URLSearchParams();
         params.append('page', currentPage.value);
@@ -215,13 +221,20 @@ export default {
           expenses.value = response;
           totalItems.value = response.length;
         }
+        console.log('Expenses data fetched successfully:', {
+          recordCount: expenses.value.length,
+          totalItems: totalItems.value,
+          page: currentPage.value
+        });
       } catch (error) {
         console.error('获取分页数据失败:', error);
+        console.error('Data fetch error details:', { message: error.message, stack: error.stack });
       }
     };
 
     // 搜索处理
     const handleSearch = (params) => {
+      console.log('Search requested with params:', { ...params });
       searchParams.value = { ...params };
       currentPage.value = 1;
       fetchPaginatedData();
@@ -230,6 +243,7 @@ export default {
 
     // 重置筛选条件
     const resetFilters = () => {
+      console.log('Filters reset requested');
       if (searchComponent.value) {
         searchComponent.value.handleReset();
       }
@@ -244,6 +258,7 @@ export default {
       currentPage.value = 1;
       fetchPaginatedData();
       fetchStatistics(); // 更新统计数据
+      console.log('Filters reset completed');
     };
 
     // 分页处理
@@ -303,6 +318,8 @@ export default {
           return;
         }
         
+        console.log('Fetching statistics with filters:', { ...searchParams.value });
+        
         // 构建与getExpenses相同的查询参数
         const statsSearchParams = new URLSearchParams();
         if (searchParams.value.keyword) statsSearchParams.set('keyword', searchParams.value.keyword);
@@ -334,8 +351,16 @@ export default {
             typeDistribution: statsData.typeDistribution || {}
           };
         }
+          
+          console.log('Statistics fetched successfully:', {
+            recordCount: statistics.value.count,
+            totalAmount: statistics.value.totalAmount,
+            typeCategories: Object.keys(statistics.value.typeDistribution).length
+          });
+        
       } catch (error) {
         console.error('获取统计数据失败:', error);
+        console.error('Statistics fetch error details:', { message: error.message, stack: error.stack });
         // 出错时保持原有的统计数据
       }
     };
@@ -363,6 +388,7 @@ export default {
 
     // 页面切换方法
     const changePage = (page) => {
+      console.log('Page change requested:', { from: currentPage.value, to: page, totalPages: totalPages.value });
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
         fetchPaginatedData();
@@ -381,6 +407,7 @@ export default {
       }
 
       if (newSort) {
+        console.log('Sort requested:', { field, from: currentSort, to: newSort });
         searchParams.value.sortOption = newSort;
         currentPage.value = 1;
         fetchPaginatedData();
@@ -395,6 +422,7 @@ export default {
 
     // 初始化时加载数据
     onMounted(() => {
+      console.log('ExpenseList component mounted, initializing data fetch');
       fetchPaginatedData();
     });
 

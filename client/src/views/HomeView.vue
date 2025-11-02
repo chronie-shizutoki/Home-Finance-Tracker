@@ -1228,6 +1228,7 @@ const handleMultiRecordsSubmit = async () => {
   try {
     // 获取所有选中的记录
     const selectedRecords = multiRecords.value.filter(record => record.selected);
+    console.log('Multi records submit started:', { recordCount: selectedRecords.length });
     
     if (selectedRecords.length === 0) {
       ElMessage.warning('请至少选择一条记录');
@@ -1259,6 +1260,7 @@ const handleMultiRecordsSubmit = async () => {
         remark: record.remark || '',
         time: record.date // 服务器需要的时间字段
       });
+      console.log('Valid record prepared:', { index: validRecords.length, type: record.type, amount: record.amount });
     }
     
     // 检查是否有单笔大于500元的消费
@@ -1280,12 +1282,14 @@ const handleMultiRecordsSubmit = async () => {
     await fetchData(true);
     
     ElMessage.success(`${validRecords.length}条记录添加成功`);
+    console.log('Multi records submit successful:', { totalRecords: validRecords.length });
     
     // 重置数据
     multiRecords.value = [];
     selectAll.value = false;
   } catch (error) {
     console.error('批量添加记录失败:', error);
+    console.error('批量添加错误详情:', { message: error.message, stack: error.stack });
     ElMessage.error(`添加记录失败: ${error.message}`);
   }
 };
@@ -1294,30 +1298,38 @@ const handleAiGenerate = async () => {
   try {
     // 检查API密钥
     if (!checkApiKey()) {
+      console.log('AI generation skipped: API key not configured');
       return;
     }
     
     // 检查是否有输入
     if (!aiForm.text && (!aiForm.image || aiForm.image.length === 0)) {
+      console.log('AI generation skipped: No input text or image provided');
       ElMessage.error('请输入文本描述或上传图片');
       return;
     }
+    
+    console.log('AI record generation started:', { hasText: !!aiForm.text, hasImage: !!aiForm.image.length });
 
     isParsing.value = true;
     let parsedDataList;
 
     // 解析文本或图片
     if (aiForm.text) {
+      console.log('Parsing text input for AI generation:', { textPreview: aiForm.text.substring(0, 50) + (aiForm.text.length > 50 ? '...' : '') });
       parsedDataList = await parseTextToRecord(aiForm.text);
     } else if (aiForm.image && aiForm.image.length > 0) {
+      console.log('Parsing image input for AI generation:', { fileName: aiForm.image[0].name, size: aiForm.image[0].size });
       parsedDataList = await parseImageToRecord(aiForm.image[0].raw);
     }
 
     // 处理解析结果
     if (parsedDataList && parsedDataList.length > 0) {
+      console.log('AI generation successful:', { recordCount: parsedDataList.length });
       if (parsedDataList.length === 1) {
         // 只有一条记录，保持原有逻辑
         const parsedData = parsedDataList[0];
+        console.log('Single record generated:', { type: parsedData.type, amount: parsedData.amount, date: parsedData.date });
         form.type = parsedData.type || '';
         form.amount = parsedData.amount || '';
         form.date = parsedData.date || '';
@@ -1329,6 +1341,7 @@ const handleAiGenerate = async () => {
         ElMessage.success('AI已成功生成记录，请检查并确认');
       } else {
         // 多条记录，显示多条记录对话框
+        console.log('Multiple records generated:', parsedDataList.map(r => ({ type: r.type, amount: r.amount })));
         multiRecords.value = parsedDataList.map(record => ({
           ...record,
           date: record.date || '',
@@ -1341,6 +1354,7 @@ const handleAiGenerate = async () => {
     }
   } catch (error) {
     console.error('AI生成记录失败:', error);
+    console.error('AI generation error details:', { message: error.message, stack: error.stack });
     ElMessage.error('AI生成记录失败，请重试');
   } finally {
     isParsing.value = false;
@@ -1355,25 +1369,35 @@ const handleGenerateReport = async () => {
   try {
     // 检查API密钥
     if (!checkApiKey()) {
+      console.log('Report generation skipped: API key not configured');
       return;
     }
     
     // 检查是否有消费数据
     if (!csvExpenses || csvExpenses.length === 0) {
+      console.log('Report generation skipped: No expense data available');
       ElMessage.error('没有足够的消费数据来生成报告');
       return;
     }
+    
+    console.log('AI report generation started:', { 
+      question: reportQuestion.value,
+      recordCount: csvExpenses.value.length 
+    });
 
     isGeneratingReport.value = true;
     reportContent.value = '';
     
     // 生成报告
+    console.log('Calling expense report generation API');
     const content = await generateExpenseReport(csvExpenses.value, reportQuestion.value);
     reportContent.value = content;
+    console.log('AI report generation successful:', { contentLength: content.length });
     
     ElMessage.success('AI已成功生成消费报告');
   } catch (error) {
     console.error('AI生成报告失败:', error);
+    console.error('AI report generation error details:', { message: error.message, stack: error.stack });
     ElMessage.error('AI生成报告失败，请重试');
   } finally {
     isGeneratingReport.value = false;
@@ -1388,11 +1412,14 @@ const clearReportQuestion = () => {
 // 处理API密钥设置
 const handleApiKeySave = () => {
   if (apiKeyForm.apiKey) {
+    console.log('API key save requested');
     localStorage.setItem('siliconflow_api_key', apiKeyForm.apiKey);
     setApiKey(apiKeyForm.apiKey);
     showApiKeyDialog.value = false;
     ElMessage.success('API密钥已保存');
+    console.log('API key saved successfully');
   } else {
+    console.log('API key save failed: Empty key provided');
     ElMessage.error('请输入有效的API密钥');
   }
 };

@@ -70,69 +70,96 @@ const dropdownRef = ref(null);
 
 // 计算显示文本
 const displayText = computed(() => {
-  // 处理空值情况
-  if (!props.modelValue && props.modelValue !== 0) {
-    return props.emptyOptionLabel;
-  }
-  
-  // 强制字符串比较以处理可能的类型差异
-  const modelValueStr = String(props.modelValue);
-  
-  // 1. 首先检查是否有值匹配
-  // 支持对象格式和非对象格式的选项
-  for (const option of props.options) {
-    if (typeof option === 'object') {
-      // 对象格式选项
-      const optionValue = option[props.optionValueKey];
-      
-      // 尝试多种比较方式，确保类型差异不影响匹配
-      const isMatch = 
-        optionValue === props.modelValue || 
-        String(optionValue) === modelValueStr ||
-        (typeof optionValue === 'string' && typeof props.modelValue === 'string' && 
-         optionValue.trim() === props.modelValue.trim());
-      
-      if (isMatch) {
-        // 找到匹配项，返回其label属性
-        const label = option[props.optionLabelKey];
-        return label !== undefined && label !== null ? String(label) : modelValueStr;
-      }
-    } else {
-      // 非对象格式选项，直接比较
-      if (option === props.modelValue || String(option) === modelValueStr) {
-        return String(option);
+  try {
+    // 处理空值情况
+    if (!props.modelValue && props.modelValue !== 0) {
+      return props.emptyOptionLabel;
+    }
+    
+    // 强制字符串比较以处理可能的类型差异
+    const modelValueStr = String(props.modelValue);
+    
+    // 1. 首先检查是否有值匹配
+    // 支持对象格式和非对象格式的选项
+    for (const option of props.options) {
+      if (typeof option === 'object') {
+        // 对象格式选项
+        const optionValue = option[props.optionValueKey];
+        
+        // 尝试多种比较方式，确保类型差异不影响匹配
+        const isMatch = 
+          optionValue === props.modelValue || 
+          String(optionValue) === modelValueStr ||
+          (typeof optionValue === 'string' && typeof props.modelValue === 'string' && 
+           optionValue.trim() === props.modelValue.trim());
+        
+        if (isMatch) {
+          // 找到匹配项，返回其label属性
+          const label = option[props.optionLabelKey];
+          return label !== undefined && label !== null ? String(label) : modelValueStr;
+        }
+      } else {
+        // 非对象格式选项，直接比较
+        if (option === props.modelValue || String(option) === modelValueStr) {
+          return String(option);
+        }
       }
     }
-  }
-  
-  // 2. 如果直接匹配失败，尝试从选项的label中查找
-  // 这是为了处理可能的特殊情况，如选项顺序变化等
-  for (const option of props.options) {
-    if (typeof option === 'object') {
-      const optionValue = option[props.optionValueKey];
-      // 尝试宽松比较
-      if (String(optionValue).toLowerCase() === modelValueStr.toLowerCase()) {
-        return String(option[props.optionLabelKey]);
+    
+    // 2. 如果直接匹配失败，尝试从选项的label中查找
+    // 这是为了处理可能的特殊情况，如选项顺序变化等
+    for (const option of props.options) {
+      if (typeof option === 'object') {
+        const optionValue = option[props.optionValueKey];
+        // 尝试宽松比较
+        if (String(optionValue).toLowerCase() === modelValueStr.toLowerCase()) {
+          return String(option[props.optionLabelKey]);
+        }
       }
     }
+    
+    // 3. 如果提供了自定义格式化函数，使用它
+    if (props.valueFormatter) {
+      try {
+        return props.valueFormatter(props.modelValue);
+      } catch (err) {
+        console.error('Error in custom value formatter:', err.message);
+      }
+    }
+    
+    // 4. 如果以上都失败，最后兜底返回modelValue的字符串表示
+    // 记录未找到匹配的情况，避免过度频繁
+    if (Math.random() < 0.2) { // 20%概率记录，避免过多日志
+      console.warn('No exact match found for value:', { 
+        value: props.modelValue,
+        optionsCount: props.options?.length || 0 
+      });
+    }
+    
+    return modelValueStr;
+  } catch (error) {
+    console.error('Error in displayText computation:', { 
+      error: error.message,
+      modelValue: props.modelValue
+    });
+    return String(props.modelValue || props.emptyOptionLabel);
   }
-  
-  // 3. 如果提供了自定义格式化函数，使用它
-  if (props.valueFormatter) {
-    return props.valueFormatter(props.modelValue);
-  }
-  
-  // 4. 如果以上都失败，最后兜底返回modelValue的字符串表示
-  return modelValueStr;
 });
 
 // 切换下拉菜单
 const toggleDropdown = () => {
-  isOpen.value = !isOpen.value;
+  const newState = !isOpen.value;
+  console.log('Dropdown toggle:', { newState, componentId: props.modelValue?.toString() || 'unknown' });
+  isOpen.value = newState;
 };
 
 // 选择值
 const selectValue = (value) => {
+  console.log('Select option changed:', {
+    componentId: props.modelValue?.toString() || 'unknown',
+    from: props.modelValue,
+    to: value
+  });
   emit('update:modelValue', value);
   emit('change', value);
   isOpen.value = false;
@@ -149,12 +176,29 @@ const isSelected = (option) => {
   if (typeof option === 'object') {
     const optionValue = option[props.optionValueKey];
     // 多种比较方式，确保类型差异不影响判断
-    return optionValue === props.modelValue || 
+    const isMatch = optionValue === props.modelValue || 
            String(optionValue) === modelValueStr ||
            (typeof optionValue === 'string' && typeof props.modelValue === 'string' &&
             optionValue.trim() === props.modelValue.trim());
+    
+    // 添加日志记录对象类型选项的匹配情况，避免过度频繁
+    if (isMatch && Math.random() < 0.1) { // 10%概率记录，避免过多日志
+      console.log('Object option matched:', {
+        option: option[props.optionLabelKey],
+        value: optionValue
+      });
+    }
+    
+    return isMatch;
   } else {
-    return option === props.modelValue || String(option) === modelValueStr;
+    const isMatch = option === props.modelValue || String(option) === modelValueStr;
+    
+    // 添加日志记录非对象类型选项的匹配情况，避免过度频繁
+    if (isMatch && Math.random() < 0.1) { // 10%概率记录，避免过多日志
+      console.log('Simple option matched:', { option });
+    }
+    
+    return isMatch;
   }
 };
 
@@ -162,6 +206,7 @@ const isSelected = (option) => {
 const handleClickOutside = (event) => {
   if (triggerRef.value && !triggerRef.value.contains(event.target) &&
       dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    console.log('Click outside detected, closing dropdown');
     isOpen.value = false;
   }
 };
@@ -174,6 +219,12 @@ const handleKeydown = (event) => {
 };
 
 onMounted(() => {
+  console.log('CustomSelect component mounted:', {
+    optionsCount: props.options?.length || 0,
+    includeEmptyOption: props.includeEmptyOption,
+    initialValue: props.modelValue
+  });
+  
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleKeydown);
 });

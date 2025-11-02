@@ -77,7 +77,7 @@
 
 <script>
 import { getTypeColor } from '../utils/expenseUtils';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 export default {
   props: {
@@ -86,12 +86,16 @@ export default {
     sortOrder: String
   },
 
-  setup () {
+  setup (props) {
     const isDarkMode = ref(false);
     
     // 检测当前系统主题
     const checkDarkMode = () => {
-      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const newMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (newMode !== isDarkMode.value) {
+        console.log('Dark mode changed:', { from: isDarkMode.value, to: newMode });
+        isDarkMode.value = newMode;
+      }
     };
     
     // 初始化检测
@@ -99,6 +103,7 @@ export default {
     
     // 监听主题变化
     onMounted(() => {
+      console.log('ExpenseTable component mounted:', { initialDarkMode: isDarkMode.value });
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkDarkMode);
     });
     
@@ -109,17 +114,31 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return '';
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      try {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const formatted = `${year}-${month}-${day}`;
+        return formatted;
+      } catch (error) {
+        console.error('Date formatting error:', { dateString, error: error.message });
+        return dateString;
+      }
     };
+    
+    // 监听数据变化
+    watch(() => props.expenses, (newVal) => {
+      console.log('Expense data updated:', { recordCount: newVal?.length || 0 });
+    }, { deep: true });
 
     return {
       getTypeColor,
       formatDate,
-      isDarkMode
+      isDarkMode,
+      expenses: props.expenses,
+      sortField: props.sortField,
+      sortOrder: props.sortOrder
     };
   }
 };

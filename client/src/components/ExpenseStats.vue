@@ -27,12 +27,34 @@
   </template>
 
 <script>
+import { onMounted, watch } from 'vue';
+
 export default {
   props: {
     statistics: {
       type: Object,
       required: true
     }
+  },
+  setup(props) {
+    // 组件挂载日志
+    onMounted(() => {
+      console.log('ExpenseStats component mounted:', {
+        count: props.statistics.count,
+        totalAmount: props.statistics.totalAmount
+      });
+    });
+    
+    // 监听统计数据变化
+    watch(() => props.statistics, (newStats) => {
+      console.log('Expense statistics updated:', {
+        count: newStats.count,
+        totalAmount: newStats.totalAmount,
+        averageAmount: newStats.averageAmount
+      });
+    }, { deep: true });
+    
+    return {};
   }
 };
 </script>

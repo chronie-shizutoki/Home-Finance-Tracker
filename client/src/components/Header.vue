@@ -7,7 +7,7 @@
         v-for="lang in languages"
         :key="lang.code"
         @click="switchLanguage(lang.code)"
-        :class="['language-btn', { 'active': currentLanguage === lang.code }]"
+        :class="['language-btn', { 'active': currentLang.value === lang.code }]"
         :aria-label="`切换到${lang.label}`"
       >
         {{ lang.shortLabel }}
@@ -30,7 +30,18 @@ const { t } = useI18n();
 const props = defineProps({ title: String });
 
 // 调用 useLanguageSwitch 获取语言切换函数和当前语言
-const { switchLanguage, currentLanguage } = useLanguageSwitch();
+const { switchLanguage: originalSwitchLanguage, currentLang } = useLanguageSwitch();
+
+// 增强版语言切换函数，添加日志记录
+const switchLanguage = (langCode) => {
+  console.log('Language switch requested:', { from: currentLang.value, to: langCode });
+  try {
+    originalSwitchLanguage(langCode);
+    console.log('Language switch successful:', { currentLanguage: langCode });
+  } catch (error) {
+    console.error('Language switch failed:', { error: error.message, requestedLang: langCode });
+  }
+};
 
 // 定义支持的语言列表
 const languages = [
@@ -44,16 +55,22 @@ const headerRef = ref(null);
 
 const handleScroll = () => {
   if (headerRef.value) {
-    if (window.scrollY > 50) {
+    const shouldBeScrolled = window.scrollY > 50;
+    const isCurrentlyScrolled = headerRef.value.classList.contains('scrolled');
+    
+    if (shouldBeScrolled && !isCurrentlyScrolled) {
       headerRef.value.classList.add('scrolled');
-    } else {
+      console.log('Header scroll effect activated:', { scrollY: window.scrollY });
+    } else if (!shouldBeScrolled && isCurrentlyScrolled) {
       headerRef.value.classList.remove('scrolled');
+      console.log('Header scroll effect deactivated:', { scrollY: window.scrollY });
     }
   }
 };
 
 // 生命周期钩子
 onMounted(() => {
+  console.log('Header component mounted:', { initialLanguage: currentLang.value });
   window.addEventListener('scroll', handleScroll);
 });
 
