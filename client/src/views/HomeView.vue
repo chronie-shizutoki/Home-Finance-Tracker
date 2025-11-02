@@ -156,33 +156,82 @@
     <el-button type="primary" icon="Refresh" @click="refreshPage()" size="default" circle />
   </div>
 
-  <!-- 添加记录对话框 -->
-  <el-dialog v-model="showAddDialog" :title="t('expense.addDialogTitle')" width="80%">
-    <el-form :model="form" :rules="rules" ref="formRef">
-      <el-form-item :label="t('expense.type')" prop="type">
-        <CustomSelect 
-          v-model="form.type" 
-          :options="expenseTypes.map(type => ({ label: type, value: type }))"
-          :empty-option-label="t('expense.selectType')"
-        />
-      </el-form-item>
-      <el-form-item :label="t('expense.amount')" prop="amount">
-        <el-input v-model="form.amount" :placeholder="0" type="text" />
-      </el-form-item>
-      <el-form-item :label="t('expense.date')" prop="date">
-        <div class="el-input">
-          <input type="date" v-model="form.date" :placeholder="t('expense.selectDate')" class="el-input__inner" style="width: 100%;">
+  <!-- 自定义添加记录弹窗 -->
+  <transition name="dialog-fade">
+    <div v-if="showAddDialog" class="custom-dialog-overlay" @click.self="closeAddDialog">
+      <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+        <div class="dialog-header">
+          <h3 class="dialog-title">{{ t('expense.addDialogTitle') }}</h3>
+          <button class="dialog-close-btn" @click="closeAddDialog" aria-label="关闭">
+            ×
+          </button>
         </div>
-      </el-form-item>
-      <el-form-item :label="t('expense.remark')">
-        <el-input v-model="form.remark" :placeholder="t('expense.enterRemark')"></el-input>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="showAddDialog = false">{{ t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="handleAddRecord">{{ t('common.confirm') }}</el-button>
-    </template>
-  </el-dialog>
+        
+        <div class="dialog-body">
+          <form class="custom-form" @submit.prevent="handleAddRecord">
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': formErrors.type }">
+                {{ t('expense.type') }}
+              </label>
+              <CustomSelect 
+                v-model="form.type" 
+                :options="expenseTypes.map(type => ({ label: type, value: type }))"
+                :empty-option-label="t('expense.selectType')"
+                class="form-select"
+                :class="{ 'error': formErrors.type }"
+              />
+              <span v-if="formErrors.type" class="error-message">{{ formErrors.type }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': formErrors.amount }">
+                {{ t('expense.amount') }}
+              </label>
+              <input 
+                v-model="form.amount" 
+                type="number" 
+                step="0.01" 
+                min="0" 
+                class="form-input" 
+                :class="{ 'error': formErrors.amount }" 
+                :placeholder="0"
+                required
+              />
+              <span v-if="formErrors.amount" class="error-message">{{ formErrors.amount }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" :class="{ 'error': formErrors.date }">
+                {{ t('expense.date') }}
+              </label>
+              <input 
+                v-model="form.date" 
+                type="date" 
+                class="form-input" 
+                :class="{ 'error': formErrors.date }" 
+                required
+              />
+              <span v-if="formErrors.date" class="error-message">{{ formErrors.date }}</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">{{ t('expense.remark') }}</label>
+              <textarea 
+                v-model="form.remark" 
+                class="form-textarea" 
+                :placeholder="t('expense.enterRemark')"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" @click="closeAddDialog">{{ t('common.cancel') }}</button>
+          <button class="btn btn-primary" @click="handleAddRecord">{{ t('common.confirm') }}</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 
   <!-- API密钥设置对话框 -->
   <el-dialog v-model="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%">
@@ -896,7 +945,73 @@ const form = reactive({
   remark: ''
 });
 
-// 表单验证规则
+// 表单错误状态
+const formErrors = reactive({
+  type: '',
+  amount: '',
+  date: ''
+});
+
+// 检测深色模式
+const isDarkMode = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+// 监听深色模式变化
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    isDarkMode.value = e.matches;
+  });
+}
+
+// 关闭添加对话框
+const closeAddDialog = () => {
+  // 清除表单错误
+  Object.keys(formErrors).forEach(key => {
+    formErrors[key] = '';
+  });
+  showAddDialog.value = false;
+};
+
+// 验证表单
+const validateForm = () => {
+  let isValid = true;
+  
+  // 清除之前的错误
+  Object.keys(formErrors).forEach(key => {
+    formErrors[key] = '';
+  });
+  
+  // 验证类型
+  if (!form.type) {
+    formErrors.type = t('expense.selectType');
+    isValid = false;
+  }
+  
+  // 验证金额
+  if (!form.amount) {
+    formErrors.amount = t('expense.inputAmount');
+    isValid = false;
+  } else {
+    const amountStr = form.amount.toString().replace(',', '.');
+    const amount = Number(amountStr);
+    if (isNaN(amount) || amount <= 0 || !/^\d+(\.\d{1,2})?$/.test(amountStr)) {
+      formErrors.amount = t('expense.invalidAmountFormat');
+      isValid = false;
+    }
+  }
+  
+  // 验证日期
+  if (!form.date) {
+    formErrors.date = t('expense.selectDate');
+    isValid = false;
+  }
+  
+  return isValid;
+};
+
+// 表单引用（保留以兼容现有代码）
+const formRef = ref(null);
+
+// 表单验证规则（保留以兼容现有代码）
 const rules = {
   type: [{ required: true, message: t('expense.selectType'), trigger: 'change' }],
   amount: [
@@ -906,25 +1021,17 @@ const rules = {
   date: [{ required: true, message: t('expense.selectDate'), trigger: 'change' }]
 };
 
-// 表单引用
-const formRef = ref(null);
-
 const handleAddRecord = async () => {
   try {
-    // 验证表单
-    await formRef.value.validate();
-
-    // 验证金额为正数且支持两位小数
-    // 检查金额是否存在且为有效数字
-    if (form.amount === undefined || form.amount === null) {
-      throw new Error(t('expense.amountUndefined'));
+    // 使用自定义验证函数
+    if (!validateForm()) {
+      // 表单验证失败，错误信息已经在表单中显示
+      return;
     }
-    // 处理可能的undefined/null值并转换为字符串
+
+    // 处理金额（这里只是再次确认，因为已经在validateForm中验证过）
     const amountStr = form.amount.toString().replace(',', '.');
     const amount = Number(amountStr);
-    if (isNaN(amount) || amount <= 0 || !/^\d+(\.\d{1,2})?$/.test(amountStr)) {
-      throw new Error(t('expense.invalidAmountFormat'));
-    }
 
     // 格式化日期为YYYY-MM-DD格式
     const formattedDate = form.date ? new Date(form.date).toISOString().split('T')[0] : '';
@@ -1952,6 +2059,304 @@ body.donation-modal-open {
   .report-content th,
   .report-content td {
     border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+/* 自定义对话框样式 */
+.custom-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.custom-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.custom-dialog.dark-theme {
+  background: #2d3748;
+  color: #e2e8f0;
+}
+
+/* 对话框动画 */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
+}
+
+/* 背景遮罩动画 */
+.custom-dialog-overlay .custom-dialog {
+  transition: transform 0.3s ease;
+}
+
+.dialog-fade-enter-active .custom-dialog {
+  transform: scale(1);
+  transition: transform 0.3s ease 0.1s;
+}
+
+.dialog-fade-leave-active .custom-dialog {
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.dialog-fade-enter-from .custom-dialog {
+  transform: scale(0.9) translateY(-20px);
+}
+
+.dialog-fade-leave-to .custom-dialog {
+  transform: scale(0.9) translateY(-20px);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.custom-dialog.dark-theme .dialog-header {
+  border-bottom-color: #4a5568;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.custom-dialog.dark-theme .dialog-title {
+  color: #f7fafc;
+}
+
+.dialog-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #718096;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.dialog-close-btn:hover {
+  background-color: #f7fafc;
+  color: #4a5568;
+}
+
+.custom-dialog.dark-theme .dialog-close-btn:hover {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.dialog-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.custom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.custom-dialog.dark-theme .form-label {
+  color: #e2e8f0;
+}
+
+.form-label.error {
+  color: #e53e3e;
+}
+
+.form-select,
+.form-input,
+.form-textarea {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  color: #1a202c;
+}
+
+.custom-dialog.dark-theme .form-select,
+.custom-dialog.dark-theme .form-input,
+.custom-dialog.dark-theme .form-textarea {
+  background-color: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+.form-select:hover,
+.form-input:hover,
+.form-textarea:hover {
+  border-color: #cbd5e0;
+}
+
+.custom-dialog.dark-theme .form-select:hover,
+.custom-dialog.dark-theme .form-input:hover,
+.custom-dialog.dark-theme .form-textarea:hover {
+  border-color: #a0aec0;
+}
+
+.form-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.custom-dialog.dark-theme .form-select:focus,
+.custom-dialog.dark-theme .form-input:focus,
+.custom-dialog.dark-theme .form-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.form-select.error,
+.form-input.error {
+  border-color: #e53e3e;
+}
+
+.form-select.error:focus,
+.form-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.custom-dialog.dark-theme .form-select.error:focus,
+.custom-dialog.dark-theme .form-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #e53e3e;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.custom-dialog.dark-theme .dialog-footer {
+  border-top-color: #4a5568;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-secondary {
+  background-color: #f7fafc;
+  color: #4a5568;
+}
+
+.btn-secondary:hover {
+  background-color: #edf2f7;
+}
+
+.custom-dialog.dark-theme .btn-secondary {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.custom-dialog.dark-theme .btn-secondary:hover {
+  background-color: #718096;
+}
+
+.btn-primary {
+  background-color: #4299e1;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #3182ce;
+}
+
+.custom-dialog.dark-theme .btn-primary {
+  background-color: #3182ce;
+}
+
+.custom-dialog.dark-theme .btn-primary:hover {
+  background-color: #2c5282;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .custom-dialog {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .dialog-header,
+  .dialog-body,
+  .dialog-footer {
+    padding: 16px;
+  }
+  
+  .dialog-title {
+    font-size: 16px;
+  }
+  
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
 </style>
