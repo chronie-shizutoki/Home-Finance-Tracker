@@ -887,6 +887,9 @@ onMounted(async () => {
 });
 watch(locale, loadMarkdownReport);
 
+// 导入操作日志工具
+import { logUserAction } from '@/utils/operationLogger';
+
 // 清理定时器和事件监听器
 onBeforeUnmount(() => {
   if (dateTimeTimer) {
@@ -1023,6 +1026,13 @@ const rules = {
 
 const handleAddRecord = async () => {
   try {
+    // 记录添加记录操作开始
+    logUserAction('record_add_start', { 
+      type: form.type, 
+      amount: form.amount,
+      date: form.date
+    });
+    
     // 使用自定义验证函数
     if (!validateForm()) {
       // 表单验证失败，错误信息已经在表单中显示
@@ -1057,6 +1067,14 @@ const handleAddRecord = async () => {
     // 添加成功后刷新数据
     await fetchData(true);
     ElMessage.success(t('expense.addSuccess'));
+    
+    // 记录添加成功
+    logUserAction('record_add_success', { 
+      type: expenseData.type, 
+      amount: expenseData.amount,
+      date: expenseData.time
+    });
+    
     // 重置表单
     Object.assign(form, { type: '', amount: '', date: '', remark: '' });
   } catch (error) {
@@ -1084,6 +1102,12 @@ const handleAddRecord = async () => {
       errorMsg = t('expense.unknownError', { error: error.message || '未知错误' });
     }
     ElMessage.error(errorMsg);
+    
+    // 记录添加失败
+    logUserAction('record_add_failed', { 
+      error: errorMsg,
+      attemptedData: { type: form.type, amount: form.amount, date: form.date }
+    });
   }
 };
 

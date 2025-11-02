@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import axios from 'axios';
 import { setupAxiosInterceptors } from './utils/offlineDataSync.js';
+import { initGlobalErrorMonitoring, tryReportFailedLogs, logUserAction } from './utils/operationLogger.js';
 
 import './styles/common.css'; // 导入公共样式文件
 import './styles/fonts.css'; // 导入自定义字体
@@ -17,6 +18,12 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import App from './App.vue';
 // 设置Axios离线拦截器
 setupAxiosInterceptors(axios);
+
+// 初始化全局错误监听
+initGlobalErrorMonitoring();
+
+// 尝试上报失败的日志
+tryReportFailedLogs();
 
 export { i18n };
 const pinia = createPinia();
@@ -39,6 +46,9 @@ app.use(router);
 app.use(i18n);
 app.mount('#app');
 console.log('[App Initialization] Application mounted successfully');
+
+// 记录应用启动日志
+logUserAction('app_started', { version: import.meta.env.APP_VERSION || 'unknown' });
 
 // 深色模式适配
 const applyDarkMode = (isDark) => {

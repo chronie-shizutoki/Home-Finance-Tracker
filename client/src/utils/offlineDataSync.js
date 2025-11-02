@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { logApiRequest, logApiResponse, logApiError } from '@/utils/operationLogger';
 
 /**
  * 离线数据同步工具
@@ -181,11 +182,17 @@ export default offlineSync;
 export function setupAxiosInterceptors (axiosInstance) {
   // 请求拦截器 - 添加认证令牌并处理离线请求
   axiosInstance.interceptors.request.use(async (config) => {
+    // 添加请求时间戳
+    config.timestamp = Date.now();
+    
     // 添加认证令牌
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 记录API请求日志
+    logApiRequest(config);
 
     // 处理离线POST/PUT/DELETE请求
     if (!navigator.onLine && ['post', 'put', 'delete', 'patch'].includes(config.method)) {
@@ -203,12 +210,18 @@ export function setupAxiosInterceptors (axiosInstance) {
 
   // 响应拦截器 - 缓存GET请求结果
   axiosInstance.interceptors.response.use(async (response) => {
+    // 记录API响应日志
+    logApiResponse(response);
+    
     if (response.config.method === 'get' && response.status === 200) {
       const cacheKey = `${response.config.method}-${response.config.url}`;
       await offlineSync.cacheResponse(cacheKey, response.data);
     }
     return response;
   }, async (error) => {
+    // 记录API错误日志
+    logApiError(error);
+    
     // 请求失败且离线时，尝试从缓存获取GET请求数据
     if (!navigator.onLine && error.config?.method === 'get') {
       const cacheKey = `${error.config.method}-${error.config.url}`;

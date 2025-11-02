@@ -3,10 +3,12 @@ const http = require('http')
 const express = require('express')
 const fs = require('fs')
 console.log('Top-level NODE_ENV:', process.env.NODE_ENV);
-const { syncDatabase } = require('./db')
+const { syncDatabase, sequelize } = require('./db')
 const cors = require('cors')
 require('dotenv').config()
 const memberRoutes = require('./routes/memberRoutes')
+// 导入日志模型用于初始化日志表
+const { initLogTable } = require('./models/log')
 
 const app = express()
 const PORT = process.env.PORT || 3010
@@ -72,6 +74,8 @@ let subscriptionCheckTimer = null
 const startServer = async () => {
   try {
     await syncDatabase()
+    // 初始化日志表
+    await initLogTable(sequelize)
     
     // 初始化订阅计划
     await initSubscriptionPlans()

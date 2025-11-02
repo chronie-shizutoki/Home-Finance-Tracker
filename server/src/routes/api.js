@@ -2,6 +2,9 @@ const express = require('express')
 const { getConnectionStatus } = require('../db')
 const router = express.Router()
 
+// 导入日志路由
+const logRoutes = require('./logRoutes')
+
 // 增强健康检查端点
 router.get('/healthcheck', async (req, res) => {
   try {
@@ -22,5 +25,8 @@ router.get('/healthcheck', async (req, res) => {
     })
   }
 })
+
+// 使用日志路由
+router.use('/logs', logRoutes)
 
 module.exports = router

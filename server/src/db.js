@@ -11,6 +11,9 @@ const Member = require('./models/member')(sequelize)
 const SubscriptionPlan = require('./models/subscriptionPlan')(sequelize)
 const UserSubscription = require('./models/userSubscription')(sequelize)
 
+// 导入日志相关函数
+const { initLogTable, saveLog, getLogs, getLogsCount, cleanOldLogs } = require('./models/log')
+
 // 定义模型关系
 Member.hasMany(UserSubscription, { foreignKey: 'memberId' })
 SubscriptionPlan.hasMany(UserSubscription, { foreignKey: 'planId' })
@@ -34,5 +37,10 @@ module.exports = {
   Member,
   SubscriptionPlan,
   UserSubscription,
-  syncDatabase
+  syncDatabase,
+  initLogTable,
+  saveLog,
+  getLogs,
+  getLogsCount,
+  cleanOldLogs
 }
