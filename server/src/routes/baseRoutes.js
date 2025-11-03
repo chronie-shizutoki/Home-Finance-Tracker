@@ -2,6 +2,7 @@
  * 基础路由配置
  * @module routes/baseRoutes
  * @desc 定义基础健康检查等通用API端点 - 适配全新架构
+ * @api {get} /api 项目API帮助文档
  */
 const express = require('express')
 const router = express.Router()
@@ -139,9 +140,432 @@ router.get('/api/health/lite', async (req, res) => {
   })
 })
 
-// 保持旧端点兼容性
+// 项目API帮助文档
+// API帮助信息
 router.get('/api', (req, res) => {
-  res.redirect('/api/health')
+  // 设置CORS头
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  
+  // 项目后端所有可用的API和作用/用法
+  const apiHelp = {
+    apiVersion: '2.0.0',
+    timestamp: new Date().toISOString(),
+    projectName: 'Home Finance Tracker API',
+    description: '家庭财务管理系统后端API文档',
+    availableAPIs: {
+      base: [
+        {
+          endpoint: '/api/health',
+          method: 'GET',
+          description: {
+            en: 'System health check - returns detailed system status',
+            zh: '系统健康检查 - 返回详细的系统状态信息'
+          },
+          usage: {
+            en: 'Checks system status, database connection, and resource usage',
+            zh: '检查系统状态、数据库连接和资源使用情况'
+          }
+        },
+        {
+          endpoint: '/api/health/lite',
+          method: 'GET',
+          description: {
+            en: 'Lightweight health check - returns basic system status',
+            zh: '轻量级健康检查 - 返回基本的系统状态信息'
+          },
+          usage: {
+            en: 'Quick check of system and database status',
+            zh: '快速检查系统和数据库状态'
+          }
+        },
+        {
+          endpoint: '/api/healthcheck',
+          method: 'GET',
+          description: {
+            en: 'Enhanced health check endpoint',
+            zh: '增强版健康检查端点'
+          },
+          usage: {
+            en: 'Returns service information, version, and memory usage',
+            zh: '返回服务信息、版本和内存使用情况'
+          }
+        }
+      ],
+      expenses: [
+        {
+          endpoint: '/api/expenses',
+          method: 'GET',
+          description: {
+            en: 'Get expense records',
+            zh: '获取消费记录'
+          },
+          usage: {
+            en: 'Retrieve all expense records with optional filtering',
+            zh: '获取所有消费记录，支持筛选'
+          }
+        },
+        {
+          endpoint: '/api/expenses',
+          method: 'POST',
+          description: {
+            en: 'Add new expense record',
+            zh: '添加新的消费记录'
+          },
+          usage: {
+            en: 'Create a new expense entry in the system',
+            zh: '在系统中创建新的消费记录'
+          }
+        },
+        {
+          endpoint: '/api/expenses/:id',
+          method: 'DELETE',
+          description: {
+            en: 'Delete expense record',
+            zh: '删除消费记录'
+          },
+          usage: {
+            en: 'Remove an expense record by its ID',
+            zh: '通过ID删除消费记录'
+          }
+        },
+        {
+          endpoint: '/api/expenses/statistics',
+          method: 'GET',
+          description: {
+            en: 'Get expense statistics',
+            zh: '获取消费统计信息'
+          },
+          usage: {
+            en: 'Retrieve statistical analysis of expense data',
+            zh: '获取消费数据的统计分析'
+          }
+        }
+      ],
+      debts: [
+        {
+          endpoint: '/api/debts',
+          method: 'GET',
+          description: {
+            en: 'Get debt records',
+            zh: '获取债务记录'
+          },
+          usage: {
+            en: 'Retrieve all debt records with pagination and filtering support',
+            zh: '获取所有债务记录，支持分页和筛选'
+          }
+        },
+        {
+          endpoint: '/api/debts',
+          method: 'POST',
+          description: {
+            en: 'Add new debt record',
+            zh: '添加新的债务记录'
+          },
+          usage: {
+            en: 'Create a new debt entry in the system',
+            zh: '在系统中创建新的债务记录'
+          }
+        },
+        {
+          endpoint: '/api/debts/:id',
+          method: 'PUT',
+          description: {
+            en: 'Update debt record',
+            zh: '更新债务记录'
+          },
+          usage: {
+            en: 'Modify an existing debt record by its ID',
+            zh: '通过ID修改现有的债务记录'
+          }
+        },
+        {
+          endpoint: '/api/debts/:id',
+          method: 'DELETE',
+          description: {
+            en: 'Delete debt record',
+            zh: '删除债务记录'
+          },
+          usage: {
+            en: 'Remove a debt record by its ID',
+            zh: '通过ID删除债务记录'
+          }
+        }
+      ],
+      jsonFiles: [
+        {
+          endpoint: '/api/json-files',
+          method: 'GET',
+          description: {
+            en: 'Get all JSON files list',
+            zh: '获取所有JSON文件列表'
+          },
+          usage: {
+            en: 'List all available JSON files in the storage directory',
+            zh: '列出存储目录中所有可用的JSON文件'
+          }
+        },
+        {
+          endpoint: '/api/json-files/:filename',
+          method: 'GET',
+          description: {
+            en: 'Read specific JSON file',
+            zh: '读取指定的JSON文件'
+          },
+          usage: {
+            en: 'Retrieve the content of a specific JSON file',
+            zh: '获取特定JSON文件的内容'
+          }
+        },
+        {
+          endpoint: '/api/json-files/:filename',
+          method: 'POST',
+          description: {
+            en: 'Write data to JSON file',
+            zh: '写入数据到JSON文件'
+          },
+          usage: {
+            en: 'Save data to a specific JSON file',
+            zh: '将数据保存到特定的JSON文件'
+          }
+        },
+        {
+          endpoint: '/api/json-files/:filename',
+          method: 'DELETE',
+          description: {
+            en: 'Delete specific JSON file',
+            zh: '删除指定的JSON文件'
+          },
+          usage: {
+            en: 'Remove a specific JSON file from storage',
+            zh: '从存储中删除特定的JSON文件'
+          }
+        }
+      ],
+      payments: [
+        {
+          endpoint: '/api/payments/donate',
+          method: 'POST',
+          description: {
+            en: 'Donation payment',
+            zh: '捐赠支付'
+          },
+          usage: {
+            en: 'Process a donation payment',
+            zh: '处理捐赠支付'
+          }
+        },
+        {
+          endpoint: '/api/payments/subscribe',
+          method: 'POST',
+          description: {
+            en: 'Subscription payment',
+            zh: '订阅支付'
+          },
+          usage: {
+            en: 'Process a subscription payment',
+            zh: '处理订阅支付'
+          }
+        }
+      ],
+      exportImport: [
+        {
+          endpoint: '/api/export/excel',
+          method: 'GET',
+          description: {
+            en: 'Export Excel file',
+            zh: '导出Excel文件'
+          },
+          usage: {
+            en: 'Generate and download an Excel file with expense records',
+            zh: '生成并下载包含消费记录的Excel文件'
+          }
+        },
+        {
+          endpoint: '/api/import/excel',
+          method: 'POST',
+          description: {
+            en: 'Import Excel file',
+            zh: '导入Excel文件'
+          },
+          usage: {
+            en: 'Upload and import data from an Excel file',
+            zh: '上传并导入Excel文件中的数据'
+          }
+        }
+      ],
+      members: [
+        {
+          endpoint: '/api/members',
+          method: 'POST',
+          description: {
+            en: 'Get or create member',
+            zh: '获取或创建会员'
+          },
+          usage: {
+            en: 'Retrieve an existing member or create a new one if not exists',
+            zh: '检索现有会员或创建新会员（如果不存在）'
+          }
+        },
+        {
+          endpoint: '/api/members/:username',
+          method: 'GET',
+          description: {
+            en: 'Get member information',
+            zh: '获取会员信息'
+          },
+          usage: {
+            en: 'Retrieve detailed information about a specific member',
+            zh: '获取特定会员的详细信息'
+          }
+        },
+        {
+          endpoint: '/api/members/:id/status',
+          method: 'PUT',
+          description: {
+            en: 'Update member status',
+            zh: '更新会员状态'
+          },
+          usage: {
+            en: 'Modify the status of a member',
+            zh: '修改会员状态'
+          }
+        },
+        {
+          endpoint: '/api/members/:username/subscriptions',
+          method: 'GET',
+          description: {
+            en: 'Get member subscriptions',
+            zh: '获取会员订阅'
+          },
+          usage: {
+            en: 'Retrieve all subscriptions for a specific member',
+            zh: '获取特定会员的所有订阅'
+          }
+        },
+        {
+          endpoint: '/api/members/:username/current-subscription',
+          method: 'GET',
+          description: {
+            en: 'Get current subscription',
+            zh: '获取当前订阅'
+          },
+          usage: {
+            en: 'Retrieve the active subscription for a member',
+            zh: '获取会员的活跃订阅'
+          }
+        },
+        {
+          endpoint: '/api/members/:username/subscriptions',
+          method: 'DELETE',
+          description: {
+            en: 'Cancel subscription',
+            zh: '取消订阅'
+          },
+          usage: {
+            en: 'Cancel a member\'s subscription',
+            zh: '取消会员的订阅'
+          }
+        },
+        {
+          endpoint: '/api/subscription-plans',
+          method: 'GET',
+          description: {
+            en: 'Get subscription plans',
+            zh: '获取订阅计划'
+          },
+          usage: {
+            en: 'Retrieve all available subscription plans',
+            zh: '获取所有可用的订阅计划'
+          }
+        },
+        {
+          endpoint: '/api/subscriptions',
+          method: 'POST',
+          description: {
+            en: 'Create subscription',
+            zh: '创建订阅'
+          },
+          usage: {
+            en: 'Create a new subscription for a member',
+            zh: '为会员创建新的订阅'
+          }
+        }
+      ],
+      logs: [
+        {
+          endpoint: '/api/logs',
+          method: 'POST',
+          description: {
+            en: 'Receive operation logs',
+            zh: '接收操作日志'
+          },
+          usage: {
+            en: 'Store frontend operation logs in the database',
+            zh: '将前端操作日志存储到数据库'
+          }
+        },
+        {
+          endpoint: '/api/logs',
+          method: 'GET',
+          description: {
+            en: 'Get logs list (admin function)',
+            zh: '获取日志列表（管理员功能）'
+          },
+          usage: {
+            en: 'Retrieve logs with filtering options',
+            zh: '获取日志，支持筛选选项'
+          }
+        },
+        {
+          endpoint: '/api/logs/stats',
+          method: 'GET',
+          description: {
+            en: 'Get log statistics (admin function)',
+            zh: '获取日志统计信息（管理员功能）'
+          },
+          usage: {
+            en: 'Retrieve statistics about logs within a date range',
+            zh: '获取特定日期范围内的日志统计信息'
+          }
+        },
+        {
+          endpoint: '/api/logs/clean',
+          method: 'DELETE',
+          description: {
+            en: 'Clean expired logs (admin function)',
+            zh: '清理过期日志（管理员功能）'
+          },
+          usage: {
+            en: 'Delete logs older than specified days',
+            zh: '删除早于指定天数的日志'
+          }
+        }
+      ],
+      miniapp: [
+        {
+          endpoint: '/api/miniapp/list',
+          method: 'GET',
+          description: {
+            en: 'Get mini-app list',
+            zh: '获取小程序列表'
+          },
+          usage: {
+            en: 'Retrieve all available mini-applications',
+            zh: '获取所有可用的小程序'
+          }
+        }
+      ]
+    },
+    usageGuide: {
+      en: 'This API provides endpoints for managing household finances including expense tracking, debt management, subscription handling, and data import/export functionality.',
+      zh: '本API提供了家庭财务管理的各种端点，包括消费记录跟踪、债务管理、订阅处理和数据导入/导出功能。'
+    },
+    lastUpdated: new Date().toISOString()
+  }
+  
+  res.status(200).json(apiHelp)
 })
 
 module.exports = router
