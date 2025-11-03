@@ -36,16 +36,114 @@
     </div>
 
     <!-- 功能组网格布局 -->
-    <div class="card-grid">
-      <!-- 主要功能组 -->
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('function.primary') }}</span>
+    <div class="function-section">
+      <!-- 手机端选单 -->
+      <div class="mobile-selector">
+        <CustomSelect
+          v-model="selectedFunctionGroup"
+          :options="functionGroups"
+          :include-empty-option="false"
+          style="width: 100%;"
+        />
+      </div>
+      
+      <!-- 桌面端网格布局 -->
+      <div class="card-grid">
+        <!-- 主要功能组 -->
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>{{ t('function.primary') }}</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <el-button type="primary" @click="showAddDialog = true" size="default">
+              <el-icon><Plus /></el-icon>
+              {{ t('expense.addRecord') }}
+            </el-button>
+            <el-upload
+              class="upload-excel"
+              action="/api/import/excel"
+              :show-file-list="false"
+              :on-success="handleImportSuccess"
+              :on-error="handleImportError"
+              accept=".xlsx, .xls"
+            >
+              <el-button type="warning" size="default">
+                <el-icon><Upload /></el-icon>
+                {{ t('import.title') }}
+              </el-button>
+            </el-upload>
           </div>
-        </template>
-        <div class="card-content">
-          <el-button type="primary" @click="showAddDialog = true" size="default">
+        </el-card>
+        
+        <!-- AI功能组 -->
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>{{ t('function.aiFeatures') }}</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <el-button type="primary" @click="showAiAddDialog = true" size="default">
+              <el-icon><Cpu /></el-icon>
+              AI智能记录
+            </el-button>
+            <el-button type="primary" @click="showAiReportDialog = true" size="default">
+              <el-icon><Document /></el-icon>
+              AI消费问答
+            </el-button>
+          </div>
+        </el-card>
+        
+        <!-- 其他组件组 -->
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>{{ t('function.other') }}</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <el-button type="warning" @click="goToDebts" size="default">
+              <el-icon><CreditCard /></el-icon>
+              {{ t('debt.title') }}
+            </el-button>
+            <el-button type="primary" @click="showMiniAppManager = true" size="default">
+              <el-icon><Box /></el-icon>
+              {{ t('miniapp.title') }}
+            </el-button>
+            <el-button type="success" @click="goToMembership" size="default">
+              <el-icon><Star /></el-icon>
+              {{ t('membership.title') }}
+            </el-button>
+          </div>
+        </el-card>
+        
+        <!-- 关于我们组 -->
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>{{ t('function.aboutus') }}</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <el-button type="info" @click="goToDonation" size="default">
+              <el-icon><Money /></el-icon>
+              {{ t('donation.title') }}
+            </el-button>
+            <el-button type="primary" @click="handleFeedback" size="default">
+              <el-icon><Message /></el-icon>
+              {{ t('feedback.title') }}
+            </el-button>
+          </div>
+        </el-card>
+      </div>
+      
+      <!-- 手机端按钮显示 -->
+      <div class="mobile-buttons">
+        <!-- 主要功能组按钮 -->
+        <div v-if="selectedFunctionGroup === 'primary'" class="mobile-button-group">
+          <el-button type="primary" @click="showAddDialog = true" size="large" class="mobile-btn">
             <el-icon><Plus /></el-icon>
             {{ t('expense.addRecord') }}
           </el-button>
@@ -57,74 +155,53 @@
             :on-error="handleImportError"
             accept=".xlsx, .xls"
           >
-            <el-button type="warning" size="default">
+            <el-button type="warning" size="large" class="mobile-btn">
               <el-icon><Upload /></el-icon>
               {{ t('import.title') }}
             </el-button>
           </el-upload>
         </div>
-      </el-card>
-      
-      <!-- AI功能组 -->
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('function.aiFeatures') }}</span>
-          </div>
-        </template>
-        <div class="card-content">
-          <el-button type="primary" @click="showAiAddDialog = true" size="default">
+        
+        <!-- AI功能组按钮 -->
+        <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
+          <el-button type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn">
             <el-icon><Cpu /></el-icon>
             AI智能记录
           </el-button>
-          <el-button type="primary" @click="showAiReportDialog = true" size="default">
+          <el-button type="primary" @click="showAiReportDialog = true" size="large" class="mobile-btn">
             <el-icon><Document /></el-icon>
             AI消费问答
           </el-button>
         </div>
-      </el-card>
-      
-      <!-- 其他组件组 -->
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('function.other') }}</span>
-          </div>
-        </template>
-        <div class="card-content">
-          <el-button type="warning" @click="goToDebts" size="default">
+        
+        <!-- 其他组件组按钮 -->
+        <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
+          <el-button type="warning" @click="goToDebts" size="large" class="mobile-btn">
             <el-icon><CreditCard /></el-icon>
             {{ t('debt.title') }}
           </el-button>
-          <el-button type="primary" @click="showMiniAppManager = true" size="default">
+          <el-button type="primary" @click="showMiniAppManager = true" size="large" class="mobile-btn">
             <el-icon><Box /></el-icon>
             {{ t('miniapp.title') }}
           </el-button>
-          <el-button type="success" @click="goToMembership" size="default">
+          <el-button type="success" @click="goToMembership" size="large" class="mobile-btn">
             <el-icon><Star /></el-icon>
             {{ t('membership.title') }}
           </el-button>
         </div>
-      </el-card>
-      
-      <!-- 关于我们组 -->
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('function.aboutus') }}</span>
-          </div>
-        </template>
-        <div class="card-content">
-          <el-button type="info" @click="goToDonation" size="default">
+        
+        <!-- 关于我们组按钮 -->
+        <div v-else-if="selectedFunctionGroup === 'about'" class="mobile-button-group">
+          <el-button type="info" @click="goToDonation" size="large" class="mobile-btn">
             <el-icon><Money /></el-icon>
             {{ t('donation.title') }}
           </el-button>
-          <el-button type="primary" @click="handleFeedback" size="default">
+          <el-button type="primary" @click="handleFeedback" size="large" class="mobile-btn">
             <el-icon><Message /></el-icon>
             {{ t('feedback.title') }}
           </el-button>
         </div>
-      </el-card>
+      </div>
     </div>
 
     <!-- 月度消费限制显示 -->
@@ -398,6 +475,7 @@ import { marked } from 'marked';
 
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import CustomSelect from '@/components/CustomSelect.vue';
 import Papa from 'papaparse';
 
 import { useExpenseData } from '@/composables/useExpenseData';
@@ -585,6 +663,16 @@ const showMultiRecordsDialog = ref(false);
 const showAiReportDialog = ref(false);
 // 新增：显示小程序管理器对话框
 const showMiniAppManager = ref(false);
+
+// 功能组数据和选中状态（用于手机端）
+const selectedFunctionGroup = ref('primary');
+// 使用computed属性确保t函数正确初始化后再获取翻译值
+const functionGroups = computed(() => [
+  { label: t('function.primary'), value: 'primary' },
+  { label: t('function.aiFeatures'), value: 'ai' },
+  { label: t('function.other'), value: 'other' },
+  { label: t('function.aboutus'), value: 'about' }
+]);
 const aiForm = reactive({
   text: '',
   image: []
@@ -2337,6 +2425,30 @@ body.donation-modal-open {
   background-color: #2c5282;
 }
 
+/* 功能组样式 */
+.function-section {
+  margin-bottom: 20px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-content {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* 响应式设计 */
 @media (max-width: 640px) {
   .custom-dialog {
@@ -2362,6 +2474,41 @@ body.donation-modal-open {
   .welcome-text {
     font-size: 16px;
     font-weight: 600;
+  }
+  
+  /* 手机端样式 */
+  .card-grid {
+    display: none; /* 隐藏桌面端网格布局 */
+  }
+  
+  .mobile-selector {
+    margin-bottom: 20px;
+  }
+  
+  .mobile-buttons {
+    display: block;
+  }
+  
+  .mobile-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .mobile-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* 桌面端样式 */
+@media (min-width: 641px) {
+  .mobile-selector {
+    display: none; /* 隐藏手机端选单 */
+  }
+  
+  .mobile-buttons {
+    display: none; /* 隐藏手机端按钮 */
   }
 }
 </style>
