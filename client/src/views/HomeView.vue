@@ -2505,15 +2505,62 @@ body.donation-modal-open {
     display: block;
   }
   
+  /* 手机端按钮组样式 */
   .mobile-button-group {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
   
+  /* 确保所有按钮大小一致 */
   .mobile-btn {
-    width: 100%;
-    justify-content: center;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    min-height: 48px;
+  }
+  
+  /* 确保el-upload组件内的按钮也保持一致的大小 */
+  .mobile-button-group .upload-excel {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .mobile-button-group .upload-excel .el-button {
+    width: 100% !important;
+    width: calc(100vw - 30px) !important;
+    margin: 0 !important;
+  }
+  
+  /* 移除按钮组中所有可能的额外间距 */
+  .mobile-button-group > * {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+  
+  /* 确保Element Plus按钮组样式不影响布局 */
+  .mobile-button-group .el-button-group {
+    width: 100% !important;
+  }
+  
+  /* 确保所有按钮内容居中对齐 */
+  .mobile-button-group .el-button .el-icon + span {
+    margin-left: 8px;
+  }
+  
+  /* 修复可能的文本对齐问题 */
+  .mobile-button-group .el-button {
+    text-align: center !important;
   }
 }
 
