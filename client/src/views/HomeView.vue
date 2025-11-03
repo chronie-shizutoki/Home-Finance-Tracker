@@ -2537,7 +2537,7 @@ body.donation-modal-open {
   
   .mobile-button-group .upload-excel .el-button {
     width: 100% !important;
-    width: calc(100vw - 30px) !important;
+    width: 93vw !important;
     margin: 0 !important;
   }
   
