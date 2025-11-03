@@ -49,10 +49,6 @@
             <el-icon><Plus /></el-icon>
             {{ t('expense.addRecord') }}
           </el-button>
-          <el-button type="primary" @click="showMarkdownDialog = true" size="default">
-            <el-icon><Document /></el-icon>
-            {{ t('home.viewDocument') }}
-          </el-button>
           <el-upload
             class="upload-excel"
             action="/api/import/excel"
@@ -83,7 +79,7 @@
           </el-button>
           <el-button type="primary" @click="showAiReportDialog = true" size="default">
             <el-icon><Document /></el-icon>
-            AI消费报告
+            AI消费问答
           </el-button>
         </div>
       </el-card>
@@ -340,8 +336,8 @@
     </template>
   </el-dialog>
 
-  <!-- AI消费报告对话框 -->
-  <el-dialog v-model="showAiReportDialog" title="AI消费报告" width="90%" height="80vh">
+  <!-- AI消费问答对话框 -->
+  <el-dialog v-model="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
     <div class="ai-report-container">
       <!-- 问题输入区域 -->
       <div class="report-question-section" style="margin-bottom: 20px;">
@@ -355,7 +351,7 @@
             />
             <div style="margin-top: 10px; display: flex; gap: 10px;">
               <el-button type="primary" @click="handleGenerateReport" :loading="isGeneratingReport">
-                {{ isGeneratingReport ? '生成中...' : '生成报告' }}
+                {{ isGeneratingReport ? '生成中...' : '生成' }}
               </el-button>
               <el-button @click="clearReportQuestion">清空问题</el-button>
             </div>
@@ -366,7 +362,7 @@
       <!-- 报告内容显示区域 -->
       <div class="report-content-section">
         <div v-if="!reportContent" class="no-report-content">
-          请点击"生成报告"按钮开始分析您的消费数据
+          请点击"生成"按钮开始分析您的消费数据
         </div>
         <div v-else class="report-content" v-html="renderedReportContent" style="white-space: pre-wrap;">
         </div>
@@ -758,37 +754,6 @@ const formattedDate = ref('');
 const formattedTime = ref('');
 let dateTimeTimer = null;
 
-// 根据当前语言加载对应的Markdown报告
-const loadMarkdownReport = async () => {
-  try {
-    // 构建语言对应的文件名
-    const lang = locale.value || 'en-US';
-    // 动态导入对应语言的Markdown文件（明确指定.md扩展名）
-    const module = await import(`@/assets/markdown/expense-report.${lang}.md?raw`);
-    const content = module.default;
-    markdownContent.value = content;
-
-    // 提取标题（第一行内容，移除#和空格）
-    const lines = content.split('\n');
-    if (lines.length > 0) {
-      markdownTitle.value = lines[0].replace(/^#+\s*/, '').trim();
-    }
-  } catch (error) {
-    console.error('加载Markdown报告失败:', error);
-    //  fallback to English version if current language not available
-    try {
-      const module = await import('@/assets/markdown/expense-report.en-US.md?raw');
-      markdownContent.value = module.default;
-      const lines = module.default.split('\n');
-      markdownTitle.value = lines[0].replace(/^#+\s*/, '').trim();
-    } catch (fallbackError) {
-      console.error('加载默认Markdown报告失败:', fallbackError);
-      markdownContent.value = '# 消费报告加载失败\n\n无法加载当前语言的消费报告，请检查文件是否存在。';
-      markdownTitle.value = '报告加载失败';
-    }
-  }
-};
-
 // 初始加载和语言变化时重新加载
 // 创建闪烁星星效果
 const createSparkles = () => {
@@ -857,7 +822,6 @@ const initWelcomeEffects = () => {
 };
 
 onMounted(async () => {
-  loadMarkdownReport();
   // 初始化并启动日期时间更新
   updateDateTime();
   dateTimeTimer = setInterval(updateDateTime, 1000);
@@ -884,7 +848,6 @@ onMounted(async () => {
     error.value = t('error.dataInitializationFailed');
   }
 });
-watch(locale, loadMarkdownReport);
 
 // 导入操作日志工具
 import { logUserAction } from '@/utils/operationLogger';
@@ -1008,19 +971,6 @@ const validateForm = () => {
   }
   
   return isValid;
-};
-
-// 表单引用（保留以兼容现有代码）
-const formRef = ref(null);
-
-// 表单验证规则（保留以兼容现有代码）
-const rules = {
-  type: [{ required: true, message: t('expense.selectType'), trigger: 'change' }],
-  amount: [
-    { required: true, message: t('expense.inputAmount'), trigger: 'blur' },
-    { required: true, message: t('expense.amountRequired'), trigger: 'blur' }
-  ],
-  date: [{ required: true, message: t('expense.selectDate'), trigger: 'change' }]
 };
 
 const handleAddRecord = async () => {

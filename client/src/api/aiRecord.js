@@ -41,8 +41,8 @@ export const parseTextToRecord = async (text) => {
 请注意：
 1. 如果文本中有多个消费记录，请返回JSON数组格式
 2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
-3. 如果文本中没有明确的消费类型，请根据内容选择最合适的
-4. 如果没有明确的日期，请使用当前日期
+3. 如果文本中没有明确的消费类型，请根据内容选择最合适的预定义类型
+4. 如果没有明确的日期，请使用今天日期
 5. 只返回JSON数据，不要添加其他无关内容
 
 文本内容：${text}`;
@@ -98,8 +98,8 @@ export const parseImageToRecord = async (imageFile) => {
 请注意：
 1. 如果图片中有多个消费记录，请返回JSON数组格式
 2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
-3. 如果图片中没有明确的消费类型，请根据内容选择最合适的
-4. 如果没有明确的日期，请使用当前日期
+3. 如果图片中没有明确的消费类型，请根据内容选择最合适的预定义类型
+4. 如果没有明确的日期，请使用今天日期
 5. 只返回JSON数据，不要添加其他无关内容`;
 
     // 对于图片解析，使用支持多模态的模型
@@ -199,9 +199,9 @@ export const generateExpenseReport = async (expenses, question = '') => {
     if (question) {
       // 过滤问题内容，确保安全性
       const filteredQuestion = filterQuestionContent(question);
-      prompt = `用户提供了以下消费数据摘要和问题，请基于这些信息回答用户的问题：\n\n消费数据摘要：\n${JSON.stringify(expenseSummary, null, 2)}\n\n用户问题：${filteredQuestion}\n\n请以友好、专业的语气回答，提供详细的分析和建议。`;
+      prompt = `用户提供了以下消费数据摘要和问题，请基于这些信息回答用户的问题。用户问题可能与消费数据摘要中的内容相关，可供参考：\n\n消费数据摘要：\n${JSON.stringify(expenseSummary, null, 2)}\n\n用户问题：${filteredQuestion}\n\n请以友好、专业的语气回答，提供详细的分析和建议。`;
     } else {
-      prompt = `请分析以下消费数据，并生成一份详细的消费报告：\n\n消费数据摘要：\n${JSON.stringify(expenseSummary, null, 2)}\n\n报告应包含：\n1. 总体消费情况概览\n2. 消费类型分布分析\n3. 消费趋势分析\n4. 节省建议和理财建议\n5. 其他有价值的洞察\n\n请以Markdown格式输出报告，使用二级和三级标题组织内容，保持专业但友好的语气。`;
+      prompt = `请根据用户的问题进行回答，用户的问题可能与消费数据摘要中的内容相关，可供参考：\n\n消费数据摘要：\n${JSON.stringify(expenseSummary, null, 2)}\n\n用户问题：${question}`;
     }
     
     const response = await aiApi.post('', {
@@ -209,7 +209,7 @@ export const generateExpenseReport = async (expenses, question = '') => {
       messages: [
         {
           role: "system",
-          content: "你是一个专业的消费分析助手，能够根据用户的消费记录生成详细的分析报告并回答相关问题。请根据用户提供的消费数据摘要，生成一份结构化、有洞见的报告。报告应该包括总支出、主要消费类别、消费趋势等内容。请使用Markdown格式输出，并确保内容易于阅读和理解。报告标题请使用一级标题，各个主要部分使用二级标题，子部分使用三级标题。对于数据请尽量使用表格和列表的形式展示，以提高可读性。"
+          content: "你是一个智能助手，能够参考用户的消费记录回答相关问题。请有需要的根据用户提供的消费数据摘要回答。请使用Markdown格式输出，并确保内容易于阅读和理解。对于数据请尽量使用表格和列表的形式展示，以提高可读性。"
         },
         {
           role: "user",
