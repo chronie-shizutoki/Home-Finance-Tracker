@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- 顶部加载和错误提示 -->
-    <div v-if="isLoadingCsv" class="loading-alert">{{ t('app.loading') }}</div>
+    <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
@@ -10,7 +10,7 @@
     <Header :title="t('chart.title')" />
 
     <!-- 消费图表分析 -->
-    <ExpenseCharts :expenses="csvExpenses" />
+    <ExpenseCharts :expenses="Expenses" />
 
     <!-- 返回主页按钮 -->
     <div class="back-button-container">
@@ -39,16 +39,16 @@ const { t } = useI18n();
 const router = useRouter();
 
 // 状态数据
-const csvExpenses = ref([]);
-const isLoadingCsv = ref(false);
+const Expenses = ref([]);
+const isLoading = ref(false);
 
 // 费用数据管理
 const { error, successMessage, errorMessage } = useExpenseData();
 
 // 载入消费数据（从SQLite数据库）
-const loadCsvExpenses = async () => {
-  if (isLoadingCsv.value) return;
-  isLoadingCsv.value = true;
+const loadExpenses = async () => {
+  if (isLoading.value) return;
+  isLoading.value = true;
 
   try {
     // 使用与HomeView相同的API端点获取数据
@@ -64,7 +64,7 @@ const loadCsvExpenses = async () => {
     }
 
     // 确保数据格式正确
-    csvExpenses.value = parsedData
+    Expenses.value = parsedData
       .map(item => ({
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
@@ -73,10 +73,10 @@ const loadCsvExpenses = async () => {
       }))
       .filter(item => !isNaN(item.amount) && item.amount > 0);
 
-    if (csvExpenses.value.length === 0) {
+    if (Expenses.value.length === 0) {
       console.warn('ChartsView: No valid data found in API response');
     } else {
-      console.log('ChartsView: Data loaded, count:', csvExpenses.value.length);
+      console.log('ChartsView: Data loaded, count:', Expenses.value.length);
     }
   } catch (err) {
     const errorInfo = err.response
@@ -86,9 +86,9 @@ const loadCsvExpenses = async () => {
     error.value = errorMessage.value;
 
     console.error('ChartsView: Error Details:', err);
-    csvExpenses.value = [];
+    Expenses.value = [];
   } finally {
-    isLoadingCsv.value = false;
+    isLoading.value = false;
   }
 };
 
@@ -100,7 +100,7 @@ const goBack = () => {
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
-    await loadCsvExpenses();
+    await loadExpenses();
   } catch (err) {
     console.error('Failed to initialize data:', err);
     error.value = t('error.dataInitializationFailed');

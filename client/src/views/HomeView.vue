@@ -17,7 +17,7 @@
 
   <div class="container">
     <!-- 主弹窗 -->
-    <div v-if="isLoadingCsv" class="loading-alert">{{ t('app.loading') }}</div>
+    <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
@@ -128,7 +128,7 @@
     </div>
 
     <!-- 月度消费限制显示 -->
-    <SpendingLimitDisplay :expenses="csvExpenses" />
+    <SpendingLimitDisplay :expenses="Expenses" />
     
     <!-- 图表分析按钮 -->
     <el-button type="primary" @click="goToCharts" size="default" style="margin-bottom: 20px;">
@@ -140,8 +140,8 @@
     <div :class="['header']"></div>
     <Transition name="button">
       <ExportButton
-        v-if="csvExpenses.length > 0"
-        @export-excel="() => exportToExcel(csvExpenses)"
+        v-if="Expenses.length > 0"
+        @export-excel="() => exportToExcel(Expenses)"
       />
       <div v-else class="no-data">{{ t('home.noDataForExport') }}</div>
     </Transition>
@@ -1061,8 +1061,8 @@ const handleAddRecord = async () => {
 };
 
 // 状态数据
-const csvExpenses = ref([]);
-const isLoadingCsv = ref(false);
+const Expenses = ref([]);
+const isLoading = ref(false);
 
 // 导出功能
 const { exportToExcel } = useExcelExport();
@@ -1079,13 +1079,13 @@ const {
 const fetchData = async (forceRefresh = false) => {
   console.log('fetchData called, forceRefresh:', forceRefresh);
   await originalFetchData(forceRefresh);
-  await loadCsvExpenses();
+  await loadExpenses();
 };
 
 // 载入消费数据（从SQLite数据库）
-const loadCsvExpenses = async () => {
-  if (isLoadingCsv.value) return;
-  isLoadingCsv.value = true;
+const loadExpenses = async () => {
+  if (isLoading.value) return;
+  isLoading.value = true;
 
   try {
     // 使用新的API端点获取所有数据
@@ -1103,7 +1103,7 @@ const loadCsvExpenses = async () => {
     }
 
     // 确保数据格式正确
-    csvExpenses.value = parsedData
+    Expenses.value = parsedData
       .map(item => ({
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
@@ -1112,10 +1112,10 @@ const loadCsvExpenses = async () => {
       }))
       .filter(item => !isNaN(item.amount) && item.amount > 0);
 
-    if (csvExpenses.value.length === 0) {
-      console.warn('loadCsvExpenses: No valid data found in API response');
+    if (Expenses.value.length === 0) {
+      console.warn('loadExpenses: No valid data found in API response');
     } else {
-      console.log('loadCsvExpenses: Data loaded, count:', csvExpenses.value.length);
+      console.log('loadExpenses: Data loaded, count:', Expenses.value.length);
     }
   } catch (err) {
     const errorInfo = err.response
@@ -1124,10 +1124,10 @@ const loadCsvExpenses = async () => {
     errorMessage.value = t('common.loadFailed', { error: errorInfo });
     error.value = errorMessage.value;
 
-    console.error('loadCsvExpenses: Error Details:', err);
-    csvExpenses.value = [];
+    console.error('loadExpenses: Error Details:', err);
+    Expenses.value = [];
   } finally {
-    isLoadingCsv.value = false;
+    isLoading.value = false;
   }
 };
 
@@ -1323,7 +1323,7 @@ const handleGenerateReport = async () => {
     }
     
     // 检查是否有消费数据
-    if (!csvExpenses || csvExpenses.length === 0) {
+    if (!Expenses || Expenses.length === 0) {
       console.log('Report generation skipped: No expense data available');
       ElMessage.error('没有足够的消费数据来生成报告');
       return;
@@ -1331,7 +1331,7 @@ const handleGenerateReport = async () => {
     
     console.log('AI report generation started:', { 
       question: reportQuestion.value,
-      recordCount: csvExpenses.value.length 
+      recordCount: Expenses.value.length 
     });
 
     isGeneratingReport.value = true;
@@ -1339,7 +1339,7 @@ const handleGenerateReport = async () => {
     
     // 生成报告
     console.log('Calling expense report generation API');
-    const content = await generateExpenseReport(csvExpenses.value, reportQuestion.value);
+    const content = await generateExpenseReport(Expenses.value, reportQuestion.value);
     reportContent.value = content;
     console.log('AI report generation successful:', { contentLength: content.length });
     

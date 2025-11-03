@@ -11,23 +11,6 @@ class ExportService {
     return await Expense.findAll({ raw: true }) // 使用 Expense 模型获取数据
   }
 
-  // 生成CSV文件（异步方法）
-  async generateCSV () {
-    const data = await this.getFullData() // 等待数据获取完成
-    const csvContent = [
-      '消费类型,备注,金额,时间',
-      ...data.map(item => `${item.type},${item.remark || item.remark || ''},${item.amount},${item.time}`)
-    ].join('\n')
-
-    const exportDir = path.join(__dirname, '../../exports/')
-    if (!fs.existsSync(exportDir)) {
-      fs.mkdirSync(exportDir, { recursive: true }) // 确保导出目录存在
-    }
-    const filePath = path.join(exportDir, `expenses_${Date.now()}.csv`)
-    fs.writeFileSync(filePath, csvContent)
-    return filePath
-  }
-
   // 生成Excel文件
   async generateExcel () {
     const data = await this.getFullData()
