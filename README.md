@@ -1,7 +1,7 @@
-# Domestic Fiscal Resource Management System（DFRMS）
+# Home Finance Tracker
 
 ## Project Overview
-The Domestic Fiscal Resource Management System（DFRMS） is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
+The Home Finance Tracker is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities, and now supports mini-applications for extended functionality.
 
 ## Key Features
 - **Multilingual Support**: Auto-adapting UI text and date formats (English, Chinese, etc.)
@@ -112,7 +112,8 @@ To view the complete API documentation, start the server and navigate to:
 ```
 http://localhost:3010/api
 ```
-or view the `api-help.json` file in the project root (`api-help.json`) — snapshot as of 11/3/2025.
+
+or view the [api-help.json](api-help.json) file in the project root — snapshot as of 11/3/2025.
 
 This endpoint returns a JSON response containing:
 - All available API endpoints organized by category
