@@ -3,15 +3,16 @@
   <div class="expense-list">
       <!-- 搜索组件 -->
       <ExpenseSearch
-  ref="searchComponent"
-  :uniqueTypes="uniqueTypes"
-  :availableMonths="availableMonths"
-  :initialKeyword="searchParams.keyword"
-  :initialType="searchParams.type"
-  :initialMonth="searchParams.month"
-  :initialMinAmount="searchParams.minAmount"
+        ref="searchComponent"
+        :uniqueTypes="uniqueTypes"
+        :availableMonths="availableMonths"
+        :initialKeyword="searchParams.keyword"
+        :initialType="searchParams.type"
+        :initialMonth="searchParams.month"
+        :initialMinAmount="searchParams.minAmount"
         :initialMaxAmount="searchParams.maxAmount"
         :initialSortOption="searchParams.sortOption"
+        :locale="$i18n.locale"
         @search="handleSearch"
       />
 
