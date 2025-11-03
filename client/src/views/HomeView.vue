@@ -135,6 +135,10 @@
               <el-icon><Message /></el-icon>
               {{ t('feedback.title') }}
             </el-button>
+          <el-button type="primary" @click="goToHowToUse" size="default">
+            <el-icon><Help /></el-icon>
+            使用方法
+          </el-button>
           </div>
         </el-card>
       </div>
