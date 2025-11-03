@@ -1,4 +1,5 @@
 {
+  "app.welcome": "Welcome, esteemed member user {username}!",
   "common.loadFailed": "Data retrieval operation encountered an interruption, please reinitiate at a subsequent temporal interval",
   "common.back": "Return to Preceding Interface",
   "error.dataInitializationFailed": "Data initialization protocol terminated unsuccessfully, please reattempt temporal execution",

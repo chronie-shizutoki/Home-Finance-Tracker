@@ -26,7 +26,7 @@
     
     <!-- 七彩欢迎信息 -->
     <div class="welcome-text">
-      欢迎，{{ username || '用户' }}！
+      {{ t('app.welcome', { username: username || '' }) }}
     </div>
     
     <!-- 当前日期时间显示 -->
@@ -419,6 +419,9 @@ const MiniAppManager = defineAsyncComponent(() => import('@/components/MiniAppMa
 const { t, locale } = useI18n();
 const router = useRouter();
 
+// 用户名响应式变量 - 必须在所有使用前定义
+const username = ref(localStorage.getItem('username') || '');
+
 // 播放警报声 - 支持循环多秒
 const playAlertSound = (duration = 5) => {
   try {
@@ -660,16 +663,14 @@ const proceedToMembership = () => {
 // 检查会员状态
 const checkMembership = async () => {
   try {
-    // 从localStorage获取用户名或使用默认值
-    const username = localStorage.getItem('username') || 'default';
-    console.log(`检查会员状态: username=${username}`);
+    console.log(`检查会员状态: username=${username.value}`);
     
     // 初始状态：默认不是会员，显示弹窗
     hasActiveMembership.value = false;
     showMembershipModal.value = true;
     
     // 异步检查实际状态
-    const isActive = await checkMemberStatus(username);
+    const isActive = await checkMemberStatus(username.value);
     console.log(`会员状态检查结果: isActive=${isActive}`);
     hasActiveMembership.value = isActive;
     
@@ -750,8 +751,6 @@ const goToDonation = () => {
 };
 const markdownContent = ref('');
 const markdownTitle = ref('');
-
-const username = ref(localStorage.getItem('username') || '用户');
 
 // 当前日期时间状态
 const currentDateTime = ref('');
@@ -2408,6 +2407,11 @@ body.donation-modal-open {
   .btn {
     padding: 8px 16px;
     font-size: 13px;
+  }
+
+  .welcome-text {
+    font-size: 16px;
+    font-weight: 600;
   }
 }
 </style>

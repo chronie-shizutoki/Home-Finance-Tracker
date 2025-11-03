@@ -1,4 +1,5 @@
 {
+  "app.welcome": "歡迎，尊貴的會員用戶 {username}！",
   "common.loadFailed": "資料檢索作業中斷，請於稍後時間間隔重新發起",
   "common.back": "返回上一介面",
   "chart.title": "財政支出圖形分析",
