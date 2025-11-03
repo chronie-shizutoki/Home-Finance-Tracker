@@ -8,19 +8,19 @@
           <tr>
             <th @click="$emit('sort', 'time')" class="sortable">
               {{ $t('expense.date') }}
-              <span v-if="sortField === 'time'" class="sort-indicator">
+              <span v-if="sortField && sortField === 'time'" class="sort-indicator">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
             <th @click="$emit('sort', 'type')" class="sortable">
               {{ $t('expense.type') }}
-              <span v-if="sortField === 'type'" class="sort-indicator">
+              <span v-if="sortField && sortField === 'type'" class="sort-indicator">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
             <th @click="$emit('sort', 'amount')" class="sortable">
               {{ $t('expense.amount') }}
-              <span v-if="sortField === 'amount'" class="sort-indicator">
+              <span v-if="sortField && sortField === 'amount'" class="sort-indicator">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
@@ -81,9 +81,19 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 export default {
   props: {
-    expenses: Array,
-    sortField: String,
-    sortOrder: String
+    expenses: {
+      type: Array,
+      default: () => []
+    },
+    // 使sortField和sortOrder成为可选属性
+    sortField: {
+      type: String,
+      default: ''
+    },
+    sortOrder: {
+      type: String,
+      default: 'asc'
+    }
   },
 
   setup (props) {
@@ -135,10 +145,7 @@ export default {
     return {
       getTypeColor,
       formatDate,
-      isDarkMode,
-      expenses: props.expenses,
-      sortField: props.sortField,
-      sortOrder: props.sortOrder
+      isDarkMode
     };
   }
 };

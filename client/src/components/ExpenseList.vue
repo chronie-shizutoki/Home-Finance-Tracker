@@ -33,11 +33,9 @@
         <!-- 统计组件 -->
         <ExpenseStats :statistics="statistics" />
 
-        <!-- 表格组件 -->
+        <!-- 表格组件 - 直接使用后端处理的数据 -->
         <ExpenseTable
           :expenses="paginatedExpenses"
-          :sort-field="searchParams.sortOption === 'dateAsc' || searchParams.sortOption === 'dateDesc' ? 'time' : 'amount'"
-          :sort-order="searchParams.sortOption === 'dateAsc' || searchParams.sortOption === 'amountAsc' ? 'asc' : 'desc'"
           @sort="sortBy"
         />
 
@@ -109,46 +107,9 @@ export default {
     }
     const availableMonths = ref(defaultMonths);
     
-    // 实现实际的筛选逻辑
+    // 移除前端筛选逻辑，直接使用后端返回的数据
     const filteredExpenses = computed(() => {
-      if (!expenses.value || expenses.value.length === 0) return [];
-      
-      return expenses.value.filter(expense => {
-        // 关键词筛选
-        if (searchParams.value.keyword) {
-          const keyword = searchParams.value.keyword.toLowerCase();
-          const hasKeyword = 
-            (expense.remark && expense.remark.toLowerCase().includes(keyword)) ||
-            (expense.type && expense.type.toLowerCase().includes(keyword)) ||
-            (expense.amount && expense.amount.toString().includes(keyword));
-          if (!hasKeyword) return false;
-        }
-        
-        // 类型筛选
-        if (searchParams.value.type && expense.type !== searchParams.value.type) {
-          return false;
-        }
-        
-        // 月份筛选
-        if (searchParams.value.month) {
-          const expenseDate = new Date(expense.date || expense.time);
-          const expenseMonth = `${expenseDate.getFullYear()}-${String(expenseDate.getMonth() + 1).padStart(2, '0')}`;
-          if (expenseMonth !== searchParams.value.month) {
-            return false;
-          }
-        }
-        
-        // 金额范围筛选
-        const amount = Number(expense.amount);
-        if (searchParams.value.minAmount !== null && amount < searchParams.value.minAmount) {
-          return false;
-        }
-        if (searchParams.value.maxAmount !== null && amount > searchParams.value.maxAmount) {
-          return false;
-        }
-        
-        return true;
-      });
+      return expenses.value || [];
     });
 
     // 获取分页数据
@@ -261,9 +222,9 @@ export default {
       console.log('Filters reset completed');
     };
 
-    // 分页处理
+    // 分页处理 - 直接使用后端返回的分页数据
     const paginatedExpenses = computed(() => {
-      return expenses.value;
+      return expenses.value || [];
     });
 
     // 总页数
