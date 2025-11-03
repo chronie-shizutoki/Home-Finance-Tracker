@@ -153,7 +153,7 @@ const minAmount = ref(props.initialMinAmount || '');
 const maxAmount = ref(props.initialMaxAmount || '');
 const sortOption = ref(props.initialSortOption || 'dateDesc');
 const monthOptions = ref([]);
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 // 排序选项数据
 const sortOptions = computed(() => [
@@ -303,6 +303,18 @@ onMounted(() => {
 watch(() => props.availableMonths, () => {
   generateMonthOptions();
 }, { deep: true });
+
+// 监听语言变化，当语言切换时重新生成月份选项
+watch(locale, (newLocale) => {
+  console.log('ExpenseSearch: 语言已切换，重新生成月份选项:', newLocale);
+  generateMonthOptions();
+});
+
+// 监听props中的locale变化，确保能响应外部传入的语言变化
+watch(() => props.locale, (newLocale) => {
+  console.log('ExpenseSearch: props locale已更新，重新生成月份选项:', newLocale);
+  generateMonthOptions();
+});
 
 // 监听所有筛选条件变化
 watch([keyword, type, month, minAmount, maxAmount, sortOption], (newValues) => {

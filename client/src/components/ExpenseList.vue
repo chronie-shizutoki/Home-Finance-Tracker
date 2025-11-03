@@ -81,7 +81,7 @@ export default {
   emits: ['refreshCompleted'],
   
   setup (props, { emit }) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n(); // 解构出locale响应式对象
     const searchComponent = ref(null);
 
     // 统一搜索参数
@@ -113,6 +113,13 @@ export default {
       defaultMonths.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
     }
     const availableMonths = ref(defaultMonths);
+
+    // 监听语言变化，当语言切换时重新生成月份选项
+    watch(locale, (newLocale) => {
+      console.log('语言已切换，重新生成月份选项:', newLocale);
+      // 重新获取数据以更新月份显示
+      fetchPaginatedData();
+    });
     
     // 移除前端筛选逻辑，直接使用后端返回的数据
     const filteredExpenses = computed(() => {
