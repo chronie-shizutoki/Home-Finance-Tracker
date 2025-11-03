@@ -200,6 +200,10 @@
             <el-icon><Message /></el-icon>
             {{ t('feedback.title') }}
           </el-button>
+          <el-button type="primary" @click="goToHowToUse" size="large" class="mobile-btn">
+            <el-icon><Help /></el-icon>
+            使用方法
+          </el-button>
         </div>
       </div>
     </div>
@@ -1485,6 +1489,11 @@ const handleFeedback = () => {
     console.error('打开反馈链接失败:', error);
     ElMessage.error('打开反馈链接失败，请重试');
   }
+};
+
+// 跳转到如何使用页面
+const goToHowToUse = () => {
+  window.open('/how-to-use/how-to-use.html', '_blank');
 };
 
 // Function to force the browser to re-fetch new frontend data
