@@ -14,6 +14,8 @@ import zhTW from './zh-TW.json';
 import dayjs from 'dayjs';
 // 导入语言包
 import 'dayjs/locale/en'; // 英文
+import 'dayjs/locale/zh-cn'; // 简体中文
+import 'dayjs/locale/zh-tw'; // 繁体中文
 
 // 获取浏览器默认语言
 const browserLanguage = navigator.language || navigator.userLanguage;
@@ -24,17 +26,24 @@ console.log('支持的语言列表为:', supportedLanguages);
 // 检查浏览器语言是否在支持列表中
 let defaultLocale = 'en-US'; // 默认语言
 console.log('初始默认语言设置为:', defaultLocale);
-// 若浏览器语言为中文相关，默认使用 zh-CN 或 zh-TW
-if (browserLanguage.startsWith('zh')) {
-  defaultLocale = 'zh-CN';
-  console.log('浏览器语言为中文，默认语言更新为:', defaultLocale);
-} else if (browserLanguage.startsWith('zh-TW')) {
-  defaultLocale = 'zh-TW';
-  console.log('浏览器语言为繁体中文，默认语言更新为:', defaultLocale);
-} else if (supportedLanguages.includes(browserLanguage)) {
+
+// 优化语言检测逻辑
+// 首先检查是否是完全匹配的支持语言
+if (supportedLanguages.includes(browserLanguage)) {
   defaultLocale = browserLanguage;
   console.log('浏览器语言在支持列表中，默认语言更新为:', defaultLocale);
-} else {
+} 
+// 然后检查是否是繁体中文相关
+else if (browserLanguage.startsWith('zh-TW') || browserLanguage.includes('TW') || browserLanguage.includes('HK')) {
+  defaultLocale = 'zh-TW';
+  console.log('浏览器语言为繁体中文相关，默认语言更新为:', defaultLocale);
+}
+// 最后检查是否是其他中文
+else if (browserLanguage.startsWith('zh')) {
+  defaultLocale = 'zh-CN';
+  console.log('浏览器语言为中文，默认语言更新为:', defaultLocale);
+}
+else {
   console.log('未找到匹配的语言，默认语言保持不变:', defaultLocale);
 }
 /**
@@ -54,15 +63,25 @@ const i18n = createI18n({
 
 // 监听语言切换并更新 Day.js 语言
 i18n.global.onLanguageChanged = (locale) => {
-  dayjs.locale(locale);
+  // 转换为 dayjs 兼容的语言代码格式
+  const dayjsLocale = locale === 'zh-CN' ? 'zh-cn' : locale === 'zh-TW' ? 'zh-tw' : 'en';
+  dayjs.locale(dayjsLocale);
 };
+
+// 初始化时设置正确的 dayjs 语言
+const initialDayjsLocale = defaultLocale === 'zh-CN' ? 'zh-cn' : defaultLocale === 'zh-TW' ? 'zh-tw' : 'en';
+dayjs.locale(initialDayjsLocale);
+console.log('Day.js 初始语言设置为:', initialDayjsLocale);
 
 // 导出语言切换方法
 export const changeLanguage = (newLocale) => {
   if (supportedLanguages.includes(newLocale)) {
     i18n.global.locale.value = newLocale;
-    dayjs.locale(newLocale);
+    // 转换为 dayjs 兼容的语言代码格式
+    const dayjsLocale = newLocale === 'zh-CN' ? 'zh-cn' : newLocale === 'zh-TW' ? 'zh-tw' : 'en';
+    dayjs.locale(dayjsLocale);
     console.log(`语言已切换为: ${newLocale}`);
+    console.log(`Day.js 语言已更新为: ${dayjsLocale}`);
   } else {
     console.error(`不支持的语言: ${newLocale}`);
   }
