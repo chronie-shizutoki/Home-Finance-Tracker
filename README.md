@@ -102,3 +102,34 @@ npm run dev:server  # Starts backend development server
   - ESLint (code quality)
   - Jest (testing)
   - nodemon (development auto-reload)
+
+## API Documentation
+The application provides a comprehensive API documentation endpoint that returns all available endpoints with descriptions in both English and Chinese.
+
+### Accessing the API Documentation
+To view the complete API documentation, start the server and navigate to:
+
+```
+http://localhost:3010/api
+```
+or view the `api-help.json` file in the project root (`api-help.json`) — snapshot as of 11/3/2025.
+
+This endpoint returns a JSON response containing:
+- All available API endpoints organized by category
+- HTTP methods (GET, POST, PUT, DELETE)
+- English and Chinese descriptions for each endpoint
+- Usage instructions for each API
+
+### API Categories
+The documentation includes endpoints for:
+- Base system health checks
+- Expense tracking and management
+- Debt management
+- JSON file operations
+- Payment processing (donations and subscriptions)
+- Data import/export functionality
+- Member and subscription management
+- Logging and monitoring
+- Mini-application management
+
+The API documentation is dynamically generated and will reflect any changes to the API structure.
