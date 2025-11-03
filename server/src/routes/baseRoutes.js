@@ -40,6 +40,39 @@ router.get('/api/health', async (req, res) => {
   const serverDir = path.dirname(__dirname)
   const clientDistPath = path.join(__dirname, '../../../client/dist')
   const serverConfigPath = path.join(__dirname, '../../config/config.js')
+
+    // 获取CPU使用率（基于两次采样差值计算）
+    const getCpuUsage = () => {
+      const cpus = os.cpus();
+      let totalIdle = 0;
+      let totalTick = 0;
+
+      cpus.forEach(cpu => {
+        Object.keys(cpu.times).forEach(key => {
+          totalTick += cpu.times[key];
+        });
+        totalIdle += cpu.times.idle;
+      });
+
+      return { idle: totalIdle, total: totalTick };
+    };
+
+    // 第一次采样
+    const startMeasure = getCpuUsage();
+
+    // 等待100ms进行第二次采样
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await sleep(100);
+
+    // 第二次采样
+    const endMeasure = getCpuUsage();
+
+    // 计算两次采样的差值
+    const idleDiff = endMeasure.idle - startMeasure.idle;
+    const totalDiff = endMeasure.total - startMeasure.total;
+
+    // 计算CPU使用率百分比
+    const cpuUsagePercent = Math.max(0, Math.min(100, 100 - Math.round((idleDiff / totalDiff) * 100)));
   
   // 健康状态数据
   const healthData = {
@@ -63,9 +96,14 @@ router.get('/api/health', async (req, res) => {
       },
       cpu: {
         count: cpuInfo.length,
-        model: cpuInfo[0]?.model || 'Unknown'
-      },
-      loadAverage: os.loadavg().map(avg => avg.toFixed(2))
+        model: cpuInfo[0]?.model || 'Unknown',
+        usagePercent: cpuUsagePercent + '%',
+        // 在Windows上，loadavg通常返回全0数组，所以提供说明
+        systemLoad: os.platform() === 'win32' ? {
+          message: 'Windows does not support load average as unix',
+          rawValue: os.loadavg().map(avg => avg.toFixed(2))
+        } : os.loadavg().map(avg => avg.toFixed(2))
+      }
     },
     services: {
       database: await checkDatabaseConnection(),
