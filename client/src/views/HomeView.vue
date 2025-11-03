@@ -213,7 +213,7 @@
       {{ t('chart.title') }}
     </el-button>
     
-    <ExpenseList />
+    <ExpenseList :refresh-trigger="refreshTrigger" />
     <div :class="['header']"></div>
     <Transition name="button">
       <ExportButton
@@ -1103,6 +1103,8 @@ const handleAddRecord = async () => {
     showAddDialog.value = false;
     // 添加成功后刷新数据
     await fetchData(true);
+    // 触发ExpenseList组件刷新
+    refreshTrigger.value++;
     ElMessage.success(t('expense.addSuccess'));
     
     // 记录添加成功
@@ -1151,6 +1153,7 @@ const handleAddRecord = async () => {
 // 状态数据
 const Expenses = ref([]);
 const isLoading = ref(false);
+const refreshTrigger = ref(0); // 用于触发ExpenseList组件刷新的数据版本号
 
 // 导出功能
 const { exportToExcel } = useExcelExport();

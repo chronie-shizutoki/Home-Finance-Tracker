@@ -70,10 +70,16 @@ export default {
     ExpensePagination
   },
   props: {
-    // 该组件不接受props，内部自行获取数据
+    // 用于触发数据刷新的信号
+    refreshTrigger: {
+      type: Boolean,
+      default: false
+    }
   },
 
-  setup () {
+  emits: ['refreshCompleted'],
+  
+  setup (props, { emit }) {
     const { t } = useI18n();
     const searchComponent = ref(null);
 
@@ -381,6 +387,30 @@ export default {
       fetchPaginatedData();
     });
 
+    // 当外部触发刷新时重新获取数据
+    watch(
+      () => props.refreshTrigger,
+      (newValue) => {
+        if (newValue) {
+          console.log('Refresh triggered from parent, reloading data');
+          // 重置到第一页以显示最新添加的记录
+          currentPage.value = 1;
+          fetchPaginatedData();
+          fetchStatistics();
+          // 发出事件通知父组件刷新已完成
+          emit('refreshCompleted');
+        }
+      }
+    );
+
+    // 提供手动刷新方法供父组件调用
+    const refreshData = () => {
+      console.log('Manual data refresh requested');
+      currentPage.value = 1;
+      fetchPaginatedData();
+      fetchStatistics();
+    };
+
     // 初始化时加载数据
     onMounted(() => {
       console.log('ExpenseList component mounted, initializing data fetch');
@@ -403,7 +433,8 @@ export default {
       handleSearch,
       resetFilters,
       changePage,
-      sortBy
+      sortBy,
+      refreshData
     };
   }
 };
