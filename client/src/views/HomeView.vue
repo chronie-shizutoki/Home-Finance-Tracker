@@ -74,6 +74,10 @@
                 {{ t('import.title') }}
               </el-button>
             </el-upload>
+            <el-button type="primary" @click="exportMonthData" size="default">
+              <el-icon><Download /></el-icon>
+              导出本月数据
+            </el-button>
           </div>
         </el-card>
         
@@ -164,6 +168,10 @@
               {{ t('import.title') }}
             </el-button>
           </el-upload>
+          <el-button type="primary" @click="exportMonthData" size="large" class="mobile-btn">
+            <el-icon><Download /></el-icon>
+            导出本月数据
+          </el-button>
         </div>
         
         <!-- AI功能组按钮 -->
