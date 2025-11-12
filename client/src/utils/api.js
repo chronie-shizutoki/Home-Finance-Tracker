@@ -1,8 +1,9 @@
 import axios from 'axios';
 // 导入axios但暂时不导入i18n以避免循环依赖问题
 
+const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBase,
   timeout: 10000,
   withCredentials: true
 });
