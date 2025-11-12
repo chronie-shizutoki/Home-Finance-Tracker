@@ -11,13 +11,18 @@
     "build": "cd client && npm run build"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "dotenv": "^17.2.0",
     "jsonwebtoken": "^9.0.2",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.4",
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
-    "eslint-config-standard": "^17.1.0"
+    "eslint-config-standard": "^17.1.0",
+    "sharp": "^0.34.5"
   }
 }

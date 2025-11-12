@@ -3,8 +3,9 @@ import axios from 'axios'
 /**
  * 创建专门用于支付API的axios实例，先调用自己的服务器再由服务器代理调用第三方服务
  */
+const paymentBase = import.meta.env.VITE_API_BASE_URL || '/api';
 const paymentApi = axios.create({
-  baseURL: 'http://192.168.0.197:3010/api',
+  baseURL: paymentBase,
   timeout: 10000,
   withCredentials: true
 });
