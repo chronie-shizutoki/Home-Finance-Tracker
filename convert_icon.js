@@ -36,12 +36,24 @@ async function convertPngToDifferentDensities() {
         fs.mkdirSync(mipmapDir, { recursive: true });
       }
       
-      // 转换为相应尺寸的PNG并保存
+      // 转换为相应尺寸的PNG并保存，确保25%白边（内容占75%）
       const outputPath = path.join(mipmapDir, 'ic_launcher.png');
+      
+      // 计算内容大小（目标尺寸的50%）
+      const contentSize = Math.round(density.size * 0.5);
+      
       await sharp(pngPath)
-        .resize(density.size, density.size, {
+        // 先将图标调整为内容区域大小（75%）
+        .resize(contentSize, contentSize, {
           fit: 'inside',
-          withoutEnlargement: true,
+          withoutEnlargement: true
+        })
+        // 然后放置在完整尺寸的透明画布上，居中显示
+        .extend({
+          top: Math.round((density.size - contentSize) / 2),
+          bottom: Math.round((density.size - contentSize) / 2),
+          left: Math.round((density.size - contentSize) / 2),
+          right: Math.round((density.size - contentSize) / 2),
           background: { r: 0, g: 0, b: 0, alpha: 0 }
         })
         .png({
