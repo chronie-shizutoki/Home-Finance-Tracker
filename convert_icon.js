@@ -12,7 +12,7 @@ const densities = [
 ];
 
 // 定义需要生成的图标类型
-const iconTypes = ['ic_launcher.png', 'ic_launcher_round.png'];
+const iconTypes = ['ic_launcher.png', 'ic_launcher_round.png', 'ic_launcher_foreground.png'];
 
 // 源PNG文件路径（使用现有的高清图标）
 const pngPath = path.join(__dirname, 'app-icon.png');
@@ -59,22 +59,29 @@ async function convertPngToDifferentDensities() {
   }
 }
 
-// 转换并复制圆形图标
+// 转换并复制所有图标类型
 async function convertAndCopyIcons() {
+  // 先生成ic_launcher.png
   await convertPngToDifferentDensities();
   
-  // 复制方形图标为圆形图标
+  // 复制生成其他图标类型
   for (const density of densities) {
     const sourcePath = path.join(androidResPath, `mipmap-${density.name}`, 'ic_launcher.png');
-    const targetPath = path.join(androidResPath, `mipmap-${density.name}`, 'ic_launcher_round.png');
     
     if (fs.existsSync(sourcePath)) {
-      fs.copyFileSync(sourcePath, targetPath);
-      console.log(`已复制 ${density.name} 圆形图标: ${targetPath}`);
+      // 复制为圆形图标
+      const roundPath = path.join(androidResPath, `mipmap-${density.name}`, 'ic_launcher_round.png');
+      fs.copyFileSync(sourcePath, roundPath);
+      console.log(`已复制 ${density.name} 圆形图标: ${roundPath}`);
+      
+      // 复制为前景图标
+      const foregroundPath = path.join(androidResPath, `mipmap-${density.name}`, 'ic_launcher_foreground.png');
+      fs.copyFileSync(sourcePath, foregroundPath);
+      console.log(`已复制 ${density.name} 前景图标: ${foregroundPath}`);
     }
   }
   
-  console.log('所有图标（包括圆形图标）处理完成！');
+  console.log('所有图标（包括圆形图标和前景图标）处理完成！');
 }
 
 // 执行转换和复制
