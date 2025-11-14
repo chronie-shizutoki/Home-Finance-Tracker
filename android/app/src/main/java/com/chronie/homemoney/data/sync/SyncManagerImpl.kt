@@ -210,24 +210,44 @@ class SyncManagerImpl @Inject constructor(
             var deletedItems = 0
             val conflicts = mutableListOf<SyncConflict>()
             
-            // 获取服务器上的所有支出记录
-            // 注意：这里简化处理，实际应该支持增量同步
-            val response = expenseApi.getExpenses(
-                page = 1,
-                limit = 1000  // 获取大量数据，实际应该分页处理
-            )
-            
-            if (!response.isSuccessful) {
-                throw Exception("Server returned error: ${response.code()}")
-            }
-            
-            val serverExpenses = response.body()?.data ?: emptyList()
-            val totalItems = serverExpenses.size
-            
             // 收集服务器上所有的 serverId
             val serverIds = mutableSetOf<String>()
             
-            for (serverExpense in serverExpenses) {
+            // 分页获取服务器上的所有支出记录
+            var currentPage = 1
+            val pageSize = 100
+            var totalItems = 0
+            var hasMorePages = true
+            
+            while (hasMorePages) {
+                Log.d(TAG, "Fetching page $currentPage with limit $pageSize")
+                
+                val response = expenseApi.getExpenses(
+                    page = currentPage,
+                    limit = pageSize
+                )
+                
+                if (!response.isSuccessful) {
+                    throw Exception("Server returned error: ${response.code()}")
+                }
+                
+                val apiResponse = response.body()
+                val serverExpenses = apiResponse?.data ?: emptyList()
+                val total = apiResponse?.total ?: 0
+                
+                if (currentPage == 1) {
+                    totalItems = total
+                    Log.d(TAG, "Total items on server: $totalItems")
+                }
+                
+                if (serverExpenses.isEmpty()) {
+                    hasMorePages = false
+                    break
+                }
+                
+                Log.d(TAG, "Processing ${serverExpenses.size} expenses from page $currentPage")
+                
+                for (serverExpense in serverExpenses) {
                 try {
                     val serverId = serverExpense.id?.toString() ?: continue
                     serverIds.add(serverId)
@@ -300,9 +320,15 @@ class SyncManagerImpl @Inject constructor(
                             Log.d(TAG, "Resolved conflict for expense: $serverId (used local version)")
                         }
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to process server expense", e)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to process server expense", e)
+                    }
                 }
+                
+                // 检查是否还有更多页
+                val processedCount = currentPage * pageSize
+                hasMorePages = processedCount < totalItems && serverExpenses.size == pageSize
+                currentPage++
             }
             
             // 清理本地存在但服务器上不存在的已同步记录
