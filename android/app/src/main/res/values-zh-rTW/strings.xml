@@ -5,9 +5,11 @@
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
     
-    <!-- Language Settings -->
+    <!-- Settings -->
+    <string name="settings">設置</string>
     <string name="language_settings">語言設置</string>
     <string name="select_language">選擇語言</string>
+    <string name="developer_tools">開發者工具</string>
     
     <!-- Common -->
     <string name="back">返回</string>

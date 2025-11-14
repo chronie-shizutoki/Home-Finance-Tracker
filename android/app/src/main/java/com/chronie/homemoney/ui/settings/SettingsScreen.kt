@@ -14,17 +14,19 @@ import com.chronie.homemoney.core.common.Language
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSettingsScreen(
+fun SettingsScreen(
     context: Context,
-    viewModel: LanguageSettingsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    viewModel: SettingsViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit,
+    onNavigateToDatabaseTest: () -> Unit = {},
+    onNavigateToApiTest: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.language_settings)) },
+                title = { Text(context.getString(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Text(
@@ -98,6 +100,71 @@ fun LanguageSettingsScreen(
                         checked = isDeveloperMode,
                         onCheckedChange = { viewModel.toggleDeveloperMode() }
                     )
+                }
+            }
+            
+            // 开发者工具（仅在开发者模式下显示）
+            if (isDeveloperMode) {
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = context.getString(R.string.developer_tools),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // 数据库测试按钮
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onNavigateToDatabaseTest),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = context.getString(R.string.database_test),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "→",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // API 测试按钮
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onNavigateToApiTest),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = context.getString(R.string.api_test),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "→",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
             }
         }

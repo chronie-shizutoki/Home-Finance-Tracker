@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LanguageSettingsViewModel @Inject constructor(
+class SettingsViewModel @Inject constructor(
     private val languageManager: LanguageManager,
     private val developerMode: DeveloperMode
 ) : ViewModel() {

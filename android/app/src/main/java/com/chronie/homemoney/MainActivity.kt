@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.core.common.LanguageManager
 import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
-import com.chronie.homemoney.ui.settings.LanguageSettingsScreen
+import com.chronie.homemoney.ui.settings.SettingsScreen
 import com.chronie.homemoney.ui.test.ApiTestScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
@@ -103,8 +103,8 @@ fun HomeMoneyApp(context: Context) {
         composable("welcome") {
             WelcomeScreen(
                 context = context,
-                onLanguageSettingsClick = {
-                    navController.navigate("language_settings")
+                onSettingsClick = {
+                    navController.navigate("settings")
                 },
                 onGetStartedClick = {
                     navController.navigate("main")
@@ -112,11 +112,17 @@ fun HomeMoneyApp(context: Context) {
             )
         }
 
-        composable("language_settings") {
-            LanguageSettingsScreen(
+        composable("settings") {
+            SettingsScreen(
                 context = context,
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToDatabaseTest = {
+                    navController.navigate("database_test")
+                },
+                onNavigateToApiTest = {
+                    navController.navigate("api_test")
                 }
             )
         }
@@ -127,7 +133,7 @@ fun HomeMoneyApp(context: Context) {
                 shouldRefreshExpenses = shouldRefreshExpenses,
                 onRefreshHandled = { shouldRefreshExpenses = false },
                 onNavigateToSettings = {
-                    navController.navigate("language_settings")
+                    navController.navigate("settings")
                 },
                 onNavigateToDatabaseTest = {
                     navController.navigate("database_test")

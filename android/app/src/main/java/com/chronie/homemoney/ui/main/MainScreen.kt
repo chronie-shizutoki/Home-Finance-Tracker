@@ -66,46 +66,19 @@ fun MainScreen(
                 Text(context.getString(R.string.back))
             }
             
-            // 按钮组
-            Column(
+            // 设置按钮
+            FloatingActionButton(
+                onClick = onNavigateToSettings,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
-                // API测试按钮 (仅开发者模式显示)
-                if (isDeveloperMode) {
-                    FloatingActionButton(
-                        onClick = onNavigateToApiTest,
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    ) {
-                        Text("API")
-                    }
-                }
-                
-                // 数据库测试按钮 (仅开发者模式显示)
-                if (isDeveloperMode) {
-                    FloatingActionButton(
-                        onClick = onNavigateToDatabaseTest,
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ) {
-                        Text("DB")
-                    }
-                }
-                
-                // 设置按钮
-                FloatingActionButton(
-                    onClick = onNavigateToSettings,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = context.getString(R.string.language_settings)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = context.getString(R.string.settings)
+                )
             }
         }
     } else {

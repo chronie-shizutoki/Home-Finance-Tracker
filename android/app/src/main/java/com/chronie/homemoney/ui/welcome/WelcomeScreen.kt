@@ -13,7 +13,7 @@ import com.chronie.homemoney.R
 @Composable
 fun WelcomeScreen(
     context: Context,
-    onLanguageSettingsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onGetStartedClick: () -> Unit
 ) {
     Column(
@@ -42,10 +42,10 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
-            onClick = onLanguageSettingsClick,
+            onClick = onSettingsClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(context.getString(R.string.language_settings))
+            Text(context.getString(R.string.settings))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
