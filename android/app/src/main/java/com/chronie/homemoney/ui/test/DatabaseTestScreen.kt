@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
@@ -21,6 +20,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseTestScreen(
+    context: android.content.Context,
     onNavigateBack: () -> Unit,
     viewModel: DatabaseTestViewModel = hiltViewModel()
 ) {
@@ -29,7 +29,7 @@ fun DatabaseTestScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.database_test)) },
+                title = { Text(context.getString(R.string.database_test)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Text("←")
@@ -54,7 +54,7 @@ fun DatabaseTestScreen(
                     onClick = { viewModel.addTestExpense() },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(R.string.add_test_data))
+                    Text(context.getString(R.string.add_test_data))
                 }
                 
                 Button(
@@ -64,7 +64,7 @@ fun DatabaseTestScreen(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text(stringResource(R.string.clear_data))
+                    Text(context.getString(R.string.clear_data))
                 }
             }
             
@@ -77,11 +77,11 @@ fun DatabaseTestScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.database_statistics),
+                        text = context.getString(R.string.database_statistics),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Text(stringResource(R.string.record_count, uiState.expenseCount))
-                    Text(stringResource(R.string.total_amount, uiState.totalAmount))
+                    Text(context.getString(R.string.record_count, uiState.expenseCount))
+                    Text(context.getString(R.string.total_amount, uiState.totalAmount))
                 }
             }
             
@@ -106,7 +106,7 @@ fun DatabaseTestScreen(
             
             // 支出列表
             Text(
-                text = stringResource(R.string.expense_records),
+                text = context.getString(R.string.expense_records),
                 style = MaterialTheme.typography.titleMedium
             )
             
@@ -117,7 +117,7 @@ fun DatabaseTestScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.no_data))
+                    Text(context.getString(R.string.no_data))
                 }
             } else {
                 LazyColumn(
@@ -125,7 +125,7 @@ fun DatabaseTestScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.expenses) { expense ->
-                        ExpenseItem(expense = expense)
+                        ExpenseItem(context = context, expense = expense)
                     }
                 }
             }
@@ -134,7 +134,10 @@ fun DatabaseTestScreen(
 }
 
 @Composable
-fun ExpenseItem(expense: ExpenseItemUiModel) {
+fun ExpenseItem(
+    context: android.content.Context,
+    expense: ExpenseItemUiModel
+) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -175,7 +178,7 @@ fun ExpenseItem(expense: ExpenseItemUiModel) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = stringResource(if (expense.isSynced) R.string.synced else R.string.not_synced),
+                    text = context.getString(if (expense.isSynced) R.string.synced else R.string.not_synced),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (expense.isSynced) {
                         MaterialTheme.colorScheme.primary

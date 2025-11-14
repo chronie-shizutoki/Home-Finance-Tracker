@@ -122,6 +122,7 @@ fun HomeMoneyApp(context: Context) {
         
         composable("database_test") {
             DatabaseTestScreen(
+                context = context,
                 onNavigateBack = {
                     navController.popBackStack()
                 }
