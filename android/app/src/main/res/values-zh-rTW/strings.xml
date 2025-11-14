@@ -105,6 +105,20 @@
     <string name="expense_list_sort_date_asc">日期（早）</string>
     <string name="expense_list_sort_amount_desc">金額（高）</string>
     <string name="expense_list_sort_amount_asc">金額（低）</string>
+    <string name="expense_list_apply_filters">應用篩選</string>
+    <string name="expense_list_clear_filters">清除篩選</string>
+    <string name="expense_list_filter_title">篩選和搜索</string>
+    <string name="expense_list_filter_date_range">日期範圍</string>
+    <string name="expense_list_filter_start_date">開始日期</string>
+    <string name="expense_list_filter_end_date">結束日期</string>
+    <string name="expense_list_filter_all_types">全部類型</string>
+    <string name="expense_list_filter_select_types">選擇類型</string>
+    <string name="expense_list_filtered_count">篩選結果: %d 條</string>
+    <string name="common_search">搜索</string>
+    <string name="common_filter">篩選</string>
+    <string name="add_expense_title">添加支出</string>
+    <string name="settings_webview_entry">訪問網頁版</string>
+    <string name="settings_webview_description">打開原始網頁版功能</string>
     
     <!-- 支出統計 -->
     <string name="expense_stats_count">總記錄數</string>

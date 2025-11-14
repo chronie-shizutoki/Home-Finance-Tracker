@@ -189,7 +189,8 @@ fun MainScreen(
                             context = context,
                             onNavigateBack = { selectedTab = 0 },
                             onNavigateToDatabaseTest = onNavigateToDatabaseTest,
-                            onNavigateToApiTest = onNavigateToApiTest
+                            onNavigateToApiTest = onNavigateToApiTest,
+                            onNavigateToWebView = { showWebView = true }
                         )
                     }
                 }

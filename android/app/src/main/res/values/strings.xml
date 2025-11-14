@@ -105,6 +105,19 @@
     <string name="expense_list_sort_date_asc">Date (Earliest)</string>
     <string name="expense_list_sort_amount_desc">Amount (High)</string>
     <string name="expense_list_sort_amount_asc">Amount (Low)</string>
+    <string name="expense_list_apply_filters">Apply Filters</string>
+    <string name="expense_list_clear_filters">Clear Filters</string>
+    <string name="expense_list_filter_title">Filter and Search</string>
+    <string name="expense_list_filter_date_range">Date Range</string>
+    <string name="expense_list_filter_start_date">Start Date</string>
+    <string name="expense_list_filter_end_date">End Date</string>
+    <string name="expense_list_filter_all_types">All Types</string>
+    <string name="expense_list_filter_select_types">Select Types</string>
+    <string name="expense_list_filtered_count">Filtered: %d items</string>
+    <string name="common_search">Search</string>
+    <string name="common_filter">Filter</string>
+    <string name="settings_webview_entry">Access Web Version</string>
+    <string name="settings_webview_description">Open original web version features</string>
     
     <!-- Expense Statistics -->
     <string name="expense_stats_count">Total Records</string>

@@ -19,7 +19,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
-    onNavigateToApiTest: () -> Unit = {}
+    onNavigateToApiTest: () -> Unit = {},
+    onNavigateToWebView: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
@@ -65,6 +66,51 @@ fun SettingsScreen(
                     isSelected = language == currentLanguage,
                     onClick = { viewModel.setLanguage(language) }
                 )
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 网页版入口
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = context.getString(R.string.settings_webview_entry),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onNavigateToWebView),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = context.getString(R.string.settings_webview_entry),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.settings_webview_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text = "→",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(32.dp))

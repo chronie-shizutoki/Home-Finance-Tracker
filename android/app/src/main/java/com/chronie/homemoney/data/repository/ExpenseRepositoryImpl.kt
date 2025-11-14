@@ -83,14 +83,55 @@ class ExpenseRepositoryImpl @Inject constructor(
                 android.util.Log.w("ExpenseRepository", "Network error, falling back to local data", networkError)
             }
             
-            // 如果网络请求失败，从本地数据库获取
+            // 如果网络请求失败，从本地数据库获取并应用筛选
             val allExpenses = expenseDao.getAllExpenses().first()
+            var filteredExpenses = allExpenses.map { ExpenseMapper.toDomain(it) }
+            
+            // 应用筛选条件
+            if (filters.keyword != null) {
+                filteredExpenses = filteredExpenses.filter { expense ->
+                    expense.remark?.contains(filters.keyword, ignoreCase = true) == true ||
+                    getChineseTypeName(expense.type).contains(filters.keyword, ignoreCase = true)
+                }
+            }
+            
+            if (filters.type != null) {
+                filteredExpenses = filteredExpenses.filter { it.type == filters.type }
+            }
+            
+            if (filters.minAmount != null) {
+                filteredExpenses = filteredExpenses.filter { it.amount >= filters.minAmount }
+            }
+            
+            if (filters.maxAmount != null) {
+                filteredExpenses = filteredExpenses.filter { it.amount <= filters.maxAmount }
+            }
+            
+            if (filters.startDate != null) {
+                filteredExpenses = filteredExpenses.filter { 
+                    it.time.toLocalDate() >= filters.startDate 
+                }
+            }
+            
+            if (filters.endDate != null) {
+                filteredExpenses = filteredExpenses.filter { 
+                    it.time.toLocalDate() <= filters.endDate 
+                }
+            }
+            
+            // 应用排序
+            filteredExpenses = when (filters.sortBy) {
+                SortOption.DATE_ASC -> filteredExpenses.sortedBy { it.time }
+                SortOption.DATE_DESC -> filteredExpenses.sortedByDescending { it.time }
+                SortOption.AMOUNT_ASC -> filteredExpenses.sortedBy { it.amount }
+                SortOption.AMOUNT_DESC -> filteredExpenses.sortedByDescending { it.amount }
+            }
             
             // 应用分页
             val startIndex = (page - 1) * limit
-            val endIndex = minOf(startIndex + limit, allExpenses.size)
-            val localExpenses = if (startIndex < allExpenses.size) {
-                allExpenses.subList(startIndex, endIndex).map { ExpenseMapper.toDomain(it) }
+            val endIndex = minOf(startIndex + limit, filteredExpenses.size)
+            val localExpenses = if (startIndex < filteredExpenses.size) {
+                filteredExpenses.subList(startIndex, endIndex)
             } else {
                 emptyList()
             }
@@ -155,9 +196,68 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun getStatistics(filters: ExpenseFilters): Result<ExpenseStatistics> {
         return try {
+            // 优先从服务器获取统计数据
+            try {
+                val response = expenseApi.getStatistics(
+                    keyword = filters.keyword,
+                    type = filters.type?.let { getChineseTypeName(it) },
+                    month = filters.month,
+                    minAmount = filters.minAmount,
+                    maxAmount = filters.maxAmount
+                )
+                
+                if (response.isSuccessful && response.body() != null) {
+                    val stats = response.body()!!
+                    return Result.success(
+                        ExpenseStatistics(
+                            count = stats.count,
+                            totalAmount = stats.totalAmount,
+                            averageAmount = stats.averageAmount,
+                            medianAmount = stats.medianAmount,
+                            minAmount = stats.minAmount,
+                            maxAmount = stats.maxAmount
+                        )
+                    )
+                }
+            } catch (networkError: Exception) {
+                android.util.Log.w("ExpenseRepository", "Network error, falling back to local statistics", networkError)
+            }
+            
             // 从本地数据库计算统计数据
             val allExpenses = expenseDao.getAllExpenses().first()
-            val expenses = allExpenses.map { ExpenseMapper.toDomain(it) }
+            var expenses = allExpenses.map { ExpenseMapper.toDomain(it) }
+            
+            // 应用筛选条件
+            if (filters.keyword != null) {
+                expenses = expenses.filter { expense ->
+                    expense.remark?.contains(filters.keyword, ignoreCase = true) == true ||
+                    getChineseTypeName(expense.type).contains(filters.keyword, ignoreCase = true)
+                }
+            }
+            
+            if (filters.type != null) {
+                expenses = expenses.filter { it.type == filters.type }
+            }
+            
+            if (filters.minAmount != null) {
+                expenses = expenses.filter { it.amount >= filters.minAmount }
+            }
+            
+            if (filters.maxAmount != null) {
+                expenses = expenses.filter { it.amount <= filters.maxAmount }
+            }
+            
+            if (filters.startDate != null) {
+                expenses = expenses.filter { 
+                    it.time.toLocalDate() >= filters.startDate 
+                }
+            }
+            
+            if (filters.endDate != null) {
+                expenses = expenses.filter { 
+                    it.time.toLocalDate() <= filters.endDate 
+                }
+            }
             
             if (expenses.isEmpty()) {
                 return Result.success(

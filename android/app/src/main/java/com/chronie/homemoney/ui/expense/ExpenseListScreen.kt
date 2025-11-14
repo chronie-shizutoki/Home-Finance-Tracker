@@ -38,6 +38,8 @@ fun ExpenseListScreen(
     onNavigateToAddExpense: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
     
     // 处理刷新请求
     LaunchedEffect(shouldRefresh) {
@@ -77,11 +79,33 @@ fun ExpenseListScreen(
                         )
                     }
                     
-                    IconButton(onClick = onNavigateToMoreFunctions) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = context.getString(R.string.common_more_functions)
-                        )
+                    Box {
+                        IconButton(onClick = { showMoreMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = context.getString(R.string.common_more_functions)
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(context.getString(R.string.common_filter)) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    showFilterDialog = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(context.getString(R.string.expense_list_clear_filters)) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    viewModel.resetFilters()
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -227,6 +251,18 @@ fun ExpenseListScreen(
                 .padding(16.dp)
         ) {
             Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
+        }
+        
+        // 筛选对话框
+        if (showFilterDialog) {
+            ExpenseFilterDialog(
+                context = context,
+                currentFilters = uiState.filters,
+                onDismiss = { showFilterDialog = false },
+                onApplyFilters = { filters ->
+                    viewModel.updateFilters(filters)
+                }
+            )
         }
     }
 }
