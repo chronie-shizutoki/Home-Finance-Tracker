@@ -243,7 +243,7 @@
     <string name="retry">Retry</string>
 
     <!-- Data Import/Export -->
-    <string name="data_import_export">Import & Export</string>
+    <string name="data_import_export">Import &amp; Export</string>
     <string name="data_import_export_description">Export or import data as Excel files</string>
     <string name="export_data">Export</string>
     <string name="import_data">Import</string>
