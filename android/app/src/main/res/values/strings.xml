@@ -43,7 +43,7 @@
     <string name="clear_data">Clear Data</string>
     <string name="database_statistics">Database Statistics</string>
     <string name="record_count">Record Count: %d</string>
-    <string name="total_amount">Total Amount: ¥%.2f</string>
+    <string name="total_amount">Total Amount</string>
     <string name="expense_records">Expense Records</string>
     <string name="no_data">No Data</string>
     <string name="synced">Synced</string>
@@ -223,5 +223,23 @@
     <string name="common_cancel">Cancel</string>
     <string name="budget_error_invalid_limit">Please enter a valid budget amount</string>
     <string name="budget_error_invalid_threshold">Warning threshold must be between 0-100</string>
+
+    <!-- Charts -->
+    <string name="charts_title">Statistics</string>
+    <string name="statistics_summary">Statistics Summary</string>
+    <string name="count">Count</string>
+    <string name="average_amount">Average</string>
+    <string name="median_amount">Median</string>
+    <string name="trend_chart">Trend Chart</string>
+    <string name="category_breakdown">Category Breakdown</string>
+    <string name="records">records</string>
+    <string name="select_time_range">Select Time Range</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="this_quarter">This Quarter</string>
+    <string name="this_year">This Year</string>
+    <string name="custom_range">Custom Range</string>
+    <string name="close">Close</string>
+    <string name="retry">Retry</string>
 
 </resources>

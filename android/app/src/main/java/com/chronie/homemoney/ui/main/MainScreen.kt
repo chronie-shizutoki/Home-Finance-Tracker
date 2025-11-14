@@ -7,6 +7,7 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.InsertChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -163,10 +164,16 @@ fun MainScreen(
                         onClick = { selectedTab = 0 }
                     )
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                        label = { Text(context.getString(R.string.settings)) },
+                        icon = { Icon(Icons.Default.InsertChart, contentDescription = null) },
+                        label = { Text(context.getString(R.string.charts_title)) },
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        label = { Text(context.getString(R.string.settings)) },
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 }
                     )
                 }
             }
@@ -184,6 +191,12 @@ fun MainScreen(
                         )
                     }
                     1 -> {
+                        // 图表界面
+                        com.chronie.homemoney.ui.charts.ChartsScreen(
+                            context = context
+                        )
+                    }
+                    2 -> {
                         // 设置界面
                         SettingsScreen(
                             context = context,

@@ -71,7 +71,15 @@ class ExpenseRepositoryImpl @Inject constructor(
                 
                 if (response.isSuccessful && response.body() != null) {
                     val apiResponse = response.body()!!
-                    val expenses = apiResponse.data.map { ExpenseMapper.toDomain(it) }
+                    var expenses = apiResponse.data.map { ExpenseMapper.toDomain(it) }
+                    
+                    // 应用日期筛选（服务器可能不支持这些参数）
+                    if (filters.startDate != null) {
+                        expenses = expenses.filter { it.time.toLocalDate() >= filters.startDate }
+                    }
+                    if (filters.endDate != null) {
+                        expenses = expenses.filter { it.time.toLocalDate() <= filters.endDate }
+                    }
                     
                     // 保存到本地数据库（仅第一页时清空旧数据）
                     if (page == 1) {
@@ -82,6 +90,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                         expenseDao.insertExpense(ExpenseMapper.toEntity(expense))
                     }
                     
+                    android.util.Log.d("ExpenseRepository", "Filtered expenses from server: ${expenses.size} (startDate=${filters.startDate}, endDate=${filters.endDate})")
                     return Result.success(expenses)
                 }
             } catch (networkError: Exception) {
@@ -223,17 +232,8 @@ class ExpenseRepositoryImpl @Inject constructor(
                 )
                 
                 if (response.isSuccessful && response.body() != null) {
-                    val stats = response.body()!!
-                    return Result.success(
-                        ExpenseStatistics(
-                            count = stats.count,
-                            totalAmount = stats.totalAmount,
-                            averageAmount = stats.averageAmount,
-                            medianAmount = stats.medianAmount,
-                            minAmount = stats.minAmount,
-                            maxAmount = stats.maxAmount
-                        )
-                    )
+                    // 服务器统计可能不支持日期筛选，回退到本地计算
+                    android.util.Log.d("ExpenseRepository", "Server stats available but using local calculation for date filtering")
                 }
             } catch (networkError: Exception) {
                 android.util.Log.w("ExpenseRepository", "Network error, falling back to local statistics", networkError)

@@ -260,7 +260,10 @@
 
 ## 第四阶段：数据可视化
 
-- [ ] 15. 支出统计和趋势图表
+- [x] 15. 支出统计和趋势图表
+
+
+
   - 创建 ExpenseStatistics 数据模型
   - 在 ExpenseRepository 中实现统计查询逻辑
   - 创建 GetStatisticsUseCase

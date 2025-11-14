@@ -43,7 +43,7 @@
     <string name="clear_data">清空數據</string>
     <string name="database_statistics">數據庫統計</string>
     <string name="record_count">記錄數: %d</string>
-    <string name="total_amount">總金額: ¥%.2f</string>
+    <string name="total_amount">總金額</string>
     <string name="expense_records">支出記錄</string>
     <string name="no_data">暫無數據</string>
     <string name="synced">已同步</string>
@@ -223,5 +223,23 @@
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">請輸入有效的預算金額</string>
     <string name="budget_error_invalid_threshold">警告閾值必須在 0-100 之間</string>
-    
+
+    <!-- 圖表 -->
+    <string name="charts_title">統計分析</string>
+    <string name="statistics_summary">統計摘要</string>
+    <string name="count">記錄數</string>
+    <string name="average_amount">平均值</string>
+    <string name="median_amount">中位數</string>
+    <string name="trend_chart">趨勢圖表</string>
+    <string name="category_breakdown">分類佔比</string>
+    <string name="records">條</string>
+    <string name="select_time_range">選擇時間範圍</string>
+    <string name="this_week">本週</string>
+    <string name="this_month">本月</string>
+    <string name="this_quarter">本季</string>
+    <string name="this_year">本年</string>
+    <string name="custom_range">自定義</string>
+    <string name="close">關閉</string>
+    <string name="retry">重試</string>
+
 </resources>

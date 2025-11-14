@@ -35,4 +35,16 @@ object ExpenseTypeLocalizer {
         }
         return context.getString(resourceId)
     }
+    
+    /**
+     * 根据类型名称字符串获取本地化名称
+     */
+    fun getLocalizedTypeName(context: Context, typeName: String): String {
+        return try {
+            val type = ExpenseType.valueOf(typeName)
+            getLocalizedName(context, type)
+        } catch (e: IllegalArgumentException) {
+            typeName // 如果无法解析，返回原始名称
+        }
+    }
 }
