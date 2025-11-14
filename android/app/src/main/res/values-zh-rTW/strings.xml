@@ -130,7 +130,6 @@
     <string name="expense_list_filtered_count">篩選結果: %d 條</string>
     <string name="common_search">搜索</string>
     <string name="common_filter">篩選</string>
-    <string name="add_expense_title">添加支出</string>
     <string name="settings_webview_entry">訪問網頁版</string>
     <string name="settings_webview_description">打開原始網頁版功能</string>
     
@@ -147,5 +146,54 @@
     <string name="common_retry">重試</string>
     <string name="common_refresh">刷新</string>
     <string name="common_more_functions">更多功能</string>
+
+    <!-- 添加支出 -->
+    <string name="add_expense_title">添加支出</string>
+    <string name="add_expense_type_label">類型 *</string>
+    <string name="add_expense_type_hint">選擇支出類型</string>
+    <string name="add_expense_amount_label">金額 *</string>
+    <string name="add_expense_amount_hint">0.00</string>
+    <string name="add_expense_date_label">日期 *</string>
+    <string name="add_expense_remark_label">備註</string>
+    <string name="add_expense_remark_hint">輸入備註…</string>
+    <string name="add_expense_save_success">添加成功</string>
+    <string name="add_expense_save_failed">添加失敗: %s</string>
+    <string name="add_expense_validation_type_required">請選擇支出類型</string>
+    <string name="add_expense_validation_amount_required">請輸入金額</string>
+    <string name="add_expense_validation_amount_invalid">金額必須大於0</string>
+    <string name="add_expense_validation_date_required">請選擇日期</string>
     
+    <!-- AI 智能識別 -->
+    <string name="ai_expense_title">AI 智能識別</string>
+    <string name="ai_expense_select_images">選擇圖片</string>
+    <string name="ai_expense_add_images">添加圖片</string>
+    <string name="ai_expense_or_input_text">或輸入文本</string>
+    <string name="ai_expense_text_hint">例如：今天買了蘋果30元，香蕉20元</string>
+    <string name="ai_expense_start_recognition">開始識別</string>
+    <string name="ai_expense_recognizing">識別中…</string>
+    <string name="ai_expense_results">識別結果</string>
+    <string name="ai_expense_save_all">全部保存</string>
+    <string name="ai_expense_saving">保存中…</string>
+    <string name="ai_expense_edit_record">編輯記錄</string>
+    <string name="ai_expense_delete_record">刪除記錄</string>
+    <string name="ai_expense_edited">已編輯</string>
+    <string name="ai_expense_no_input">請輸入文本或選擇圖片</string>
+    <string name="ai_expense_no_records">未識別到消費記錄</string>
+    <string name="ai_expense_recognition_failed">識別失敗: %s</string>
+    <string name="ai_expense_save_success">保存成功</string>
+    <string name="ai_expense_save_failed">保存失敗: %s</string>
+    <string name="ai_expense_no_valid_records">沒有有效的記錄可保存</string>
+    <string name="ai_expense_select_type">選擇類型</string>
+    <string name="ai_expense_amount">金額</string>
+    <string name="ai_expense_remark">備註</string>
+    <string name="ai_expense_click_to_add">點擊添加圖片</string>
+    <string name="ai_expense_records_count">識別結果 (%d條)</string>
+    
+    <!-- AI 設置 -->
+    <string name="settings_ai_title">AI 設置</string>
+    <string name="settings_ai_api_key">SiliconFlow API Key</string>
+    <string name="settings_ai_api_key_hint">輸入您的 API Key</string>
+    <string name="settings_ai_api_key_description">用於 AI 智能識別功能</string>
+    <string name="settings_ai_api_key_saved">API Key 已保存</string>
+    <string name="ai_expense_entry_description">拍照或輸入文本快速記賬</string>
 </resources>

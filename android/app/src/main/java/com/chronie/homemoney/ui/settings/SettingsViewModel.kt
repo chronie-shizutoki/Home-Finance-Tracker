@@ -2,6 +2,7 @@ package com.chronie.homemoney.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.DeveloperMode
 import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.core.common.LanguageManager
@@ -20,12 +21,16 @@ class SettingsViewModel @Inject constructor(
     private val languageManager: LanguageManager,
     private val developerMode: DeveloperMode,
     private val syncManager: SyncManager,
-    private val syncScheduler: SyncScheduler
+    private val syncScheduler: SyncScheduler,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
     
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
+    
+    private val _aiApiKey = MutableStateFlow("")
+    val aiApiKey: StateFlow<String> = _aiApiKey.asStateFlow()
     
     val syncStatus: StateFlow<SyncStatus> = syncManager.observeSyncStatus()
         .stateIn(
@@ -45,6 +50,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         loadSyncInfo()
+        loadAIApiKey()
     }
 
     fun setLanguage(language: Language) {
@@ -82,6 +88,22 @@ class SettingsViewModel @Inject constructor(
     
     fun clearSyncMessage() {
         _syncMessage.value = null
+    }
+    
+    fun setAIApiKey(apiKey: String) {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putString("siliconflow_api_key", apiKey).apply()
+            _aiApiKey.value = apiKey
+            _syncMessage.value = context.getString(R.string.settings_ai_api_key_saved)
+        }
+    }
+    
+    private fun loadAIApiKey() {
+        viewModelScope.launch {
+            val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
+            _aiApiKey.value = prefs.getString("siliconflow_api_key", "") ?: ""
+        }
     }
     
     private fun loadSyncInfo() {

@@ -163,4 +163,38 @@
     <string name="add_expense_validation_amount_invalid">金额必须大于0</string>
     <string name="add_expense_validation_date_required">请选择日期</string>
     
+    <!-- AI 智能识别 -->
+    <string name="ai_expense_title">AI 智能识别</string>
+    <string name="ai_expense_select_images">选择图片</string>
+    <string name="ai_expense_add_images">添加图片</string>
+    <string name="ai_expense_or_input_text">或输入文本</string>
+    <string name="ai_expense_text_hint">例如：今天买了苹果30元，香蕉20元</string>
+    <string name="ai_expense_start_recognition">开始识别</string>
+    <string name="ai_expense_recognizing">识别中…</string>
+    <string name="ai_expense_results">识别结果</string>
+    <string name="ai_expense_save_all">全部保存</string>
+    <string name="ai_expense_saving">保存中…</string>
+    <string name="ai_expense_edit_record">编辑记录</string>
+    <string name="ai_expense_delete_record">删除记录</string>
+    <string name="ai_expense_edited">已编辑</string>
+    <string name="ai_expense_no_input">请输入文本或选择图片</string>
+    <string name="ai_expense_no_records">未识别到消费记录</string>
+    <string name="ai_expense_recognition_failed">识别失败: %s</string>
+    <string name="ai_expense_save_success">保存成功</string>
+    <string name="ai_expense_save_failed">保存失败: %s</string>
+    <string name="ai_expense_no_valid_records">没有有效的记录可保存</string>
+    <string name="ai_expense_select_type">选择类型</string>
+    <string name="ai_expense_amount">金额</string>
+    <string name="ai_expense_remark">备注</string>
+    <string name="ai_expense_click_to_add">点击添加图片</string>
+    <string name="ai_expense_records_count">识别结果 (%d条)</string>
+    
+    <!-- AI 设置 -->
+    <string name="settings_ai_title">AI 设置</string>
+    <string name="settings_ai_api_key">SiliconFlow API Key</string>
+    <string name="settings_ai_api_key_hint">输入您的 API Key</string>
+    <string name="settings_ai_api_key_description">用于 AI 智能识别功能</string>
+    <string name="settings_ai_api_key_saved">API Key 已保存</string>
+    <string name="ai_expense_entry_description">拍照或输入文本快速记账</string>
+    
 </resources>

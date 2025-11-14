@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.core.common.LanguageManager
 import com.chronie.homemoney.ui.expense.AddExpenseScreen
+import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
 import com.chronie.homemoney.ui.test.ApiTestScreen
@@ -157,6 +158,22 @@ fun HomeMoneyApp(context: Context) {
             AddExpenseScreen(
                 context = context,
                 onNavigateBack = {
+                    shouldRefreshExpenses = true
+                    navController.popBackStack()
+                },
+                onNavigateToAI = {
+                    navController.navigate("ai_expense")
+                }
+            )
+        }
+        
+        composable("ai_expense") {
+            AIExpenseScreen(
+                context = context,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onRecordsSaved = {
                     shouldRefreshExpenses = true
                     navController.popBackStack()
                 }

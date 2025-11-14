@@ -162,5 +162,39 @@
     <string name="add_expense_validation_amount_required">Please enter amount</string>
     <string name="add_expense_validation_amount_invalid">Amount must be greater than 0</string>
     <string name="add_expense_validation_date_required">Please select date</string>
+
+    <!-- AI Expense Recognition -->
+    <string name="ai_expense_title">AI Recognition</string>
+    <string name="ai_expense_select_images">Select Images</string>
+    <string name="ai_expense_add_images">Add Images</string>
+    <string name="ai_expense_or_input_text">Or Input Text</string>
+    <string name="ai_expense_text_hint">E.g.: Bought apples for $30, bananas for $20</string>
+    <string name="ai_expense_start_recognition">Start Recognition</string>
+    <string name="ai_expense_recognizing">Recognizing…</string>
+    <string name="ai_expense_results">Recognition Results</string>
+    <string name="ai_expense_save_all">Save All</string>
+    <string name="ai_expense_saving">Saving…</string>
+    <string name="ai_expense_edit_record">Edit Record</string>
+    <string name="ai_expense_delete_record">Delete Record</string>
+    <string name="ai_expense_edited">Edited</string>
+    <string name="ai_expense_no_input">Please input text or select images</string>
+    <string name="ai_expense_no_records">No expense records recognized</string>
+    <string name="ai_expense_recognition_failed">Recognition failed: %s</string>
+    <string name="ai_expense_save_success">Saved successfully</string>
+    <string name="ai_expense_save_failed">Save failed: %s</string>
+    <string name="ai_expense_no_valid_records">No valid records to save</string>
+    <string name="ai_expense_select_type">Select Type</string>
+    <string name="ai_expense_amount">Amount</string>
+    <string name="ai_expense_remark">Remark</string>
+    <string name="ai_expense_click_to_add">Click to add images</string>
+    <string name="ai_expense_records_count">Recognition Results (%d items)</string>
     
+    <!-- AI Settings -->
+    <string name="settings_ai_title">AI Settings</string>
+    <string name="settings_ai_api_key">SiliconFlow API Key</string>
+    <string name="settings_ai_api_key_hint">Enter your API Key</string>
+    <string name="settings_ai_api_key_description">For AI recognition feature</string>
+    <string name="settings_ai_api_key_saved">API Key saved</string>
+    <string name="ai_expense_entry_description">Take photos or enter text for quick bookkeeping</string>
+
 </resources>

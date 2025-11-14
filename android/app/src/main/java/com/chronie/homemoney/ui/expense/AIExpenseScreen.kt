@@ -1,0 +1,591 @@
+package com.chronie.homemoney.ui.expense
+
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.chronie.homemoney.R
+import com.chronie.homemoney.domain.model.AIExpenseRecord
+import com.chronie.homemoney.domain.model.ExpenseType
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+/**
+ * AI 智能记录界面
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AIExpenseScreen(
+    context: android.content.Context,
+    onNavigateBack: () -> Unit,
+    onRecordsSaved: () -> Unit,
+    viewModel: AIExpenseViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    
+    // 图片选择器
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        viewModel.addImages(uris)
+    }
+    
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(context.getString(R.string.ai_expense_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            // 图片选择区域
+            ImageSelectionSection(
+                context = context,
+                selectedImages = uiState.selectedImages,
+                onAddImages = { imagePickerLauncher.launch("image/*") },
+                onRemoveImage = viewModel::removeImage
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 文本输入区域
+            TextInputSection(
+                context = context,
+                textInput = uiState.textInput,
+                onTextChange = viewModel::updateTextInput
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 识别按钮
+            Button(
+                onClick = { viewModel.startRecognition() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading && 
+                         (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank())
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    if (uiState.isLoading) 
+                        context.getString(R.string.ai_expense_recognizing) 
+                    else 
+                        context.getString(R.string.ai_expense_start_recognition)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 识别结果列表
+            if (uiState.recognizedRecords.isNotEmpty()) {
+                RecognizedRecordsSection(
+                    context = context,
+                    records = uiState.recognizedRecords,
+                    onUpdateRecord = viewModel::updateRecord,
+                    onDeleteRecord = viewModel::deleteRecord,
+                    onSaveAll = { viewModel.saveAllRecords(onRecordsSaved) },
+                    isSaving = uiState.isSaving
+                )
+            }
+            
+            // 错误提示
+            uiState.errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 图片选择区域
+ */
+@Composable
+private fun ImageSelectionSection(
+    context: android.content.Context,
+    selectedImages: List<Uri>,
+    onAddImages: () -> Unit,
+    onRemoveImage: (Uri) -> Unit
+) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = context.getString(R.string.ai_expense_select_images),
+                style = MaterialTheme.typography.titleMedium
+            )
+            TextButton(onClick = onAddImages) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(context.getString(R.string.ai_expense_add_images))
+            }
+        }
+        
+        if (selectedImages.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(selectedImages.size) { index ->
+                    ImagePreviewCard(
+                        imageUri = selectedImages[index],
+                        onRemove = { onRemoveImage(selectedImages[index]) }
+                    )
+                }
+            }
+        } else {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            context.getString(R.string.ai_expense_click_to_add),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 图片预览卡片
+ */
+@Composable
+private fun ImagePreviewCard(
+    imageUri: Uri,
+    onRemove: () -> Unit
+) {
+    Card(
+        modifier = Modifier.size(100.dp)
+    ) {
+        Box {
+            AsyncImage(
+                model = imageUri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "删除",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 文本输入区域
+ */
+@Composable
+private fun TextInputSection(
+    context: android.content.Context,
+    textInput: String,
+    onTextChange: (String) -> Unit
+) {
+    Column {
+        Text(
+            text = context.getString(R.string.ai_expense_or_input_text),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = textInput,
+            onValueChange = onTextChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+            placeholder = { Text(context.getString(R.string.ai_expense_text_hint)) },
+            maxLines = 5
+        )
+    }
+}
+
+/**
+ * 识别结果区域
+ */
+@Composable
+private fun RecognizedRecordsSection(
+    context: android.content.Context,
+    records: List<AIExpenseRecord>,
+    onUpdateRecord: (Int, AIExpenseRecord) -> Unit,
+    onDeleteRecord: (Int) -> Unit,
+    onSaveAll: () -> Unit,
+    isSaving: Boolean
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = context.getString(R.string.ai_expense_records_count, records.size),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Button(
+                onClick = onSaveAll,
+                enabled = !isSaving && records.any { it.isValid }
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    if (isSaving) 
+                        context.getString(R.string.ai_expense_saving) 
+                    else 
+                        context.getString(R.string.ai_expense_save_all)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            itemsIndexed(records) { index, record ->
+                RecordEditCard(
+                    context = context,
+                    record = record,
+                    onUpdate = { updated -> onUpdateRecord(index, updated) },
+                    onDelete = { onDeleteRecord(index) }
+                )
+            }
+        }
+    }
+}
+
+
+/**
+ * 记录编辑卡片
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RecordEditCard(
+    context: android.content.Context,
+    record: AIExpenseRecord,
+    onUpdate: (AIExpenseRecord) -> Unit,
+    onDelete: () -> Unit
+) {
+    var showEditDialog by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (record.isValid) 
+                MaterialTheme.colorScheme.surface 
+            else 
+                MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = ExpenseTypeLocalizer.getLocalizedName(context, record.type),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "¥${String.format("%.2f", record.amount)}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = record.time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (record.remark.isNotBlank()) {
+                        Text(
+                            text = record.remark,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    if (record.isEdited) {
+                        Text(
+                            text = context.getString(R.string.ai_expense_edited),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+                
+                Column {
+                    IconButton(onClick = { showEditDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = context.getString(R.string.ai_expense_edit_record))
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = context.getString(R.string.ai_expense_delete_record),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    if (showEditDialog) {
+        RecordEditDialog(
+            context = context,
+            record = record,
+            onDismiss = { showEditDialog = false },
+            onConfirm = { updated ->
+                onUpdate(updated)
+                showEditDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * 记录编辑对话框
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RecordEditDialog(
+    context: android.content.Context,
+    record: AIExpenseRecord,
+    onDismiss: () -> Unit,
+    onConfirm: (AIExpenseRecord) -> Unit
+) {
+    var selectedType by remember { mutableStateOf(record.type) }
+    var amount by remember { mutableStateOf(record.amount.toString()) }
+    var remark by remember { mutableStateOf(record.remark) }
+    var selectedDate by remember { mutableStateOf(record.time.toLocalDate()) }
+    var showTypePicker by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(context.getString(R.string.ai_expense_edit_record)) },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 类型选择
+                OutlinedButton(
+                    onClick = { showTypePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(ExpenseTypeLocalizer.getLocalizedName(context, selectedType))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                }
+                
+                // 金额输入
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it },
+                    label = { Text(context.getString(R.string.ai_expense_amount)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    prefix = { Text("¥") }
+                )
+                
+                // 日期选择
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.DateRange, contentDescription = null)
+                }
+                
+                // 备注输入
+                OutlinedTextField(
+                    value = remark,
+                    onValueChange = { remark = it },
+                    label = { Text(context.getString(R.string.ai_expense_remark)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val updatedRecord = record.copy(
+                        type = selectedType,
+                        amount = amount.toDoubleOrNull() ?: record.amount,
+                        time = selectedDate.atTime(record.time.toLocalTime()),
+                        remark = remark,
+                        isEdited = true
+                    )
+                    onConfirm(updatedRecord)
+                }
+            ) {
+                Text(context.getString(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.cancel))
+            }
+        }
+    )
+    
+    if (showTypePicker) {
+        ExpenseTypePickerDialog(
+            context = context,
+            selectedType = selectedType,
+            onDismiss = { showTypePicker = false },
+            onTypeSelected = { type ->
+                selectedType = type
+                showTypePicker = false
+            }
+        )
+    }
+    
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDate.toEpochDay() * 24 * 60 * 60 * 1000
+        )
+        
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            selectedDate = java.time.LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text(context.getString(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+/**
+ * 支出类型选择对话框
+ */
+@Composable
+private fun ExpenseTypePickerDialog(
+    context: android.content.Context,
+    selectedType: ExpenseType,
+    onDismiss: () -> Unit,
+    onTypeSelected: (ExpenseType) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(context.getString(R.string.ai_expense_select_type)) },
+        text = {
+            LazyColumn {
+                items(ExpenseType.values().size) { index ->
+                    val type = ExpenseType.values()[index]
+                    TextButton(
+                        onClick = { onTypeSelected(type) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                            modifier = Modifier.fillMaxWidth(),
+                            color = if (type == selectedType) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.cancel))
+            }
+        }
+    )
+}

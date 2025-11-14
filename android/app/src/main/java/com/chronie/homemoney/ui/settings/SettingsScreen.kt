@@ -70,6 +70,15 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            // AI 设置部分
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            AISettingsSection(viewModel = viewModel, context = context)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
             // 数据同步部分
             Divider()
             
@@ -272,6 +281,108 @@ fun LanguageItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AISettingsSection(
+    viewModel: SettingsViewModel,
+    context: Context
+) {
+    val apiKey by viewModel.aiApiKey.collectAsState()
+    var showApiKeyDialog by remember { mutableStateOf(false) }
+    
+    Column {
+        Text(
+            text = context.getString(R.string.settings_ai_title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showApiKeyDialog = true },
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = context.getString(R.string.settings_ai_api_key),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.settings_ai_api_key_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (apiKey.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "已设置: ${apiKey.take(8)}...",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    Text(
+                        text = "→",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
+    }
+    
+    // API Key 输入对话框
+    if (showApiKeyDialog) {
+        var inputApiKey by remember { mutableStateOf(apiKey) }
+        
+        AlertDialog(
+            onDismissRequest = { showApiKeyDialog = false },
+            title = { Text(context.getString(R.string.settings_ai_api_key)) },
+            text = {
+                Column {
+                    Text(
+                        text = context.getString(R.string.settings_ai_api_key_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    OutlinedTextField(
+                        value = inputApiKey,
+                        onValueChange = { inputApiKey = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text(context.getString(R.string.settings_ai_api_key_hint)) },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.setAIApiKey(inputApiKey)
+                        showApiKeyDialog = false
+                    }
+                ) {
+                    Text(context.getString(R.string.save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showApiKeyDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
