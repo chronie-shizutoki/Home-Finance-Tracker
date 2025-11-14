@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.core.common.LanguageManager
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.LanguageSettingsScreen
+import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -112,6 +113,17 @@ fun HomeMoneyApp(context: Context) {
                 context = context,
                 onNavigateToSettings = {
                     navController.navigate("language_settings")
+                },
+                onNavigateToDatabaseTest = {
+                    navController.navigate("database_test")
+                }
+            )
+        }
+        
+        composable("database_test") {
+            DatabaseTestScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

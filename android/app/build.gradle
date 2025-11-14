@@ -24,6 +24,12 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     
     buildTypes {
@@ -95,6 +101,9 @@ dependencies {
     kapt 'com.google.dagger:hilt-compiler:2.48.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.1.0'
     
+    // DataStore
+    implementation 'androidx.datastore:datastore-preferences:1.0.0'
+    
     // Room
     implementation 'androidx.room:room-runtime:2.6.1'
     implementation 'androidx.room:room-ktx:2.6.1'
@@ -111,6 +120,8 @@ dependencies {
     
     // Security
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
+    implementation 'androidx.sqlite:sqlite-ktx:2.4.0'
     
     // WorkManager
     implementation 'androidx.work:work-runtime-ktx:2.9.0'

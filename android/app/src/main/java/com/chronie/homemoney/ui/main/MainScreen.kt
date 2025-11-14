@@ -8,17 +8,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 
 @Composable
 fun MainScreen(
     context: Context,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToDatabaseTest: () -> Unit = {},
+    viewModel: MainViewModel = hiltViewModel()
 ) {
+    val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
     Box(modifier = Modifier.fillMaxSize()) {
         // WebView 占满整个屏幕
         AndroidView(
@@ -42,19 +48,35 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize()
         )
         
-        // 设置按钮
-        FloatingActionButton(
-            onClick = onNavigateToSettings,
+        // 按钮组
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = context.getString(R.string.language_settings)
-            )
+            // 数据库测试按钮 (仅开发者模式显示)
+            if (isDeveloperMode) {
+                FloatingActionButton(
+                    onClick = onNavigateToDatabaseTest,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) {
+                    Text("DB")
+                }
+            }
+            
+            // 设置按钮
+            FloatingActionButton(
+                onClick = onNavigateToSettings,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = context.getString(R.string.language_settings)
+                )
+            }
         }
     }
 }

@@ -55,6 +55,51 @@ fun LanguageSettingsScreen(
                     onClick = { viewModel.setLanguage(language) }
                 )
             }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 开发者模式开关
+            val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
+            
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "开发者选项",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "开发者模式",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "启用后可访问数据库测试等开发功能",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = isDeveloperMode,
+                        onCheckedChange = { viewModel.toggleDeveloperMode() }
+                    )
+                }
+            }
         }
     }
 }

@@ -36,6 +36,10 @@
   - _需求: 1.1, 1.2, 1.3, 16.1, 16.2, 16.3, 16.4, 16.5_
 
 - [ ] 3. Room 数据库基础
+
+
+
+
   - 定义 ExpenseEntity、DebtEntity、MemberEntity 和 SyncQueueEntity 实体类
   - 为每个实体创建对应的 DAO 接口，定义基本的 CRUD 操作
   - 创建 AppDatabase 类，配置数据库版本和实体
