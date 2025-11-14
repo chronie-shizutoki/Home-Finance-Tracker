@@ -51,7 +51,7 @@
   - 生成 APK 并验证数据库可以正常创建和执行增删改查操作
   - _需求: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 4. Retrofit API 客户端
+- [x] 4. Retrofit API 客户端
 
 
 
@@ -71,6 +71,9 @@
 ## 第二阶段：核心功能 - 支出管理
 
 - [ ] 5. 支出列表展示
+
+
+
   - 创建 Expense 领域模型和 ExpenseType 枚举
   - 实现 ExpenseRepository 接口和实现类
   - 实现数据映射器（Entity <-> Domain Model <-> DTO）

@@ -62,4 +62,60 @@
     <string name="clear_results">清除结果</string>
     <string name="click_to_start_test">点击上方按钮开始测试</string>
     
+    <!-- 支出类型 -->
+    <string name="expense_type_daily_goods">日常用品</string>
+    <string name="expense_type_luxury">奢侈品</string>
+    <string name="expense_type_communication">通讯费用</string>
+    <string name="expense_type_food">食品</string>
+    <string name="expense_type_snacks">零食糖果</string>
+    <string name="expense_type_cold_drinks">冷饮</string>
+    <string name="expense_type_convenience_food">方便食品</string>
+    <string name="expense_type_textiles">纺织品</string>
+    <string name="expense_type_beverages">饮品</string>
+    <string name="expense_type_condiments">调味品</string>
+    <string name="expense_type_transportation">交通出行</string>
+    <string name="expense_type_dining">餐饮</string>
+    <string name="expense_type_medical">医疗费用</string>
+    <string name="expense_type_fruits">水果</string>
+    <string name="expense_type_other">其他</string>
+    <string name="expense_type_seafood">水产品</string>
+    <string name="expense_type_dairy">乳制品</string>
+    <string name="expense_type_gifts">礼物人情</string>
+    <string name="expense_type_travel">旅行度假</string>
+    <string name="expense_type_government">政务</string>
+    <string name="expense_type_utilities">水电煤气</string>
+    
+    <!-- 支出列表 -->
+    <string name="expense_list_title">支出记录</string>
+    <string name="expense_list_empty">暂无支出记录</string>
+    <string name="expense_list_empty_description">添加新记录或调整筛选条件</string>
+    <string name="expense_list_reset_filters">重置筛选</string>
+    <string name="expense_list_search_hint">搜索备注…</string>
+    <string name="expense_list_filter_type">分类</string>
+    <string name="expense_list_filter_month">月份</string>
+    <string name="expense_list_filter_amount_range">金额范围</string>
+    <string name="expense_list_filter_min_amount">最小金额</string>
+    <string name="expense_list_filter_max_amount">最大金额</string>
+    <string name="expense_list_all_types">全部分类</string>
+    <string name="expense_list_all_months">全部月份</string>
+    <string name="expense_list_sort">排序</string>
+    <string name="expense_list_sort_date_desc">日期（晚）</string>
+    <string name="expense_list_sort_date_asc">日期（早）</string>
+    <string name="expense_list_sort_amount_desc">金额（高）</string>
+    <string name="expense_list_sort_amount_asc">金额（低）</string>
+    
+    <!-- 支出统计 -->
+    <string name="expense_stats_count">总记录数</string>
+    <string name="expense_stats_total">总金额</string>
+    <string name="expense_stats_average">平均值</string>
+    <string name="expense_stats_median">中位数</string>
+    <string name="expense_stats_range">金额范围</string>
+    
+    <!-- 通用 -->
+    <string name="common_loading">加载中…</string>
+    <string name="common_error">错误</string>
+    <string name="common_retry">重试</string>
+    <string name="common_refresh">刷新</string>
+    <string name="common_more_functions">更多功能</string>
+    
 </resources>

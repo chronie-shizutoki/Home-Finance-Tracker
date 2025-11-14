@@ -62,4 +62,60 @@
     <string name="clear_results">Clear Results</string>
     <string name="click_to_start_test">Click the button above to start testing</string>
     
+    <!-- Expense Types -->
+    <string name="expense_type_daily_goods">Daily Goods</string>
+    <string name="expense_type_luxury">Luxury</string>
+    <string name="expense_type_communication">Communication</string>
+    <string name="expense_type_food">Food</string>
+    <string name="expense_type_snacks">Snacks</string>
+    <string name="expense_type_cold_drinks">Cold Drinks</string>
+    <string name="expense_type_convenience_food">Convenience Food</string>
+    <string name="expense_type_textiles">Textiles</string>
+    <string name="expense_type_beverages">Beverages</string>
+    <string name="expense_type_condiments">Condiments</string>
+    <string name="expense_type_transportation">Transportation</string>
+    <string name="expense_type_dining">Dining</string>
+    <string name="expense_type_medical">Medical</string>
+    <string name="expense_type_fruits">Fruits</string>
+    <string name="expense_type_other">Other</string>
+    <string name="expense_type_seafood">Seafood</string>
+    <string name="expense_type_dairy">Dairy</string>
+    <string name="expense_type_gifts">Gifts</string>
+    <string name="expense_type_travel">Travel</string>
+    <string name="expense_type_government">Government</string>
+    <string name="expense_type_utilities">Utilities</string>
+    
+    <!-- Expense List -->
+    <string name="expense_list_title">Expenses</string>
+    <string name="expense_list_empty">No expenses yet</string>
+    <string name="expense_list_empty_description">Add a new expense or adjust filters</string>
+    <string name="expense_list_reset_filters">Reset Filters</string>
+    <string name="expense_list_search_hint">Search remarks…</string>
+    <string name="expense_list_filter_type">Type</string>
+    <string name="expense_list_filter_month">Month</string>
+    <string name="expense_list_filter_amount_range">Amount Range</string>
+    <string name="expense_list_filter_min_amount">Min Amount</string>
+    <string name="expense_list_filter_max_amount">Max Amount</string>
+    <string name="expense_list_all_types">All Types</string>
+    <string name="expense_list_all_months">All Months</string>
+    <string name="expense_list_sort">Sort</string>
+    <string name="expense_list_sort_date_desc">Date (Latest)</string>
+    <string name="expense_list_sort_date_asc">Date (Earliest)</string>
+    <string name="expense_list_sort_amount_desc">Amount (High)</string>
+    <string name="expense_list_sort_amount_asc">Amount (Low)</string>
+    
+    <!-- Expense Statistics -->
+    <string name="expense_stats_count">Total Records</string>
+    <string name="expense_stats_total">Total Amount</string>
+    <string name="expense_stats_average">Average</string>
+    <string name="expense_stats_median">Median</string>
+    <string name="expense_stats_range">Range</string>
+    
+    <!-- Common -->
+    <string name="common_loading">Loading…</string>
+    <string name="common_error">Error</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_refresh">Refresh</string>
+    <string name="common_more_functions">More Functions</string>
+    
 </resources>
