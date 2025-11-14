@@ -29,22 +29,22 @@ import kotlinx.coroutines.flow.collect
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen(
+    context: android.content.Context,
     viewModel: ExpenseListViewModel = hiltViewModel(),
     onNavigateToMoreFunctions: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.expense_list_title)) },
+                title = { Text(context.getString(R.string.expense_list_title)) },
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.common_refresh))
+                        Icon(Icons.Default.Refresh, contentDescription = context.getString(R.string.common_refresh))
                     }
                     IconButton(onClick = onNavigateToMoreFunctions) {
-                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_more_functions))
+                        Icon(Icons.Default.MoreVert, contentDescription = context.getString(R.string.common_more_functions))
                     }
                 }
             )
@@ -65,6 +65,7 @@ fun ExpenseListScreen(
             // 统计信息卡片
             ExpenseStatisticsCard(
                 statistics = uiState.statistics,
+                context = context,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -90,11 +91,11 @@ fun ExpenseListScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = uiState.error ?: stringResource(R.string.common_error),
+                                text = uiState.error ?: context.getString(R.string.common_error),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Button(onClick = { viewModel.refresh() }) {
-                                Text(stringResource(R.string.common_retry))
+                                Text(context.getString(R.string.common_retry))
                             }
                         }
                     }
@@ -109,11 +110,11 @@ fun ExpenseListScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.expense_list_empty),
+                                text = context.getString(R.string.expense_list_empty),
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Text(
-                                text = stringResource(R.string.expense_list_empty_description),
+                                text = context.getString(R.string.expense_list_empty_description),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -163,7 +164,7 @@ fun ExpenseListScreen(
                                         CircularProgressIndicator()
                                     } else {
                                         Button(onClick = { viewModel.loadMore() }) {
-                                            Text(stringResource(R.string.common_loading))
+                                            Text(context.getString(R.string.common_loading))
                                         }
                                     }
                                 }
@@ -182,6 +183,7 @@ fun ExpenseListScreen(
 @Composable
 fun ExpenseStatisticsCard(
     statistics: com.chronie.homemoney.domain.model.ExpenseStatistics,
+    context: android.content.Context,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -199,11 +201,11 @@ fun ExpenseStatisticsCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatisticItem(
-                    label = stringResource(R.string.expense_stats_count),
+                    label = context.getString(R.string.expense_stats_count),
                     value = statistics.count.toString()
                 )
                 StatisticItem(
-                    label = stringResource(R.string.expense_stats_total),
+                    label = context.getString(R.string.expense_stats_total),
                     value = String.format(Locale.getDefault(), "¥%.2f", statistics.totalAmount)
                 )
             }
@@ -212,11 +214,11 @@ fun ExpenseStatisticsCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatisticItem(
-                    label = stringResource(R.string.expense_stats_average),
+                    label = context.getString(R.string.expense_stats_average),
                     value = String.format(Locale.getDefault(), "¥%.2f", statistics.averageAmount)
                 )
                 StatisticItem(
-                    label = stringResource(R.string.expense_stats_median),
+                    label = context.getString(R.string.expense_stats_median),
                     value = String.format(Locale.getDefault(), "¥%.2f", statistics.medianAmount)
                 )
             }

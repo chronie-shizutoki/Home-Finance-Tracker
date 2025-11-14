@@ -108,6 +108,7 @@ fun MainScreen(
     } else {
         // 原生支出列表界面（新的主界面）
         ExpenseListScreen(
+            context = context,
             onNavigateToMoreFunctions = { showWebView = true }
         )
     }
