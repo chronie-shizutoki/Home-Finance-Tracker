@@ -323,41 +323,65 @@ fun ExpenseRemarkField(
 }
 
 /**
- * 类型选择对话框
+ * 类型选择对话框 - 使用底部弹出样式
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseTypeDialog(
     context: android.content.Context,
     onDismiss: () -> Unit,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.add_expense_type_label)) },
-        text = {
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        scrimColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.32f),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        windowInsets = BottomSheetDefaults.windowInsets
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 500.dp)
+        ) {
+            // 标题
+            Text(
+                text = context.getString(R.string.add_expense_type_label),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+            )
+            
+            Divider()
+            
+            // 类型列表
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 8.dp)
             ) {
                 ExpenseType.values().forEach { type ->
                     TextButton(
                         onClick = { onTypeSelected(type) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        shape = MaterialTheme.shapes.medium
                     ) {
                         Text(
                             text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
-        },
-        shape = MaterialTheme.shapes.large
-    )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
 }
 
 /**
@@ -374,6 +398,8 @@ fun ExpenseDatePickerDialog(
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDate.toEpochDay() * 24 * 60 * 60 * 1000
     )
+    
+    val surfaceColor = MaterialTheme.colorScheme.surface
     
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -394,8 +420,16 @@ fun ExpenseDatePickerDialog(
                 Text(context.getString(R.string.cancel))
             }
         },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        colors = DatePickerDefaults.colors(
+            containerColor = surfaceColor
+        )
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                containerColor = surfaceColor
+            )
+        )
     }
 }
