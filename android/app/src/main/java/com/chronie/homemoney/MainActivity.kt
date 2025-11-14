@@ -48,6 +48,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // 立即切换到正常主题，避免启动图背景影响 Popup 窗口
+        setTheme(R.style.AppTheme_NoActionBar)
+        
         // 清除启动图背景，设置为透明背景
         window.setBackgroundDrawableResource(android.R.color.transparent)
         

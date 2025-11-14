@@ -31,9 +31,6 @@ fun AddExpenseScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     
-    // 显示类型选择对话框的状态
-    var showTypeDialog by remember { mutableStateOf(false) }
-    
     // 显示日期选择器的状态
     var showDatePicker by remember { mutableStateOf(false) }
     
@@ -83,11 +80,11 @@ fun AddExpenseScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // 类型选择
-            ExpenseTypeField(
+            ExpenseTypeDropdown(
                 selectedType = uiState.selectedType,
                 error = uiState.typeError,
                 context = context,
-                onClick = { showTypeDialog = true }
+                onTypeSelected = { viewModel.setType(it) }
             )
             
             // 金额输入
@@ -115,18 +112,6 @@ fun AddExpenseScreen(
         }
     }
     
-    // 类型选择对话框
-    if (showTypeDialog) {
-        ExpenseTypeDialog(
-            context = context,
-            onDismiss = { showTypeDialog = false },
-            onTypeSelected = { type ->
-                viewModel.setType(type)
-                showTypeDialog = false
-            }
-        )
-    }
-    
     // 日期选择器
     if (showDatePicker) {
         ExpenseDatePickerDialog(
@@ -152,46 +137,63 @@ fun AddExpenseScreen(
 }
 
 /**
- * 类型选择字段
+ * 类型选择下拉菜单
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseTypeField(
+fun ExpenseTypeDropdown(
     selectedType: ExpenseType?,
     error: String?,
     context: android.content.Context,
-    onClick: () -> Unit
+    onTypeSelected: (ExpenseType) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    
     Column {
         Text(
             text = context.getString(R.string.add_expense_type_label),
             style = MaterialTheme.typography.labelLarge
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedCard(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth()
+        
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
         ) {
-            Box(
+            OutlinedTextField(
+                value = if (selectedType != null) {
+                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
+                } else {
+                    ""
+                },
+                onValueChange = {},
+                readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .menuAnchor(),
+                placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                isError = error != null
+            )
+            
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
-                Text(
-                    text = if (selectedType != null) {
-                        ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
-                    } else {
-                        context.getString(R.string.add_expense_type_hint)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (selectedType != null) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
+                ExpenseType.values().forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(ExpenseTypeLocalizer.getLocalizedName(context, type)) },
+                        onClick = {
+                            onTypeSelected(type)
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
             }
         }
+        
         if (error != null) {
             Text(
                 text = when (error) {
@@ -319,68 +321,6 @@ fun ExpenseRemarkField(
             placeholder = { Text(context.getString(R.string.add_expense_remark_hint)) },
             maxLines = 4
         )
-    }
-}
-
-/**
- * 类型选择对话框 - 使用底部弹出样式
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ExpenseTypeDialog(
-    context: android.content.Context,
-    onDismiss: () -> Unit,
-    onTypeSelected: (ExpenseType) -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        shape = MaterialTheme.shapes.large,
-        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f),
-        dragHandle = { BottomSheetDefaults.DragHandle() },
-        windowInsets = BottomSheetDefaults.windowInsets
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 500.dp)
-        ) {
-            // 标题
-            Text(
-                text = context.getString(R.string.add_expense_type_label),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
-            )
-            
-            Divider()
-            
-            // 类型列表
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = 8.dp)
-            ) {
-                ExpenseType.values().forEach { type ->
-                    TextButton(
-                        onClick = { onTypeSelected(type) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Text(
-                            text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                            modifier = Modifier.fillMaxWidth(),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-        }
     }
 }
 
