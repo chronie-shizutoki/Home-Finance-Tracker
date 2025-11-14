@@ -16,8 +16,11 @@ object ExpenseMapper {
     
     /**
      * Entity -> Domain Model
+     * 数据库存储的是毫秒时间戳，转换为 LocalDateTime
      */
     fun toDomain(entity: ExpenseEntity): Expense {
+        // 使用 UTC+8 (北京时区) 来解释时间戳
+        val beijingZone = ZoneId.of("Asia/Shanghai")
         return Expense(
             id = entity.id,
             type = ExpenseType.fromString(entity.type),
@@ -25,7 +28,7 @@ object ExpenseMapper {
             amount = entity.amount,
             time = LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(entity.time),
-                ZoneId.systemDefault()
+                beijingZone
             ),
             isSynced = entity.isSynced
         )
@@ -33,15 +36,18 @@ object ExpenseMapper {
     
     /**
      * Domain Model -> Entity
+     * LocalDateTime 转换为毫秒时间戳存储
      */
     fun toEntity(expense: Expense): ExpenseEntity {
         val now = System.currentTimeMillis()
+        // 将 LocalDateTime 视为北京时间，转换为时间戳
+        val beijingZone = ZoneId.of("Asia/Shanghai")
         return ExpenseEntity(
             id = expense.id,
             type = getChineseTypeName(expense.type),
             remark = expense.remark,
             amount = expense.amount,
-            time = expense.time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+            time = expense.time.atZone(beijingZone).toInstant().toEpochMilli(),
             createdAt = now,
             updatedAt = now,
             isSynced = expense.isSynced,
@@ -51,14 +57,21 @@ object ExpenseMapper {
     
     /**
      * DTO -> Domain Model
-     * API返回的是UTC时间，需要加8小时转换为北京时间
+     * 后端存储的是 UTC 时间，需要转换为北京时间（UTC+8）
      */
     fun toDomain(dto: ExpenseDto): Expense {
         // 尝试解析ISO格式的日期时间，如果失败则尝试解析日期格式
         val time = try {
-            // 解析UTC时间并加8小时
-            val utcTime = LocalDateTime.parse(dto.time, DateTimeFormatter.ISO_DATE_TIME)
-            utcTime.plusHours(8)
+            // 解析 UTC 时间字符串，然后转换为北京时间
+            // 例如：2025-11-14T16:00:00 (UTC) -> 2025-11-15T00:00:00 (北京时间)
+            val utcZone = ZoneId.of("UTC")
+            val beijingZone = ZoneId.of("Asia/Shanghai")
+            
+            // 解析为 UTC 时间
+            val utcDateTime = LocalDateTime.parse(dto.time, DateTimeFormatter.ISO_DATE_TIME)
+            
+            // 转换为北京时间
+            utcDateTime.atZone(utcZone).withZoneSameInstant(beijingZone).toLocalDateTime()
         } catch (e: Exception) {
             try {
                 // 尝试解析 YYYY-MM-DD 格式
@@ -81,18 +94,20 @@ object ExpenseMapper {
     
     /**
      * Domain Model -> DTO
-     * 发送给API时需要减8小时转换为UTC时间
+     * 直接发送用户选择的日期时间，不进行时区转换
+     * 后端会使用 dayjs 自动处理时区转换
      */
     fun toDto(expense: Expense): ExpenseDto {
         val formatter = DateTimeFormatter.ISO_DATE_TIME
-        // 减8小时转换为UTC时间
-        val utcTime = expense.time.minusHours(8)
+        // 直接使用用户选择的时间，不进行转换
+        // 例如：2025-11-15 00:00:00 -> 2025-11-15T00:00:00
+        
         return ExpenseDto(
             id = expense.id.toLongOrNull(),
             type = getChineseTypeName(expense.type),
             remark = expense.remark,
             amount = expense.amount,
-            time = utcTime.format(formatter),
+            time = expense.time.format(formatter),
             createdAt = null,
             updatedAt = null
         )

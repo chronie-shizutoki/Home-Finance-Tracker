@@ -207,6 +207,7 @@ class SyncManagerImpl @Inject constructor(
             val lastSyncTime = getLastSyncTime() ?: 0L
             var newItems = 0
             var updatedItems = 0
+            var deletedItems = 0
             val conflicts = mutableListOf<SyncConflict>()
             
             // 获取服务器上的所有支出记录
@@ -223,9 +224,13 @@ class SyncManagerImpl @Inject constructor(
             val serverExpenses = response.body()?.data ?: emptyList()
             val totalItems = serverExpenses.size
             
+            // 收集服务器上所有的 serverId
+            val serverIds = mutableSetOf<String>()
+            
             for (serverExpense in serverExpenses) {
                 try {
                     val serverId = serverExpense.id?.toString() ?: continue
+                    serverIds.add(serverId)
                     
                     // 查找本地是否存在该记录
                     val localExpense = expenseDao.getExpenseByServerId(serverId)
@@ -300,7 +305,25 @@ class SyncManagerImpl @Inject constructor(
                 }
             }
             
-            Log.d(TAG, "Download completed: $newItems new, $updatedItems updated, ${conflicts.size} conflicts")
+            // 清理本地存在但服务器上不存在的已同步记录
+            try {
+                val allLocalExpenses = expenseDao.getAllExpenses().first()
+                for (localExpense in allLocalExpenses) {
+                    // 只删除已同步且有 serverId 的记录
+                    if (localExpense.isSynced && 
+                        localExpense.serverId != null && 
+                        !serverIds.contains(localExpense.serverId)) {
+                        
+                        Log.d(TAG, "Deleting local expense not found on server: ${localExpense.serverId}")
+                        expenseDao.deleteExpenseById(localExpense.id)
+                        deletedItems++
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clean up local expenses", e)
+            }
+            
+            Log.d(TAG, "Download completed: $newItems new, $updatedItems updated, $deletedItems deleted, ${conflicts.size} conflicts")
             Result.success(
                 DownloadResult(
                     totalItems = totalItems,
