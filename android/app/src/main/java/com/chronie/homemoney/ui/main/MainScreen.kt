@@ -19,9 +19,12 @@ import com.chronie.homemoney.ui.expense.ExpenseListScreen
 @Composable
 fun MainScreen(
     context: Context,
+    shouldRefreshExpenses: Boolean = false,
+    onRefreshHandled: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToApiTest: () -> Unit = {},
+    onNavigateToAddExpense: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
@@ -109,7 +112,10 @@ fun MainScreen(
         // 原生支出列表界面（新的主界面）
         ExpenseListScreen(
             context = context,
-            onNavigateToMoreFunctions = { showWebView = true }
+            shouldRefresh = shouldRefreshExpenses,
+            onRefreshHandled = onRefreshHandled,
+            onNavigateToMoreFunctions = { showWebView = true },
+            onNavigateToAddExpense = onNavigateToAddExpense
         )
     }
 }

@@ -22,6 +22,7 @@ import com.chronie.homemoney.domain.model.Expense
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * 支出列表界面
@@ -31,9 +32,20 @@ import kotlinx.coroutines.flow.collect
 fun ExpenseListScreen(
     context: android.content.Context,
     viewModel: ExpenseListViewModel = hiltViewModel(),
-    onNavigateToMoreFunctions: () -> Unit = {}
+    shouldRefresh: Boolean = false,
+    onRefreshHandled: () -> Unit = {},
+    onNavigateToMoreFunctions: () -> Unit = {},
+    onNavigateToAddExpense: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    // 处理刷新请求
+    LaunchedEffect(shouldRefresh) {
+        if (shouldRefresh) {
+            viewModel.refresh()
+            onRefreshHandled()
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -51,9 +63,9 @@ fun ExpenseListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navigate to add expense */ }
+                onClick = onNavigateToAddExpense
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Expense")
+                Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
             }
         }
     ) { paddingValues ->

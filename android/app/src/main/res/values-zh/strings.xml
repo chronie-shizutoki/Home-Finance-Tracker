@@ -118,4 +118,20 @@
     <string name="common_refresh">刷新</string>
     <string name="common_more_functions">更多功能</string>
     
+    <!-- 添加支出 -->
+    <string name="add_expense_title">添加支出</string>
+    <string name="add_expense_type_label">类型 *</string>
+    <string name="add_expense_type_hint">选择支出类型</string>
+    <string name="add_expense_amount_label">金额 *</string>
+    <string name="add_expense_amount_hint">0.00</string>
+    <string name="add_expense_date_label">日期 *</string>
+    <string name="add_expense_remark_label">备注</string>
+    <string name="add_expense_remark_hint">输入备注…</string>
+    <string name="add_expense_save_success">添加成功</string>
+    <string name="add_expense_save_failed">添加失败: %s</string>
+    <string name="add_expense_validation_type_required">请选择支出类型</string>
+    <string name="add_expense_validation_amount_required">请输入金额</string>
+    <string name="add_expense_validation_amount_invalid">金额必须大于0</string>
+    <string name="add_expense_validation_date_required">请选择日期</string>
+    
 </resources>

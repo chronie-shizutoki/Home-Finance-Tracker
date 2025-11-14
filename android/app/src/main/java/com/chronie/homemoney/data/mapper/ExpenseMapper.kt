@@ -51,11 +51,14 @@ object ExpenseMapper {
     
     /**
      * DTO -> Domain Model
+     * API返回的是UTC时间，需要加8小时转换为北京时间
      */
     fun toDomain(dto: ExpenseDto): Expense {
         // 尝试解析ISO格式的日期时间，如果失败则尝试解析日期格式
         val time = try {
-            LocalDateTime.parse(dto.time, DateTimeFormatter.ISO_DATE_TIME)
+            // 解析UTC时间并加8小时
+            val utcTime = LocalDateTime.parse(dto.time, DateTimeFormatter.ISO_DATE_TIME)
+            utcTime.plusHours(8)
         } catch (e: Exception) {
             try {
                 // 尝试解析 YYYY-MM-DD 格式
@@ -78,15 +81,18 @@ object ExpenseMapper {
     
     /**
      * Domain Model -> DTO
+     * 发送给API时需要减8小时转换为UTC时间
      */
     fun toDto(expense: Expense): ExpenseDto {
         val formatter = DateTimeFormatter.ISO_DATE_TIME
+        // 减8小时转换为UTC时间
+        val utcTime = expense.time.minusHours(8)
         return ExpenseDto(
             id = expense.id.toLongOrNull(),
             type = getChineseTypeName(expense.type),
             remark = expense.remark,
             amount = expense.amount,
-            time = expense.time.format(formatter),
+            time = utcTime.format(formatter),
             createdAt = null,
             updatedAt = null
         )

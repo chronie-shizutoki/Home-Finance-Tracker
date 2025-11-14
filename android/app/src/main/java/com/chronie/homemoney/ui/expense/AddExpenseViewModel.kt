@@ -1,0 +1,161 @@
+package com.chronie.homemoney.ui.expense
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.domain.model.Expense
+import com.chronie.homemoney.domain.model.ExpenseType
+import com.chronie.homemoney.domain.repository.ExpenseRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.UUID
+import javax.inject.Inject
+
+/**
+ * 添加支出 ViewModel
+ */
+@HiltViewModel
+class AddExpenseViewModel @Inject constructor(
+    private val expenseRepository: ExpenseRepository
+) : ViewModel() {
+    
+    private val _uiState = MutableStateFlow(AddExpenseUiState())
+    val uiState: StateFlow<AddExpenseUiState> = _uiState.asStateFlow()
+    
+    /**
+     * 设置支出类型
+     */
+    fun setType(type: ExpenseType) {
+        _uiState.update { it.copy(
+            selectedType = type,
+            typeError = null
+        ) }
+    }
+    
+    /**
+     * 设置金额
+     */
+    fun setAmount(amount: String) {
+        _uiState.update { it.copy(
+            amount = amount,
+            amountError = null
+        ) }
+    }
+    
+    /**
+     * 设置日期
+     */
+    fun setDate(date: LocalDate) {
+        _uiState.update { it.copy(
+            selectedDate = date,
+            dateError = null
+        ) }
+    }
+    
+    /**
+     * 设置备注
+     */
+    fun setRemark(remark: String) {
+        _uiState.update { it.copy(remark = remark) }
+    }
+    
+    /**
+     * 验证并保存支出
+     */
+    fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        // 验证表单
+        if (!validateForm()) {
+            return
+        }
+        
+        val state = _uiState.value
+        
+        _uiState.update { it.copy(isSaving = true, saveError = null) }
+        
+        viewModelScope.launch {
+            try {
+                // 用户选择的日期设置为00:00:00
+                val dateTime = LocalDateTime.of(state.selectedDate, LocalTime.MIDNIGHT)
+                
+                val expense = Expense(
+                    id = UUID.randomUUID().toString(),
+                    type = state.selectedType!!,
+                    amount = state.amount.toDouble(),
+                    time = dateTime,
+                    remark = state.remark.ifBlank { null },
+                    isSynced = false
+                )
+                
+                val result = expenseRepository.addExpense(expense)
+                
+                if (result.isSuccess) {
+                    _uiState.update { it.copy(isSaving = false) }
+                    onSuccess()
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    _uiState.update { it.copy(
+                        isSaving = false,
+                        saveError = error
+                    ) }
+                    onError(error)
+                }
+            } catch (e: Exception) {
+                val error = e.message ?: "Unknown error"
+                _uiState.update { it.copy(
+                    isSaving = false,
+                    saveError = error
+                ) }
+                onError(error)
+            }
+        }
+    }
+    
+    /**
+     * 验证表单
+     */
+    private fun validateForm(): Boolean {
+        val state = _uiState.value
+        var isValid = true
+        
+        // 验证类型
+        if (state.selectedType == null) {
+            _uiState.update { it.copy(typeError = "TYPE_REQUIRED") }
+            isValid = false
+        }
+        
+        // 验证金额
+        if (state.amount.isBlank()) {
+            _uiState.update { it.copy(amountError = "AMOUNT_REQUIRED") }
+            isValid = false
+        } else {
+            val amountValue = state.amount.toDoubleOrNull()
+            if (amountValue == null || amountValue <= 0) {
+                _uiState.update { it.copy(amountError = "AMOUNT_INVALID") }
+                isValid = false
+            }
+        }
+        
+        return isValid
+    }
+}
+
+/**
+ * 添加支出 UI 状态
+ */
+data class AddExpenseUiState(
+    val selectedType: ExpenseType? = null,
+    val amount: String = "",
+    val selectedDate: LocalDate = LocalDate.now(),
+    val remark: String = "",
+    val typeError: String? = null,
+    val amountError: String? = null,
+    val dateError: String? = null,
+    val isSaving: Boolean = false,
+    val saveError: String? = null
+)

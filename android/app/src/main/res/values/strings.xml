@@ -118,4 +118,20 @@
     <string name="common_refresh">Refresh</string>
     <string name="common_more_functions">More Functions</string>
     
+    <!-- Add Expense -->
+    <string name="add_expense_title">Add Expense</string>
+    <string name="add_expense_type_label">Type *</string>
+    <string name="add_expense_type_hint">Select expense type</string>
+    <string name="add_expense_amount_label">Amount *</string>
+    <string name="add_expense_amount_hint">0.00</string>
+    <string name="add_expense_date_label">Date *</string>
+    <string name="add_expense_remark_label">Remark</string>
+    <string name="add_expense_remark_hint">Enter remark…</string>
+    <string name="add_expense_save_success">Expense added successfully</string>
+    <string name="add_expense_save_failed">Failed to add expense: %s</string>
+    <string name="add_expense_validation_type_required">Please select expense type</string>
+    <string name="add_expense_validation_amount_required">Please enter amount</string>
+    <string name="add_expense_validation_amount_invalid">Amount must be greater than 0</string>
+    <string name="add_expense_validation_date_required">Please select date</string>
+    
 </resources>

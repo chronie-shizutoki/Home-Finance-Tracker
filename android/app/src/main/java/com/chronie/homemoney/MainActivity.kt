@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.core.common.LanguageManager
+import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.LanguageSettingsScreen
 import com.chronie.homemoney.ui.test.ApiTestScreen
@@ -84,6 +88,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HomeMoneyApp(context: Context) {
     val navController = rememberNavController()
+    var shouldRefreshExpenses by remember { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -113,6 +118,8 @@ fun HomeMoneyApp(context: Context) {
         composable("main") {
             MainScreen(
                 context = context,
+                shouldRefreshExpenses = shouldRefreshExpenses,
+                onRefreshHandled = { shouldRefreshExpenses = false },
                 onNavigateToSettings = {
                     navController.navigate("language_settings")
                 },
@@ -121,6 +128,19 @@ fun HomeMoneyApp(context: Context) {
                 },
                 onNavigateToApiTest = {
                     navController.navigate("api_test")
+                },
+                onNavigateToAddExpense = {
+                    navController.navigate("add_expense")
+                }
+            )
+        }
+        
+        composable("add_expense") {
+            AddExpenseScreen(
+                context = context,
+                onNavigateBack = {
+                    shouldRefreshExpenses = true
+                    navController.popBackStack()
                 }
             )
         }
