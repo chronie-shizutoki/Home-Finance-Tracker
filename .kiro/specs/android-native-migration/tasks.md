@@ -35,7 +35,7 @@
   - 生成 APK 并验证可以在原生界面和 WebView 之间正常切换
   - _需求: 1.1, 1.2, 1.3, 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 3. Room 数据库基础
+- [x] 3. Room 数据库基础
 
 
 
@@ -52,6 +52,10 @@
   - _需求: 2.1, 2.2, 2.3, 2.4_
 
 - [ ] 4. Retrofit API 客户端
+
+
+
+
   - 定义 API 接口（ExpenseApi、DebtApi、MemberApi 等）
   - 创建 API 响应数据模型（ExpenseDto、DebtDto 等）
   - 配置 Retrofit 实例，添加 Gson 转换器

@@ -53,4 +53,13 @@
     <string name="load_success">数据加载成功</string>
     <string name="load_failed">加载数据失败: %s</string>
     
+    <!-- API Test -->
+    <string name="api_test">API测试</string>
+    <string name="health_check">健康检查</string>
+    <string name="get_expenses">获取支出</string>
+    <string name="subscription_plans">订阅计划</string>
+    <string name="run_all_tests">运行全部</string>
+    <string name="clear_results">清除结果</string>
+    <string name="click_to_start_test">点击上方按钮开始测试</string>
+    
 </resources>

@@ -22,6 +22,7 @@ fun MainScreen(
     context: Context,
     onNavigateToSettings: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
+    onNavigateToApiTest: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
@@ -55,6 +56,17 @@ fun MainScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // API测试按钮 (仅开发者模式显示)
+            if (isDeveloperMode) {
+                FloatingActionButton(
+                    onClick = onNavigateToApiTest,
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                ) {
+                    Text("API")
+                }
+            }
+            
             // 数据库测试按钮 (仅开发者模式显示)
             if (isDeveloperMode) {
                 FloatingActionButton(

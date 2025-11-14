@@ -53,4 +53,13 @@
     <string name="load_success">Loaded Successfully</string>
     <string name="load_failed">Load Failed: %s</string>
     
+    <!-- API Test -->
+    <string name="api_test">API Test</string>
+    <string name="health_check">Health Check</string>
+    <string name="get_expenses">Get Expenses</string>
+    <string name="subscription_plans">Subscription Plans</string>
+    <string name="run_all_tests">Run All</string>
+    <string name="clear_results">Clear Results</string>
+    <string name="click_to_start_test">Click the button above to start testing</string>
+    
 </resources>
