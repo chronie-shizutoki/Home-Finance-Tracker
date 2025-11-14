@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     context: Context,
@@ -94,6 +95,15 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             SyncSection(viewModel = viewModel, context = context)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 数据导入导出部分
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            DataImportExportSection(viewModel = viewModel, context = context)
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -473,6 +483,327 @@ fun BudgetSettingsSection(
             onSave = { limit, threshold, enabled ->
                 budgetViewModel.saveBudget(limit, threshold, enabled)
                 showBudgetDialog = false
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DataImportExportSection(
+    viewModel: SettingsViewModel,
+    context: Context
+) {
+    val exportInProgress by viewModel.exportInProgress.collectAsState()
+    val importInProgress by viewModel.importInProgress.collectAsState()
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showDateRangeDialog by remember { mutableStateOf(false) }
+    var startDate by remember { mutableStateOf<java.time.LocalDate?>(null) }
+    var endDate by remember { mutableStateOf<java.time.LocalDate?>(null) }
+    
+    // 权限请求
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.values.all { it }
+        if (!allGranted) {
+            android.widget.Toast.makeText(
+                context,
+                context.getString(R.string.permission_storage_required),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+    
+    // 检查并请求权限
+    fun checkAndRequestPermissions(onGranted: () -> Unit) {
+        val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
+        
+        val allGranted = permissions.all { permission ->
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                permission
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+        
+        if (allGranted) {
+            onGranted()
+        } else {
+            permissionLauncher.launch(permissions)
+        }
+    }
+    
+    // 文件选择器
+    val filePickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        uri?.let { viewModel.importExpenses(it) }
+    }
+    
+    Column {
+        Text(
+            text = context.getString(R.string.data_import_export),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Text(
+            text = context.getString(R.string.data_import_export_description),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        // 导出按钮
+        Button(
+            onClick = { 
+                checkAndRequestPermissions {
+                    showExportDialog = true
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !exportInProgress && !importInProgress
+        ) {
+            if (exportInProgress) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = if (exportInProgress) {
+                    context.getString(R.string.export_in_progress)
+                } else {
+                    context.getString(R.string.export_data)
+                }
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // 导入按钮
+        Button(
+            onClick = { 
+                checkAndRequestPermissions {
+                    filePickerLauncher.launch("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !exportInProgress && !importInProgress
+        ) {
+            if (importInProgress) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = if (importInProgress) {
+                    context.getString(R.string.import_in_progress)
+                } else {
+                    context.getString(R.string.import_data)
+                }
+            )
+        }
+    }
+    
+    // 导出选项对话框
+    if (showExportDialog) {
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text(context.getString(R.string.export_data)) },
+            text = {
+                Column {
+                    Text(
+                        text = context.getString(R.string.export_select_range),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    // 导出全部数据按钮
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showExportDialog = false
+                                viewModel.exportExpenses(null, null)
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.export_all_data),
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // 导出日期范围按钮
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showExportDialog = false
+                                showDateRangeDialog = true
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = context.getString(R.string.export_date_range),
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showExportDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        )
+    }
+    
+    // 日期范围选择对话框
+    if (showDateRangeDialog) {
+        var showStartDatePicker by remember { mutableStateOf(false) }
+        var showEndDatePicker by remember { mutableStateOf(false) }
+        
+        AlertDialog(
+            onDismissRequest = { showDateRangeDialog = false },
+            title = { Text(context.getString(R.string.export_select_range)) },
+            text = {
+                Column {
+                    // 开始日期
+                    Text(
+                        text = context.getString(R.string.export_start_date),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showStartDatePicker = true },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = startDate?.toString() ?: context.getString(R.string.export_start_date),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // 结束日期
+                    Text(
+                        text = context.getString(R.string.export_end_date),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showEndDatePicker = true },
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = endDate?.toString() ?: context.getString(R.string.export_end_date),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+                
+                // 日期选择器
+                if (showStartDatePicker) {
+                    val datePickerState = androidx.compose.material3.rememberDatePickerState()
+                    androidx.compose.material3.DatePickerDialog(
+                        onDismissRequest = { showStartDatePicker = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    datePickerState.selectedDateMillis?.let { millis ->
+                                        startDate = java.time.Instant.ofEpochMilli(millis)
+                                            .atZone(java.time.ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    }
+                                    showStartDatePicker = false
+                                }
+                            ) {
+                                Text(context.getString(R.string.confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showStartDatePicker = false }) {
+                                Text(context.getString(R.string.cancel))
+                            }
+                        }
+                    ) {
+                        androidx.compose.material3.DatePicker(state = datePickerState)
+                    }
+                }
+                
+                if (showEndDatePicker) {
+                    val datePickerState = androidx.compose.material3.rememberDatePickerState()
+                    androidx.compose.material3.DatePickerDialog(
+                        onDismissRequest = { showEndDatePicker = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    datePickerState.selectedDateMillis?.let { millis ->
+                                        endDate = java.time.Instant.ofEpochMilli(millis)
+                                            .atZone(java.time.ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    }
+                                    showEndDatePicker = false
+                                }
+                            ) {
+                                Text(context.getString(R.string.confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showEndDatePicker = false }) {
+                                Text(context.getString(R.string.cancel))
+                            }
+                        }
+                    ) {
+                        androidx.compose.material3.DatePicker(state = datePickerState)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDateRangeDialog = false
+                        viewModel.exportExpenses(startDate, endDate)
+                    },
+                    enabled = startDate != null && endDate != null
+                ) {
+                    Text(context.getString(R.string.export_data))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDateRangeDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
             }
         )
     }

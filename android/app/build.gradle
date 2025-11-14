@@ -132,6 +132,10 @@ dependencies {
     implementation 'androidx.hilt:hilt-work:1.1.0'
     kapt 'androidx.hilt:hilt-compiler:1.1.0'
     
+    // Apache POI for Excel import/export
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    
     // Capacitor (for hybrid mode)
     implementation project(':capacitor-android')
     implementation project(':capacitor-cordova-android-plugins')

@@ -241,5 +241,33 @@
     <string name="custom_range">自定义</string>
     <string name="close">关闭</string>
     <string name="retry">重试</string>
+
+    <!-- 数据导入导出 -->
+    <string name="data_import_export">数据导入导出</string>
+    <string name="data_import_export_description">将支出数据导出或导入为 Excel 文件</string>
+    <string name="export_data">导出数据</string>
+    <string name="import_data">导入数据</string>
+    <string name="export_all_data">导出全部数据</string>
+    <string name="export_date_range">导出日期范围</string>
+    <string name="export_select_range">选择日期范围</string>
+    <string name="export_start_date">开始日期</string>
+    <string name="export_end_date">结束日期</string>
+    <string name="export_in_progress">导出中…</string>
+    <string name="export_success">导出成功: %s</string>
+    <string name="export_failed">导出失败: %s</string>
+    <string name="import_in_progress">导入中…</string>
+    <string name="import_success">导入成功: 已导入 %d 条记录</string>
+    <string name="import_failed">导入失败: %s</string>
+    <string name="import_select_file">选择 Excel 文件</string>
+    <string name="import_validation_error">数据验证错误: %s</string>
+    <string name="import_confirm_title">确认导入</string>
+    <string name="import_confirm_message">发现 %d 条记录，是否继续导入？</string>
+    <string name="export_filename_prefix">支出导出</string>
+    <string name="excel_header_date">日期</string>
+    <string name="excel_header_type">类型</string>
+    <string name="excel_header_amount">金额</string>
+    <string name="excel_header_remark">备注</string>
+    <string name="permission_storage_required">需要存储权限才能导出/导入文件</string>
+    <string name="no_records_to_export">没有可导出的记录</string>
     
 </resources>

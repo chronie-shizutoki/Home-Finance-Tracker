@@ -242,4 +242,32 @@
     <string name="close">Close</string>
     <string name="retry">Retry</string>
 
+    <!-- Data Import/Export -->
+    <string name="data_import_export">Data Import/Export</string>
+    <string name="data_import_export_description">Export or import expense data as Excel files</string>
+    <string name="export_data">Export Data</string>
+    <string name="import_data">Import Data</string>
+    <string name="export_all_data">Export All Data</string>
+    <string name="export_date_range">Export Date Range</string>
+    <string name="export_select_range">Select Date Range</string>
+    <string name="export_start_date">Start Date</string>
+    <string name="export_end_date">End Date</string>
+    <string name="export_in_progress">Exporting…</string>
+    <string name="export_success">Export successful: %s</string>
+    <string name="export_failed">Export failed: %s</string>
+    <string name="import_in_progress">Importing…</string>
+    <string name="import_success">Import successful: %d records imported</string>
+    <string name="import_failed">Import failed: %s</string>
+    <string name="import_select_file">Select Excel File</string>
+    <string name="import_validation_error">Data validation error: %s</string>
+    <string name="import_confirm_title">Confirm Import</string>
+    <string name="import_confirm_message">Found %d records. Continue import?</string>
+    <string name="export_filename_prefix">expenses_export</string>
+    <string name="excel_header_date">Date</string>
+    <string name="excel_header_type">Type</string>
+    <string name="excel_header_amount">Amount</string>
+    <string name="excel_header_remark">Remark</string>
+    <string name="permission_storage_required">Storage permission required to export/import files</string>
+    <string name="no_records_to_export">No records to export</string>
+
 </resources>

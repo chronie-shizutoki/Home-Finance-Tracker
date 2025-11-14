@@ -292,7 +292,10 @@
   - 生成 APK 并验证分类统计正确显示
   - _需求: 5.1, 5.2, 5.5_
 
-- [ ] 17. 数据导入导出功能
+- [x] 17. 数据导入导出功能
+
+
+
   - 集成 Apache POI 库
   - 创建 ExportUseCase 和 ImportUseCase
   - 实现支出记录导出为 Excel 文件

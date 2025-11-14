@@ -242,4 +242,32 @@
     <string name="close">關閉</string>
     <string name="retry">重試</string>
 
+    <!-- 數據導入導出 -->
+    <string name="data_import_export">數據導入導出</string>
+    <string name="data_import_export_description">將支出數據導出或導入為 Excel 文件</string>
+    <string name="export_data">導出數據</string>
+    <string name="import_data">導入數據</string>
+    <string name="export_all_data">導出全部數據</string>
+    <string name="export_date_range">導出日期範圍</string>
+    <string name="export_select_range">選擇日期範圍</string>
+    <string name="export_start_date">開始日期</string>
+    <string name="export_end_date">結束日期</string>
+    <string name="export_in_progress">導出中…</string>
+    <string name="export_success">導出成功: %s</string>
+    <string name="export_failed">導出失敗: %s</string>
+    <string name="import_in_progress">導入中…</string>
+    <string name="import_success">導入成功: 已導入 %d 條記錄</string>
+    <string name="import_failed">導入失敗: %s</string>
+    <string name="import_select_file">選擇 Excel 文件</string>
+    <string name="import_validation_error">數據驗證錯誤: %s</string>
+    <string name="import_confirm_title">確認導入</string>
+    <string name="import_confirm_message">發現 %d 條記錄，是否繼續導入？</string>
+    <string name="export_filename_prefix">支出導出</string>
+    <string name="excel_header_date">日期</string>
+    <string name="excel_header_type">類型</string>
+    <string name="excel_header_amount">金額</string>
+    <string name="excel_header_remark">備註</string>
+    <string name="permission_storage_required">需要存儲權限才能導出/導入文件</string>
+    <string name="no_records_to_export">沒有可導出的記錄</string>
+
 </resources>
