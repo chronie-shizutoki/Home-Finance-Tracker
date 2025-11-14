@@ -155,6 +155,29 @@
 - `res/values-zh/strings.xml` - 添加简体中文翻译
 - `res/values-zh-rTW/strings.xml` - 添加繁体中文翻译
 
+## 最终修复
+
+### 修复1：健康检查API路径错误
+**问题：** BASE_URL包含`/api/`导致请求路径变成`/api/api/healthcheck`
+**解决方案：** 
+- 修改BASE_URL为`http://192.168.0.197:3010/`（去掉`/api/`）
+- 所有API接口路径添加`api/`前缀
+- 健康检查API路径改为`api/health`
+
+### 修复2：多语言Context传递问题
+**问题：** ApiTestScreen使用`stringResource`而不是传递的localized context
+**解决方案：** 
+- 修改ApiTestScreen接受`context: Context`参数
+- 使用`context.getString(R.string.xxx)`替代`stringResource(R.string.xxx)`
+- 确保使用MainActivity传递的localized context
+
+### 修复3：健康检查响应格式更新
+**问题：** 后端返回更详细的健康检查信息
+**解决方案：** 
+- 更新`HealthCheckResponse` DTO以匹配新的响应格式
+- 添加环境、资源、服务、路径等详细信息的DTO
+- 更新ApiTestViewModel显示更多健康检查信息
+
 ## 验证清单
 
 - [x] Retrofit配置正确
@@ -164,11 +187,11 @@
 - [x] 错误处理完善
 - [x] 依赖注入配置正确
 - [x] API测试界面可用
-- [x] 多语言支持完整
+- [x] 多语言支持完整（修复context传递问题后）
 - [x] 支出列表API测试通过
 - [x] 订阅计划API测试通过（修复UUID问题后）
-- [ ] 健康检查API测试通过（待修复）
+- [x] 健康检查API测试通过（修复路径和DTO后）
 
 ## 任务状态
 
-✅ **任务4基本完成** - Retrofit API客户端已实现并通过大部分测试
+✅ **任务4完成** - Retrofit API客户端已完整实现并通过所有测试

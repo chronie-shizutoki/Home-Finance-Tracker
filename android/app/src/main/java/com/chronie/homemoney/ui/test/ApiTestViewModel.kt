@@ -47,8 +47,15 @@ class ApiTestViewModel @Inject constructor(
                     val data = response.body()
                     addResult("✓ 健康检查成功")
                     addResult("  状态: ${data?.status}")
-                    addResult("  服务: ${data?.service}")
-                    addResult("  时间: ${data?.timestamp}")
+                    addResult("  版本: ${data?.version}")
+                    addResult("  运行时间: ${data?.uptime}")
+                    addResult("  时间戳: ${data?.timestamp}")
+                    data?.environment?.let { env ->
+                        addResult("  环境: ${env.nodeEnv} (${env.platform})")
+                    }
+                    data?.services?.database?.let { db ->
+                        addResult("  数据库: ${db.status}")
+                    }
                     Log.d(TAG, "Health check successful: $data")
                 } else {
                     addResult("✗ 健康检查失败: ${response.code()} ${response.message()}")

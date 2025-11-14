@@ -12,6 +12,6 @@ interface ApiService {
     /**
      * 健康检查
      */
-    @GET("api/healthcheck")
+    @GET("api/health")
     suspend fun healthCheck(): Response<HealthCheckResponse>
 }
