@@ -27,10 +27,10 @@
     <string name="getting_started">开始使用</string>
     
     <!-- Main Screen -->
-    <string name="main_screen_title">主界面</string>
+    <string name="main_screen_title">首页</string>
     <string name="main_screen_description">这是应用的主界面</string>
-    <string name="coming_soon">即将推出</string>
-    <string name="features_coming_soon">更多功能将在后续任务中添加</string>
+    <string name="coming_soon">即将上线</string>
+    <string name="features_coming_soon">更多功能将在后续版本中添加</string>
     
     <!-- Developer Options -->
     <string name="developer_options">开发者选项</string>
@@ -73,7 +73,7 @@
     <string name="api_test">API测试</string>
     <string name="health_check">健康检查</string>
     <string name="get_expenses">获取支出</string>
-    <string name="subscription_plans">订阅计划</string>
+    <string name="subscription_plans">订阅方案</string>
     <string name="run_all_tests">运行全部</string>
     <string name="clear_results">清除结果</string>
     <string name="click_to_start_test">点击上方按钮开始测试</string>
@@ -115,18 +115,18 @@
     <string name="expense_list_all_types">全部分类</string>
     <string name="expense_list_all_months">全部月份</string>
     <string name="expense_list_sort">排序</string>
-    <string name="expense_list_sort_date_desc">日期（晚）</string>
-    <string name="expense_list_sort_date_asc">日期（早）</string>
-    <string name="expense_list_sort_amount_desc">金额（高）</string>
-    <string name="expense_list_sort_amount_asc">金额（低）</string>
+    <string name="expense_list_sort_date_desc">日期（新到旧）</string>
+    <string name="expense_list_sort_date_asc">日期（旧到新）</string>
+    <string name="expense_list_sort_amount_desc">金额（高到低）</string>
+    <string name="expense_list_sort_amount_asc">金额（低到高）</string>
     <string name="expense_list_apply_filters">应用筛选</string>
     <string name="expense_list_clear_filters">清除筛选</string>
     <string name="expense_list_filter_title">筛选和搜索</string>
     <string name="expense_list_filter_date_range">日期范围</string>
     <string name="expense_list_filter_start_date">开始日期</string>
     <string name="expense_list_filter_end_date">结束日期</string>
-    <string name="expense_list_filter_all_types">全部类型</string>
-    <string name="expense_list_filter_select_types">选择类型</string>
+    <string name="expense_list_filter_all_types">全部分类</string>
+    <string name="expense_list_filter_select_types">选择分类</string>
     <string name="expense_list_filtered_count">筛选结果: %d 条</string>
     <string name="common_search">搜索</string>
     <string name="common_filter">筛选</string>
@@ -136,7 +136,7 @@
     <!-- 支出统计 -->
     <string name="expense_stats_count">总记录数</string>
     <string name="expense_stats_total">总金额</string>
-    <string name="expense_stats_average">平均值</string>
+    <string name="expense_stats_average">平均</string>
     <string name="expense_stats_median">中位数</string>
     <string name="expense_stats_range">金额范围</string>
     
@@ -148,9 +148,9 @@
     <string name="common_more_functions">更多功能</string>
     
     <!-- 添加支出 -->
-    <string name="add_expense_title">添加支出</string>
-    <string name="add_expense_type_label">类型 *</string>
-    <string name="add_expense_type_hint">选择支出类型</string>
+    <string name="add_expense_title">记一笔</string>
+    <string name="add_expense_type_label">分类 *</string>
+    <string name="add_expense_type_hint">选择支出分类</string>
     <string name="add_expense_amount_label">金额 *</string>
     <string name="add_expense_amount_hint">0.00</string>
     <string name="add_expense_date_label">日期 *</string>
@@ -158,16 +158,16 @@
     <string name="add_expense_remark_hint">输入备注…</string>
     <string name="add_expense_save_success">添加成功</string>
     <string name="add_expense_save_failed">添加失败: %s</string>
-    <string name="add_expense_validation_type_required">请选择支出类型</string>
+    <string name="add_expense_validation_type_required">请选择支出分类</string>
     <string name="add_expense_validation_amount_required">请输入金额</string>
     <string name="add_expense_validation_amount_invalid">金额必须大于0</string>
     <string name="add_expense_validation_date_required">请选择日期</string>
     
     <!-- AI 智能识别 -->
-    <string name="ai_expense_title">AI 智能识别</string>
+    <string name="ai_expense_title">AI智能记账</string>
     <string name="ai_expense_select_images">选择图片</string>
     <string name="ai_expense_add_images">添加图片</string>
-    <string name="ai_expense_or_input_text">或输入文本</string>
+    <string name="ai_expense_or_input_text">或输入文字</string>
     <string name="ai_expense_text_hint">例如：今天买了苹果30元，香蕉20元</string>
     <string name="ai_expense_start_recognition">开始识别</string>
     <string name="ai_expense_recognizing">识别中…</string>
@@ -177,25 +177,25 @@
     <string name="ai_expense_edit_record">编辑记录</string>
     <string name="ai_expense_delete_record">删除记录</string>
     <string name="ai_expense_edited">已编辑</string>
-    <string name="ai_expense_no_input">请输入文本或选择图片</string>
+    <string name="ai_expense_no_input">请输入文字或选择图片</string>
     <string name="ai_expense_no_records">未识别到消费记录</string>
     <string name="ai_expense_recognition_failed">识别失败: %s</string>
     <string name="ai_expense_save_success">保存成功</string>
     <string name="ai_expense_save_failed">保存失败: %s</string>
     <string name="ai_expense_no_valid_records">没有有效的记录可保存</string>
-    <string name="ai_expense_select_type">选择类型</string>
+    <string name="ai_expense_select_type">选择分类</string>
     <string name="ai_expense_amount">金额</string>
     <string name="ai_expense_remark">备注</string>
     <string name="ai_expense_click_to_add">点击添加图片</string>
     <string name="ai_expense_records_count">识别结果 (%d条)</string>
     
     <!-- AI 设置 -->
-    <string name="settings_ai_title">AI 设置</string>
-    <string name="settings_ai_api_key">SiliconFlow API Key</string>
-    <string name="settings_ai_api_key_hint">输入您的 API Key</string>
-    <string name="settings_ai_api_key_description">用于 AI 智能识别功能</string>
-    <string name="settings_ai_api_key_saved">API Key 已保存</string>
-    <string name="ai_expense_entry_description">拍照或输入文本快速记账</string>
+    <string name="settings_ai_title">AI设置</string>
+    <string name="settings_ai_api_key">SiliconFlow API密钥</string>
+    <string name="settings_ai_api_key_hint">输入您的API密钥</string>
+    <string name="settings_ai_api_key_description">用于AI智能识别功能</string>
+    <string name="settings_ai_api_key_saved">API密钥已保存</string>
+    <string name="ai_expense_entry_description">拍照或输入文字快速记账</string>
     
     <!-- 预算管理 -->
     <string name="budget_enable_title">启用预算管理</string>
@@ -206,8 +206,8 @@
     <string name="budget_settings">预算设置</string>
     <string name="budget_settings_title">预算设置</string>
     <string name="budget_monthly_limit">月度预算限额</string>
-    <string name="budget_warning_threshold">警告阈值 (%)</string>
-    <string name="budget_warning_threshold_hint">达到此百分比时显示警告（0-100）</string>
+    <string name="budget_warning_threshold">预警阈值 (%)</string>
+    <string name="budget_warning_threshold_hint">达到此百分比时显示预警（0-100）</string>
     <string name="budget_remaining">剩余预算</string>
     <string name="budget_daily_average">日均消费</string>
     <string name="budget_recommended_daily">建议日均</string>
@@ -222,29 +222,29 @@
     <string name="common_save">保存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">请输入有效的预算金额</string>
-    <string name="budget_error_invalid_threshold">警告阈值必须在 0-100 之间</string>
+    <string name="budget_error_invalid_threshold">预警阈值必须在0-100之间</string>
     
     <!-- 图表 -->
     <string name="charts_title">统计分析</string>
-    <string name="statistics_summary">统计摘要</string>
+    <string name="statistics_summary">统计概览</string>
     <string name="count">记录数</string>
-    <string name="average_amount">平均值</string>
+    <string name="average_amount">平均金额</string>
     <string name="median_amount">中位数</string>
-    <string name="trend_chart">趋势图表</string>
+    <string name="trend_chart">趋势图</string>
     <string name="category_breakdown">分类占比</string>
     <string name="records">条</string>
     <string name="select_time_range">选择时间范围</string>
     <string name="this_week">本周</string>
     <string name="this_month">本月</string>
-    <string name="this_quarter">本季</string>
-    <string name="this_year">本年</string>
+    <string name="this_quarter">本季度</string>
+    <string name="this_year">今年</string>
     <string name="custom_range">自定义</string>
     <string name="close">关闭</string>
     <string name="retry">重试</string>
 
     <!-- 数据导入导出 -->
     <string name="data_import_export">数据导入导出</string>
-    <string name="data_import_export_description">将支出数据导出或导入为 Excel 文件</string>
+    <string name="data_import_export_description">将支出数据导出或导入为Excel文件</string>
     <string name="export_data">导出数据</string>
     <string name="import_data">导入数据</string>
     <string name="export_all_data">导出全部数据</string>
@@ -258,16 +258,20 @@
     <string name="import_in_progress">导入中…</string>
     <string name="import_success">导入成功: 已导入 %d 条记录</string>
     <string name="import_failed">导入失败: %s</string>
-    <string name="import_select_file">选择 Excel 文件</string>
+    <string name="import_select_file">选择Excel文件</string>
     <string name="import_validation_error">数据验证错误: %s</string>
     <string name="import_confirm_title">确认导入</string>
     <string name="import_confirm_message">发现 %d 条记录，是否继续导入？</string>
     <string name="export_filename_prefix">支出导出</string>
     <string name="excel_header_date">日期</string>
-    <string name="excel_header_type">类型</string>
+    <string name="excel_header_type">分类</string>
     <string name="excel_header_amount">金额</string>
     <string name="excel_header_remark">备注</string>
     <string name="permission_storage_required">需要存储权限才能导出/导入文件</string>
     <string name="no_records_to_export">没有可导出的记录</string>
-    
+
+    <!-- 意见反馈 -->
+    <string name="feedback_title">意见反馈</string>
+    <string name="feedback_description">分享您的建议，帮助我们改进</string>
+
 </resources>

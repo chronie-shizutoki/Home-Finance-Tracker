@@ -1,20 +1,20 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Home Finance Tracker</string>
-    <string name="title_activity_main">Home Finance Tracker</string>
+    <string name="app_name">Home Finance</string>
+    <string name="title_activity_main">Home Finance</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
     
     <!-- Settings -->
     <string name="settings">Settings</string>
-    <string name="language_settings">Language Settings</string>
+    <string name="language_settings">Language</string>
     <string name="select_language">Select Language</string>
     <string name="developer_tools">Developer Tools</string>
     
     <!-- Common -->
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
-    <string name="confirm">Confirm</string>
+    <string name="confirm">OK</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
@@ -23,60 +23,60 @@
     <string name="success">Success</string>
     
     <!-- Welcome -->
-    <string name="welcome_message">Welcome to Home Finance Tracker</string>
-    <string name="getting_started">Getting Started</string>
+    <string name="welcome_message">Welcome to Home Finance</string>
+    <string name="getting_started">Get Started</string>
     
     <!-- Main Screen -->
-    <string name="main_screen_title">Main Screen</string>
-    <string name="main_screen_description">This is the main screen of the app</string>
+    <string name="main_screen_title">Home</string>
+    <string name="main_screen_description">Main application screen</string>
     <string name="coming_soon">Coming Soon</string>
-    <string name="features_coming_soon">More features will be added in upcoming tasks</string>
+    <string name="features_coming_soon">More features coming in future updates</string>
     
     <!-- Developer Options -->
     <string name="developer_options">Developer Options</string>
     <string name="developer_mode">Developer Mode</string>
-    <string name="developer_mode_description">Enable access to database testing and other development features</string>
+    <string name="developer_mode_description">Enable database testing and development features</string>
     
     <!-- Database Test -->
     <string name="database_test">Database Test</string>
     <string name="add_test_data">Add Test Data</string>
     <string name="clear_data">Clear Data</string>
-    <string name="database_statistics">Database Statistics</string>
-    <string name="record_count">Record Count: %d</string>
-    <string name="total_amount">Total Amount</string>
-    <string name="expense_records">Expense Records</string>
-    <string name="no_data">No Data</string>
+    <string name="database_statistics">Database Stats</string>
+    <string name="record_count">Records: %d</string>
+    <string name="total_amount">Total</string>
+    <string name="expense_records">Expenses</string>
+    <string name="no_data">No data</string>
     <string name="synced">Synced</string>
     <string name="not_synced">Not Synced</string>
     
     <!-- Sync -->
-    <string name="sync_title">Data Sync</string>
+    <string name="sync_title">Sync</string>
     <string name="sync_status">Sync Status</string>
-    <string name="sync_status_idle">Idle</string>
+    <string name="sync_status_idle">Ready</string>
     <string name="sync_status_syncing">Syncing…</string>
     <string name="sync_status_success">Success</string>
     <string name="sync_status_failed">Failed</string>
     <string name="sync_status_conflict">Conflict</string>
     <string name="sync_last_time">Last Sync</string>
     <string name="sync_never">Never</string>
-    <string name="sync_pending_count">Pending Items</string>
+    <string name="sync_pending_count">Pending</string>
     <string name="sync_manual_trigger">Sync Now</string>
     <string name="sync_syncing">Syncing…</string>
-    <string name="add_success">Added Successfully</string>
-    <string name="add_failed">Add Failed: %s</string>
-    <string name="clear_success">Cleared Successfully</string>
-    <string name="clear_failed">Clear Failed: %s</string>
-    <string name="load_success">Loaded Successfully</string>
-    <string name="load_failed">Load Failed: %s</string>
+    <string name="add_success">Added</string>
+    <string name="add_failed">Add failed: %s</string>
+    <string name="clear_success">Cleared</string>
+    <string name="clear_failed">Clear failed: %s</string>
+    <string name="load_success">Loaded</string>
+    <string name="load_failed">Load failed: %s</string>
     
     <!-- API Test -->
     <string name="api_test">API Test</string>
     <string name="health_check">Health Check</string>
     <string name="get_expenses">Get Expenses</string>
-    <string name="subscription_plans">Subscription Plans</string>
-    <string name="run_all_tests">Run All</string>
+    <string name="subscription_plans">Subscriptions</string>
+    <string name="run_all_tests">Run All Tests</string>
     <string name="clear_results">Clear Results</string>
-    <string name="click_to_start_test">Click the button above to start testing</string>
+    <string name="click_to_start_test">Click button to start testing</string>
     
     <!-- Expense Types -->
     <string name="expense_type_daily_goods">Daily Goods</string>
@@ -84,54 +84,54 @@
     <string name="expense_type_communication">Communication</string>
     <string name="expense_type_food">Food</string>
     <string name="expense_type_snacks">Snacks</string>
-    <string name="expense_type_cold_drinks">Cold Drinks</string>
+    <string name="expense_type_cold_drinks">Beverages</string>
     <string name="expense_type_convenience_food">Convenience Food</string>
-    <string name="expense_type_textiles">Textiles</string>
-    <string name="expense_type_beverages">Beverages</string>
+    <string name="expense_type_textiles">Clothing</string>
+    <string name="expense_type_beverages">Drinks</string>
     <string name="expense_type_condiments">Condiments</string>
     <string name="expense_type_transportation">Transportation</string>
-    <string name="expense_type_dining">Dining</string>
-    <string name="expense_type_medical">Medical</string>
+    <string name="expense_type_dining">Dining Out</string>
+    <string name="expense_type_medical">Healthcare</string>
     <string name="expense_type_fruits">Fruits</string>
     <string name="expense_type_other">Other</string>
     <string name="expense_type_seafood">Seafood</string>
     <string name="expense_type_dairy">Dairy</string>
     <string name="expense_type_gifts">Gifts</string>
     <string name="expense_type_travel">Travel</string>
-    <string name="expense_type_government">Government</string>
+    <string name="expense_type_government">Government Fees</string>
     <string name="expense_type_utilities">Utilities</string>
     
     <!-- Expense List -->
     <string name="expense_list_title">Expenses</string>
-    <string name="expense_list_empty">No expenses yet</string>
-    <string name="expense_list_empty_description">Add a new expense or adjust filters</string>
-    <string name="expense_list_reset_filters">Reset Filters</string>
-    <string name="expense_list_search_hint">Search remarks…</string>
-    <string name="expense_list_filter_type">Type</string>
+    <string name="expense_list_empty">No expenses</string>
+    <string name="expense_list_empty_description">Add expenses or adjust filters</string>
+    <string name="expense_list_reset_filters">Reset</string>
+    <string name="expense_list_search_hint">Search notes…</string>
+    <string name="expense_list_filter_type">Category</string>
     <string name="expense_list_filter_month">Month</string>
     <string name="expense_list_filter_amount_range">Amount Range</string>
-    <string name="expense_list_filter_min_amount">Min Amount</string>
-    <string name="expense_list_filter_max_amount">Max Amount</string>
-    <string name="expense_list_all_types">All Types</string>
+    <string name="expense_list_filter_min_amount">Min</string>
+    <string name="expense_list_filter_max_amount">Max</string>
+    <string name="expense_list_all_types">All Categories</string>
     <string name="expense_list_all_months">All Months</string>
-    <string name="expense_list_sort">Sort</string>
-    <string name="expense_list_sort_date_desc">Date (Latest)</string>
-    <string name="expense_list_sort_date_asc">Date (Earliest)</string>
-    <string name="expense_list_sort_amount_desc">Amount (High)</string>
-    <string name="expense_list_sort_amount_asc">Amount (Low)</string>
-    <string name="expense_list_apply_filters">Apply Filters</string>
-    <string name="expense_list_clear_filters">Clear Filters</string>
-    <string name="expense_list_filter_title">Filter and Search</string>
+    <string name="expense_list_sort">Sort By</string>
+    <string name="expense_list_sort_date_desc">Date (Newest)</string>
+    <string name="expense_list_sort_date_asc">Date (Oldest)</string>
+    <string name="expense_list_sort_amount_desc">Amount (High to Low)</string>
+    <string name="expense_list_sort_amount_asc">Amount (Low to High)</string>
+    <string name="expense_list_apply_filters">Apply</string>
+    <string name="expense_list_clear_filters">Clear</string>
+    <string name="expense_list_filter_title">Filters</string>
     <string name="expense_list_filter_date_range">Date Range</string>
-    <string name="expense_list_filter_start_date">Start Date</string>
-    <string name="expense_list_filter_end_date">End Date</string>
-    <string name="expense_list_filter_all_types">All Types</string>
-    <string name="expense_list_filter_select_types">Select Types</string>
-    <string name="expense_list_filtered_count">Filtered: %d items</string>
+    <string name="expense_list_filter_start_date">From</string>
+    <string name="expense_list_filter_end_date">To</string>
+    <string name="expense_list_filter_all_types">All Categories</string>
+    <string name="expense_list_filter_select_types">Select Categories</string>
+    <string name="expense_list_filtered_count">%d results</string>
     <string name="common_search">Search</string>
     <string name="common_filter">Filter</string>
-    <string name="settings_webview_entry">Access Web Version</string>
-    <string name="settings_webview_description">Open original web version features</string>
+    <string name="settings_webview_entry">Web Version</string>
+    <string name="settings_webview_description">Open web version features</string>
     
     <!-- Expense Statistics -->
     <string name="expense_stats_count">Total Records</string>
@@ -145,129 +145,133 @@
     <string name="common_error">Error</string>
     <string name="common_retry">Retry</string>
     <string name="common_refresh">Refresh</string>
-    <string name="common_more_functions">More Functions</string>
+    <string name="common_more_functions">More</string>
     
     <!-- Add Expense -->
     <string name="add_expense_title">Add Expense</string>
-    <string name="add_expense_type_label">Type *</string>
-    <string name="add_expense_type_hint">Select expense type</string>
+    <string name="add_expense_type_label">Category *</string>
+    <string name="add_expense_type_hint">Select category</string>
     <string name="add_expense_amount_label">Amount *</string>
     <string name="add_expense_amount_hint">0.00</string>
     <string name="add_expense_date_label">Date *</string>
-    <string name="add_expense_remark_label">Remark</string>
-    <string name="add_expense_remark_hint">Enter remark…</string>
-    <string name="add_expense_save_success">Expense added successfully</string>
-    <string name="add_expense_save_failed">Failed to add expense: %s</string>
-    <string name="add_expense_validation_type_required">Please select expense type</string>
-    <string name="add_expense_validation_amount_required">Please enter amount</string>
+    <string name="add_expense_remark_label">Notes</string>
+    <string name="add_expense_remark_hint">Add notes…</string>
+    <string name="add_expense_save_success">Expense added</string>
+    <string name="add_expense_save_failed">Failed to add: %s</string>
+    <string name="add_expense_validation_type_required">Select a category</string>
+    <string name="add_expense_validation_amount_required">Enter amount</string>
     <string name="add_expense_validation_amount_invalid">Amount must be greater than 0</string>
-    <string name="add_expense_validation_date_required">Please select date</string>
+    <string name="add_expense_validation_date_required">Select date</string>
 
     <!-- AI Expense Recognition -->
-    <string name="ai_expense_title">AI Recognition</string>
-    <string name="ai_expense_select_images">Select Images</string>
-    <string name="ai_expense_add_images">Add Images</string>
-    <string name="ai_expense_or_input_text">Or Input Text</string>
-    <string name="ai_expense_text_hint">E.g.: Bought apples for $30, bananas for $20</string>
-    <string name="ai_expense_start_recognition">Start Recognition</string>
-    <string name="ai_expense_recognizing">Recognizing…</string>
-    <string name="ai_expense_results">Recognition Results</string>
+    <string name="ai_expense_title">Smart Scan</string>
+    <string name="ai_expense_select_images">Select Photos</string>
+    <string name="ai_expense_add_images">Add Photos</string>
+    <string name="ai_expense_or_input_text">Or Enter Text</string>
+    <string name="ai_expense_text_hint">Example: apples $30, bananas $20 today</string>
+    <string name="ai_expense_start_recognition">Scan Receipt</string>
+    <string name="ai_expense_recognizing">Scanning…</string>
+    <string name="ai_expense_results">Scan Results</string>
     <string name="ai_expense_save_all">Save All</string>
     <string name="ai_expense_saving">Saving…</string>
-    <string name="ai_expense_edit_record">Edit Record</string>
-    <string name="ai_expense_delete_record">Delete Record</string>
+    <string name="ai_expense_edit_record">Edit</string>
+    <string name="ai_expense_delete_record">Delete</string>
     <string name="ai_expense_edited">Edited</string>
-    <string name="ai_expense_no_input">Please input text or select images</string>
-    <string name="ai_expense_no_records">No expense records recognized</string>
-    <string name="ai_expense_recognition_failed">Recognition failed: %s</string>
-    <string name="ai_expense_save_success">Saved successfully</string>
+    <string name="ai_expense_no_input">Enter text or select photos</string>
+    <string name="ai_expense_no_records">No expenses found</string>
+    <string name="ai_expense_recognition_failed">Scan failed: %s</string>
+    <string name="ai_expense_save_success">Saved</string>
     <string name="ai_expense_save_failed">Save failed: %s</string>
-    <string name="ai_expense_no_valid_records">No valid records to save</string>
-    <string name="ai_expense_select_type">Select Type</string>
+    <string name="ai_expense_no_valid_records">No valid expenses to save</string>
+    <string name="ai_expense_select_type">Category</string>
     <string name="ai_expense_amount">Amount</string>
-    <string name="ai_expense_remark">Remark</string>
-    <string name="ai_expense_click_to_add">Click to add images</string>
-    <string name="ai_expense_records_count">Recognition Results (%d items)</string>
+    <string name="ai_expense_remark">Notes</string>
+    <string name="ai_expense_click_to_add">Tap to add photos</string>
+    <string name="ai_expense_records_count">Results (%d)</string>
     
     <!-- AI Settings -->
     <string name="settings_ai_title">AI Settings</string>
-    <string name="settings_ai_api_key">SiliconFlow API Key</string>
-    <string name="settings_ai_api_key_hint">Enter your API Key</string>
-    <string name="settings_ai_api_key_description">For AI recognition feature</string>
+    <string name="settings_ai_api_key">API Key</string>
+    <string name="settings_ai_api_key_hint">Enter API Key</string>
+    <string name="settings_ai_api_key_description">For smart receipt scanning</string>
     <string name="settings_ai_api_key_saved">API Key saved</string>
-    <string name="ai_expense_entry_description">Take photos or enter text for quick bookkeeping</string>
+    <string name="ai_expense_entry_description">Scan receipts or enter text to add expenses</string>
 
     <!-- Budget Management -->
-    <string name="budget_enable_title">Enable Budget Management</string>
-    <string name="budget_enable_description">Set monthly budget to better control your spending</string>
+    <string name="budget_enable_title">Budget</string>
+    <string name="budget_enable_description">Set monthly budget to track spending</string>
     <string name="budget_enable_button">Enable Budget</string>
-    <string name="budget_enable_feature">Enable Budget Feature</string>
-    <string name="budget_monthly_progress">Monthly Budget Progress</string>
+    <string name="budget_enable_feature">Enable Budget</string>
+    <string name="budget_monthly_progress">Monthly Budget</string>
     <string name="budget_settings">Budget Settings</string>
     <string name="budget_settings_title">Budget Settings</string>
-    <string name="budget_monthly_limit">Monthly Budget Limit</string>
-    <string name="budget_warning_threshold">Warning Threshold (%)</string>
-    <string name="budget_warning_threshold_hint">Show warning when reaching this percentage (0-100)</string>
-    <string name="budget_remaining">Remaining Budget</string>
+    <string name="budget_monthly_limit">Monthly Budget</string>
+    <string name="budget_warning_threshold">Alert Level (%)</string>
+    <string name="budget_warning_threshold_hint">Show alert at this percentage (0-100)</string>
+    <string name="budget_remaining">Remaining</string>
     <string name="budget_daily_average">Daily Average</string>
-    <string name="budget_recommended_daily">Recommended Daily</string>
-    <string name="budget_expand">Expand</string>
-    <string name="budget_collapse">Collapse</string>
-    <string name="budget_alert_normal_title">Budget Normal</string>
-    <string name="budget_alert_normal_message">¥%1$s remaining, %2$.0f%% available</string>
-    <string name="budget_alert_warning_title">Near Budget Limit</string>
-    <string name="budget_alert_warning_message">¥%1$s remaining (%2$.0f%%), please control spending</string>
-    <string name="budget_alert_over_title">Over Budget Limit</string>
-    <string name="budget_alert_over_message">Over budget by ¥%1$s, please plan spending wisely</string>
+    <string name="budget_recommended_daily">Daily Budget</string>
+    <string name="budget_expand">Show More</string>
+    <string name="budget_collapse">Show Less</string>
+    <string name="budget_alert_normal_title">On Track</string>
+    <string name="budget_alert_normal_message">¥%1$s remaining (%2$.0f%%)</string>
+    <string name="budget_alert_warning_title">Approaching Limit</string>
+    <string name="budget_alert_warning_message">¥%1$s left (%2$.0f%%), watch spending</string>
+    <string name="budget_alert_over_title">Over Budget</string>
+    <string name="budget_alert_over_message">Over by ¥%1$s, adjust spending</string>
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
-    <string name="budget_error_invalid_limit">Please enter a valid budget amount</string>
-    <string name="budget_error_invalid_threshold">Warning threshold must be between 0-100</string>
+    <string name="budget_error_invalid_limit">Enter valid amount</string>
+    <string name="budget_error_invalid_threshold">Enter 0-100</string>
 
     <!-- Charts -->
-    <string name="charts_title">Statistics</string>
-    <string name="statistics_summary">Statistics Summary</string>
+    <string name="charts_title">Analytics</string>
+    <string name="statistics_summary">Summary</string>
     <string name="count">Count</string>
     <string name="average_amount">Average</string>
     <string name="median_amount">Median</string>
-    <string name="trend_chart">Trend Chart</string>
-    <string name="category_breakdown">Category Breakdown</string>
+    <string name="trend_chart">Trends</string>
+    <string name="category_breakdown">By Category</string>
     <string name="records">records</string>
-    <string name="select_time_range">Select Time Range</string>
+    <string name="select_time_range">Time Period</string>
     <string name="this_week">This Week</string>
     <string name="this_month">This Month</string>
     <string name="this_quarter">This Quarter</string>
     <string name="this_year">This Year</string>
-    <string name="custom_range">Custom Range</string>
+    <string name="custom_range">Custom</string>
     <string name="close">Close</string>
     <string name="retry">Retry</string>
 
     <!-- Data Import/Export -->
-    <string name="data_import_export">Data Import/Export</string>
-    <string name="data_import_export_description">Export or import expense data as Excel files</string>
-    <string name="export_data">Export Data</string>
-    <string name="import_data">Import Data</string>
-    <string name="export_all_data">Export All Data</string>
-    <string name="export_date_range">Export Date Range</string>
-    <string name="export_select_range">Select Date Range</string>
+    <string name="data_import_export">Import & Export</string>
+    <string name="data_import_export_description">Export or import data as Excel files</string>
+    <string name="export_data">Export</string>
+    <string name="import_data">Import</string>
+    <string name="export_all_data">Export All</string>
+    <string name="export_date_range">Date Range</string>
+    <string name="export_select_range">Select Dates</string>
     <string name="export_start_date">Start Date</string>
     <string name="export_end_date">End Date</string>
     <string name="export_in_progress">Exporting…</string>
-    <string name="export_success">Export successful: %s</string>
+    <string name="export_success">Exported: %s</string>
     <string name="export_failed">Export failed: %s</string>
     <string name="import_in_progress">Importing…</string>
-    <string name="import_success">Import successful: %d records imported</string>
+    <string name="import_success">Imported %d records</string>
     <string name="import_failed">Import failed: %s</string>
-    <string name="import_select_file">Select Excel File</string>
-    <string name="import_validation_error">Data validation error: %s</string>
-    <string name="import_confirm_title">Confirm Import</string>
-    <string name="import_confirm_message">Found %d records. Continue import?</string>
-    <string name="export_filename_prefix">expenses_export</string>
+    <string name="import_select_file">Select File</string>
+    <string name="import_validation_error">Data error: %s</string>
+    <string name="import_confirm_title">Import</string>
+    <string name="import_confirm_message">Import %d records?</string>
+    <string name="export_filename_prefix">expenses</string>
     <string name="excel_header_date">Date</string>
-    <string name="excel_header_type">Type</string>
+    <string name="excel_header_type">Category</string>
     <string name="excel_header_amount">Amount</string>
-    <string name="excel_header_remark">Remark</string>
-    <string name="permission_storage_required">Storage permission required to export/import files</string>
+    <string name="excel_header_remark">Notes</string>
+    <string name="permission_storage_required">Storage access required</string>
     <string name="no_records_to_export">No records to export</string>
+
+    <!-- Feedback -->
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_description">Help us improve with your suggestions</string>
 
 </resources>

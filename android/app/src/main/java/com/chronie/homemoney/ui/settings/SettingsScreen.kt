@@ -259,6 +259,59 @@ fun SettingsScreen(
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 意见反馈
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = context.getString(R.string.feedback_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://wj.qq.com/s2/24109109/3572/")
+                        )
+                        context.startActivity(intent)
+                    },
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = context.getString(R.string.feedback_title),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.feedback_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text = ">",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
