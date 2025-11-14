@@ -50,25 +50,8 @@ class ExpenseRepositoryImpl @Inject constructor(
         filters: ExpenseFilters
     ): Result<List<Expense>> {
         return try {
-            // 首先尝试从本地数据库获取
-            // 注意：这里简化实现，直接获取所有数据然后在内存中分页
-            // 后续可以优化为使用 Room 的分页查询
-            val allExpenses = expenseDao.getAllExpenses().first()
-            
-            // 应用分页
-            val startIndex = (page - 1) * limit
-            val endIndex = minOf(startIndex + limit, allExpenses.size)
-            val localExpenses = if (startIndex < allExpenses.size) {
-                allExpenses.subList(startIndex, endIndex).map { ExpenseMapper.toDomain(it) }
-            } else {
-                emptyList()
-            }
-            
-            // 如果本地有数据，返回本地数据
-            if (localExpenses.isNotEmpty()) {
-                Result.success(localExpenses)
-            } else {
-                // 如果本地没有数据，从服务器获取
+            // 优先从服务器获取数据以支持分页
+            try {
                 val response = expenseApi.getExpenses(
                     page = page,
                     limit = limit,
@@ -84,16 +67,35 @@ class ExpenseRepositoryImpl @Inject constructor(
                     val apiResponse = response.body()!!
                     val expenses = apiResponse.data.map { ExpenseMapper.toDomain(it) }
                     
-                    // 保存到本地数据库
+                    // 保存到本地数据库（仅第一页时清空旧数据）
+                    if (page == 1) {
+                        // 可选：清空旧数据
+                        // expenseDao.deleteAllExpenses()
+                    }
                     expenses.forEach { expense ->
                         expenseDao.insertExpense(ExpenseMapper.toEntity(expense))
                     }
                     
-                    Result.success(expenses)
-                } else {
-                    Result.failure(Exception("Failed to fetch expenses: ${response.message()}"))
+                    return Result.success(expenses)
                 }
+            } catch (networkError: Exception) {
+                // 网络错误时尝试从本地数据库获取
+                android.util.Log.w("ExpenseRepository", "Network error, falling back to local data", networkError)
             }
+            
+            // 如果网络请求失败，从本地数据库获取
+            val allExpenses = expenseDao.getAllExpenses().first()
+            
+            // 应用分页
+            val startIndex = (page - 1) * limit
+            val endIndex = minOf(startIndex + limit, allExpenses.size)
+            val localExpenses = if (startIndex < allExpenses.size) {
+                allExpenses.subList(startIndex, endIndex).map { ExpenseMapper.toDomain(it) }
+            } else {
+                emptyList()
+            }
+            
+            Result.success(localExpenses)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -36,18 +36,29 @@ class ExpenseListViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             
-            val filters = _uiState.value.filters
+            val currentState = _uiState.value
+            val page = if (refresh) 1 else currentState.currentPage
+            val filters = currentState.filters
+            
             val result = expenseRepository.getExpensesList(
-                page = _uiState.value.currentPage,
-                limit = _uiState.value.pageSize,
+                page = page,
+                limit = currentState.pageSize,
                 filters = filters
             )
             
             result.fold(
                 onSuccess = { expenses ->
+                    val newExpenses = if (refresh) {
+                        expenses
+                    } else {
+                        currentState.expenses + expenses
+                    }
+                    
                     _uiState.update {
                         it.copy(
-                            expenses = expenses,
+                            expenses = newExpenses,
+                            currentPage = page,
+                            hasMore = expenses.size >= currentState.pageSize,
                             isLoading = false,
                             error = null
                         )
@@ -62,6 +73,44 @@ class ExpenseListViewModel @Inject constructor(
                     }
                 }
             )
+        }
+    }
+    
+    fun loadMore() {
+        val currentState = _uiState.value
+        if (!currentState.isLoading && currentState.hasMore) {
+            viewModelScope.launch {
+                val nextPage = currentState.currentPage + 1
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                
+                val result = expenseRepository.getExpensesList(
+                    page = nextPage,
+                    limit = currentState.pageSize,
+                    filters = currentState.filters
+                )
+                
+                result.fold(
+                    onSuccess = { expenses ->
+                        _uiState.update {
+                            it.copy(
+                                expenses = it.expenses + expenses,
+                                currentPage = nextPage,
+                                hasMore = expenses.size >= currentState.pageSize,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = error.message ?: "Unknown error"
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
     
@@ -83,10 +132,11 @@ class ExpenseListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 filters = filters,
-                currentPage = 1  // 重置到第一页
+                currentPage = 1,  // 重置到第一页
+                expenses = emptyList()  // 清空现有数据
             )
         }
-        loadExpenses()
+        loadExpenses(refresh = true)
         loadStatistics()
     }
     
@@ -142,6 +192,7 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     fun refresh() {
+        _uiState.update { it.copy(currentPage = 1, expenses = emptyList()) }
         loadExpenses(refresh = true)
         loadStatistics()
     }
@@ -162,7 +213,9 @@ data class ExpenseListUiState(
     ),
     val filters: ExpenseFilters = ExpenseFilters(),
     val currentPage: Int = 1,
-    val pageSize: Int = 10,
+    val pageSize: Int = 20,  // 增加每页数量
+    val totalItems: Int = 0,
+    val hasMore: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )

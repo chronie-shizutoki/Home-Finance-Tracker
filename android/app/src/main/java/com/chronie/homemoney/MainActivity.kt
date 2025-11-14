@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
             // Update configuration when language changes
             val context = LocalContext.current
             val locale = currentLanguage.locale
+            Locale.setDefault(locale)
             val configuration = Configuration(context.resources.configuration)
             configuration.setLocale(locale)
             val localizedContext = context.createConfigurationContext(configuration)

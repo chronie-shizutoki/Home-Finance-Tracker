@@ -3,12 +3,14 @@ package com.chronie.homemoney.ui.expense
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,6 +21,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.flow.collect
 
 /**
  * 支出列表界面
@@ -30,6 +33,7 @@ fun ExpenseListScreen(
     onNavigateToMoreFunctions: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     
     Scaffold(
         topBar = {
@@ -68,7 +72,7 @@ fun ExpenseListScreen(
             
             // 支出列表
             when {
-                uiState.isLoading -> {
+                uiState.isLoading && uiState.expenses.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -76,7 +80,7 @@ fun ExpenseListScreen(
                         CircularProgressIndicator()
                     }
                 }
-                uiState.error != null -> {
+                uiState.error != null && uiState.expenses.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -117,13 +121,53 @@ fun ExpenseListScreen(
                     }
                 }
                 else -> {
+                    val listState = rememberLazyListState()
+                    
+                    // 检测是否滚动到底部
+                    LaunchedEffect(listState) {
+                        snapshotFlow { 
+                            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index 
+                        }.collect { lastVisibleIndex ->
+                            if (lastVisibleIndex != null && 
+                                lastVisibleIndex >= uiState.expenses.size - 3 && 
+                                uiState.hasMore && 
+                                !uiState.isLoading) {
+                                viewModel.loadMore()
+                            }
+                        }
+                    }
+                    
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(uiState.expenses) { expense ->
-                            ExpenseListItem(expense = expense)
+                            ExpenseListItem(
+                                expense = expense,
+                                context = context
+                            )
+                        }
+                        
+                        // 加载更多指示器
+                        if (uiState.hasMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (uiState.isLoading) {
+                                        CircularProgressIndicator()
+                                    } else {
+                                        Button(onClick = { viewModel.loadMore() }) {
+                                            Text(stringResource(R.string.common_loading))
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -210,16 +254,11 @@ fun StatisticItem(
 @Composable
 fun ExpenseListItem(
     expense: Expense,
+    context: android.content.Context,
     modifier: Modifier = Modifier
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val typeDisplayName = context.getString(
-        context.resources.getIdentifier(
-            expense.type.displayNameKey,
-            "string",
-            context.packageName
-        )
-    )
+    // 使用传递的context来获取本地化字符串
+    val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
     
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())
     
