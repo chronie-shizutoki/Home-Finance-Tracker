@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 /**
@@ -27,9 +28,20 @@ class ExpenseListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ExpenseListUiState())
     val uiState: StateFlow<ExpenseListUiState> = _uiState.asStateFlow()
     
+    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    
     init {
         loadExpenses()
         loadStatistics()
+    }
+    
+    /**
+     * 将支出列表按日期分组
+     */
+    private fun groupExpensesByDate(expenses: List<Expense>): Map<String, List<Expense>> {
+        return expenses.groupBy { expense ->
+            expense.time.format(dateFormatter)
+        }.toSortedMap(compareByDescending { it })
     }
     
     fun loadExpenses(refresh: Boolean = false) {
@@ -54,9 +66,12 @@ class ExpenseListViewModel @Inject constructor(
                         currentState.expenses + expenses
                     }
                     
+                    val grouped = groupExpensesByDate(newExpenses)
+                    
                     _uiState.update {
                         it.copy(
                             expenses = newExpenses,
+                            groupedExpenses = grouped,
                             currentPage = page,
                             hasMore = expenses.size >= currentState.pageSize,
                             isLoading = false,
@@ -91,9 +106,13 @@ class ExpenseListViewModel @Inject constructor(
                 
                 result.fold(
                     onSuccess = { expenses ->
+                        val newExpenses = currentState.expenses + expenses
+                        val grouped = groupExpensesByDate(newExpenses)
+                        
                         _uiState.update {
                             it.copy(
-                                expenses = it.expenses + expenses,
+                                expenses = newExpenses,
+                                groupedExpenses = grouped,
                                 currentPage = nextPage,
                                 hasMore = expenses.size >= currentState.pageSize,
                                 isLoading = false,
@@ -203,6 +222,7 @@ class ExpenseListViewModel @Inject constructor(
  */
 data class ExpenseListUiState(
     val expenses: List<Expense> = emptyList(),
+    val groupedExpenses: Map<String, List<Expense>> = emptyMap(),
     val statistics: ExpenseStatistics = ExpenseStatistics(
         count = 0,
         totalAmount = 0.0,
@@ -218,4 +238,14 @@ data class ExpenseListUiState(
     val hasMore: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
+)
+
+/**
+ * 日期分组数据
+ */
+data class ExpenseDateGroup(
+    val date: String,
+    val expenses: List<Expense>,
+    val totalAmount: Double,
+    val count: Int
 )

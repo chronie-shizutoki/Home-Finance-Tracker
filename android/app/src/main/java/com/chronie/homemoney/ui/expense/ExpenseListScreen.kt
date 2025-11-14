@@ -135,6 +135,10 @@ fun ExpenseListScreen(
                 }
                 else -> {
                     val listState = rememberLazyListState()
+                    val groupedExpenses = uiState.groupedExpenses
+                    
+                    // 计算总项数（日期标题 + 支出项）
+                    val totalItems = groupedExpenses.size + uiState.expenses.size
                     
                     // 检测是否滚动到底部
                     LaunchedEffect(listState) {
@@ -142,7 +146,7 @@ fun ExpenseListScreen(
                             listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index 
                         }.collect { lastVisibleIndex ->
                             if (lastVisibleIndex != null && 
-                                lastVisibleIndex >= uiState.expenses.size - 3 && 
+                                lastVisibleIndex >= totalItems - 3 && 
                                 uiState.hasMore && 
                                 !uiState.isLoading) {
                                 viewModel.loadMore()
@@ -156,11 +160,27 @@ fun ExpenseListScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(uiState.expenses) { expense ->
-                            ExpenseListItem(
-                                expense = expense,
-                                context = context
-                            )
+                        groupedExpenses.forEach { (date, expenses) ->
+                            // 日期标题
+                            item(key = "header_$date") {
+                                ExpenseDateHeader(
+                                    date = date,
+                                    count = expenses.size,
+                                    totalAmount = expenses.sumOf { it.amount },
+                                    context = context
+                                )
+                            }
+                            
+                            // 该日期下的支出项
+                            items(
+                                items = expenses,
+                                key = { expense -> "expense_${expense.id}" }
+                            ) { expense ->
+                                ExpenseListItem(
+                                    expense = expense,
+                                    context = context
+                                )
+                            }
                         }
                         
                         // 加载更多指示器
@@ -186,6 +206,46 @@ fun ExpenseListScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * 日期标题
+ */
+@Composable
+fun ExpenseDateHeader(
+    date: String,
+    count: Int,
+    totalAmount: Double,
+    context: android.content.Context,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = date,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = context.getString(R.string.expense_stats_count) + ": $count",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = String.format(Locale.getDefault(), "-¥%.2f", totalAmount),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.error
+        )
     }
 }
 
