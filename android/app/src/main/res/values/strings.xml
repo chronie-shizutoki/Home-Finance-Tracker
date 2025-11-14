@@ -211,6 +211,8 @@
     <string name="budget_remaining">Remaining Budget</string>
     <string name="budget_daily_average">Daily Average</string>
     <string name="budget_recommended_daily">Recommended Daily</string>
+    <string name="budget_expand">Expand</string>
+    <string name="budget_collapse">Collapse</string>
     <string name="budget_alert_normal_title">Budget Normal</string>
     <string name="budget_alert_normal_message">¥%1$s remaining, %2$.0f%% available</string>
     <string name="budget_alert_warning_title">Near Budget Limit</string>

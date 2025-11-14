@@ -211,6 +211,8 @@
     <string name="budget_remaining">剩餘預算</string>
     <string name="budget_daily_average">日均消費</string>
     <string name="budget_recommended_daily">建議日均</string>
+    <string name="budget_expand">展開</string>
+    <string name="budget_collapse">收起</string>
     <string name="budget_alert_normal_title">預算正常</string>
     <string name="budget_alert_normal_message">剩餘 ¥%1$s，還有 %2$.0f%% 可用</string>
     <string name="budget_alert_warning_title">接近預算限額</string>

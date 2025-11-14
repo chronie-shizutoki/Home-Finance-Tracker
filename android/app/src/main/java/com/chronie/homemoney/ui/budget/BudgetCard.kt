@@ -3,6 +3,8 @@ package com.chronie.homemoney.ui.budget
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -144,6 +146,8 @@ fun BudgetUsageCard(
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+    
     val status = when {
         usage.isOverLimit -> BudgetStatus.OVER_LIMIT
         usage.isNearLimit -> BudgetStatus.WARNING
@@ -168,151 +172,176 @@ fun BudgetUsageCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 标题行
+            // 标题行（始终显示）
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = context.getString(R.string.budget_monthly_progress),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = usage.currentMonth,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                    )
+                // 收起状态下的简要信息
+                if (!isExpanded) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = usage.currentMonth,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "¥${String.format(Locale.getDefault(), "%.0f", usage.currentSpending)}/¥${String.format(Locale.getDefault(), "%.0f", usage.monthlyLimit)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = progressColor
+                        )
+                        Text(
+                            text = "(${String.format(Locale.getDefault(), "%.0f", usage.spendingPercentage)}%)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = progressColor
+                        )
+                    }
+                } else {
+                    // 展开状态下的标题
+                    Column {
+                        Text(
+                            text = context.getString(R.string.budget_monthly_progress),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = usage.currentMonth,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
                 }
                 
-                IconButton(onClick = onSettingsClick) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = context.getString(R.string.budget_settings)
-                    )
-                }
-            }
-            
-            // 金额信息
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
-                    text = String.format(Locale.getDefault(), "¥%.2f", usage.currentSpending),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = progressColor
-                )
-                Text(
-                    text = "/ ¥${String.format(Locale.getDefault(), "%.2f", usage.monthlyLimit)}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
-                Text(
-                    text = "(${String.format(Locale.getDefault(), "%.0f", usage.spendingPercentage)}%)",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = progressColor
-                )
-            }
-            
-            // 进度条
-            LinearProgressIndicator(
-                progress = (usage.spendingPercentage / 100).toFloat().coerceIn(0f, 1f),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = progressColor,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-            
-            // 状态提示
-            when (status) {
-                BudgetStatus.OVER_LIMIT -> {
-                    AlertCard(
-                        context = context,
-                        title = context.getString(R.string.budget_alert_over_title),
-                        message = context.getString(
-                            R.string.budget_alert_over_message,
-                            String.format(Locale.getDefault(), "%.2f", usage.currentSpending - usage.monthlyLimit)
-                        ),
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-                BudgetStatus.WARNING -> {
-                    AlertCard(
-                        context = context,
-                        title = context.getString(R.string.budget_alert_warning_title),
-                        message = context.getString(
-                            R.string.budget_alert_warning_message,
-                            String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
-                            usage.spendingPercentage
-                        ),
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
-                }
-                BudgetStatus.NORMAL -> {
-                    AlertCard(
-                        context = context,
-                        title = context.getString(R.string.budget_alert_normal_title),
-                        message = context.getString(
-                            R.string.budget_alert_normal_message,
-                            String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
-                            100 - usage.spendingPercentage
-                        ),
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-            
-            // 详细信息
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                DetailItem(
-                    context = context,
-                    label = context.getString(R.string.budget_remaining),
-                    value = String.format(Locale.getDefault(), "¥%.2f", usage.remainingAmount),
-                    valueColor = if (usage.remainingAmount <= 0) {
-                        MaterialTheme.colorScheme.error
-                    } else if (usage.remainingAmount < usage.monthlyLimit * 0.2) {
-                        MaterialTheme.colorScheme.tertiary
-                    } else {
-                        MaterialTheme.colorScheme.primary
+                // 展开/收起按钮和设置按钮
+                Row {
+                    IconButton(onClick = { isExpanded = !isExpanded }) {
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isExpanded) context.getString(R.string.budget_collapse) else context.getString(R.string.budget_expand)
+                        )
                     }
-                )
-                
-                DetailItem(
-                    context = context,
-                    label = context.getString(R.string.budget_daily_average),
-                    value = String.format(Locale.getDefault(), "¥%.2f", usage.dailyAverage)
-                )
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = context.getString(R.string.budget_settings)
+                        )
+                    }
+                }
             }
             
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                DetailItem(
-                    context = context,
-                    label = context.getString(R.string.budget_recommended_daily),
-                    value = String.format(Locale.getDefault(), "¥%.2f", usage.recommendedDaily),
-                    valueColor = if (usage.recommendedDaily <= 0) {
-                        MaterialTheme.colorScheme.error
-                    } else if (usage.recommendedDaily < usage.dailyAverage * 0.8) {
-                        MaterialTheme.colorScheme.tertiary
-                    } else {
-                        MaterialTheme.colorScheme.primary
+            // 详细内容（可展开/收起）
+            AnimatedVisibility(visible = isExpanded) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 金额信息
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = String.format(Locale.getDefault(), "¥%.2f", usage.currentSpending),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = progressColor
+                        )
+                        Text(
+                            text = "/ ¥${String.format(Locale.getDefault(), "%.2f", usage.monthlyLimit)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                        Text(
+                            text = "(${String.format(Locale.getDefault(), "%.0f", usage.spendingPercentage)}%)",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = progressColor
+                        )
                     }
-                )
+                    
+                    // 进度条
+                    LinearProgressIndicator(
+                        progress = (usage.spendingPercentage / 100).toFloat().coerceIn(0f, 1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = progressColor,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    
+                    // 状态提示
+                    when (status) {
+                        BudgetStatus.OVER_LIMIT -> {
+                            AlertCard(
+                                context = context,
+                                title = context.getString(R.string.budget_alert_over_title),
+                                message = context.getString(
+                                    R.string.budget_alert_over_message,
+                                    String.format(Locale.getDefault(), "%.2f", usage.currentSpending - usage.monthlyLimit)
+                                ),
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        BudgetStatus.WARNING -> {
+                            AlertCard(
+                                context = context,
+                                title = context.getString(R.string.budget_alert_warning_title),
+                                message = context.getString(
+                                    R.string.budget_alert_warning_message,
+                                    String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
+                                    usage.spendingPercentage
+                                ),
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                        BudgetStatus.NORMAL -> {
+                            AlertCard(
+                                context = context,
+                                title = context.getString(R.string.budget_alert_normal_title),
+                                message = context.getString(
+                                    R.string.budget_alert_normal_message,
+                                    String.format(Locale.getDefault(), "%.2f", usage.remainingAmount),
+                                    100 - usage.spendingPercentage
+                                ),
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                    
+                    // 详细信息
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        DetailItem(
+                            context = context,
+                            label = context.getString(R.string.budget_daily_average),
+                            value = String.format(Locale.getDefault(), "¥%.2f", usage.dailyAverage)
+                        )
+                        
+                        DetailItem(
+                            context = context,
+                            label = context.getString(R.string.budget_recommended_daily),
+                            value = String.format(Locale.getDefault(), "¥%.2f", usage.recommendedDaily),
+                            valueColor = if (usage.recommendedDaily <= 0) {
+                                MaterialTheme.colorScheme.error
+                            } else if (usage.recommendedDaily < usage.dailyAverage * 0.8) {
+                                MaterialTheme.colorScheme.tertiary
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -379,4 +408,3 @@ fun DetailItem(
         )
     }
 }
-n
