@@ -48,6 +48,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // 清除启动图背景，设置为透明背景
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+        
         // Enable edge-to-edge display
         enableEdgeToEdge()
         

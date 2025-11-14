@@ -337,7 +337,7 @@ fun ExpenseTypeDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
         shape = MaterialTheme.shapes.large,
-        scrimColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.32f),
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f),
         dragHandle = { BottomSheetDefaults.DragHandle() },
         windowInsets = BottomSheetDefaults.windowInsets
     ) {
@@ -420,7 +420,7 @@ fun ExpenseDatePickerDialog(
                 Text(context.getString(R.string.cancel))
             }
         },
-        shape = MaterialTheme.shapes.large,
+        shape = androidx.compose.ui.graphics.RectangleShape,
         colors = DatePickerDefaults.colors(
             containerColor = surfaceColor
         )
