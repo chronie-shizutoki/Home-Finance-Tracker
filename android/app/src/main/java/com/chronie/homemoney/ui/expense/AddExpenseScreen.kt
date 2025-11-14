@@ -121,7 +121,7 @@ fun AddExpenseScreen(
                         }
                     }
                     Text(
-                        text = "→",
+                        text = ">",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )

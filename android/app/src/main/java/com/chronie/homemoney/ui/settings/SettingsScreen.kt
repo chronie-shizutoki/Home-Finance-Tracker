@@ -134,7 +134,7 @@ fun SettingsScreen(
                         )
                     }
                     Text(
-                        text = "→",
+                        text = ">",
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -215,7 +215,7 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text = "→",
+                            text = ">",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -243,7 +243,7 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text = "→",
+                            text = ">",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -345,7 +345,7 @@ fun AISettingsSection(
                         }
                     }
                     Text(
-                        text = "→",
+                        text = ">",
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -456,7 +456,7 @@ fun BudgetSettingsSection(
                         }
                     }
                     Text(
-                        text = "→",
+                        text = ">",
                         style = MaterialTheme.typography.titleLarge
                     )
                 }

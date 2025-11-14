@@ -102,7 +102,7 @@
     <string name="expense_type_utilities">水电煤气</string>
     
     <!-- 支出列表 -->
-    <string name="expense_list_title">支出记录</string>
+    <string name="expense_list_title">支出</string>
     <string name="expense_list_empty">暂无支出记录</string>
     <string name="expense_list_empty_description">添加新记录或调整筛选条件</string>
     <string name="expense_list_reset_filters">重置筛选</string>
