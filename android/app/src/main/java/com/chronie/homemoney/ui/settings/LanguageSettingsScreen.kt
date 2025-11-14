@@ -66,7 +66,7 @@ fun LanguageSettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "开发者选项",
+                text = context.getString(R.string.developer_options),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -85,11 +85,11 @@ fun LanguageSettingsScreen(
                 ) {
                     Column {
                         Text(
-                            text = "开发者模式",
+                            text = context.getString(R.string.developer_mode),
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text = "启用后可访问数据库测试等开发功能",
+                            text = context.getString(R.string.developer_mode_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

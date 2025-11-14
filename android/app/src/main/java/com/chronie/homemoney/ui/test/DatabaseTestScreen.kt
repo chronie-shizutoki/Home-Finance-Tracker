@@ -29,7 +29,7 @@ fun DatabaseTestScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("数据库测试") },
+                title = { Text(stringResource(R.string.database_test)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Text("←")
@@ -54,7 +54,7 @@ fun DatabaseTestScreen(
                     onClick = { viewModel.addTestExpense() },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("添加测试数据")
+                    Text(stringResource(R.string.add_test_data))
                 }
                 
                 Button(
@@ -64,7 +64,7 @@ fun DatabaseTestScreen(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("清空数据")
+                    Text(stringResource(R.string.clear_data))
                 }
             }
             
@@ -77,11 +77,11 @@ fun DatabaseTestScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "数据库统计",
+                        text = stringResource(R.string.database_statistics),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Text("记录数: ${uiState.expenseCount}")
-                    Text("总金额: ¥${String.format("%.2f", uiState.totalAmount)}")
+                    Text(stringResource(R.string.record_count, uiState.expenseCount))
+                    Text(stringResource(R.string.total_amount, uiState.totalAmount))
                 }
             }
             
@@ -106,7 +106,7 @@ fun DatabaseTestScreen(
             
             // 支出列表
             Text(
-                text = "支出记录",
+                text = stringResource(R.string.expense_records),
                 style = MaterialTheme.typography.titleMedium
             )
             
@@ -117,7 +117,7 @@ fun DatabaseTestScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("暂无数据")
+                    Text(stringResource(R.string.no_data))
                 }
             } else {
                 LazyColumn(
@@ -175,7 +175,7 @@ fun ExpenseItem(expense: ExpenseItemUiModel) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = if (expense.isSynced) "已同步" else "未同步",
+                    text = stringResource(if (expense.isSynced) R.string.synced else R.string.not_synced),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (expense.isSynced) {
                         MaterialTheme.colorScheme.primary

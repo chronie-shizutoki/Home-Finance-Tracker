@@ -30,4 +30,27 @@
     <string name="coming_soon">即將推出</string>
     <string name="features_coming_soon">更多功能將在後續任務中添加</string>
     
+    <!-- Developer Options -->
+    <string name="developer_options">開發者選項</string>
+    <string name="developer_mode">開發者模式</string>
+    <string name="developer_mode_description">啟用後可訪問數據庫測試等開發功能</string>
+    
+    <!-- Database Test -->
+    <string name="database_test">數據庫測試</string>
+    <string name="add_test_data">添加測試數據</string>
+    <string name="clear_data">清空數據</string>
+    <string name="database_statistics">數據庫統計</string>
+    <string name="record_count">記錄數: %d</string>
+    <string name="total_amount">總金額: ¥%.2f</string>
+    <string name="expense_records">支出記錄</string>
+    <string name="no_data">暫無數據</string>
+    <string name="synced">已同步</string>
+    <string name="not_synced">未同步</string>
+    <string name="add_success">添加成功</string>
+    <string name="add_failed">添加失敗: %s</string>
+    <string name="clear_success">清空成功</string>
+    <string name="clear_failed">清空失敗: %s</string>
+    <string name="load_success">數據加載成功</string>
+    <string name="load_failed">加載數據失敗: %s</string>
+    
 </resources>

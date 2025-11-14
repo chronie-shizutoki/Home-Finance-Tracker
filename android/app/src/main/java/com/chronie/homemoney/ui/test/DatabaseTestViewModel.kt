@@ -1,7 +1,9 @@
 package com.chronie.homemoney.ui.test
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.R
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +18,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class DatabaseTestViewModel @Inject constructor(
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val application: Application
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(DatabaseTestUiState())
@@ -37,7 +40,7 @@ class DatabaseTestViewModel @Inject constructor(
                 expenseDao.getAllExpenses()
                     .catch { e ->
                         _uiState.update { it.copy(
-                            message = "加载数据失败: ${e.message}",
+                            message = application.getString(R.string.load_failed, e.message ?: ""),
                             isError = true
                         ) }
                     }
@@ -58,13 +61,13 @@ class DatabaseTestViewModel @Inject constructor(
                             },
                             expenseCount = count,
                             totalAmount = total,
-                            message = if (count > 0) "数据加载成功" else "",
+                            message = if (count > 0) application.getString(R.string.load_success) else "",
                             isError = false
                         ) }
                     }
             } catch (e: Exception) {
                 _uiState.update { it.copy(
-                    message = "加载数据异常: ${e.message}",
+                    message = application.getString(R.string.load_failed, e.message ?: ""),
                     isError = true
                 ) }
             }
@@ -95,12 +98,12 @@ class DatabaseTestViewModel @Inject constructor(
                 expenseDao.insertExpense(expense)
                 
                 _uiState.update { it.copy(
-                    message = "添加成功",
+                    message = application.getString(R.string.add_success),
                     isError = false
                 ) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(
-                    message = "添加失败: ${e.message}",
+                    message = application.getString(R.string.add_failed, e.message ?: ""),
                     isError = true
                 ) }
             }
@@ -116,12 +119,12 @@ class DatabaseTestViewModel @Inject constructor(
                 expenseDao.deleteAllExpenses()
                 
                 _uiState.update { it.copy(
-                    message = "清空成功",
+                    message = application.getString(R.string.clear_success),
                     isError = false
                 ) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(
-                    message = "清空失败: ${e.message}",
+                    message = application.getString(R.string.clear_failed, e.message ?: ""),
                     isError = true
                 ) }
             }
