@@ -4,4 +4,29 @@
     <string name="title_activity_main">Home Finance Tracker</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
+    
+    <!-- Language Settings -->
+    <string name="language_settings">Language Settings</string>
+    <string name="select_language">Select Language</string>
+    
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    
+    <!-- Welcome -->
+    <string name="welcome_message">Welcome to Home Finance Tracker</string>
+    <string name="getting_started">Getting Started</string>
+    
+    <!-- Main Screen -->
+    <string name="main_screen_title">Main Screen</string>
+    <string name="main_screen_description">This is the main screen of the app</string>
+    <string name="coming_soon">Coming Soon</string>
+    <string name="features_coming_soon">More features will be added in upcoming tasks</string>
 </resources>

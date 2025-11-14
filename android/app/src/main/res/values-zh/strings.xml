@@ -4,4 +4,29 @@
     <string name="title_activity_main">家庭记账本</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
+    
+    <!-- Language Settings -->
+    <string name="language_settings">语言设置</string>
+    <string name="select_language">选择语言</string>
+    
+    <!-- Common -->
+    <string name="back">返回</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="loading">加载中…</string>
+    <string name="error">错误</string>
+    <string name="success">成功</string>
+    
+    <!-- Welcome -->
+    <string name="welcome_message">欢迎使用家庭记账本</string>
+    <string name="getting_started">开始使用</string>
+    
+    <!-- Main Screen -->
+    <string name="main_screen_title">主界面</string>
+    <string name="main_screen_description">这是应用的主界面</string>
+    <string name="coming_soon">即将推出</string>
+    <string name="features_coming_soon">更多功能将在后续任务中添加</string>
 </resources>
