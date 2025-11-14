@@ -17,6 +17,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseListScreen
+import com.chronie.homemoney.ui.settings.SettingsScreen
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -34,6 +35,7 @@ fun MainScreen(
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
     var showWebView by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(0) }
     
     if (showWebView) {
         // WebView 界面（原网页功能）
@@ -150,13 +152,48 @@ fun MainScreen(
             )
         }
     } else {
-        // 原生支出列表界面（新的主界面）
-        ExpenseListScreen(
-            context = context,
-            shouldRefresh = shouldRefreshExpenses,
-            onRefreshHandled = onRefreshHandled,
-            onNavigateToMoreFunctions = { showWebView = true },
-            onNavigateToAddExpense = onNavigateToAddExpense
-        )
+        // 原生界面（带底部 Tab 栏）
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                        label = { Text(context.getString(R.string.expense_list_title)) },
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                        label = { Text(context.getString(R.string.settings)) },
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 }
+                    )
+                }
+            }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                when (selectedTab) {
+                    0 -> {
+                        // 支出记录界面
+                        ExpenseListScreen(
+                            context = context,
+                            shouldRefresh = shouldRefreshExpenses,
+                            onRefreshHandled = onRefreshHandled,
+                            onNavigateToMoreFunctions = { showWebView = true },
+                            onNavigateToAddExpense = onNavigateToAddExpense
+                        )
+                    }
+                    1 -> {
+                        // 设置界面
+                        SettingsScreen(
+                            context = context,
+                            onNavigateBack = { selectedTab = 0 },
+                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                            onNavigateToApiTest = onNavigateToApiTest
+                        )
+                    }
+                }
+            }
+        }
     }
 }

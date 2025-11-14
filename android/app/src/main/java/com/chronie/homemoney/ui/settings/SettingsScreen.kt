@@ -3,6 +3,7 @@ package com.chronie.homemoney.ui.settings
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,7 +13,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     context: Context,
@@ -22,26 +22,35 @@ fun SettingsScreen(
     onNavigateToApiTest: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.settings)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Text(
-                            text = "←",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
-                }
-            )
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+    
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // 顶部标题栏
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 3.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = context.getString(R.string.settings),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
         }
-    ) { paddingValues ->
+        
+        // 可滚动内容
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             Text(

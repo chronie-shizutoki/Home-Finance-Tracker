@@ -42,15 +42,6 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
-            onClick = onSettingsClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(context.getString(R.string.settings))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
             onClick = onGetStartedClick,
             modifier = Modifier.fillMaxWidth()
         ) {

@@ -47,33 +47,45 @@ fun ExpenseListScreen(
         }
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.expense_list_title)) },
-                actions = {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // 顶部工具栏
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.expense_list_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    )
+                    
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = context.getString(R.string.common_refresh))
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = context.getString(R.string.common_refresh)
+                        )
                     }
+                    
                     IconButton(onClick = onNavigateToMoreFunctions) {
-                        Icon(Icons.Default.MoreVert, contentDescription = context.getString(R.string.common_more_functions))
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = context.getString(R.string.common_more_functions)
+                        )
                     }
                 }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddExpense
-            ) {
-                Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
             }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+            
             // 统计信息卡片
             ExpenseStatisticsCard(
                 statistics = uiState.statistics,
@@ -205,6 +217,16 @@ fun ExpenseListScreen(
                     }
                 }
             }
+        }
+        
+        // 浮动按钮
+        FloatingActionButton(
+            onClick = onNavigateToAddExpense,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
         }
     }
 }
