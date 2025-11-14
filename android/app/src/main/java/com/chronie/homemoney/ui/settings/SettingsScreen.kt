@@ -79,6 +79,15 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            // 预算管理部分
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            BudgetSettingsSection(context = context)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
             // 数据同步部分
             Divider()
             
@@ -381,6 +390,89 @@ fun AISettingsSection(
                 TextButton(onClick = { showApiKeyDialog = false }) {
                     Text(context.getString(R.string.cancel))
                 }
+            }
+        )
+    }
+}
+
+@Composable
+fun BudgetSettingsSection(
+    context: Context,
+    budgetViewModel: com.chronie.homemoney.ui.budget.BudgetViewModel = hiltViewModel()
+) {
+    val uiState by budgetViewModel.uiState.collectAsState()
+    var showBudgetDialog by remember { mutableStateOf(false) }
+    
+    Column {
+        Text(
+            text = context.getString(R.string.budget_settings),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showBudgetDialog = true },
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = context.getString(R.string.budget_monthly_limit),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = context.getString(R.string.budget_enable_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        // 显示当前预算状态
+                        if (uiState.budget?.isEnabled == true) {
+                            Text(
+                                text = "${context.getString(R.string.budget_enable_feature)}: ¥${String.format(java.util.Locale.getDefault(), "%.2f", uiState.budget?.monthlyLimit ?: 0.0)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            Text(
+                                text = context.getString(R.string.budget_enable_title),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Text(
+                        text = "→",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
+    }
+    
+    // 预算设置对话框
+    if (showBudgetDialog) {
+        com.chronie.homemoney.ui.budget.BudgetSettingsDialog(
+            context = context,
+            currentBudget = uiState.budget,
+            onDismiss = { showBudgetDialog = false },
+            onSave = { limit, threshold, enabled ->
+                budgetViewModel.saveBudget(limit, threshold, enabled)
+                showBudgetDialog = false
             }
         )
     }

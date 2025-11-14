@@ -123,4 +123,12 @@ object DatabaseModule {
     fun provideSyncQueueDao(database: AppDatabase): SyncQueueDao {
         return database.syncQueueDao()
     }
+    
+    /**
+     * 提供 BudgetDao
+     */
+    @Provides
+    fun provideBudgetDao(database: AppDatabase): com.chronie.homemoney.data.local.dao.BudgetDao {
+        return database.budgetDao()
+    }
 }

@@ -196,4 +196,30 @@
     <string name="settings_ai_api_key_description">用於 AI 智能識別功能</string>
     <string name="settings_ai_api_key_saved">API Key 已保存</string>
     <string name="ai_expense_entry_description">拍照或輸入文本快速記賬</string>
+    
+    <!-- 預算管理 -->
+    <string name="budget_enable_title">啟用預算管理</string>
+    <string name="budget_enable_description">設置月度預算，幫助您更好地控制支出</string>
+    <string name="budget_enable_button">啟用預算</string>
+    <string name="budget_enable_feature">啟用預算功能</string>
+    <string name="budget_monthly_progress">月度預算進度</string>
+    <string name="budget_settings">預算設置</string>
+    <string name="budget_settings_title">預算設置</string>
+    <string name="budget_monthly_limit">月度預算限額</string>
+    <string name="budget_warning_threshold">警告閾值 (%)</string>
+    <string name="budget_warning_threshold_hint">達到此百分比時顯示警告（0-100）</string>
+    <string name="budget_remaining">剩餘預算</string>
+    <string name="budget_daily_average">日均消費</string>
+    <string name="budget_recommended_daily">建議日均</string>
+    <string name="budget_alert_normal_title">預算正常</string>
+    <string name="budget_alert_normal_message">剩餘 ¥%1$s，還有 %2$.0f%% 可用</string>
+    <string name="budget_alert_warning_title">接近預算限額</string>
+    <string name="budget_alert_warning_message">剩餘 ¥%1$s（%2$.0f%%），請注意控制支出</string>
+    <string name="budget_alert_over_title">超出預算限額</string>
+    <string name="budget_alert_over_message">已超支 ¥%1$s，請合理規劃支出</string>
+    <string name="common_save">保存</string>
+    <string name="common_cancel">取消</string>
+    <string name="budget_error_invalid_limit">請輸入有效的預算金額</string>
+    <string name="budget_error_invalid_threshold">警告閾值必須在 0-100 之間</string>
+    
 </resources>

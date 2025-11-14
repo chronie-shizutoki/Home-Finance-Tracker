@@ -197,4 +197,29 @@
     <string name="settings_ai_api_key_saved">API Key saved</string>
     <string name="ai_expense_entry_description">Take photos or enter text for quick bookkeeping</string>
 
+    <!-- Budget Management -->
+    <string name="budget_enable_title">Enable Budget Management</string>
+    <string name="budget_enable_description">Set monthly budget to better control your spending</string>
+    <string name="budget_enable_button">Enable Budget</string>
+    <string name="budget_enable_feature">Enable Budget Feature</string>
+    <string name="budget_monthly_progress">Monthly Budget Progress</string>
+    <string name="budget_settings">Budget Settings</string>
+    <string name="budget_settings_title">Budget Settings</string>
+    <string name="budget_monthly_limit">Monthly Budget Limit</string>
+    <string name="budget_warning_threshold">Warning Threshold (%)</string>
+    <string name="budget_warning_threshold_hint">Show warning when reaching this percentage (0-100)</string>
+    <string name="budget_remaining">Remaining Budget</string>
+    <string name="budget_daily_average">Daily Average</string>
+    <string name="budget_recommended_daily">Recommended Daily</string>
+    <string name="budget_alert_normal_title">Budget Normal</string>
+    <string name="budget_alert_normal_message">¥%1$s remaining, %2$.0f%% available</string>
+    <string name="budget_alert_warning_title">Near Budget Limit</string>
+    <string name="budget_alert_warning_message">¥%1$s remaining (%2$.0f%%), please control spending</string>
+    <string name="budget_alert_over_title">Over Budget Limit</string>
+    <string name="budget_alert_over_message">Over budget by ¥%1$s, please plan spending wisely</string>
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="budget_error_invalid_limit">Please enter a valid budget amount</string>
+    <string name="budget_error_invalid_threshold">Warning threshold must be between 0-100</string>
+
 </resources>

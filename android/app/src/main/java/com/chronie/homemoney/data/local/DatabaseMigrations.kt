@@ -11,20 +11,20 @@ object DatabaseMigrations {
     
     /**
      * 从版本1到版本2的迁移
-     * 示例: 添加新字段或新表时使用
+     * 添加预算表
      */
     val MIGRATION_1_2 = object : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            // 示例: 添加新字段
-            // database.execSQL("ALTER TABLE expenses ADD COLUMN new_field TEXT")
-            
-            // 示例: 创建新表
-            // database.execSQL("""
-            //     CREATE TABLE IF NOT EXISTS new_table (
-            //         id TEXT PRIMARY KEY NOT NULL,
-            //         field1 TEXT NOT NULL
-            //     )
-            // """.trimIndent())
+            // 创建预算表
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS budgets (
+                    id INTEGER PRIMARY KEY NOT NULL,
+                    monthly_limit REAL NOT NULL,
+                    warning_threshold REAL NOT NULL DEFAULT 0.8,
+                    is_enabled INTEGER NOT NULL DEFAULT 0,
+                    updated_at INTEGER NOT NULL
+                )
+            """.trimIndent())
         }
     }
     
@@ -33,7 +33,7 @@ object DatabaseMigrations {
      */
     fun getAllMigrations(): Array<Migration> {
         return arrayOf(
-            // MIGRATION_1_2  // 当需要时取消注释
+            MIGRATION_1_2
         )
     }
 }

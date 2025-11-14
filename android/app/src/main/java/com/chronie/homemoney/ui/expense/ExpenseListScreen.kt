@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
+import com.chronie.homemoney.ui.budget.BudgetCard
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.flow.collect
@@ -109,6 +110,14 @@ fun ExpenseListScreen(
                     }
                 }
             }
+            
+            // 预算管理卡片 - 显示在标题栏下方
+            BudgetCard(
+                context = context,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
             
             // 统计信息卡片
             ExpenseStatisticsCard(

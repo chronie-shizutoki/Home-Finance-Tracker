@@ -51,4 +51,7 @@ interface ExpenseDao {
     
     @Query("SELECT SUM(amount) FROM expenses WHERE time BETWEEN :startTime AND :endTime")
     suspend fun getTotalAmountByTimeRange(startTime: Long, endTime: Long): Double?
+    
+    @Query("SELECT * FROM expenses WHERE date(time/1000, 'unixepoch') BETWEEN :startDate AND :endDate ORDER BY time DESC")
+    suspend fun getExpensesByDateRange(startDate: String, endDate: String): List<ExpenseEntity>
 }
