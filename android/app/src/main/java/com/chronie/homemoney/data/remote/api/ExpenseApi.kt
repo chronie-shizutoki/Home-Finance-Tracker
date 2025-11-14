@@ -35,6 +35,23 @@ interface ExpenseApi {
     ): Response<ExpenseDto>
     
     /**
+     * 创建支出记录（同步用）
+     */
+    @POST("api/expenses")
+    suspend fun createExpense(
+        @Body expense: ExpenseDto
+    ): Response<com.chronie.homemoney.data.remote.dto.ApiResponse<ExpenseDto>>
+    
+    /**
+     * 更新支出记录
+     */
+    @PUT("api/expenses/{id}")
+    suspend fun updateExpense(
+        @Path("id") id: Long,
+        @Body expense: ExpenseDto
+    ): Response<com.chronie.homemoney.data.remote.dto.ApiResponse<ExpenseDto>>
+    
+    /**
      * 批量添加支出记录
      */
     @POST("api/expenses/batch")
@@ -47,7 +64,7 @@ interface ExpenseApi {
      */
     @DELETE("api/expenses/{id}")
     suspend fun deleteExpense(
-        @Path("id") id: Long
+        @Path("id") id: Int
     ): Response<Unit>
     
     /**

@@ -44,5 +44,5 @@ data class ExpenseEntity(
     val isSynced: Boolean = false,
     
     @ColumnInfo(name = "server_id")
-    val serverId: Int? = null
+    val serverId: String? = null
 )

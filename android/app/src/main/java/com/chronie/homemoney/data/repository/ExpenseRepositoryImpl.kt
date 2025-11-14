@@ -4,14 +4,18 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.chronie.homemoney.data.local.dao.ExpenseDao
+import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
+import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import com.chronie.homemoney.data.mapper.ExpenseMapper
 import com.chronie.homemoney.data.remote.api.ExpenseApi
+import com.chronie.homemoney.data.remote.dto.ExpenseDto
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseStatistics
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.domain.repository.ExpenseRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -24,7 +28,9 @@ import javax.inject.Singleton
 @Singleton
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
-    private val expenseApi: ExpenseApi
+    private val expenseApi: ExpenseApi,
+    private val syncQueueDao: SyncQueueDao,
+    private val gson: Gson
 ) : ExpenseRepository {
     
     override fun getExpenses(
@@ -158,10 +164,11 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun addExpense(expense: Expense): Result<Expense> {
         return try {
             // 保存到本地数据库
-            val entity = ExpenseMapper.toEntity(expense)
+            val entity = ExpenseMapper.toEntity(expense).copy(isSynced = false)
             expenseDao.insertExpense(entity)
             
-            // TODO: 添加到同步队列
+            // 添加到同步队列
+            addToSyncQueue("expense", expense.id, "CREATE", entity)
             
             Result.success(expense)
         } catch (e: Exception) {
@@ -171,10 +178,14 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun updateExpense(expense: Expense): Result<Expense> {
         return try {
-            val entity = ExpenseMapper.toEntity(expense)
+            val entity = ExpenseMapper.toEntity(expense).copy(
+                isSynced = false,
+                updatedAt = System.currentTimeMillis()
+            )
             expenseDao.updateExpense(entity)
             
-            // TODO: 添加到同步队列
+            // 添加到同步队列
+            addToSyncQueue("expense", expense.id, "UPDATE", entity)
             
             Result.success(expense)
         } catch (e: Exception) {
@@ -184,9 +195,14 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun deleteExpense(id: String): Result<Unit> {
         return try {
-            expenseDao.deleteExpenseById(id)
-            
-            // TODO: 添加到同步队列
+            val entity = expenseDao.getExpenseById(id)
+            if (entity != null) {
+                // 添加到同步队列（在删除之前）
+                addToSyncQueue("expense", id, "DELETE", entity)
+                
+                // 从本地数据库删除
+                expenseDao.deleteExpenseById(id)
+            }
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -334,5 +350,30 @@ class ExpenseRepositoryImpl @Inject constructor(
             SortOption.AMOUNT_ASC -> "amountAsc"
             SortOption.AMOUNT_DESC -> "amountDesc"
         }
+    }
+    
+    private suspend fun addToSyncQueue(
+        entityType: String,
+        entityId: String,
+        operation: String,
+        data: Any
+    ) {
+        // 先删除该实体的旧同步项
+        syncQueueDao.deleteSyncItemsByEntity(entityId, entityType)
+        
+        // 转换为 DTO 格式
+        val dto = when (data) {
+            is ExpenseEntity -> ExpenseMapper.toDto(ExpenseMapper.toDomain(data))
+            else -> data
+        }
+        
+        val jsonData = gson.toJson(dto)
+        val syncItem = SyncQueueEntity(
+            entityType = entityType,
+            entityId = entityId,
+            operation = operation,
+            data = jsonData
+        )
+        syncQueueDao.insertSyncItem(syncItem)
     }
 }

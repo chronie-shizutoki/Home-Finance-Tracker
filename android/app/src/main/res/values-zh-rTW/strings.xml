@@ -48,6 +48,20 @@
     <string name="no_data">暫無數據</string>
     <string name="synced">已同步</string>
     <string name="not_synced">未同步</string>
+    
+    <!-- Sync -->
+    <string name="sync_title">數據同步</string>
+    <string name="sync_status">同步狀態</string>
+    <string name="sync_status_idle">空閒</string>
+    <string name="sync_status_syncing">同步中…</string>
+    <string name="sync_status_success">成功</string>
+    <string name="sync_status_failed">失敗</string>
+    <string name="sync_status_conflict">衝突</string>
+    <string name="sync_last_time">最後同步</string>
+    <string name="sync_never">從未同步</string>
+    <string name="sync_pending_count">待同步項</string>
+    <string name="sync_manual_trigger">立即同步</string>
+    <string name="sync_syncing">同步中…</string>
     <string name="add_success">添加成功</string>
     <string name="add_failed">添加失敗: %s</string>
     <string name="clear_success">清空成功</string>

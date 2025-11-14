@@ -16,6 +16,9 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE id = :id")
     suspend fun getExpenseById(id: String): ExpenseEntity?
     
+    @Query("SELECT * FROM expenses WHERE server_id = :serverId")
+    suspend fun getExpenseByServerId(serverId: String): ExpenseEntity?
+    
     @Query("SELECT * FROM expenses WHERE time BETWEEN :startTime AND :endTime ORDER BY time DESC")
     fun getExpensesByTimeRange(startTime: Long, endTime: Long): Flow<List<ExpenseEntity>>
     

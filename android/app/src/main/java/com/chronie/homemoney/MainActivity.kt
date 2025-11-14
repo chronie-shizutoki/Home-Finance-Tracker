@@ -45,8 +45,14 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var languageManager: LanguageManager
     
+    @Inject
+    lateinit var syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 初始化同步调度器
+        syncScheduler.initialize()
         
         // 立即切换到正常主题，避免启动图背景影响 Popup 窗口
         setTheme(R.style.AppTheme_NoActionBar)

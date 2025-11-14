@@ -70,6 +70,15 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            // 数据同步部分
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            SyncSection(viewModel = viewModel, context = context)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
             // 网页版入口
             Divider()
             
@@ -261,6 +270,153 @@ fun LanguageItem(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun SyncSection(
+    viewModel: SettingsViewModel,
+    context: Context
+) {
+    val syncStatus by viewModel.syncStatus.collectAsState()
+    val lastSyncTime by viewModel.lastSyncTime.collectAsState()
+    val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
+    val syncMessage by viewModel.syncMessage.collectAsState()
+    
+    // 显示同步消息
+    syncMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(3000)
+            viewModel.clearSyncMessage()
+        }
+        
+        Snackbar(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = message)
+        }
+    }
+    
+    Column {
+        Text(
+            text = context.getString(R.string.sync_title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // 同步状态
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.sync_status),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = when (syncStatus) {
+                            com.chronie.homemoney.domain.model.SyncStatus.IDLE -> 
+                                context.getString(R.string.sync_status_idle)
+                            com.chronie.homemoney.domain.model.SyncStatus.SYNCING -> 
+                                context.getString(R.string.sync_status_syncing)
+                            com.chronie.homemoney.domain.model.SyncStatus.SUCCESS -> 
+                                context.getString(R.string.sync_status_success)
+                            com.chronie.homemoney.domain.model.SyncStatus.FAILED -> 
+                                context.getString(R.string.sync_status_failed)
+                            com.chronie.homemoney.domain.model.SyncStatus.CONFLICT -> 
+                                context.getString(R.string.sync_status_conflict)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = when (syncStatus) {
+                            com.chronie.homemoney.domain.model.SyncStatus.SUCCESS -> 
+                                MaterialTheme.colorScheme.primary
+                            com.chronie.homemoney.domain.model.SyncStatus.FAILED,
+                            com.chronie.homemoney.domain.model.SyncStatus.CONFLICT -> 
+                                MaterialTheme.colorScheme.error
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // 最后同步时间
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.sync_last_time),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = lastSyncTime ?: context.getString(R.string.sync_never),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // 待同步项数量
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.sync_pending_count),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = pendingSyncCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (pendingSyncCount > 0) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // 手动同步按钮
+                Button(
+                    onClick = { viewModel.manualSync() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING
+                ) {
+                    if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Text(
+                        text = if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
+                            context.getString(R.string.sync_syncing)
+                        } else {
+                            context.getString(R.string.sync_manual_trigger)
+                        }
+                    )
+                }
             }
         }
     }

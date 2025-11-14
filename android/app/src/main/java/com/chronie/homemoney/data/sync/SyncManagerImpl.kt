@@ -1,0 +1,392 @@
+package com.chronie.homemoney.data.sync
+
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
+import com.chronie.homemoney.data.local.dao.ExpenseDao
+import com.chronie.homemoney.data.local.dao.SyncQueueDao
+import com.chronie.homemoney.data.local.entity.SyncQueueEntity
+import com.chronie.homemoney.data.mapper.ExpenseMapper
+import com.chronie.homemoney.data.remote.api.ExpenseApi
+import com.chronie.homemoney.data.remote.dto.ExpenseDto
+import com.chronie.homemoney.domain.model.*
+import com.chronie.homemoney.domain.sync.SyncManager
+import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * 数据同步管理器实现
+ */
+@Singleton
+class SyncManagerImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val expenseDao: ExpenseDao,
+    private val syncQueueDao: SyncQueueDao,
+    private val expenseApi: ExpenseApi,
+    private val gson: Gson
+) : SyncManager {
+    
+    private val prefs: SharedPreferences = context.getSharedPreferences(
+        "sync_prefs",
+        Context.MODE_PRIVATE
+    )
+    
+    private val _syncStatus = MutableStateFlow(SyncStatus.IDLE)
+    
+    companion object {
+        private const val TAG = "SyncManager"
+        private const val KEY_LAST_SYNC_TIME = "last_sync_time"
+        private const val MAX_RETRY_COUNT = 3
+    }
+    
+    override suspend fun performFullSync(): Result<SyncResult> {
+        return try {
+            _syncStatus.value = SyncStatus.SYNCING
+            Log.d(TAG, "Starting full sync")
+            
+            // 1. 上传本地更改
+            val uploadResult = uploadLocalChanges().getOrThrow()
+            
+            // 2. 下载服务器更新
+            val downloadResult = downloadServerUpdates().getOrThrow()
+            
+            // 3. 更新最后同步时间
+            setLastSyncTime(System.currentTimeMillis())
+            
+            val syncResult = SyncResult(
+                success = true,
+                uploadResult = uploadResult,
+                downloadResult = downloadResult,
+                conflicts = downloadResult.conflicts
+            )
+            
+            _syncStatus.value = if (downloadResult.conflicts.isNotEmpty()) {
+                SyncStatus.CONFLICT
+            } else {
+                SyncStatus.SUCCESS
+            }
+            
+            Log.d(TAG, "Full sync completed successfully")
+            Result.success(syncResult)
+        } catch (e: Exception) {
+            Log.e(TAG, "Full sync failed", e)
+            _syncStatus.value = SyncStatus.FAILED
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun uploadLocalChanges(): Result<UploadResult> {
+        return try {
+            Log.d(TAG, "Starting upload of local changes")
+            
+            // 获取待同步的项
+            val syncItems = syncQueueDao.getNextSyncItems(100)
+            if (syncItems.isEmpty()) {
+                Log.d(TAG, "No items to upload")
+                return Result.success(
+                    UploadResult(
+                        totalItems = 0,
+                        successCount = 0,
+                        failedCount = 0
+                    )
+                )
+            }
+            
+            var successCount = 0
+            var failedCount = 0
+            val failedItems = mutableListOf<FailedSyncItem>()
+            
+            for (item in syncItems) {
+                try {
+                    when (item.entityType) {
+                        "expense" -> uploadExpenseItem(item)
+                        // 可以添加其他实体类型的处理
+                        else -> {
+                            Log.w(TAG, "Unknown entity type: ${item.entityType}")
+                            continue
+                        }
+                    }
+                    
+                    // 上传成功，从队列中删除
+                    syncQueueDao.deleteSyncItemById(item.id)
+                    successCount++
+                    Log.d(TAG, "Successfully uploaded ${item.entityType} ${item.entityId}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to upload ${item.entityType} ${item.entityId}", e)
+                    failedCount++
+                    failedItems.add(
+                        FailedSyncItem(
+                            entityType = item.entityType,
+                            entityId = item.entityId,
+                            operation = item.operation,
+                            error = e.message ?: "Unknown error"
+                        )
+                    )
+                    
+                    // 增加重试次数
+                    if (item.retryCount < MAX_RETRY_COUNT) {
+                        syncQueueDao.updateSyncItem(
+                            item.copy(retryCount = item.retryCount + 1)
+                        )
+                    } else {
+                        // 超过最大重试次数，从队列中删除
+                        Log.w(TAG, "Max retry count reached for ${item.entityType} ${item.entityId}")
+                        syncQueueDao.deleteSyncItemById(item.id)
+                    }
+                }
+            }
+            
+            Log.d(TAG, "Upload completed: $successCount success, $failedCount failed")
+            Result.success(
+                UploadResult(
+                    totalItems = syncItems.size,
+                    successCount = successCount,
+                    failedCount = failedCount,
+                    failedItems = failedItems
+                )
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Upload failed", e)
+            Result.failure(e)
+        }
+    }
+    
+    private suspend fun uploadExpenseItem(item: SyncQueueEntity) {
+        when (item.operation) {
+            "CREATE", "UPDATE" -> {
+                val expenseDto = gson.fromJson(item.data, ExpenseDto::class.java)
+                val response = if (item.operation == "CREATE") {
+                    expenseApi.createExpense(expenseDto)
+                } else {
+                    // 确保 id 不为 null 并转换为 Long
+                    val expenseId = expenseDto.id ?: throw Exception("Expense ID is null for UPDATE operation")
+                    expenseApi.updateExpense(expenseId, expenseDto)
+                }
+                
+                if (!response.isSuccessful) {
+                    throw Exception("Server returned error: ${response.code()}")
+                }
+                
+                // 更新本地实体的 serverId 和 isSynced 标志
+                val entity = expenseDao.getExpenseById(item.entityId)
+                if (entity != null) {
+                    val serverExpense = response.body()?.data
+                    expenseDao.updateExpense(
+                        entity.copy(
+                            isSynced = true,
+                            serverId = serverExpense?.id?.toString()
+                        )
+                    )
+                }
+            }
+            "DELETE" -> {
+                val entity = expenseDao.getExpenseById(item.entityId)
+                if (entity?.serverId != null) {
+                    val serverIdInt = entity.serverId?.toIntOrNull()
+                    if (serverIdInt != null) {
+                        val response = expenseApi.deleteExpense(serverIdInt)
+                        if (!response.isSuccessful) {
+                            throw Exception("Server returned error: ${response.code()}")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    override suspend fun downloadServerUpdates(): Result<DownloadResult> {
+        return try {
+            Log.d(TAG, "Starting download of server updates")
+            
+            val lastSyncTime = getLastSyncTime() ?: 0L
+            var newItems = 0
+            var updatedItems = 0
+            val conflicts = mutableListOf<SyncConflict>()
+            
+            // 获取服务器上的所有支出记录
+            // 注意：这里简化处理，实际应该支持增量同步
+            val response = expenseApi.getExpenses(
+                page = 1,
+                limit = 1000  // 获取大量数据，实际应该分页处理
+            )
+            
+            if (!response.isSuccessful) {
+                throw Exception("Server returned error: ${response.code()}")
+            }
+            
+            val serverExpenses = response.body()?.data ?: emptyList()
+            val totalItems = serverExpenses.size
+            
+            for (serverExpense in serverExpenses) {
+                try {
+                    val serverId = serverExpense.id?.toString() ?: continue
+                    
+                    // 查找本地是否存在该记录
+                    val localExpense = expenseDao.getExpenseByServerId(serverId)
+                    
+                    if (localExpense == null) {
+                        // 新记录，直接插入
+                        val expense = ExpenseMapper.toDomain(serverExpense)
+                        val entity = ExpenseMapper.toEntity(expense).copy(
+                            serverId = serverId,
+                            isSynced = true
+                        )
+                        expenseDao.insertExpense(entity)
+                        newItems++
+                        Log.d(TAG, "Downloaded new expense: $serverId")
+                    } else {
+                        // 检查是否有冲突
+                        val serverTimestamp = parseTimestamp(serverExpense.updatedAt)
+                        val localTimestamp = localExpense.updatedAt
+                        
+                        if (localExpense.isSynced) {
+                            // 本地已同步，直接更新
+                            val expense = ExpenseMapper.toDomain(serverExpense)
+                            val entity = ExpenseMapper.toEntity(expense).copy(
+                                id = localExpense.id,
+                                serverId = serverId,
+                                isSynced = true
+                            )
+                            expenseDao.updateExpense(entity)
+                            updatedItems++
+                            Log.d(TAG, "Updated expense: $serverId")
+                        } else if (serverTimestamp > localTimestamp) {
+                            // 服务器版本更新，使用服务器版本
+                            val expense = ExpenseMapper.toDomain(serverExpense)
+                            val entity = ExpenseMapper.toEntity(expense).copy(
+                                id = localExpense.id,
+                                serverId = serverId,
+                                isSynced = true
+                            )
+                            expenseDao.updateExpense(entity)
+                            updatedItems++
+                            
+                            conflicts.add(
+                                SyncConflict(
+                                    entityType = "expense",
+                                    entityId = localExpense.id,
+                                    conflictType = ConflictType.UPDATE_CONFLICT,
+                                    localTimestamp = localTimestamp,
+                                    serverTimestamp = serverTimestamp,
+                                    resolution = ConflictResolution.USE_SERVER
+                                )
+                            )
+                            Log.d(TAG, "Resolved conflict for expense: $serverId (used server version)")
+                        } else {
+                            // 本地版本更新，保持本地版本并添加到同步队列
+                            addToSyncQueue("expense", localExpense.id, "UPDATE", localExpense)
+                            
+                            conflicts.add(
+                                SyncConflict(
+                                    entityType = "expense",
+                                    entityId = localExpense.id,
+                                    conflictType = ConflictType.UPDATE_CONFLICT,
+                                    localTimestamp = localTimestamp,
+                                    serverTimestamp = serverTimestamp,
+                                    resolution = ConflictResolution.USE_LOCAL
+                                )
+                            )
+                            Log.d(TAG, "Resolved conflict for expense: $serverId (used local version)")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to process server expense", e)
+                }
+            }
+            
+            Log.d(TAG, "Download completed: $newItems new, $updatedItems updated, ${conflicts.size} conflicts")
+            Result.success(
+                DownloadResult(
+                    totalItems = totalItems,
+                    newItems = newItems,
+                    updatedItems = updatedItems,
+                    conflicts = conflicts
+                )
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Download failed", e)
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun resolveConflicts(conflicts: List<SyncConflict>): Result<Unit> {
+        return try {
+            for (conflict in conflicts) {
+                when (conflict.resolution) {
+                    ConflictResolution.USE_LOCAL -> {
+                        // 本地版本已经在数据库中，只需添加到同步队列
+                        val entity = when (conflict.entityType) {
+                            "expense" -> expenseDao.getExpenseById(conflict.entityId)
+                            else -> null
+                        }
+                        if (entity != null) {
+                            addToSyncQueue(conflict.entityType, conflict.entityId, "UPDATE", entity)
+                        }
+                    }
+                    ConflictResolution.USE_SERVER -> {
+                        // 服务器版本已经在下载时更新到数据库
+                        // 不需要额外操作
+                    }
+                    ConflictResolution.MERGE -> {
+                        // 合并逻辑（如果需要）
+                        Log.w(TAG, "Merge resolution not implemented")
+                    }
+                }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to resolve conflicts", e)
+            Result.failure(e)
+        }
+    }
+    
+    override fun getLastSyncTime(): Long? {
+        val time = prefs.getLong(KEY_LAST_SYNC_TIME, -1L)
+        return if (time == -1L) null else time
+    }
+    
+    override suspend fun setLastSyncTime(timestamp: Long) {
+        prefs.edit().putLong(KEY_LAST_SYNC_TIME, timestamp).apply()
+    }
+    
+    override suspend fun getPendingSyncCount(): Int {
+        return syncQueueDao.getSyncQueueCount()
+    }
+    
+    override fun observeSyncStatus(): Flow<SyncStatus> {
+        return _syncStatus.asStateFlow()
+    }
+    
+    private suspend fun addToSyncQueue(
+        entityType: String,
+        entityId: String,
+        operation: String,
+        data: Any
+    ) {
+        val jsonData = gson.toJson(data)
+        val syncItem = SyncQueueEntity(
+            entityType = entityType,
+            entityId = entityId,
+            operation = operation,
+            data = jsonData
+        )
+        syncQueueDao.insertSyncItem(syncItem)
+    }
+    
+    private fun parseTimestamp(timestamp: String?): Long {
+        if (timestamp == null) return 0L
+        return try {
+            // 假设时间戳格式为 ISO 8601
+            java.time.Instant.parse(timestamp).toEpochMilli()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse timestamp: $timestamp", e)
+            0L
+        }
+    }
+}

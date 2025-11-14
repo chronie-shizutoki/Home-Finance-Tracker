@@ -48,6 +48,20 @@
     <string name="no_data">No Data</string>
     <string name="synced">Synced</string>
     <string name="not_synced">Not Synced</string>
+    
+    <!-- Sync -->
+    <string name="sync_title">Data Sync</string>
+    <string name="sync_status">Sync Status</string>
+    <string name="sync_status_idle">Idle</string>
+    <string name="sync_status_syncing">Syncing…</string>
+    <string name="sync_status_success">Success</string>
+    <string name="sync_status_failed">Failed</string>
+    <string name="sync_status_conflict">Conflict</string>
+    <string name="sync_last_time">Last Sync</string>
+    <string name="sync_never">Never</string>
+    <string name="sync_pending_count">Pending Items</string>
+    <string name="sync_manual_trigger">Sync Now</string>
+    <string name="sync_syncing">Syncing…</string>
     <string name="add_success">Added Successfully</string>
     <string name="add_failed">Add Failed: %s</string>
     <string name="clear_success">Cleared Successfully</string>

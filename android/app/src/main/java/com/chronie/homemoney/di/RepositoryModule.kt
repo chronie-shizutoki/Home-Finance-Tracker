@@ -1,9 +1,11 @@
 package com.chronie.homemoney.di
 
 import com.chronie.homemoney.data.local.dao.ExpenseDao
+import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.remote.api.ExpenseApi
 import com.chronie.homemoney.data.repository.ExpenseRepositoryImpl
 import com.chronie.homemoney.domain.repository.ExpenseRepository
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,8 +23,10 @@ object RepositoryModule {
     @Singleton
     fun provideExpenseRepository(
         expenseDao: ExpenseDao,
-        expenseApi: ExpenseApi
+        expenseApi: ExpenseApi,
+        syncQueueDao: SyncQueueDao,
+        gson: Gson
     ): ExpenseRepository {
-        return ExpenseRepositoryImpl(expenseDao, expenseApi)
+        return ExpenseRepositoryImpl(expenseDao, expenseApi, syncQueueDao, gson)
     }
 }
