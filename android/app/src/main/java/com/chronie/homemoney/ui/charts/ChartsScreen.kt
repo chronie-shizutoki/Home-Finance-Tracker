@@ -39,28 +39,45 @@ fun ChartsScreen(
     
     var showTimeRangeDialog by remember { mutableStateOf(false) }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.charts_title)) },
-                actions = {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 顶部工具栏
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.charts_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    )
+                    
                     IconButton(onClick = { showTimeRangeDialog = true }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Select time range")
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Select time range"
+                        )
                     }
                 }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+            }
+            
+            // 内容区域
             when (val state = uiState) {
                 is ChartsUiState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
                 is ChartsUiState.Success -> {
                     ChartsContent(
@@ -90,18 +107,18 @@ fun ChartsScreen(
                 }
             }
         }
-    }
-    
-    if (showTimeRangeDialog) {
-        TimeRangeDialog(
-            context = context,
-            selectedTimeRange = selectedTimeRange,
-            onDismiss = { showTimeRangeDialog = false },
-            onTimeRangeSelected = { timeRange ->
-                viewModel.selectTimeRange(timeRange)
-                showTimeRangeDialog = false
-            }
-        )
+        
+        if (showTimeRangeDialog) {
+            TimeRangeDialog(
+                context = context,
+                selectedTimeRange = selectedTimeRange,
+                onDismiss = { showTimeRangeDialog = false },
+                onTimeRangeSelected = { timeRange ->
+                    viewModel.selectTimeRange(timeRange)
+                    showTimeRangeDialog = false
+                }
+            )
+        }
     }
 }
 
