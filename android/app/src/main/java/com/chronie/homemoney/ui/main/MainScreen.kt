@@ -42,7 +42,7 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize()
         )
         
-        // 浮动设置按钮
+        // 设置按钮
         FloatingActionButton(
             onClick = onNavigateToSettings,
             modifier = Modifier

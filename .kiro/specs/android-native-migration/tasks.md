@@ -8,6 +8,7 @@
 
 
 
+
   - 创建新的 Android 项目结构，使用 Kotlin 和 Jetpack Compose
   - 配置 build.gradle 文件，添加所有必需的依赖库（Hilt、Room、Retrofit、Compose 等）
   - 配置 Hilt 依赖注入框架
@@ -18,7 +19,10 @@
   - 生成 Debug APK 并验证应用可以正常启动和切换语言
   - _需求: 1.1, 16.1_
 
-- [ ] 2. 混合架构管理器
+
+- [x] 2. 混合架构管理器
+
+
   - 创建 Feature 枚举类，定义所有功能模块（EXPENSES、DEBTS、DONATIONS 等）
   - 创建 ImplementationType 枚举类（NATIVE、WEBVIEW、HYBRID）
   - 实现 HybridArchitectureManager 接口和实现类
