@@ -33,10 +33,14 @@ fun MainScreen(
     onNavigateToApiTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
+    onRequireMembership: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val isMember by viewModel.isMember.collectAsState()
+    val shouldShowExpiryWarning by viewModel.shouldShowExpiryWarning.collectAsState()
+    val daysUntilExpiry by viewModel.daysUntilExpiry.collectAsState()
     var showWebView by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
     
@@ -44,6 +48,13 @@ fun MainScreen(
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn) {
             onRequireLogin()
+        }
+    }
+    
+    // 检查会员状态，非会员则跳转到会员购买页面
+    LaunchedEffect(isLoggedIn, isMember) {
+        if (isLoggedIn && !isMember) {
+            onRequireMembership()
         }
     }
     
@@ -164,6 +175,47 @@ fun MainScreen(
     } else {
         // 原生界面（带底部 Tab 栏）
         Scaffold(
+            topBar = {
+                // 显示会员过期提醒
+                if (shouldShowExpiryWarning) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = context.getString(R.string.membership_expiring_soon, daysUntilExpiry),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                            
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = onRequireMembership) {
+                                    Text(
+                                        text = context.getString(R.string.renew_now),
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                                
+                                IconButton(onClick = { viewModel.dismissExpiryWarning() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = context.getString(R.string.remind_later),
+                                        tint = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             bottomBar = {
                 NavigationBar {
                     NavigationBarItem(
@@ -202,7 +254,9 @@ fun MainScreen(
                     1 -> {
                         // 图表界面
                         com.chronie.homemoney.ui.charts.ChartsScreen(
-                            context = context
+                            context = context,
+                            onRequireLogin = onRequireLogin,
+                            onRequireMembership = onRequireMembership
                         )
                     }
                     2 -> {
@@ -212,7 +266,9 @@ fun MainScreen(
                             onNavigateBack = { selectedTab = 0 },
                             onNavigateToDatabaseTest = onNavigateToDatabaseTest,
                             onNavigateToApiTest = onNavigateToApiTest,
-                            onNavigateToWebView = { showWebView = true }
+                            onNavigateToWebView = { showWebView = true },
+                            onRequireLogin = onRequireLogin,
+                            onRequireMembership = onRequireMembership
                         )
                     }
                 }

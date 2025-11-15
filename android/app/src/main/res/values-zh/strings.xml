@@ -316,5 +316,21 @@
     <string name="membership_status_refreshed">会员状态已刷新</string>
     <string name="membership_status_refresh_failed">刷新会员状态失败</string>
     <string name="membership_refresh">刷新状态</string>
+    
+    <!-- 会员购买 -->
+    <string name="membership_benefits_title">会员权益</string>
+    <string name="membership_plans_title">可选套餐</string>
+    <string name="current_membership">当前会员</string>
+    <string name="benefit_unlimited_expenses">无限制记账</string>
+    <string name="benefit_advanced_charts">高级图表分析</string>
+    <string name="benefit_data_export">导出数据到 Excel</string>
+    <string name="benefit_cloud_sync">云端同步</string>
+    <string name="benefit_priority_support">优先客户支持</string>
+    <string name="plan">套餐</string>
+    <string name="duration">时长</string>
+    <string name="purchase">购买</string>
+    <string name="refresh_membership_status">刷新状态</string>
+    <string name="renew_now">立即续费</string>
+    <string name="remind_later">稍后提醒</string>
 
 </resources>

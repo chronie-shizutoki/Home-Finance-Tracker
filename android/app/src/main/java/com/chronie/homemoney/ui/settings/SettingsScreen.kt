@@ -22,10 +22,24 @@ fun SettingsScreen(
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToApiTest: () -> Unit = {},
     onNavigateToWebView: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onNavigateToMembership: () -> Unit = {},
+    onLogout: () -> Unit = {},
+    onRequireLogin: () -> Unit = {},
+    onRequireMembership: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    
+    // 会员验证
+    LaunchedEffect(Unit) {
+        val isLoggedIn = viewModel.checkLoginStatusUseCase()
+        val isMember = viewModel.checkMembershipUseCase()
+        
+        when {
+            !isLoggedIn -> onRequireLogin()
+            !isMember -> onRequireMembership()
+        }
+    }
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -57,7 +71,12 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
             // 账户信息部分
-            AccountSection(viewModel = viewModel, context = context, onLogout = onLogout)
+            AccountSection(
+                viewModel = viewModel, 
+                context = context, 
+                onLogout = onLogout,
+                onNavigateToMembership = onNavigateToMembership
+            )
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -1033,7 +1052,8 @@ fun SyncSection(
 fun AccountSection(
     viewModel: SettingsViewModel,
     context: Context,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToMembership: () -> Unit = {}
 ) {
     val currentUsername by viewModel.currentUsername.collectAsState()
     val membershipStatus by viewModel.membershipStatus.collectAsState()
@@ -1163,6 +1183,22 @@ fun AccountSection(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
+                    // 会员管理/续费按钮
+                    Button(
+                        onClick = onNavigateToMembership,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (membershipStatus?.isActive == true) {
+                                context.getString(R.string.membership_manage)
+                            } else {
+                                context.getString(R.string.membership_subscribe_now)
+                            }
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     // 刷新会员状态按钮
                     OutlinedButton(
                         onClick = { viewModel.refreshMembershipStatus() },
@@ -1182,11 +1218,11 @@ fun AccountSection(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     // 退出登录按钮
-                    Button(
+                    OutlinedButton(
                         onClick = { showLogoutDialog = true },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
                         Text(context.getString(R.string.auth_logout_button))

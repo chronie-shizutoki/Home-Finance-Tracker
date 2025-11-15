@@ -316,5 +316,20 @@
     <string name="membership_status_refreshed">Membership status refreshed</string>
     <string name="membership_status_refresh_failed">Failed to refresh membership status</string>
     <string name="membership_refresh">Refresh Status</string>
+   
+    <!-- Membership Purchase -->
+    <string name="membership_benefits_title">Member Benefits</string>
+    <string name="membership_plans_title">Available Plans</string>
+    <string name="current_membership">Current Membership</string>
+    <string name="benefit_unlimited_expenses">Unlimited expense records</string>
+    <string name="benefit_advanced_charts">Advanced charts and analytics</string>
+    <string name="benefit_data_export">Export data to Excel</string>
+    <string name="benefit_cloud_sync">Cloud synchronization</string>
+    <string name="benefit_priority_support">Priority customer support</string>
+    <string name="plan">Plan</string>
+    <string name="duration">Duration</string>
+    <string name="purchase">Purchase</string>
+    <string name="renew_now">Renew Now</string>
+    <string name="remind_later">Remind Later</string>
 
 </resources>

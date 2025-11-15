@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +16,7 @@ fun WelcomeScreen(
     context: Context,
     onSettingsClick: () -> Unit,
     onGetStartedClick: () -> Unit,
+    onNavigateToMembership: () -> Unit = {},
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -71,23 +71,30 @@ fun WelcomeScreen(
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(R.string.auth_logging_in),
+                    text = context.getString(R.string.auth_logging_in),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             is WelcomeUiState.LoggedIn -> {
-                val loggedInUsername = (uiState as WelcomeUiState.LoggedIn).username
+                val state = uiState as WelcomeUiState.LoggedIn
                 Text(
-                    text = stringResource(R.string.auth_welcome_back, loggedInUsername),
+                    text = context.getString(R.string.auth_welcome_back, state.username),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = onGetStartedClick,
+                    onClick = {
+                        // 根据会员状态决定导航目标
+                        if (state.isMember) {
+                            onGetStartedClick()
+                        } else {
+                            onNavigateToMembership()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.getting_started))
+                    Text(context.getString(R.string.getting_started))
                 }
             }
             is WelcomeUiState.Error -> {
@@ -120,8 +127,8 @@ private fun LoginForm(
     OutlinedTextField(
         value = username,
         onValueChange = onUsernameChange,
-        label = { Text(stringResource(R.string.auth_username_label)) },
-        placeholder = { Text(stringResource(R.string.auth_username_hint)) },
+        label = { Text(context.getString(R.string.auth_username_label)) },
+        placeholder = { Text(context.getString(R.string.auth_username_hint)) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )
@@ -133,13 +140,13 @@ private fun LoginForm(
         modifier = Modifier.fillMaxWidth(),
         enabled = username.isNotBlank()
     ) {
-        Text(stringResource(R.string.auth_login_button))
+        Text(context.getString(R.string.auth_login_button))
     }
 
     Spacer(modifier = Modifier.height(8.dp))
 
     Text(
-        text = stringResource(R.string.auth_login_hint),
+        text = context.getString(R.string.auth_login_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center

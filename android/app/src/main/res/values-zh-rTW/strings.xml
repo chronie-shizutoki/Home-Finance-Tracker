@@ -317,4 +317,19 @@
     <string name="membership_status_refresh_failed">刷新會員狀態失敗</string>
     <string name="membership_refresh">刷新狀態</string>
 
+    <!-- 會員購買 -->
+    <string name="membership_benefits_title">會員權益</string>
+    <string name="membership_plans_title">可選套餐</string>
+    <string name="current_membership">目前會員</string>
+    <string name="benefit_unlimited_expenses">無限制記帳</string>
+    <string name="benefit_advanced_charts">進階圖表分析</string>
+    <string name="benefit_data_export">匯出資料到 Excel</string>
+    <string name="benefit_cloud_sync">雲端同步</string>
+    <string name="benefit_priority_support">優先客戶支援</string>
+    <string name="plan">套餐</string>
+    <string name="duration">時長</string>
+    <string name="purchase">購買</string>
+    <string name="refresh_membership_status">重新整理狀態</string>
+    <string name="renew_now">立即續費</string>
+    <string name="remind_later">稍後提醒</string>
 </resources>

@@ -3,6 +3,7 @@ package com.chronie.homemoney.ui.welcome
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
+import com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase
 import com.chronie.homemoney.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val checkLoginStatusUseCase: CheckLoginStatusUseCase
+    private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
+    private val getMembershipStatusUseCase: GetMembershipStatusUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WelcomeUiState>(WelcomeUiState.CheckingLogin)
@@ -32,7 +34,12 @@ class WelcomeViewModel @Inject constructor(
             val isLoggedIn = checkLoginStatusUseCase()
             if (isLoggedIn) {
                 val username = checkLoginStatusUseCase.getUsername() ?: ""
-                _uiState.value = WelcomeUiState.LoggedIn(username)
+                
+                // 获取会员状态
+                val membershipResult = getMembershipStatusUseCase(username, forceRefresh = false)
+                val isMember = membershipResult.getOrNull()?.isActive ?: false
+                
+                _uiState.value = WelcomeUiState.LoggedIn(username, isMember)
             } else {
                 _uiState.value = WelcomeUiState.NotLoggedIn
             }
@@ -51,9 +58,21 @@ class WelcomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = WelcomeUiState.Loading
+            
+            // 1. 执行登录
             loginUseCase(_username.value.trim())
                 .onSuccess { member ->
-                    _uiState.value = WelcomeUiState.LoggedIn(member.username)
+                    // 2. 获取会员状态
+                    val membershipResult = getMembershipStatusUseCase(
+                        username = member.username,
+                        forceRefresh = true
+                    )
+                    
+                    val isMember = membershipResult.getOrNull()?.isActive ?: false
+                    _uiState.value = WelcomeUiState.LoggedIn(
+                        username = member.username,
+                        isMember = isMember
+                    )
                 }
                 .onFailure { error ->
                     _uiState.value = WelcomeUiState.Error(
@@ -74,6 +93,6 @@ sealed class WelcomeUiState {
     object CheckingLogin : WelcomeUiState()
     object NotLoggedIn : WelcomeUiState()
     object Loading : WelcomeUiState()
-    data class LoggedIn(val username: String) : WelcomeUiState()
+    data class LoggedIn(val username: String, val isMember: Boolean) : WelcomeUiState()
     data class Error(val message: String) : WelcomeUiState()
 }

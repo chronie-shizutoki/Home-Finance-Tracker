@@ -28,7 +28,8 @@ class SettingsViewModel @Inject constructor(
     private val syncScheduler: SyncScheduler,
     private val exportExpensesUseCase: ExportExpensesUseCase,
     private val importExpensesUseCase: ImportExpensesUseCase,
-    private val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
+    val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
+    val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase,
     private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
     private val getMembershipStatusUseCase: com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context

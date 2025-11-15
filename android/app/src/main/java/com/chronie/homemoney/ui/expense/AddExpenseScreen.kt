@@ -18,6 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
+import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
+import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.hilt.navigation.compose.hiltViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -30,10 +35,23 @@ fun AddExpenseScreen(
     context: android.content.Context,
     viewModel: AddExpenseViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateToAI: () -> Unit = {}
+    onNavigateToAI: () -> Unit = {},
+    onRequireLogin: () -> Unit = {},
+    onRequireMembership: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    
+    // 会员验证
+    LaunchedEffect(Unit) {
+        val isLoggedIn = viewModel.checkLoginStatusUseCase()
+        val isMember = viewModel.checkMembershipUseCase()
+        
+        when {
+            !isLoggedIn -> onRequireLogin()
+            !isMember -> onRequireMembership()
+        }
+    }
     
     // 显示日期选择器的状态
     var showDatePicker by remember { mutableStateOf(false) }

@@ -24,6 +24,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.core.common.LanguageManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
@@ -32,6 +35,9 @@ import com.chronie.homemoney.ui.test.ApiTestScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
+import com.chronie.homemoney.ui.membership.MembershipPurchaseScreen
+import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
+import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -48,6 +54,14 @@ class MainActivity : ComponentActivity() {
     
     @Inject
     lateinit var syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler
+    
+    @Inject
+    lateinit var checkLoginStatusUseCase: CheckLoginStatusUseCase
+    
+    @Inject
+    lateinit var checkMembershipUseCase: CheckMembershipUseCase
+    
+    private var membershipCheckJob: kotlinx.coroutines.Job? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +80,9 @@ class MainActivity : ComponentActivity() {
         
         // Make sure the window draws behind system bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // 启动定期会员状态检查
+        startPeriodicMembershipCheck()
         
         setContent {
             val currentLanguage by languageManager.currentLanguage.collectAsState()
@@ -86,7 +103,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        HomeMoneyApp(localizedContext)
+                        HomeMoneyApp(
+                            context = localizedContext,
+                            checkLoginStatusUseCase = checkLoginStatusUseCase,
+                            checkMembershipUseCase = checkMembershipUseCase
+                        )
                     }
                 }
             }
@@ -96,16 +117,55 @@ class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(newBase)
     }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        membershipCheckJob?.cancel()
+    }
+    
+    private fun startPeriodicMembershipCheck() {
+        membershipCheckJob = lifecycleScope.launch {
+            while (true) {
+                delay(30 * 60 * 1000L) // 每30分钟检查一次
+                
+                val isLoggedIn = checkLoginStatusUseCase()
+                val isMember = checkMembershipUseCase()
+                
+                // 如果已登录但不是会员，触发重新检查
+                if (isLoggedIn && !isMember) {
+                    // 这里可以触发导航或显示提示
+                    // 由于我们在 MainScreen 中已经有 LaunchedEffect 监听，
+                    // 这里只需要确保状态被更新即可
+                }
+            }
+        }
+    }
 }
 
 @Composable
-fun HomeMoneyApp(context: Context) {
+fun HomeMoneyApp(
+    context: Context,
+    checkLoginStatusUseCase: CheckLoginStatusUseCase,
+    checkMembershipUseCase: CheckMembershipUseCase
+) {
     val navController = rememberNavController()
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
+    
+    // 确定初始路由
+    val startDestination = remember {
+        val isLoggedIn = checkLoginStatusUseCase()
+        val isMember = checkMembershipUseCase()
+        
+        when {
+            !isLoggedIn -> "welcome"
+            !isMember -> "membership_purchase"
+            else -> "main"
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = "welcome"
+        startDestination = startDestination
     ) {
         composable("welcome") {
             WelcomeScreen(
@@ -114,7 +174,30 @@ fun HomeMoneyApp(context: Context) {
                     navController.navigate("settings")
                 },
                 onGetStartedClick = {
-                    navController.navigate("main")
+                    navController.navigate("main") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onNavigateToMembership = {
+                    navController.navigate("membership_purchase") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("membership_purchase") {
+            MembershipPurchaseScreen(
+                context = context,
+                onNavigateToMain = {
+                    navController.navigate("main") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onNavigateToWelcome = {
+                    navController.navigate("welcome") {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -131,9 +214,22 @@ fun HomeMoneyApp(context: Context) {
                 onNavigateToApiTest = {
                     navController.navigate("api_test")
                 },
+                onNavigateToMembership = {
+                    navController.navigate("membership_purchase")
+                },
                 onLogout = {
                     // 退出登录后，清空整个导航栈并返回欢迎页
                     navController.navigate("welcome") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onRequireLogin = {
+                    navController.navigate("welcome") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onRequireMembership = {
+                    navController.navigate("membership_purchase") {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -162,6 +258,12 @@ fun HomeMoneyApp(context: Context) {
                     navController.navigate("welcome") {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onRequireMembership = {
+                    // 非会员时，清空导航栈并跳转到会员购买页面
+                    navController.navigate("membership_purchase") {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -175,6 +277,16 @@ fun HomeMoneyApp(context: Context) {
                 },
                 onNavigateToAI = {
                     navController.navigate("ai_expense")
+                },
+                onRequireLogin = {
+                    navController.navigate("welcome") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onRequireMembership = {
+                    navController.navigate("membership_purchase") {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }

@@ -22,7 +22,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
+    val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AddExpenseUiState())
