@@ -332,4 +332,10 @@
     <string name="refresh_membership_status">重新整理狀態</string>
     <string name="renew_now">立即續費</string>
     <string name="remind_later">稍後提醒</string>
+    <string name="confirm_purchase">確認購買</string>
+    <string name="confirm_purchase_message">購買 %1$s，價格 ¥%2$.2f？</string>
+    <string name="purchase_note">付款將透過金流支付</string>
+    <string name="purchasing">處理中…</string>
+    <string name="days">天</string>
+
 </resources>

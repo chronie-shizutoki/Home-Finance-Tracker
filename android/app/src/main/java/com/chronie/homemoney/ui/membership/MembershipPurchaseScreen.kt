@@ -1,6 +1,7 @@
 package com.chronie.homemoney.ui.membership
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -69,16 +70,44 @@ fun MembershipPurchaseScreen(
             }
             
             is MembershipUiState.Success -> {
-                MembershipContent(
-                    context = context,
-                    plans = state.plans,
-                    currentStatus = state.currentStatus,
-                    onPurchase = { plan ->
-                        viewModel.purchaseMembership(plan, onNavigateToMain)
-                    },
-                    onRefresh = { viewModel.refreshMembershipStatus() },
-                    modifier = Modifier.padding(paddingValues)
-                )
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    MembershipContent(
+                        context = context,
+                        plans = state.plans,
+                        currentStatus = state.currentStatus,
+                        onPurchase = { plan ->
+                            viewModel.purchaseMembership(plan, onNavigateToMain)
+                        },
+                        onRefresh = { viewModel.refreshMembershipStatus() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    
+                    // 购买中的加载遮罩
+                    if (state.isPurchasing) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Card {
+                                Column(
+                                    modifier = Modifier.padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    CircularProgressIndicator()
+                                    Text(
+                                        text = context.getString(R.string.purchasing),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
             
             is MembershipUiState.Error -> {
@@ -266,6 +295,8 @@ private fun MembershipPlanCard(
     plan: SubscriptionPlan,
     onPurchase: () -> Unit
 ) {
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -301,18 +332,54 @@ private fun MembershipPlanCard(
             }
             
             Text(
-                text = "${context.getString(R.string.duration)}: ${plan.duration} days",
+                text = "${context.getString(R.string.duration)}: ${plan.duration} ${context.getString(R.string.days)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             Button(
-                onClick = onPurchase,
+                onClick = { showConfirmDialog = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(context.getString(R.string.purchase))
             }
         }
+    }
+    
+    // 购买确认对话框
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text(context.getString(R.string.confirm_purchase)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = context.getString(R.string.confirm_purchase_message, plan.name, plan.price),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = context.getString(R.string.purchase_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showConfirmDialog = false
+                        onPurchase()
+                    }
+                ) {
+                    Text(context.getString(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        )
     }
 }
 

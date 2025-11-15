@@ -23,12 +23,25 @@ interface MemberApi {
     @GET("api/members/subscription-plans")
     suspend fun getSubscriptionPlans(): ApiResponse<List<SubscriptionPlanDto>>
     
+    @POST("api/payments/subscribe")
+    suspend fun subscribePayment(@Body request: SubscribePaymentRequest): ApiResponse<SubscribePaymentResponse>
+    
     @POST("api/members/subscriptions")
     suspend fun createSubscription(@Body request: CreateSubscriptionRequest): ApiResponse<UserSubscriptionDto>
 }
 
+data class SubscribePaymentRequest(
+    val username: String,
+    val planId: String
+)
+
+data class SubscribePaymentResponse(
+    val orderId: String
+)
+
 data class CreateSubscriptionRequest(
     val username: String,
     val planId: String,
-    val paymentId: String
+    val paymentId: String,
+    val autoRenew: Boolean = false
 )

@@ -331,5 +331,10 @@
     <string name="purchase">Purchase</string>
     <string name="renew_now">Renew Now</string>
     <string name="remind_later">Remind Later</string>
+    <string name="confirm_purchase">Confirm Purchase</string>
+    <string name="confirm_purchase_message">Purchase %1$s for ¥%2$.2f?</string>
+    <string name="purchase_note">Payment processed by Chrysorrhoe</string>
+    <string name="purchasing">Processing…</string>
+    <string name="days">days</string>
 
 </resources>

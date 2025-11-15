@@ -97,6 +97,12 @@ class MembershipViewModel @Inject constructor(
                     return@launch
                 }
                 
+                // 设置购买中状态
+                val currentState = _uiState.value
+                if (currentState is MembershipUiState.Success) {
+                    _uiState.value = currentState.copy(isPurchasing = true)
+                }
+                
                 android.util.Log.d("MembershipViewModel", "开始购买订阅: username=$username, plan=${plan.name}, period=${plan.period}")
                 
                 // 调用购买订阅 UseCase
@@ -106,7 +112,7 @@ class MembershipViewModel @Inject constructor(
                     android.util.Log.d("MembershipViewModel", "购买成功")
                     
                     // 保存会员状态到本地
-                    val endDate = System.currentTimeMillis() + (plan.duration * 24 * 60 * 60 * 1000L)
+                    val endDate = System.currentTimeMillis() + (plan.duration.toLong() * 24 * 60 * 60 * 1000L)
                     preferencesManager.saveMembershipStatus(
                         isActive = true,
                         planName = plan.name,
@@ -121,6 +127,12 @@ class MembershipViewModel @Inject constructor(
                 } else {
                     val error = result.exceptionOrNull()
                     android.util.Log.e("MembershipViewModel", "购买失败", error)
+                    
+                    // 恢复状态并显示错误
+                    if (currentState is MembershipUiState.Success) {
+                        _uiState.value = currentState.copy(isPurchasing = false)
+                    }
+                    
                     _uiState.value = MembershipUiState.Error(
                         error?.message ?: "购买失败"
                     )
@@ -145,7 +157,8 @@ sealed class MembershipUiState {
     object Loading : MembershipUiState()
     data class Success(
         val plans: List<SubscriptionPlan>,
-        val currentStatus: SubscriptionStatus?
+        val currentStatus: SubscriptionStatus?,
+        val isPurchasing: Boolean = false
     ) : MembershipUiState()
     data class Error(val message: String) : MembershipUiState()
 }
