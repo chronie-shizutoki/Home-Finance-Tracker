@@ -69,4 +69,19 @@ class MemberRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+    
+    override suspend fun createSubscription(username: String, planId: String, paymentId: String): Result<SubscriptionStatus> {
+        return try {
+            val response = memberApi.createSubscription(
+                com.chronie.homemoney.data.remote.api.CreateSubscriptionRequest(username, planId, paymentId)
+            )
+            if (response.success && response.data != null) {
+                Result.success(SubscriptionMapper.toSubscriptionStatus(response.data))
+            } else {
+                Result.failure(Exception(response.error ?: "创建订阅失败"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

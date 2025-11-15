@@ -19,6 +19,7 @@ class MembershipViewModel @Inject constructor(
     private val getMembershipStatusUseCase: GetMembershipStatusUseCase,
     private val getSubscriptionPlansUseCase: com.chronie.homemoney.domain.usecase.GetSubscriptionPlansUseCase,
     private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
+    private val purchaseSubscriptionUseCase: com.chronie.homemoney.domain.usecase.PurchaseSubscriptionUseCase,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
@@ -90,23 +91,42 @@ class MembershipViewModel @Inject constructor(
     fun purchaseMembership(plan: SubscriptionPlan, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                // TODO: 实现实际的购买逻辑，调用后端 API
-                // 暂时模拟购买成功
+                val username = checkLoginStatusUseCase.getUsername()
+                if (username.isNullOrEmpty()) {
+                    _uiState.value = MembershipUiState.Error("未登录")
+                    return@launch
+                }
                 
-                // 模拟购买成功后更新会员状态
-                val endDate = System.currentTimeMillis() + (plan.duration * 24 * 60 * 60 * 1000L)
-                preferencesManager.saveMembershipStatus(
-                    isActive = true,
-                    planName = plan.name,
-                    endDate = endDate
-                )
+                android.util.Log.d("MembershipViewModel", "开始购买订阅: username=$username, plan=${plan.name}, period=${plan.period}")
                 
-                // 刷新会员状态
-                refreshMembershipStatus()
+                // 调用购买订阅 UseCase
+                val result = purchaseSubscriptionUseCase(username, plan)
                 
-                // 导航到主界面
-                onSuccess()
+                if (result.isSuccess) {
+                    android.util.Log.d("MembershipViewModel", "购买成功")
+                    
+                    // 保存会员状态到本地
+                    val endDate = System.currentTimeMillis() + (plan.duration * 24 * 60 * 60 * 1000L)
+                    preferencesManager.saveMembershipStatus(
+                        isActive = true,
+                        planName = plan.name,
+                        endDate = endDate
+                    )
+                    
+                    // 刷新会员状态
+                    refreshMembershipStatus()
+                    
+                    // 导航到主界面
+                    onSuccess()
+                } else {
+                    val error = result.exceptionOrNull()
+                    android.util.Log.e("MembershipViewModel", "购买失败", error)
+                    _uiState.value = MembershipUiState.Error(
+                        error?.message ?: "购买失败"
+                    )
+                }
             } catch (e: Exception) {
+                android.util.Log.e("MembershipViewModel", "购买异常", e)
                 _uiState.value = MembershipUiState.Error(
                     e.message ?: "购买失败"
                 )
