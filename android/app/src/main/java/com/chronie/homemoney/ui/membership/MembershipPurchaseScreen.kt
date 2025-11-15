@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
@@ -45,6 +46,14 @@ fun MembershipPurchaseScreen(
         topBar = {
             TopAppBar(
                 title = { Text(context.getString(R.string.membership_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateToMain) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = context.getString(R.string.back)
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { viewModel.logout(onNavigateToWelcome) }) {
                         Icon(
