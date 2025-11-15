@@ -1,0 +1,79 @@
+package com.chronie.homemoney.ui.welcome
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
+import com.chronie.homemoney.domain.usecase.LoginUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class WelcomeViewModel @Inject constructor(
+    private val loginUseCase: LoginUseCase,
+    private val checkLoginStatusUseCase: CheckLoginStatusUseCase
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<WelcomeUiState>(WelcomeUiState.CheckingLogin)
+    val uiState: StateFlow<WelcomeUiState> = _uiState.asStateFlow()
+
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username.asStateFlow()
+
+    init {
+        checkLoginStatus()
+    }
+
+    fun checkLoginStatus() {
+        viewModelScope.launch {
+            val isLoggedIn = checkLoginStatusUseCase()
+            if (isLoggedIn) {
+                val username = checkLoginStatusUseCase.getUsername() ?: ""
+                _uiState.value = WelcomeUiState.LoggedIn(username)
+            } else {
+                _uiState.value = WelcomeUiState.NotLoggedIn
+            }
+        }
+    }
+
+    fun onUsernameChange(newUsername: String) {
+        _username.value = newUsername
+    }
+
+    fun login() {
+        if (_username.value.isBlank()) {
+            _uiState.value = WelcomeUiState.Error("用户名不能为空")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = WelcomeUiState.Loading
+            loginUseCase(_username.value.trim())
+                .onSuccess { member ->
+                    _uiState.value = WelcomeUiState.LoggedIn(member.username)
+                }
+                .onFailure { error ->
+                    _uiState.value = WelcomeUiState.Error(
+                        error.message ?: "登录失败"
+                    )
+                }
+        }
+    }
+
+    fun clearError() {
+        if (_uiState.value is WelcomeUiState.Error) {
+            _uiState.value = WelcomeUiState.NotLoggedIn
+        }
+    }
+}
+
+sealed class WelcomeUiState {
+    object CheckingLogin : WelcomeUiState()
+    object NotLoggedIn : WelcomeUiState()
+    object Loading : WelcomeUiState()
+    data class LoggedIn(val username: String) : WelcomeUiState()
+    data class Error(val message: String) : WelcomeUiState()
+}

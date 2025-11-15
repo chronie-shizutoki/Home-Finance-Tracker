@@ -106,32 +106,14 @@ class ApiTestViewModel @Inject constructor(
     
     /**
      * 测试获取订阅计划API
+     * TODO: 需要实现SubscriptionApi
      */
     fun testGetSubscriptionPlans() {
         viewModelScope.launch {
             _isLoading.value = true
             addResult("开始测试获取订阅计划API...")
-            
-            try {
-                val response = memberApi.getSubscriptionPlans()
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    addResult("✓ 获取订阅计划成功")
-                    addResult("  计划数量: ${data?.data?.size}")
-                    data?.data?.forEach { plan ->
-                        addResult("  - ${plan.name}: ¥${plan.price} (${plan.duration}天)")
-                    }
-                    Log.d(TAG, "Get subscription plans successful: ${data?.data?.size} plans")
-                } else {
-                    addResult("✗ 获取订阅计划失败: ${response.code()} ${response.message()}")
-                    Log.e(TAG, "Get subscription plans failed: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                addResult("✗ 获取订阅计划异常: ${e.message}")
-                Log.e(TAG, "Get subscription plans error", e)
-            } finally {
-                _isLoading.value = false
-            }
+            addResult("✗ 订阅计划API尚未实现")
+            _isLoading.value = false
         }
     }
     

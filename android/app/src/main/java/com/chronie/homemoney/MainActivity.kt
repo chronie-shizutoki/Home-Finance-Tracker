@@ -130,6 +130,12 @@ fun HomeMoneyApp(context: Context) {
                 },
                 onNavigateToApiTest = {
                     navController.navigate("api_test")
+                },
+                onLogout = {
+                    // 退出登录后，清空导航栈并返回欢迎页
+                    navController.navigate("welcome") {
+                        popUpTo("welcome") { inclusive = true }
+                    }
                 }
             )
         }

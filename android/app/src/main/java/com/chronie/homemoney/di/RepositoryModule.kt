@@ -4,10 +4,13 @@ import com.chronie.homemoney.data.local.dao.BudgetDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.remote.api.ExpenseApi
+import com.chronie.homemoney.data.remote.api.MemberApi
 import com.chronie.homemoney.data.repository.BudgetRepositoryImpl
 import com.chronie.homemoney.data.repository.ExpenseRepositoryImpl
+import com.chronie.homemoney.data.repository.MemberRepositoryImpl
 import com.chronie.homemoney.domain.repository.BudgetRepository
 import com.chronie.homemoney.domain.repository.ExpenseRepository
+import com.chronie.homemoney.domain.repository.MemberRepository
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -40,5 +43,13 @@ object RepositoryModule {
         expenseDao: ExpenseDao
     ): BudgetRepository {
         return BudgetRepositoryImpl(budgetDao, expenseDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMemberRepository(
+        memberApi: MemberApi
+    ): MemberRepository {
+        return MemberRepositoryImpl(memberApi)
     }
 }

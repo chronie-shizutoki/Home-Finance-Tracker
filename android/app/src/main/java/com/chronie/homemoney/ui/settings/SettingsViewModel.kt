@@ -28,6 +28,8 @@ class SettingsViewModel @Inject constructor(
     private val syncScheduler: SyncScheduler,
     private val exportExpensesUseCase: ExportExpensesUseCase,
     private val importExpensesUseCase: ImportExpensesUseCase,
+    private val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
+    private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
@@ -59,10 +61,31 @@ class SettingsViewModel @Inject constructor(
     
     private val _importInProgress = MutableStateFlow(false)
     val importInProgress: StateFlow<Boolean> = _importInProgress.asStateFlow()
+    
+    private val _currentUsername = MutableStateFlow<String?>(null)
+    val currentUsername: StateFlow<String?> = _currentUsername.asStateFlow()
+    
+    private val _logoutEvent = MutableSharedFlow<Unit>()
+    val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
 
     init {
         loadSyncInfo()
         loadAIApiKey()
+        loadCurrentUser()
+    }
+    
+    private fun loadCurrentUser() {
+        viewModelScope.launch {
+            _currentUsername.value = checkLoginStatusUseCase.getUsername()
+        }
+    }
+    
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+            _currentUsername.value = null
+            _logoutEvent.emit(Unit)
+        }
     }
 
     fun setLanguage(language: Language) {

@@ -21,7 +21,8 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToApiTest: () -> Unit = {},
-    onNavigateToWebView: () -> Unit = {}
+    onNavigateToWebView: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val scrollState = androidx.compose.foundation.rememberScrollState()
@@ -55,6 +56,15 @@ fun SettingsScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
+            // 账户信息部分
+            AccountSection(viewModel = viewModel, context = context, onLogout = onLogout)
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Divider()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Text(
                 text = context.getString(R.string.select_language),
                 style = MaterialTheme.typography.titleMedium,
@@ -1015,5 +1025,102 @@ fun SyncSection(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun AccountSection(
+    viewModel: SettingsViewModel,
+    context: Context,
+    onLogout: () -> Unit
+) {
+    val currentUsername by viewModel.currentUsername.collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    
+    // 监听退出登录事件
+    LaunchedEffect(Unit) {
+        viewModel.logoutEvent.collect {
+            onLogout()
+        }
+    }
+    
+    Column {
+        Text(
+            text = context.getString(R.string.auth_account_info),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // 当前用户
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.auth_current_user),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = currentUsername ?: context.getString(R.string.auth_not_logged_in),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                if (currentUsername != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // 退出登录按钮
+                    Button(
+                        onClick = { showLogoutDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(context.getString(R.string.auth_logout_button))
+                    }
+                }
+            }
+        }
+    }
+    
+    // 退出登录确认对话框
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text(context.getString(R.string.auth_logout_confirm_title)) },
+            text = { Text(context.getString(R.string.auth_logout_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.logout()
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text(
+                        text = context.getString(R.string.confirm),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+            }
+        )
     }
 }
