@@ -57,7 +57,7 @@ app.mount('#app');
 console.log('[App Initialization] Application mounted successfully');
 
 // 记录应用启动日志
-logUserAction('app_started', { version: import.meta.env.APP_VERSION || 'unknown' });
+// 移除应用启动日志记录，避免增加日志量
 
 // 深色模式适配
 const applyDarkMode = (isDark) => {

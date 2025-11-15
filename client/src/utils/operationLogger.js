@@ -18,8 +18,28 @@ const LOG_LEVELS = {
   DEBUG: 'debug'
 };
 
-// 当前日志级别 - 默认只记录ERROR和WARN
-let currentLogLevel = LOG_LEVELS.WARN;
+// 当前日志级别 - 默认只记录ERROR，避免过度记录
+let currentLogLevel = LOG_LEVELS.ERROR;
+
+// 日志上报速率限制
+let lastReportTime = 0;
+const MIN_REPORT_INTERVAL = 5000; // 最少5秒间隔
+
+/**
+ * 检查是否可以上报日志（速率限制）
+ * @returns {boolean} 是否可以上报
+ */
+function canReportLog() {
+  const now = Date.now();
+  const timeSinceLastReport = now - lastReportTime;
+  
+  if (timeSinceLastReport < MIN_REPORT_INTERVAL) {
+    return false;
+  }
+  
+  lastReportTime = now;
+  return true;
+}
 
 /**
  * 设置日志级别
@@ -135,6 +155,11 @@ async function reportLog(logData, level = LOG_LEVELS.ERROR) {
     return;
   }
   
+  // 速率限制：检查是否可以上报日志
+  if (!canReportLog()) {
+    return;
+  }
+  
   try {
     const formattedLog = formatLogData(logData);
     formattedLog.level = level;
@@ -163,8 +188,8 @@ async function reportLog(logData, level = LOG_LEVELS.ERROR) {
       });
     }
   } catch (error) {
-    console.error('日志上报失败:', error);
-    // 考虑将失败的日志存储到localStorage，稍后重试
+    // 日志上报失败时不产生新的日志，避免恶性循环
+    // 将失败的日志存储到localStorage，稍后重试
     try {
       const failedLogs = JSON.parse(localStorage.getItem('failedLogs') || '[]');
       failedLogs.push({
@@ -172,13 +197,13 @@ async function reportLog(logData, level = LOG_LEVELS.ERROR) {
         data: logData,
         level
       });
-      // 只保留最近50条失败的日志（减少存储）
-      if (failedLogs.length > 50) {
-        failedLogs.splice(0, failedLogs.length - 50);
+      // 只保留最近20条失败的日志（减少存储）
+      if (failedLogs.length > 20) {
+        failedLogs.splice(0, failedLogs.length - 20);
       }
       localStorage.setItem('failedLogs', JSON.stringify(failedLogs));
     } catch (e) {
-      console.error('存储失败日志失败:', e);
+      // 静默处理失败，不产生新的日志
     }
   }
 }
@@ -208,10 +233,9 @@ async function retryFailedLogs() {
  * @param {Object} details - 操作详情
  */
 export function logUserAction(action, details = {}) {
-  // 只记录重要的用户操作，减少噪音
+  // 只记录真正重要的用户操作，大幅减少噪音
   const importantActions = [
-    'login', 'logout', 'payment', 'delete', 'export', 
-    'import', 'sync', 'backup', 'restore', 'error'
+    'login', 'logout', 'payment', 'delete', 'export', 'backup', 'restore', 'error', 'failed'
   ];
   
   const isImportantAction = importantActions.some(important => 
@@ -223,7 +247,7 @@ export function logUserAction(action, details = {}) {
       type: 'user_action',
       action,
       details
-    }, LOG_LEVELS.WARN);
+    }, LOG_LEVELS.ERROR);
   }
 }
 
@@ -255,9 +279,9 @@ function sanitizeRequestBody(data) {
  * @param {Object} config - Axios请求配置
  */
 export function logApiRequest(config) {
-  // 只记录可能有问题的重要API请求
-  const problematicMethods = ['delete', 'put', 'patch'];
-  const problematicPaths = ['payment', 'auth', 'delete', 'update', 'user'];
+  // 只记录真正有问题的API请求，大幅减少噪音
+  const problematicMethods = ['delete'];  // 只记录删除操作
+  const problematicPaths = ['payment', 'auth', 'delete'];  // 只记录支付、认证、删除相关
   const isProblematic = problematicMethods.includes(config.method) || 
                        problematicPaths.some(path => config.url.includes(path));
   
@@ -294,7 +318,7 @@ export function logApiRequest(config) {
       type: 'api_request',
       requestId,
       request: sanitizedConfig
-    }, LOG_LEVELS.INFO);
+    }, LOG_LEVELS.ERROR);
   }
 }
 
@@ -373,7 +397,7 @@ export function logApiResponse(response) {
       };
     }
     
-    const logLevel = isErrorResponse ? LOG_LEVELS.ERROR : LOG_LEVELS.WARN;
+    const logLevel = isErrorResponse ? LOG_LEVELS.ERROR : LOG_LEVELS.ERROR;
     
     reportLog({
       type: 'api_response',
@@ -460,7 +484,7 @@ export function logPerformanceMetric(metricName, value, context = {}) {
       value,
       context,
       threshold
-    }, LOG_LEVELS.WARN);
+    }, LOG_LEVELS.ERROR);
   }
 }
 
@@ -537,13 +561,15 @@ export function initConsoleLogging(options = {}) {
             logMessage = logMessage.substring(0, maxLength) + '... [截断]';
           }
           
-          // 上报控制台日志
-          reportLog({
-            type: 'console_log',
-            level,
-            message: logMessage,
-            timestamp: new Date().toISOString()
-          }, level === 'error' ? LOG_LEVELS.ERROR : LOG_LEVELS.WARN);
+          // 上报控制台日志 - 只在ERROR级别时上报，避免过度记录
+          if (level === 'error') {
+            reportLog({
+              type: 'console_log',
+              level,
+              message: logMessage,
+              timestamp: new Date().toISOString()
+            }, LOG_LEVELS.ERROR);
+          }
         } catch (e) {
           // 如果日志处理出错，使用原始console记录错误，但不上报
           originalConsole.error('控制台日志捕获失败:', e);
