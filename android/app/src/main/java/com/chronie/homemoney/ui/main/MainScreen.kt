@@ -32,11 +32,20 @@ fun MainScreen(
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToApiTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
+    onRequireLogin: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     var showWebView by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
+    
+    // 检查登录状态，未登录则跳转到欢迎页
+    LaunchedEffect(isLoggedIn) {
+        if (!isLoggedIn) {
+            onRequireLogin()
+        }
+    }
     
     if (showWebView) {
         // WebView 界面（原网页功能）

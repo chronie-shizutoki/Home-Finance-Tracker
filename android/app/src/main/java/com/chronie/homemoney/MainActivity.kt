@@ -132,9 +132,9 @@ fun HomeMoneyApp(context: Context) {
                     navController.navigate("api_test")
                 },
                 onLogout = {
-                    // 退出登录后，清空导航栈并返回欢迎页
+                    // 退出登录后，清空整个导航栈并返回欢迎页
                     navController.navigate("welcome") {
-                        popUpTo("welcome") { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -156,6 +156,12 @@ fun HomeMoneyApp(context: Context) {
                 },
                 onNavigateToAddExpense = {
                     navController.navigate("add_expense")
+                },
+                onRequireLogin = {
+                    // 未登录时，清空导航栈并返回欢迎页
+                    navController.navigate("welcome") {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
