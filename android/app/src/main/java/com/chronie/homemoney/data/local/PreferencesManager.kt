@@ -30,9 +30,59 @@ class PreferencesManager @Inject constructor(
     fun isLoggedIn(): Boolean {
         return !getUsername().isNullOrEmpty()
     }
+    
+    // 会员订阅信息缓存（用于离线模式）
+    fun saveMembershipStatus(isActive: Boolean, planName: String?, endDate: Long?) {
+        prefs.edit().apply {
+            putBoolean(KEY_MEMBERSHIP_ACTIVE, isActive)
+            putString(KEY_MEMBERSHIP_PLAN, planName)
+            putLong(KEY_MEMBERSHIP_END_DATE, endDate ?: 0L)
+            putLong(KEY_MEMBERSHIP_LAST_CHECK, System.currentTimeMillis())
+            apply()
+        }
+    }
+    
+    fun isMembershipActive(): Boolean {
+        val isActive = prefs.getBoolean(KEY_MEMBERSHIP_ACTIVE, false)
+        val endDate = prefs.getLong(KEY_MEMBERSHIP_END_DATE, 0L)
+        
+        // 如果有结束日期，检查是否过期
+        if (endDate > 0) {
+            return isActive && System.currentTimeMillis() < endDate
+        }
+        
+        return isActive
+    }
+    
+    fun getMembershipPlanName(): String? {
+        return prefs.getString(KEY_MEMBERSHIP_PLAN, null)
+    }
+    
+    fun getMembershipEndDate(): Long? {
+        val endDate = prefs.getLong(KEY_MEMBERSHIP_END_DATE, 0L)
+        return if (endDate > 0) endDate else null
+    }
+    
+    fun getMembershipLastCheckTime(): Long {
+        return prefs.getLong(KEY_MEMBERSHIP_LAST_CHECK, 0L)
+    }
+    
+    fun clearMembershipStatus() {
+        prefs.edit().apply {
+            remove(KEY_MEMBERSHIP_ACTIVE)
+            remove(KEY_MEMBERSHIP_PLAN)
+            remove(KEY_MEMBERSHIP_END_DATE)
+            remove(KEY_MEMBERSHIP_LAST_CHECK)
+            apply()
+        }
+    }
 
     companion object {
         private const val PREFS_NAME = "home_money_prefs"
         private const val KEY_USERNAME = "username"
+        private const val KEY_MEMBERSHIP_ACTIVE = "membership_active"
+        private const val KEY_MEMBERSHIP_PLAN = "membership_plan"
+        private const val KEY_MEMBERSHIP_END_DATE = "membership_end_date"
+        private const val KEY_MEMBERSHIP_LAST_CHECK = "membership_last_check"
     }
 }

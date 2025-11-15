@@ -74,6 +74,7 @@
     <string name="health_check">健康檢查</string>
     <string name="get_expenses">取得支出</string>
     <string name="subscription_plans">訂閱方案</string>
+    
     <string name="run_all_tests">執行全部</string>
     <string name="clear_results">清除結果</string>
     <string name="click_to_start_test">點選上方按鈕開始測試</string>
@@ -294,5 +295,26 @@
     <string name="auth_logout_confirm_title">登出</string>
     <string name="auth_logout_confirm_message">確定要登出嗎？</string>
 
-    
+<!-- 會員 -->
+    <string name="membership_title">會員</string>
+    <string name="membership_status">會員狀態</string>
+    <string name="membership_active">已啟用</string>
+    <string name="membership_inactive">未啟用</string>
+    <string name="membership_expired">已過期</string>
+    <string name="membership_plan">目前方案</string>
+    <string name="membership_expires_on">到期時間</string>
+    <string name="membership_days_remaining">剩餘 %d 天</string>
+    <string name="membership_no_subscription">無有效訂閱</string>
+    <string name="membership_subscribe_now">立即訂閱</string>
+    <string name="membership_renew">續訂</string>
+    <string name="membership_manage">管理訂閱</string>
+    <string name="membership_required">需要會員</string>
+    <string name="membership_required_message">此功能需要有效會員資格，請訂閱後繼續使用。</string>
+    <string name="membership_expiring_soon">您的會員將在 %d 天後到期</string>
+    <string name="membership_check_failed">檢查會員狀態失敗</string>
+    <string name="membership_using_cached">使用快取的會員資訊（離線）</string>
+    <string name="membership_status_refreshed">會員狀態已刷新</string>
+    <string name="membership_status_refresh_failed">刷新會員狀態失敗</string>
+    <string name="membership_refresh">刷新狀態</string>
+
 </resources>

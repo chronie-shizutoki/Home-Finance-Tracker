@@ -1036,6 +1036,8 @@ fun AccountSection(
     onLogout: () -> Unit
 ) {
     val currentUsername by viewModel.currentUsername.collectAsState()
+    val membershipStatus by viewModel.membershipStatus.collectAsState()
+    val membershipLoading by viewModel.membershipLoading.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     
     // 监听退出登录事件
@@ -1079,8 +1081,105 @@ fun AccountSection(
                     )
                 }
                 
+                // 会员状态
                 if (currentUsername != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Divider()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = context.getString(R.string.membership_status),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        
+                        if (membershipLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = if (membershipStatus?.isActive == true) {
+                                    context.getString(R.string.membership_active)
+                                } else {
+                                    context.getString(R.string.membership_inactive)
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (membershipStatus?.isActive == true) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                }
+                            )
+                        }
+                    }
+                    
+                    // 会员计划
+                    if (membershipStatus?.planName != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = context.getString(R.string.membership_plan),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = membershipStatus?.planName ?: "",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    
+                    // 到期时间
+                    if (membershipStatus?.endDate != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = context.getString(R.string.membership_expires_on),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = formatTimestamp(membershipStatus?.endDate ?: 0L),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    
                     Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // 刷新会员状态按钮
+                    OutlinedButton(
+                        onClick = { viewModel.refreshMembershipStatus() },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !membershipLoading
+                    ) {
+                        if (membershipLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(context.getString(R.string.membership_refresh))
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
                     
                     // 退出登录按钮
                     Button(
@@ -1123,4 +1222,9 @@ fun AccountSection(
             }
         )
     }
+}
+
+private fun formatTimestamp(timestamp: Long): String {
+    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+    return sdf.format(java.util.Date(timestamp))
 }

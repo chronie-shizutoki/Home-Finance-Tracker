@@ -74,6 +74,7 @@
     <string name="health_check">健康检查</string>
     <string name="get_expenses">获取支出</string>
     <string name="subscription_plans">订阅方案</string>
+    
     <string name="run_all_tests">运行全部</string>
     <string name="clear_results">清除结果</string>
     <string name="click_to_start_test">点击上方按钮开始测试</string>
@@ -293,6 +294,27 @@
     <string name="auth_account_info">账户信息</string>
     <string name="auth_logout_confirm_title">退出登录</string>
     <string name="auth_logout_confirm_message">确定要退出登录吗？</string>
-
+    
+    <!-- 会员 -->
+    <string name="membership_title">会员</string>
+    <string name="membership_status">会员状态</string>
+    <string name="membership_active">已激活</string>
+    <string name="membership_inactive">未激活</string>
+    <string name="membership_expired">已过期</string>
+    <string name="membership_plan">当前方案</string>
+    <string name="membership_expires_on">到期时间</string>
+    <string name="membership_days_remaining">剩余 %d 天</string>
+    <string name="membership_no_subscription">无有效订阅</string>
+    <string name="membership_subscribe_now">立即订阅</string>
+    <string name="membership_renew">续费订阅</string>
+    <string name="membership_manage">管理订阅</string>
+    <string name="membership_required">需要会员</string>
+    <string name="membership_required_message">此功能需要有效会员资格，请订阅后继续使用。</string>
+    <string name="membership_expiring_soon">您的会员将在 %d 天后到期</string>
+    <string name="membership_check_failed">检查会员状态失败</string>
+    <string name="membership_using_cached">使用缓存的会员信息（离线）</string>
+    <string name="membership_status_refreshed">会员状态已刷新</string>
+    <string name="membership_status_refresh_failed">刷新会员状态失败</string>
+    <string name="membership_refresh">刷新状态</string>
 
 </resources>

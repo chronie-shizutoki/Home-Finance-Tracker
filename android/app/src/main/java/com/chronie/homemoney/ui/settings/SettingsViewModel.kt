@@ -30,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val importExpensesUseCase: ImportExpensesUseCase,
     private val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
     private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
+    private val getMembershipStatusUseCase: com.chronie.homemoney.domain.usecase.GetMembershipStatusUseCase,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
@@ -67,11 +68,18 @@ class SettingsViewModel @Inject constructor(
     
     private val _logoutEvent = MutableSharedFlow<Unit>()
     val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
+    
+    private val _membershipStatus = MutableStateFlow<com.chronie.homemoney.domain.model.SubscriptionStatus?>(null)
+    val membershipStatus: StateFlow<com.chronie.homemoney.domain.model.SubscriptionStatus?> = _membershipStatus.asStateFlow()
+    
+    private val _membershipLoading = MutableStateFlow(false)
+    val membershipLoading: StateFlow<Boolean> = _membershipLoading.asStateFlow()
 
     init {
         loadSyncInfo()
         loadAIApiKey()
         loadCurrentUser()
+        loadMembershipStatus()
     }
     
     private fun loadCurrentUser() {
@@ -80,10 +88,52 @@ class SettingsViewModel @Inject constructor(
         }
     }
     
+    private fun loadMembershipStatus() {
+        viewModelScope.launch {
+            val username = checkLoginStatusUseCase.getUsername()
+            if (username != null) {
+                _membershipLoading.value = true
+                try {
+                    val result = getMembershipStatusUseCase(username, forceRefresh = false)
+                    if (result.isSuccess) {
+                        _membershipStatus.value = result.getOrNull()
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("SettingsViewModel", "Failed to load membership status", e)
+                } finally {
+                    _membershipLoading.value = false
+                }
+            }
+        }
+    }
+    
+    fun refreshMembershipStatus() {
+        viewModelScope.launch {
+            val username = checkLoginStatusUseCase.getUsername()
+            if (username != null) {
+                _membershipLoading.value = true
+                try {
+                    val result = getMembershipStatusUseCase(username, forceRefresh = true)
+                    if (result.isSuccess) {
+                        _membershipStatus.value = result.getOrNull()
+                        _syncMessage.value = context.getString(R.string.membership_status_refreshed)
+                    } else {
+                        _syncMessage.value = context.getString(R.string.membership_status_refresh_failed)
+                    }
+                } catch (e: Exception) {
+                    _syncMessage.value = context.getString(R.string.membership_status_refresh_failed)
+                } finally {
+                    _membershipLoading.value = false
+                }
+            }
+        }
+    }
+    
     fun logout() {
         viewModelScope.launch {
             logoutUseCase()
             _currentUsername.value = null
+            _membershipStatus.value = null
             _logoutEvent.emit(Unit)
         }
     }

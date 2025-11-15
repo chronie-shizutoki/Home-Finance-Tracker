@@ -74,6 +74,7 @@
     <string name="health_check">Health Check</string>
     <string name="get_expenses">Get Expenses</string>
     <string name="subscription_plans">Subscriptions</string>
+    
     <string name="run_all_tests">Run All Tests</string>
     <string name="clear_results">Clear Results</string>
     <string name="click_to_start_test">Click button to start testing</string>
@@ -293,5 +294,27 @@
     <string name="auth_account_info">Account</string>
     <string name="auth_logout_confirm_title">Logout</string>
     <string name="auth_logout_confirm_message">Are you sure you want to logout?</string>
+    
+    <!-- Membership -->
+    <string name="membership_title">Membership</string>
+    <string name="membership_status">Membership Status</string>
+    <string name="membership_active">Active</string>
+    <string name="membership_inactive">Inactive</string>
+    <string name="membership_expired">Expired</string>
+    <string name="membership_plan">Current Plan</string>
+    <string name="membership_expires_on">Expires On</string>
+    <string name="membership_days_remaining">%d days remaining</string>
+    <string name="membership_no_subscription">No active subscription</string>
+    <string name="membership_subscribe_now">Subscribe Now</string>
+    <string name="membership_renew">Renew Subscription</string>
+    <string name="membership_manage">Manage Subscription</string>
+    <string name="membership_required">Membership Required</string>
+    <string name="membership_required_message">This feature requires an active membership. Please subscribe to continue.</string>
+    <string name="membership_expiring_soon">Your membership will expire in %d days</string>
+    <string name="membership_check_failed">Failed to check membership status</string>
+    <string name="membership_using_cached">Using cached membership information (offline)</string>
+    <string name="membership_status_refreshed">Membership status refreshed</string>
+    <string name="membership_status_refresh_failed">Failed to refresh membership status</string>
+    <string name="membership_refresh">Refresh Status</string>
 
 </resources>

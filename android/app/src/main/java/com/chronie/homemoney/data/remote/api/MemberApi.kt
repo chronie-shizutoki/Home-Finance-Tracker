@@ -3,6 +3,8 @@ package com.chronie.homemoney.data.remote.api
 import com.chronie.homemoney.data.remote.dto.ApiResponse
 import com.chronie.homemoney.data.remote.dto.MemberDto
 import com.chronie.homemoney.data.remote.dto.MemberRequest
+import com.chronie.homemoney.data.remote.dto.SubscriptionPlanDto
+import com.chronie.homemoney.data.remote.dto.UserSubscriptionDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -14,4 +16,10 @@ interface MemberApi {
 
     @GET("api/members/members/{username}")
     suspend fun getMemberInfo(@Path("username") username: String): ApiResponse<MemberDto>
+    
+    @GET("api/members/members/{username}/current-subscription")
+    suspend fun getCurrentSubscription(@Path("username") username: String): ApiResponse<UserSubscriptionDto>
+    
+    @GET("api/members/subscription-plans")
+    suspend fun getSubscriptionPlans(): ApiResponse<List<SubscriptionPlanDto>>
 }
