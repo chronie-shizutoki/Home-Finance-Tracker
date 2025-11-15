@@ -31,6 +31,7 @@ import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 
 import { useExpenseData } from '@/composables/useExpenseData';
+import { fetchAllPages, createCancellationController } from '@/utils/pagination';
 import Header from '@/components/Header.vue';
 import ExpenseCharts from '@/components/ExpenseCharts.vue';
 import MessageTip from '@/components/MessageTip.vue';
@@ -42,29 +43,45 @@ const router = useRouter();
 const Expenses = ref([]);
 const isLoading = ref(false);
 
+// 取消控制器
+let paginationController = null;
+
 // 费用数据管理
 const { error, successMessage, errorMessage } = useExpenseData();
 
-// 载入消费数据（从SQLite数据库）
+// 载入消费数据（从SQLite数据库）- 使用分页加载优化性能
 const loadExpenses = async () => {
   if (isLoading.value) return;
+
+  // 取消之前的请求
+  if (paginationController) {
+    paginationController.abort();
+  }
+
+  paginationController = createCancellationController();
   isLoading.value = true;
 
   try {
-    // 使用与HomeView相同的API端点获取数据
-    const res = await axios.get(`/api/expenses?limit=10000`);
-    
-    let parsedData = [];
-    
-    // 适配API响应格式
-    if (res.data && res.data.data && Array.isArray(res.data.data)) {
-      parsedData = res.data.data;
-    } else if (Array.isArray(res.data)) {
-      parsedData = res.data;
-    }
+    console.log('ChartsView: 开始使用分页加载数据...');
+
+    // 使用分页工具获取所有数据
+    const allData = await fetchAllPages({
+      apiCall: ({ page, limit }) => 
+        axios.get(`/api/expenses?page=${page}&limit=${limit}`),
+      pageSize: 100,           // 每页100条记录
+      maxConcurrent: 2,        // 图表页面使用2个并发请求，避免影响其他操作
+      signal: paginationController.signal,
+      onProgress: (progressData) => {
+        console.log(`ChartsView: 数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
+      },
+      onError: (error) => {
+        console.error('ChartsView: 分页加载错误:', error);
+        throw error;
+      }
+    });
 
     // 确保数据格式正确
-    Expenses.value = parsedData
+    Expenses.value = allData
       .map(item => ({
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
@@ -76,19 +93,31 @@ const loadExpenses = async () => {
     if (Expenses.value.length === 0) {
       console.warn('ChartsView: No valid data found in API response');
     } else {
-      console.log('ChartsView: Data loaded, count:', Expenses.value.length);
+      console.log('ChartsView: 分页加载完成, count:', Expenses.value.length);
     }
   } catch (err) {
-    const errorInfo = err.response
-      ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
-      : err.message;
-    errorMessage.value = t('common.loadFailed', { error: errorInfo });
-    error.value = errorMessage.value;
+    if (err.message !== '操作已被取消') {
+      const errorInfo = err.response
+        ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
+        : err.message;
+      errorMessage.value = t('common.loadFailed', { error: errorInfo });
+      error.value = errorMessage.value;
 
-    console.error('ChartsView: Error Details:', err);
-    Expenses.value = [];
+      console.error('ChartsView: Error Details:', err);
+      Expenses.value = [];
+    } else {
+      console.log('ChartsView: 数据加载被用户取消');
+    }
   } finally {
     isLoading.value = false;
+  }
+};
+
+// 取消数据加载
+const cancelDataLoad = () => {
+  if (paginationController) {
+    paginationController.abort();
+    console.log('ChartsView: 数据加载已取消');
   }
 };
 

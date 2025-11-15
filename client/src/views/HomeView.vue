@@ -496,6 +496,7 @@ import Papa from 'papaparse';
 
 import { useExpenseData } from '@/composables/useExpenseData';
 import { useExcelExport } from '@/composables/useExcelExport';
+import { fetchAllPages, createCancellationController } from '@/utils/pagination';
 
 const MessageTip = defineAsyncComponent(() => import('@/components/MessageTip.vue'));
 const Header = defineAsyncComponent(() => import('@/components/Header.vue'));
@@ -1189,28 +1190,43 @@ const fetchData = async (forceRefresh = false) => {
   await loadExpenses();
 };
 
-// 载入消费数据（从SQLite数据库）
+// 创建取消控制器
+let paginationController = null;
+
+// 载入消费数据（从SQLite数据库） - 使用分页加载优化性能
 const loadExpenses = async () => {
   if (isLoading.value) return;
+
+  // 取消之前的请求
+  if (paginationController) {
+    paginationController.abort();
+  }
+
+  paginationController = createCancellationController();
   isLoading.value = true;
 
   try {
-    // 使用新的API端点获取所有数据
-    const res = await axios.get(`/api/expenses?limit=10000`);
-    
-    let parsedData = [];
-    
-    // 适配新的API响应格式
-    if (res.data && res.data.data && Array.isArray(res.data.data)) {
-      // 新格式：{ data: [...], total: number, page: number, limit: number }
-      parsedData = res.data.data;
-    } else if (Array.isArray(res.data)) {
-      // 兼容旧格式：直接返回数组
-      parsedData = res.data;
-    }
+    console.log('开始使用分页加载数据...');
+
+    // 使用分页工具获取所有数据
+    const allData = await fetchAllPages({
+      apiCall: ({ page, limit }) => 
+        axios.get(`/api/expenses?page=${page}&limit=${limit}`),
+      pageSize: 100,           // 每页100条记录
+      maxConcurrent: 3,        // 最多3个并发请求
+      signal: paginationController.signal,
+      onProgress: (progressData) => {
+        console.log(`数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
+        // 可以在这里更新进度条显示
+      },
+      onError: (error) => {
+        console.error('分页加载错误:', error);
+        throw error;
+      }
+    });
 
     // 确保数据格式正确
-    Expenses.value = parsedData
+    Expenses.value = allData
       .map(item => ({
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
@@ -1222,19 +1238,31 @@ const loadExpenses = async () => {
     if (Expenses.value.length === 0) {
       console.warn('loadExpenses: No valid data found in API response');
     } else {
-      console.log('loadExpenses: Data loaded, count:', Expenses.value.length);
+      console.log('loadExpenses: 分页加载完成, count:', Expenses.value.length);
     }
   } catch (err) {
-    const errorInfo = err.response
-      ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
-      : err.message;
-    errorMessage.value = t('common.loadFailed', { error: errorInfo });
-    error.value = errorMessage.value;
+    if (err.message !== '操作已被取消') {
+      const errorInfo = err.response
+        ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
+        : err.message;
+      errorMessage.value = t('common.loadFailed', { error: errorInfo });
+      error.value = errorMessage.value;
 
-    console.error('loadExpenses: Error Details:', err);
-    Expenses.value = [];
+      console.error('loadExpenses: Error Details:', err);
+      Expenses.value = [];
+    } else {
+      console.log('数据加载被用户取消');
+    }
   } finally {
     isLoading.value = false;
+  }
+};
+
+// 取消数据加载
+const cancelDataLoad = () => {
+  if (paginationController) {
+    paginationController.abort();
+    console.log('数据加载已取消');
   }
 };
 
