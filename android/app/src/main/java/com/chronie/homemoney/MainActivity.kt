@@ -198,6 +198,18 @@ fun HomeMoneyApp(
                     navController.navigate("welcome") {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToHistory = {
+                    navController.navigate("subscription_history")
+                }
+            )
+        }
+        
+        composable("subscription_history") {
+            com.chronie.homemoney.ui.membership.SubscriptionHistoryScreen(
+                context = context,
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

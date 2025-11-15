@@ -28,6 +28,9 @@ interface MemberApi {
     
     @POST("api/members/subscriptions")
     suspend fun createSubscription(@Body request: CreateSubscriptionRequest): ApiResponse<UserSubscriptionDto>
+    
+    @GET("api/members/members/{username}/subscriptions")
+    suspend fun getSubscriptionHistory(@Path("username") username: String): ApiResponse<List<UserSubscriptionDto>>
 }
 
 data class SubscribePaymentRequest(

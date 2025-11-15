@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ fun MembershipPurchaseScreen(
     context: Context,
     onNavigateToMain: () -> Unit,
     onNavigateToWelcome: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     viewModel: MembershipViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,6 +57,12 @@ fun MembershipPurchaseScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToHistory) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = context.getString(R.string.subscription_history)
+                        )
+                    }
                     IconButton(onClick = { viewModel.logout(onNavigateToWelcome) }) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,

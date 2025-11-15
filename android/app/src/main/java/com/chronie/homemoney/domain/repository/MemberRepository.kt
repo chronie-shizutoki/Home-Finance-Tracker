@@ -11,4 +11,5 @@ interface MemberRepository {
     suspend fun getSubscriptionPlans(): Result<List<SubscriptionPlan>>
     suspend fun subscribePayment(username: String, planId: String): Result<String>
     suspend fun createSubscription(username: String, planId: String, paymentId: String): Result<SubscriptionStatus>
+    suspend fun getSubscriptionHistory(username: String): Result<List<SubscriptionStatus>>
 }

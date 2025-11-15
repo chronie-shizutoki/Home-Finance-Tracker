@@ -20,11 +20,15 @@ class MembershipViewModel @Inject constructor(
     private val getSubscriptionPlansUseCase: com.chronie.homemoney.domain.usecase.GetSubscriptionPlansUseCase,
     private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
     private val purchaseSubscriptionUseCase: com.chronie.homemoney.domain.usecase.PurchaseSubscriptionUseCase,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MembershipUiState>(MembershipUiState.Loading)
     val uiState: StateFlow<MembershipUiState> = _uiState.asStateFlow()
+    
+    private val _historyState = MutableStateFlow<HistoryUiState>(HistoryUiState.Loading)
+    val historyState: StateFlow<HistoryUiState> = _historyState.asStateFlow()
 
     init {
         loadMembershipData()
@@ -146,6 +150,33 @@ class MembershipViewModel @Inject constructor(
         }
     }
 
+    fun loadSubscriptionHistory() {
+        viewModelScope.launch {
+            _historyState.value = HistoryUiState.Loading
+            
+            try {
+                val username = checkLoginStatusUseCase.getUsername()
+                if (username.isNullOrEmpty()) {
+                    _historyState.value = HistoryUiState.Error("未登录")
+                    return@launch
+                }
+                
+                val result = memberRepository.getSubscriptionHistory(username)
+                if (result.isSuccess) {
+                    _historyState.value = HistoryUiState.Success(result.getOrNull() ?: emptyList())
+                } else {
+                    _historyState.value = HistoryUiState.Error(
+                        result.exceptionOrNull()?.message ?: "获取订阅历史失败"
+                    )
+                }
+            } catch (e: Exception) {
+                _historyState.value = HistoryUiState.Error(
+                    e.message ?: "加载失败"
+                )
+            }
+        }
+    }
+
     fun logout(onLogout: () -> Unit) {
         preferencesManager.clearUsername()
         preferencesManager.clearMembershipStatus()
@@ -161,4 +192,10 @@ sealed class MembershipUiState {
         val isPurchasing: Boolean = false
     ) : MembershipUiState()
     data class Error(val message: String) : MembershipUiState()
+}
+
+sealed class HistoryUiState {
+    object Loading : HistoryUiState()
+    data class Success(val history: List<SubscriptionStatus>) : HistoryUiState()
+    data class Error(val message: String) : HistoryUiState()
 }

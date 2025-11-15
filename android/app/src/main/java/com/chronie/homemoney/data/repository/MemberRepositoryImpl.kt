@@ -105,4 +105,17 @@ class MemberRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+    
+    override suspend fun getSubscriptionHistory(username: String): Result<List<SubscriptionStatus>> {
+        return try {
+            val response = memberApi.getSubscriptionHistory(username)
+            if (response.success && response.data != null) {
+                Result.success(response.data.map { SubscriptionMapper.toSubscriptionStatus(it) })
+            } else {
+                Result.failure(Exception(response.error ?: "获取订阅历史失败"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
