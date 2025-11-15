@@ -267,6 +267,14 @@ fun MainScreen(
                             onNavigateToDatabaseTest = onNavigateToDatabaseTest,
                             onNavigateToApiTest = onNavigateToApiTest,
                             onNavigateToWebView = { showWebView = true },
+                            onNavigateToMembership = {
+                                android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")
+                                onRequireMembership()
+                            },
+                            onLogout = {
+                                android.util.Log.d("MainScreen", "收到 onLogout 回调")
+                                onRequireLogin()
+                            },
                             onRequireLogin = onRequireLogin,
                             onRequireMembership = onRequireMembership
                         )

@@ -1185,7 +1185,13 @@ fun AccountSection(
                     
                     // 会员管理/续费按钮
                     Button(
-                        onClick = onNavigateToMembership,
+                        onClick = {
+                            android.util.Log.d("SettingsScreen", "管理订阅按钮被点击")
+                            android.util.Log.d("SettingsScreen", "会员状态: ${membershipStatus?.isActive}")
+                            android.util.Log.d("SettingsScreen", "调用 onNavigateToMembership")
+                            onNavigateToMembership()
+                            android.util.Log.d("SettingsScreen", "onNavigateToMembership 调用完成")
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
