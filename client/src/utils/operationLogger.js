@@ -2,7 +2,50 @@
  * 操作日志记录工具
  * @module utils/operationLogger
  * @desc 收集和上报用户操作日志，包括用户行为、设备信息和请求响应数据
+ * 
+ * 配置说明：
+ * - 只上报ERROR和WARN级别的日志
+ * - API日志只记录错误和异常情况
+ * - 减少控制台日志捕获
+ * - 优化日志上报策略
  */
+
+// 日志级别配置
+const LOG_LEVELS = {
+  ERROR: 'error',
+  WARN: 'warn',
+  INFO: 'info',
+  DEBUG: 'debug'
+};
+
+// 当前日志级别 - 默认只记录ERROR和WARN
+let currentLogLevel = LOG_LEVELS.WARN;
+
+/**
+ * 设置日志级别
+ * @param {string} level - 日志级别
+ */
+export function setLogLevel(level) {
+  if (Object.values(LOG_LEVELS).includes(level)) {
+    currentLogLevel = level;
+  }
+}
+
+/**
+ * 检查是否应该记录此级别的日志
+ * @param {string} level - 日志级别
+ * @returns {boolean} 是否应该记录
+ */
+function shouldLog(level) {
+  const levelPriority = {
+    [LOG_LEVELS.DEBUG]: 0,
+    [LOG_LEVELS.INFO]: 1,
+    [LOG_LEVELS.WARN]: 2,
+    [LOG_LEVELS.ERROR]: 3
+  };
+  
+  return levelPriority[level] >= levelPriority[currentLogLevel];
+}
 
 /**
  * 获取用户设备信息
@@ -84,10 +127,17 @@ function formatLogData(logData) {
 /**
  * 上报日志到服务器
  * @param {Object} logData - 日志数据
+ * @param {string} level - 日志级别
  */
-async function reportLog(logData) {
+async function reportLog(logData, level = LOG_LEVELS.ERROR) {
+  // 检查是否应该记录此级别的日志
+  if (!shouldLog(level)) {
+    return;
+  }
+  
   try {
     const formattedLog = formatLogData(logData);
+    formattedLog.level = level;
     
     // 使用navigator.sendBeacon API发送日志（更可靠，不阻塞页面）
     let isBeaconSupported = false;
@@ -119,11 +169,12 @@ async function reportLog(logData) {
       const failedLogs = JSON.parse(localStorage.getItem('failedLogs') || '[]');
       failedLogs.push({
         timestamp: new Date().toISOString(),
-        data: logData
+        data: logData,
+        level
       });
-      // 只保留最近100条失败的日志
-      if (failedLogs.length > 100) {
-        failedLogs.splice(0, failedLogs.length - 100);
+      // 只保留最近50条失败的日志（减少存储）
+      if (failedLogs.length > 50) {
+        failedLogs.splice(0, failedLogs.length - 50);
       }
       localStorage.setItem('failedLogs', JSON.stringify(failedLogs));
     } catch (e) {
@@ -144,7 +195,7 @@ async function retryFailedLogs() {
     localStorage.removeItem('failedLogs');
     
     for (const logItem of logsToRetry) {
-      await reportLog(logItem.data);
+      await reportLog(logItem.data, logItem.level);
     }
   } catch (error) {
     console.error('重试失败日志失败:', error);
@@ -152,22 +203,30 @@ async function retryFailedLogs() {
 }
 
 /**
- * 记录用户行为日志
+ * 记录重要的用户行为日志
  * @param {string} action - 操作名称
  * @param {Object} details - 操作详情
  */
 export function logUserAction(action, details = {}) {
-  reportLog({
-    type: 'user_action',
-    action,
-    details
-  });
+  // 只记录重要的用户操作，减少噪音
+  const importantActions = [
+    'login', 'logout', 'payment', 'delete', 'export', 
+    'import', 'sync', 'backup', 'restore', 'error'
+  ];
+  
+  const isImportantAction = importantActions.some(important => 
+    action.toLowerCase().includes(important)
+  );
+  
+  if (isImportantAction) {
+    reportLog({
+      type: 'user_action',
+      action,
+      details
+    }, LOG_LEVELS.WARN);
+  }
 }
 
-/**
- * 记录API请求日志
- * @param {Object} config - Axios请求配置
- */
 /**
  * 安全过滤请求体，移除敏感信息
  * @param {any} data - 请求数据
@@ -191,50 +250,54 @@ function sanitizeRequestBody(data) {
   return sanitized;
 }
 
+/**
+ * 记录API请求日志 - 只在有问题时记录
+ * @param {Object} config - Axios请求配置
+ */
 export function logApiRequest(config) {
-  // 避免记录敏感信息
-  const sanitizedConfig = {
-    method: config.method,
-    url: config.url,
-    params: config.params,
-    timestamp: Date.now()
-  };
+  // 只记录可能有问题的重要API请求
+  const problematicMethods = ['delete', 'put', 'patch'];
+  const problematicPaths = ['payment', 'auth', 'delete', 'update', 'user'];
+  const isProblematic = problematicMethods.includes(config.method) || 
+                       problematicPaths.some(path => config.url.includes(path));
   
-  // 安全记录请求体，移除敏感信息
-  if (config.data) {
-    try {
-      // 尝试序列化数据来检查大小
-      const dataStr = typeof config.data === 'string' ? config.data : JSON.stringify(config.data);
-      if (dataStr.length <= 5 * 1024) { // 限制在5KB以内
-        sanitizedConfig.body = sanitizeRequestBody(config.data);
-      } else {
-        // 对于大请求体，仍然只记录基本信息
+  if (isProblematic) {
+    const sanitizedConfig = {
+      method: config.method,
+      url: config.url,
+      params: config.params,
+      timestamp: Date.now()
+    };
+    
+    // 只在确认有问题时才记录请求体
+    if (config.data && isProblematic) {
+      try {
+        const dataStr = typeof config.data === 'string' ? config.data : JSON.stringify(config.data);
+        if (dataStr.length <= 2 * 1024) { // 限制在2KB以内
+          sanitizedConfig.body = sanitizeRequestBody(config.data);
+        } else {
+          sanitizedConfig.hasBody = true;
+          sanitizedConfig.bodyType = typeof config.data;
+          sanitizedConfig.bodySize = dataStr.length;
+        }
+      } catch (e) {
         sanitizedConfig.hasBody = true;
         sanitizedConfig.bodyType = typeof config.data;
-        sanitizedConfig.bodySize = dataStr.length;
       }
-    } catch (e) {
-      // 如果序列化失败，只记录基本信息
-      sanitizedConfig.hasBody = true;
-      sanitizedConfig.bodyType = typeof config.data;
     }
+    
+    // 存储请求ID，用于匹配响应
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    config._requestId = requestId;
+    
+    reportLog({
+      type: 'api_request',
+      requestId,
+      request: sanitizedConfig
+    }, LOG_LEVELS.INFO);
   }
-  
-  // 存储请求ID，用于匹配响应
-  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  config._requestId = requestId;
-  
-  reportLog({
-    type: 'api_request',
-    requestId,
-    request: sanitizedConfig
-  });
 }
 
-/**
- * 记录API响应日志
- * @param {Object} response - Axios响应对象
- */
 /**
  * 安全过滤响应数据，移除敏感信息
  * @param {any} data - 响应数据
@@ -265,60 +328,74 @@ function sanitizeResponseBody(data) {
   return sanitized;
 }
 
+/**
+ * 记录API响应日志 - 只在有问题时记录
+ * @param {Object} response - Axios响应对象
+ */
 export function logApiResponse(response) {
-  const requestId = response.config._requestId;
+  // 只记录有问题的响应（错误状态码或慢请求）
+  const isErrorResponse = response.status >= 400;
+  const isSlowRequest = Date.now() - (response.config.timestamp || Date.now()) > 5000; // 超过5秒
+  const hasLargeResponse = response.data && JSON.stringify(response.data).length > 50 * 1024; // 超过50KB
   
-  // 记录更详细的请求信息
-  const requestInfo = {
-    method: response.config.method,
-    url: response.config.url,
-    params: response.config.params,
-    startTime: response.config.timestamp
-  };
-  
-  // 限制响应数据大小并过滤敏感信息
-  let responseData;
-  try {
-    const dataStr = JSON.stringify(response.data);
+  if (isErrorResponse || isSlowRequest || hasLargeResponse) {
+    const requestId = response.config._requestId;
     
-    // 对于中小型响应数据，进行安全过滤后完整记录
-    if (dataStr.length <= 8 * 1024) { // 限制在8KB以内
-      responseData = sanitizeResponseBody(response.data);
-    } else {
-      // 对于大型响应数据，保留部分信息但增加更多细节
-      responseData = {
-        truncated: true,
-        size: dataStr.length,
-        type: Array.isArray(response.data) ? 'array' : typeof response.data,
-        keys: typeof response.data === 'object' ? Object.keys(response.data) : undefined,
-        // 对于数组，记录元素数量
-        itemCount: Array.isArray(response.data) ? response.data.length : undefined,
-        // 对于对象，记录第一层属性数量
-        propertyCount: typeof response.data === 'object' ? Object.keys(response.data).length : undefined
+    // 记录更详细的请求信息
+    const requestInfo = {
+      method: response.config.method,
+      url: response.config.url,
+      params: response.config.params,
+      startTime: response.config.timestamp
+    };
+    
+    // 限制响应数据大小并过滤敏感信息
+    let responseData;
+    try {
+      const dataStr = JSON.stringify(response.data);
+      
+      if (dataStr.length <= 4 * 1024) { // 限制在4KB以内
+        responseData = sanitizeResponseBody(response.data);
+      } else {
+        responseData = {
+          truncated: true,
+          size: dataStr.length,
+          type: Array.isArray(response.data) ? 'array' : typeof response.data,
+          keys: typeof response.data === 'object' ? Object.keys(response.data) : undefined,
+          itemCount: Array.isArray(response.data) ? response.data.length : undefined,
+          propertyCount: typeof response.data === 'object' ? Object.keys(response.data).length : undefined
+        };
+      }
+    } catch (error) {
+      responseData = { 
+        error: '无法序列化响应数据',
+        originalType: typeof response.data
       };
     }
-  } catch (error) {
-    responseData = { 
-      error: '无法序列化响应数据',
-      originalType: typeof response.data
-    };
+    
+    const logLevel = isErrorResponse ? LOG_LEVELS.ERROR : LOG_LEVELS.WARN;
+    
+    reportLog({
+      type: 'api_response',
+      requestId,
+      request: requestInfo,
+      response: {
+        status: response.status,
+        statusText: response.statusText,
+        data: responseData,
+        headers: Object.fromEntries(Object.entries(response.headers || {}).filter(
+          ([key]) => !['authorization', 'cookie'].includes(key.toLowerCase())
+        ))
+      },
+      duration: Date.now() - (response.config.timestamp || Date.now()),
+      timestamp: new Date().toISOString(),
+      issues: {
+        isErrorResponse,
+        isSlowRequest,
+        hasLargeResponse
+      }
+    }, logLevel);
   }
-  
-  reportLog({
-    type: 'api_response',
-    requestId,
-    request: requestInfo, // 包含请求信息，让日志更完整
-    response: {
-      status: response.status,
-      statusText: response.statusText,
-      data: responseData,
-      headers: Object.fromEntries(Object.entries(response.headers || {}).filter(
-        ([key]) => !['authorization', 'cookie'].includes(key.toLowerCase())
-      ))
-    },
-    duration: Date.now() - (response.config.timestamp || Date.now()),
-    timestamp: new Date().toISOString() // 添加完整的时间戳
-  });
 }
 
 /**
@@ -341,7 +418,7 @@ export function logApiError(error) {
         hasBody: !!error.config.data
       } : undefined
     }
-  });
+  }, LOG_LEVELS.ERROR);
 }
 
 /**
@@ -357,7 +434,7 @@ export function logPageError(error, source = 'global') {
       stack: error.stack,
       source
     }
-  });
+  }, LOG_LEVELS.ERROR);
 }
 
 /**
@@ -367,12 +444,24 @@ export function logPageError(error, source = 'global') {
  * @param {Object} context - 上下文信息
  */
 export function logPerformanceMetric(metricName, value, context = {}) {
-  reportLog({
-    type: 'performance',
-    metric: metricName,
-    value,
-    context
-  });
+  // 只记录性能问题指标
+  const performanceIssues = {
+    'page_load_time': 3000, // 超过3秒
+    'api_response_time': 10000, // 超过10秒
+    'memory_usage': 100 * 1024 * 1024, // 超过100MB
+    'dom_elements': 5000 // 超过5000个DOM元素
+  };
+  
+  const threshold = performanceIssues[metricName];
+  if (threshold && value > threshold) {
+    reportLog({
+      type: 'performance',
+      metric: metricName,
+      value,
+      context,
+      threshold
+    }, LOG_LEVELS.WARN);
+  }
 }
 
 /**
@@ -401,15 +490,15 @@ export function tryReportFailedLogs() {
 }
 
 /**
- * 初始化控制台日志捕获
+ * 初始化控制台日志捕获 - 简化版本，只捕获ERROR和WARN
  * @param {Object} options - 配置选项
- * @param {Array<string>} options.levels - 要捕获的日志级别，默认为['log', 'error', 'warn', 'info']
- * @param {number} options.maxLength - 单个日志消息的最大长度，默认为5000
+ * @param {Array<string>} options.levels - 要捕获的日志级别，默认为['error', 'warn']
+ * @param {number} options.maxLength - 单个日志消息的最大长度，默认为2000
  */
 export function initConsoleLogging(options = {}) {
   const {
-    levels = ['log', 'error', 'warn', 'info'],
-    maxLength = 5000
+    levels = ['error', 'warn'], // 默认只捕获error和warn
+    maxLength = 2000 // 减少最大长度
   } = options;
 
   // 存储原始console方法
@@ -454,7 +543,7 @@ export function initConsoleLogging(options = {}) {
             level,
             message: logMessage,
             timestamp: new Date().toISOString()
-          });
+          }, level === 'error' ? LOG_LEVELS.ERROR : LOG_LEVELS.WARN);
         } catch (e) {
           // 如果日志处理出错，使用原始console记录错误，但不上报
           originalConsole.error('控制台日志捕获失败:', e);
@@ -476,5 +565,6 @@ export default {
   logPerformanceMetric,
   initGlobalErrorMonitoring,
   tryReportFailedLogs,
-  initConsoleLogging
+  initConsoleLogging,
+  setLogLevel
 };

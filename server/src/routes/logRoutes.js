@@ -53,7 +53,7 @@ router.get('/stats', logController.getLogStats);
  * @memberof module:routes/logRoutes
  * @inner
  * @param {Object} req.query - 查询参数
- * @param {number} req.query.days - 保留天数，默认90天
+ * @param {number} req.query.days - 保留天数，默认45天
  */
 router.delete('/clean', logController.cleanLogs);
 

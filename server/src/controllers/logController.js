@@ -95,7 +95,7 @@ const cleanLogs = async (req, res) => {
   try {
     // 这里可以添加管理员权限验证
     
-    const { days = 90 } = req.query;
+    const { days = 45 } = req.query;
     const daysToKeep = Number(days);
     
     if (daysToKeep < 1) {
