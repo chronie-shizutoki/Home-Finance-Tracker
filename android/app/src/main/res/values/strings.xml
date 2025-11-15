@@ -26,12 +26,6 @@
     <string name="welcome_message">Welcome to Home Finance</string>
     <string name="getting_started">Get Started</string>
     
-    <!-- Main Screen -->
-    <string name="main_screen_title">Home</string>
-    <string name="main_screen_description">Main application screen</string>
-    <string name="coming_soon">Coming Soon</string>
-    <string name="features_coming_soon">More features coming in future updates</string>
-    
     <!-- Developer Options -->
     <string name="developer_options">Developer Options</string>
     <string name="developer_mode">Developer Mode</string>
@@ -68,16 +62,6 @@
     <string name="clear_failed">Clear failed: %s</string>
     <string name="load_success">Loaded</string>
     <string name="load_failed">Load failed: %s</string>
-    
-    <!-- API Test -->
-    <string name="api_test">API Test</string>
-    <string name="health_check">Health Check</string>
-    <string name="get_expenses">Get Expenses</string>
-    <string name="subscription_plans">Subscriptions</string>
-    
-    <string name="run_all_tests">Run All Tests</string>
-    <string name="clear_results">Clear Results</string>
-    <string name="click_to_start_test">Click button to start testing</string>
     
     <!-- Expense Types -->
     <string name="expense_type_daily_goods">Daily Goods</string>

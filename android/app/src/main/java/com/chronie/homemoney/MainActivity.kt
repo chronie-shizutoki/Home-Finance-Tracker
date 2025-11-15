@@ -31,7 +31,6 @@ import com.chronie.homemoney.ui.expense.AddExpenseScreen
 import com.chronie.homemoney.ui.expense.AIExpenseScreen
 import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
-import com.chronie.homemoney.ui.test.ApiTestScreen
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
@@ -223,9 +222,6 @@ fun HomeMoneyApp(
                 onNavigateToDatabaseTest = {
                     navController.navigate("database_test")
                 },
-                onNavigateToApiTest = {
-                    navController.navigate("api_test")
-                },
                 onNavigateToMembership = {
                     navController.navigate("membership_purchase")
                 },
@@ -258,9 +254,6 @@ fun HomeMoneyApp(
                 },
                 onNavigateToDatabaseTest = {
                     navController.navigate("database_test")
-                },
-                onNavigateToApiTest = {
-                    navController.navigate("api_test")
                 },
                 onNavigateToAddExpense = {
                     navController.navigate("add_expense")
@@ -318,15 +311,6 @@ fun HomeMoneyApp(
         
         composable("database_test") {
             DatabaseTestScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        
-        composable("api_test") {
-            ApiTestScreen(
                 context = context,
                 onNavigateBack = {
                     navController.popBackStack()

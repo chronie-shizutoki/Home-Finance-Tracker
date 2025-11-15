@@ -26,12 +26,6 @@
     <string name="welcome_message">歡迎使用家庭記帳本</string>
     <string name="getting_started">開始使用</string>
     
-    <!-- Main Screen -->
-    <string name="main_screen_title">主畫面</string>
-    <string name="main_screen_description">這是應用程式的主畫面</string>
-    <string name="coming_soon">即將推出</string>
-    <string name="features_coming_soon">更多功能將在後續任務中新增</string>
-    
     <!-- Developer Options -->
     <string name="developer_options">開發者選項</string>
     <string name="developer_mode">開發者模式</string>
@@ -68,16 +62,6 @@
     <string name="clear_failed">清除失敗: %s</string>
     <string name="load_success">資料載入成功</string>
     <string name="load_failed">載入資料失敗: %s</string>
-    
-    <!-- API Test -->
-    <string name="api_test">API 測試</string>
-    <string name="health_check">健康檢查</string>
-    <string name="get_expenses">取得支出</string>
-    <string name="subscription_plans">訂閱方案</string>
-    
-    <string name="run_all_tests">執行全部</string>
-    <string name="clear_results">清除結果</string>
-    <string name="click_to_start_test">點選上方按鈕開始測試</string>
     
     <!-- 支出類型 -->
     <string name="expense_type_daily_goods">日常用品</string>

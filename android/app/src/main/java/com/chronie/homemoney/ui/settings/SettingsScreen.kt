@@ -20,7 +20,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
-    onNavigateToApiTest: () -> Unit = {},
     onNavigateToMembership: () -> Unit = {},
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
@@ -205,34 +204,6 @@ fun SettingsScreen(
                     ) {
                         Text(
                             text = context.getString(R.string.database_test),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = ">",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // API 测试按钮
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onNavigateToApiTest),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = context.getString(R.string.api_test),
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(

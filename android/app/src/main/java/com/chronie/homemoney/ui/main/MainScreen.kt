@@ -25,7 +25,6 @@ fun MainScreen(
     onRefreshHandled: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
-    onNavigateToApiTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
     onRequireMembership: () -> Unit = {},
@@ -144,7 +143,6 @@ fun MainScreen(
                             context = context,
                             onNavigateBack = { selectedTab = 0 },
                             onNavigateToDatabaseTest = onNavigateToDatabaseTest,
-                            onNavigateToApiTest = onNavigateToApiTest,
                             onNavigateToMembership = {
                                 android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")
                                 onRequireMembership()

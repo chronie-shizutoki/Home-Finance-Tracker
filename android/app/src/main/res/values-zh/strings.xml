@@ -26,12 +26,6 @@
     <string name="welcome_message">欢迎使用家庭记账本</string>
     <string name="getting_started">开始使用</string>
     
-    <!-- Main Screen -->
-    <string name="main_screen_title">首页</string>
-    <string name="main_screen_description">这是应用的主界面</string>
-    <string name="coming_soon">即将上线</string>
-    <string name="features_coming_soon">更多功能将在后续版本中添加</string>
-    
     <!-- Developer Options -->
     <string name="developer_options">开发者选项</string>
     <string name="developer_mode">开发者模式</string>
@@ -68,16 +62,6 @@
     <string name="clear_failed">清空失败: %s</string>
     <string name="load_success">数据加载成功</string>
     <string name="load_failed">加载数据失败: %s</string>
-    
-    <!-- API Test -->
-    <string name="api_test">API测试</string>
-    <string name="health_check">健康检查</string>
-    <string name="get_expenses">获取支出</string>
-    <string name="subscription_plans">订阅方案</string>
-    
-    <string name="run_all_tests">运行全部</string>
-    <string name="clear_results">清除结果</string>
-    <string name="click_to_start_test">点击上方按钮开始测试</string>
     
     <!-- 支出类型 -->
     <string name="expense_type_daily_goods">日常用品</string>
