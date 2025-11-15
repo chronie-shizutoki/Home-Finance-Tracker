@@ -70,6 +70,27 @@ class MemberRepositoryImpl @Inject constructor(
         }
     }
     
+    override suspend fun subscribePayment(username: String, planId: String): Result<String> {
+        return try {
+            android.util.Log.d("MemberRepository", "调用支付API: username=$username, planId=$planId")
+            val response = memberApi.subscribePayment(
+                com.chronie.homemoney.data.remote.api.SubscribePaymentRequest(username, planId)
+            )
+            android.util.Log.d("MemberRepository", "支付API响应: success=${response.success}, data=${response.data}")
+            if (response.success && response.data != null) {
+                val orderId = response.data.orderId
+                android.util.Log.d("MemberRepository", "获取到订单ID: $orderId")
+                Result.success(orderId)
+            } else {
+                android.util.Log.e("MemberRepository", "支付失败: ${response.error}")
+                Result.failure(Exception(response.error ?: "支付失败"))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MemberRepository", "支付异常", e)
+            Result.failure(e)
+        }
+    }
+    
     override suspend fun createSubscription(username: String, planId: String, paymentId: String): Result<SubscriptionStatus> {
         return try {
             val response = memberApi.createSubscription(

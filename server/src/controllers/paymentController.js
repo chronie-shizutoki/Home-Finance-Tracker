@@ -198,12 +198,18 @@ const subscribePayment = async (req, res) => {
       
       // 记录订阅支付日志
       console.log(`用户${username}订阅了${plan.name}，金额${plan.price}元`)
+      console.log('第三方支付API响应:', JSON.stringify(response.data))
+      
+      // 生成订单ID（如果第三方API没有返回）
+      const orderId = response.data?.orderId || `SUB_${username}_${Date.now()}`
+      console.log('使用的订单ID:', orderId)
       
       // 返回第三方API的响应，包含订单ID供后续创建订阅使用
       res.status(200).json({
         success: true,
         data: {
           ...response.data,
+          orderId: orderId,
           planId: plan.id,
           planName: plan.name,
           price: plan.price
