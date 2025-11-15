@@ -131,8 +131,6 @@
     <string name="expense_list_filtered_count">篩選結果: %d 筆</string>
     <string name="common_search">搜尋</string>
     <string name="common_filter">篩選</string>
-    <string name="settings_webview_entry">開啟網頁版</string>
-    <string name="settings_webview_description">開啟原始網頁版功能</string>
     
     <!-- 支出統計 -->
     <string name="expense_stats_count">總記錄數</string>

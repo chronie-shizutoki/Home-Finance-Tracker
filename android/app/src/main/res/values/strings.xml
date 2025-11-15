@@ -131,8 +131,6 @@
     <string name="expense_list_filtered_count">%d results</string>
     <string name="common_search">Search</string>
     <string name="common_filter">Filter</string>
-    <string name="settings_webview_entry">Web Version</string>
-    <string name="settings_webview_description">Open web version features</string>
     
     <!-- Expense Statistics -->
     <string name="expense_stats_count">Total Records</string>
@@ -329,6 +327,7 @@
     <string name="plan">Plan</string>
     <string name="duration">Duration</string>
     <string name="purchase">Purchase</string>
+    <string name="refresh_membership_status">Refresh Status</string>
     <string name="renew_now">Renew Now</string>
     <string name="remind_later">Remind Later</string>
     <string name="confirm_purchase">Confirm Purchase</string>

@@ -63,11 +63,7 @@ android {
     }
 }
 
-repositories {
-    flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
-    }
-}
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -136,10 +132,6 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.5'
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
     
-    // Capacitor (for hybrid mode)
-    implementation project(':capacitor-android')
-    implementation project(':capacitor-cordova-android-plugins')
-    
     // Testing
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'io.mockk:mockk:1.13.8'
@@ -151,8 +143,6 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
-
-apply from: 'capacitor.build.gradle'
 
 try {
     def servicesJSON = file('google-services.json')
