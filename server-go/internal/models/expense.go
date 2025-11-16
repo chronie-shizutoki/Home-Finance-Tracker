@@ -6,22 +6,20 @@ import (
 	"math"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Expense 消费记录
 type Expense struct {
-	ID      uuid.UUID `json:"id" gorm:"type:char(36);primaryKey"`
+	ID      uint      `json:"id" gorm:"primaryKey;autoIncrement"`
 	Type    string    `json:"type" gorm:"type:varchar(100);not null"`
 	Remark  *string   `json:"remark,omitempty" gorm:"type:text"`
 	Amount  float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
 	Time    time.Time `json:"time" gorm:"type:datetime;not null;index"`
 	
 	// 时间戳
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // TableName 指定表名
@@ -29,13 +27,7 @@ func (Expense) TableName() string {
 	return "expenses"
 }
 
-// BeforeCreate GORM钩子
-func (e *Expense) BeforeCreate(tx *gorm.DB) error {
-	if e.ID == uuid.Nil {
-		e.ID = uuid.New()
-	}
-	return nil
-}
+
 
 // ExpenseQuery 消费记录查询条件
 type ExpenseQuery struct {

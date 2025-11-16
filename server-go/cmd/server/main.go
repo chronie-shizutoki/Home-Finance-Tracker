@@ -297,7 +297,7 @@ func main() {
 	}
 
 	// 初始化数据库
-	db, err := database.InitDB("data/homemoney.db")
+	db, err := database.InitDB("../server/database.sqlite")
 	if err != nil {
 		log.Fatalf("数据库初始化失败: %v", err)
 	}
