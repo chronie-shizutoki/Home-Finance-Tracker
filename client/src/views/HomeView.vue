@@ -35,6 +35,22 @@
       <div class="time-part">{{ formattedTime }}</div>
     </div>
 
+       <div v-if="isAndroidDevice" class="android-download-section">
+         <el-button 
+           type="info" 
+           size="large" 
+           class="android-download-btn"
+           @click="openAndroidAppStore"
+           style="width: 100%; white-space: normal; height: auto; line-height: 1.5; padding: 16px;"
+         >
+           <div style="text-align: center;">
+             <el-icon style="margin-bottom: 4px;"><Iphone /></el-icon>
+             <div>在应用商店获取安卓版本客户端</div>
+             <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">提升使用体验！</div>
+           </div>
+         </el-button>
+       </div>
+
     <!-- 功能组网格布局 -->
     <div class="function-section">
       <!-- 手机端选单 -->
@@ -484,7 +500,7 @@
 
 <script setup>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElIcon, ElMessage, ElUpload } from 'element-plus';
-import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star } from '@element-plus/icons-vue';
+import { Plus, Document, List, Box, Refresh, Upload, Money, CreditCard, Cpu, PieChart, Message, Star, Iphone } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onBeforeUnmount, reactive, defineAsyncComponent, watch } from 'vue';
 import { marked } from 'marked';
@@ -512,6 +528,16 @@ const router = useRouter();
 
 // 用户名响应式变量 - 必须在所有使用前定义
 const username = ref(localStorage.getItem('username') || '');
+
+// 安卓设备检测
+const isAndroidDevice = ref(false);
+
+const detectAndroidDevice = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  // 检查是否为安卓设备
+  const androidRegex = /Android/i;
+  isAndroidDevice.value = androidRegex.test(userAgent);
+};
 
 // 播放警报声 - 支持循环多秒
 const playAlertSound = (duration = 5) => {
@@ -850,6 +876,11 @@ const handleImportError = (error) => {
 const goToDonation = () => {
   router.push('/donation');
 };
+
+// 打开安卓应用商店
+const openAndroidAppStore = () => {
+  window.open('https://chronie-app-store.netlify.app/', '_blank');
+};
 const markdownContent = ref('');
 const markdownTitle = ref('');
 
@@ -927,6 +958,9 @@ const initWelcomeEffects = () => {
 };
 
 onMounted(async () => {
+  // 检测安卓设备
+  detectAndroidDevice();
+  
   // 初始化并启动日期时间更新
   updateDateTime();
   dateTimeTimer = setInterval(updateDateTime, 1000);
