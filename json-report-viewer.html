@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 报告查看器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .api-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: flex;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .file-input:hover {
+            background: #667eea;
+            color: white;
+            border-color: #5a67d8;
+        }
+
+        .report-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .report-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-item:hover {
+            background: #f8f9ff;
+            color: #667eea;
+        }
+
+        .report-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .report-name {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .report-date {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .report-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+
+        .report-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .report-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .json-content {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 80px);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .json-key {
+            color: #d73a49;
+            font-weight: bold;
+        }
+
+        .json-string {
+            color: #032f62;
+        }
+
+        .json-number {
+            color: #005cc5;
+        }
+
+        .json-boolean {
+            color: #e36209;
+        }
+
+        .json-null {
+            color: #6f42c1;
+        }
+
+        .error-item {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .warning-item {
+            background: #fffbf0;
+            border-left: 4px solid #f6ad55;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .suggestion-item {
+            background: #f0fff4;
+            border-left: 4px solid #68d391;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .error-level {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .error-level.high {
+            color: #e53e3e;
+        }
+
+        .error-level.medium {
+            color: #f6ad55;
+        }
+
+        .error-level.low {
+            color: #68d391;
+        }
+
+        .quick-nav {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-button.danger {
+            background: #e53e3e;
+        }
+
+        .nav-button.danger:hover {
+            background: #c53030;
+        }
+
+        .nav-button.warning {
+            background: #f6ad55;
+        }
+
+        .nav-button.warning:hover {
+            background: #ed8936;
+        }
+
+        .nav-button.success {
+            background: #68d391;
+        }
+
+        .nav-button.success:hover {
+            background: #48bb78;
+        }
+
+        .no-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6c757d;
+            font-size: 1.2em;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .no-selection-icon {
+            font-size: 4em;
+            opacity: 0.3;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .test-endpoints {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .endpoints-list {
+            margin: 15px 0;
+        }
+
+        .endpoint-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f8f9ff;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .endpoint-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .endpoint-item div {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin: 2px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .run-test-info {
+            background: #e8f4fd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .run-test-info p {
+            margin: 0 0 8px 0;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .run-test-info code {
+            background: #f1f3f4;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .section-highlight {
+            animation: highlight-section 3s ease-in-out;
+            position: relative;
+        }
+
+        .section-highlight::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            z-index: -1;
+        }
+
+        @keyframes highlight-section {
+            0% { background: rgba(102, 126, 234, 0.1); }
+            50% { background: rgba(102, 126, 234, 0.2); }
+            100% { background: transparent; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 API测试报告查看器</h1>
+            <p>专为API测试报告设计的JSON查看工具，轻松定位错误问题</p>
+            <div class="api-badge">专为 api-tester.js 定制</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="upload-section">
+                    <h3>📄 选择JSON报告文件</h3>
+                    <div class="file-input-wrapper">
+                        <input 
+                            type="file" 
+                            id="fileInput" 
+                            class="file-input" 
+                            accept=".json"
+                        />
+                        <label for="fileInput">
+                            <div>📄 点击选择API测试报告JSON文件</div>
+                            <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.8;">
+                                支持 api-test-report-*.json 格式
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="stats-card" id="statsCard" style="display: none;">
+                    <h3>📈 测试统计</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalTests">0</div>
+                            <div class="stat-label">总测试数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="passRate">0%</div>
+                            <div class="stat-label">通过率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="criticalIssues">0</div>
+                            <div class="stat-label">严重问题</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="testStatus">-</div>
+                            <div class="stat-label">测试状态</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-nav" id="quickNav" style="display: none;">
+                    <h3>🚀 快速导航</h3>
+                    <div class="nav-buttons">
+                        <button class="nav-button danger" onclick="viewer.scrollToSection('errors')">❌ 严重错误</button>
+                        <button class="nav-button warning" onclick="viewer.scrollToSection('warnings')">⚠️ 警告信息</button>
+                        <button class="nav-button success" onclick="viewer.scrollToSection('suggestions')">💡 优化建议</button>
+                        <button class="nav-button" onclick="viewer.scrollToSection('details')">📊 详细数据</button>
+                    </div>
+                </div>
+                
+                <div class="report-list">
+                    <div id="reportInfo">
+                        <div class="no-selection">
+                            <div class="no-selection-icon">📄</div>
+                            <div>选择JSON报告文件查看内容</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-endpoints" id="testEndpoints" style="display: none;">
+                    <h3>🔧 测试端点</h3>
+                    <div class="endpoints-list">
+                        <div class="endpoint-item">
+                            <strong>健康检查</strong>
+                            <div>GET /api/health</div>
+                            <div>GET /api/health/lite</div>
+                        </div>
+                        <div class="endpoint-item">
+                            <strong>消费记录</strong>
+                            <div>GET /api/expenses</div>
+                            <div>GET /api/expenses/statistics</div>
+                        </div>
+                        <div class="endpoint-item">
+                            <strong>订阅计划</strong>
+                            <div>GET /api/members/subscription-plans</div>
+                        </div>
+                        <div class="endpoint-item">
+                            <strong>日志管理</strong>
+                            <div>GET /api/logs</div>
+                            <div>GET /api/logs/stats</div>
+                        </div>
+                        <div class="endpoint-item">
+                            <strong>小程序列表</strong>
+                            <div>GET /api/miniapp/list</div>
+                        </div>
+                    </div>
+                    <div class="run-test-info">
+                        <p><strong>运行测试:</strong></p>
+                        <code>cd d:\chronie-app\homemoney\server && node api-tester.js</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="report-content" id="reportContent">
+                    <div class="no-selection">
+                        <div class="no-selection-icon">📊</div>
+                        <div>请选择左侧的API测试报告JSON文件查看内容</div>
+                        <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
+                            支持查看测试结果、错误分析、建议等
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class APITestReportViewer {
+            constructor() {
+                this.report = null;
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                const fileInput = document.getElementById('fileInput');
+                fileInput.addEventListener('change', (e) => {
+                    this.handleFileSelect(e.target.files);
+                });
+            }
+
+            async handleFileSelect(files) {
+                if (files.length === 0) return;
+                
+                const file = files[0];
+                
+                if (!file.name.endsWith('.json')) {
+                    alert('请选择JSON文件');
+                    return;
+                }
+
+                this.showLoading();
+
+                try {
+                    const content = await this.readFile(file);
+                    const jsonData = JSON.parse(content);
+                    
+                    // 验证是否为API测试报告格式
+                    if (!this.isValidAPITestReport(jsonData)) {
+                        alert('请选择有效的API测试报告JSON文件（api-tester.js生成）');
+                        return;
+                    }
+                    
+                    this.report = {
+                        name: file.name,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        data: jsonData
+                    };
+                    
+                    this.renderReportContent();
+                    this.updateStats();
+                    this.showTestEndpoints();
+                    
+                } catch (error) {
+                    console.error('读取文件失败:', error);
+                    alert('读取文件失败: ' + error.message);
+                }
+            }
+
+            showTestEndpoints() {
+                const testEndpointsDiv = document.getElementById('testEndpoints');
+                if (testEndpointsDiv) {
+                    testEndpointsDiv.style.display = 'block';
+                }
+            }
+
+            scrollToSection(sectionId) {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // 高亮选中的部分
+                    const content = document.getElementById('reportContent');
+                    if (content) {
+                        // 移除之前的高亮
+                        const highlighted = content.querySelector('.section-highlight');
+                        if (highlighted) {
+                            highlighted.classList.remove('section-highlight');
+                        }
+                        
+                        // 添加新的高亮
+                        element.classList.add('section-highlight');
+                        
+                        // 3秒后移除高亮
+                        setTimeout(() => {
+                            element.classList.remove('section-highlight');
+                        }, 3000);
+                    }
+                }
+            }
+
+            readFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsText(file);
+                });
+            }
+
+            isValidAPITestReport(data) {
+                return data && 
+                       (data.metadata || data.statistics || data.summary) &&
+                       (data.differences || data.comparisons || data.detailedResults);
+            }
+
+            showLoading() {
+                document.getElementById('reportInfo').innerHTML = `
+                    <div class="loading">
+                        <div>⏳ 正在加载API测试报告...</div>
+                    </div>
+                `;
+            }
+
+            renderReportContent() {
+                if (!this.report) return;
+                
+                const data = this.report.data;
+                const headerHTML = `
+                    <div class="report-header">
+                        <div class="report-title">API测试报告分析</div>
+                        <div class="report-stats">
+                            <div>📅 ${new Date(data.metadata?.timestamp || this.report.lastModified).toLocaleString('zh-CN')}</div>
+                            <div>🌐 ${data.metadata?.goServer || 'N/A'} → ${data.metadata?.jsServer || 'N/A'}</div>
+                            <div>📊 ${data.summary?.overallStatus || 'N/A'}</div>
+                        </div>
+                    </div>
+                `;
+
+                let contentHTML = '';
+                
+                // 显示问题汇总
+                if (data.summary) {
+                    contentHTML += this.renderSummarySection(data.summary);
+                }
+                
+                // 显示严重错误
+                if (data.differences?.bySeverity?.high) {
+                    contentHTML += this.renderDifferencesSection('errors', '严重错误', data.differences.bySeverity.high, 'high');
+                }
+                
+                // 显示警告信息
+                if (data.differences?.bySeverity?.medium) {
+                    contentHTML += this.renderDifferencesSection('warnings', '警告信息', data.differences.bySeverity.medium, 'medium');
+                }
+                
+                // 显示优化建议
+                if (data.differences?.bySeverity?.low || data.recommendations) {
+                    contentHTML += this.renderSuggestionsSection(data);
+                }
+                
+                // 显示详细数据
+                if (data.detailedResults) {
+                    contentHTML += this.renderDetailsSection(data.detailedResults);
+                }
+                
+                // 如果没有特殊格式，显示原始JSON
+                if (contentHTML === '') {
+                    contentHTML = `
+                        <div class="json-content">
+                            ${this.formatJSON(data)}
+                        </div>
+                    `;
+                }
+
+                document.getElementById('reportContent').innerHTML = headerHTML + contentHTML;
+            }
+
+            renderSummarySection(summary) {
+                const passRate = summary.overallStatus === 'PASSED' ? '100.00%' : 
+                    `${((1 - summary.criticalIssues / (summary.criticalIssues + summary.warnings + summary.suggestions)) * 100).toFixed(2)}%`;
+                
+                return `
+                    <div id="summary" style="padding: 20px; border-bottom: 1px solid #e9ecef;">
+                        <h2 style="color: ${summary.overallStatus === 'PASSED' ? '#68d391' : '#e53e3e'}; margin-bottom: 20px;">
+                            ${summary.overallStatus === 'PASSED' ? '✅ 测试通过' : '❌ 测试失败'}
+                        </h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 2em; font-weight: bold; color: #e53e3e;">${summary.criticalIssues}</div>
+                                <div>严重问题</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 2em; font-weight: bold; color: #f6ad55;">${summary.warnings}</div>
+                                <div>警告信息</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 2em; font-weight: bold; color: #68d391;">${summary.suggestions}</div>
+                                <div>优化建议</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 2em; font-weight: bold; color: #667eea;">${passRate}</div>
+                                <div>通过率</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderDifferencesSection(id, title, differences, level) {
+                if (differences.length === 0) return '';
+                
+                const itemClass = level === 'high' ? 'error-item' : 'warning-item';
+                const levelClass = level === 'high' ? 'high' : 'medium';
+                
+                const itemsHTML = differences.map((diff, index) => `
+                    <div class="${itemClass}">
+                        <div class="error-level ${levelClass}">
+                            ${index + 1}. [${diff.type}] ${this.getTypeDescription(diff.type)}
+                        </div>
+                        <div style="margin: 5px 0;">
+                            <strong>路径:</strong> ${diff.path || '根级别'}
+                        </div>
+                        ${this.renderDifferenceDetails(diff)}
+                    </div>
+                `).join('');
+                
+                return `
+                    <div id="${id}" style="padding: 20px; border-bottom: 1px solid #e9ecef;">
+                        <h2 style="color: ${level === 'high' ? '#e53e3e' : '#f6ad55'}; margin-bottom: 15px;">
+                            ${title} (${differences.length})
+                        </h2>
+                        ${itemsHTML}
+                    </div>
+                `;
+            }
+
+            renderSuggestionsSection(data) {
+                let content = `
+                    <div id="suggestions" style="padding: 20px; border-bottom: 1px solid #e9ecef;">
+                        <h2 style="color: #68d391; margin-bottom: 15px;">💡 优化建议</h2>
+                `;
+                
+                // 显示低严重程度的差异
+                if (data.differences?.bySeverity?.low && data.differences.bySeverity.low.length > 0) {
+                    content += `
+                        <h3 style="color: #68d391; margin: 20px 0 10px 0;">优化项 (${data.differences.bySeverity.low.length})</h3>
+                    `;
+                    
+                    const itemsHTML = data.differences.bySeverity.low.map((diff, index) => `
+                        <div class="suggestion-item">
+                            <div class="error-level low">
+                                ${index + 1}. [${diff.type}] ${this.getTypeDescription(diff.type)}
+                            </div>
+                            <div style="margin: 5px 0;">
+                                <strong>路径:</strong> ${diff.path || '根级别'}
+                            </div>
+                            ${this.renderDifferenceDetails(diff)}
+                        </div>
+                    `).join('');
+                    
+                    content += itemsHTML;
+                }
+                
+                // 显示推荐建议
+                if (data.recommendations && data.recommendations.length > 0) {
+                    content += `
+                        <h3 style="color: #667eea; margin: 20px 0 10px 0;">系统建议</h3>
+                    `;
+                    
+                    const recHTML = data.recommendations.map((rec, index) => `
+                        <div class="suggestion-item">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">
+                                ${rec.priority}: ${rec.category}
+                            </div>
+                            <div style="margin: 5px 0; color: #2d3748;">${rec.message}</div>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                ${rec.actions.map(action => `<li>${action}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('');
+                    
+                    content += recHTML;
+                }
+                
+                content += '</div>';
+                return content;
+            }
+
+            renderDetailsSection(detailedResults) {
+                // 按服务器分组结果
+                const goResults = detailedResults.filter(r => r.server === 'Go');
+                const jsResults = detailedResults.filter(r => r.server === 'JS');
+                
+                const resultHTML = detailedResults.slice(0, 10).map((result, index) => `
+                    <div style="border: 1px solid #e9ecef; margin: 5px 0; border-radius: 4px; overflow: hidden;">
+                        <div style="background: ${result.status === 'passed' ? '#f0fff4' : result.status === 'error' ? '#fff5f5' : '#fffbf0'}; 
+                                    padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${result.name}</strong> - ${result.url}
+                            </div>
+                            <div>
+                                <span style="background: ${result.server === 'Go' ? '#667eea' : '#f6ad55'}; 
+                                            color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
+                                    ${result.server}
+                                </span>
+                                <span style="margin-left: 10px; font-weight: bold; color: ${result.status === 'passed' ? '#68d391' : '#e53e3e'};">
+                                    ${result.status === 'passed' ? '✅' : result.status === 'error' ? '❌' : '⚠️'}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="padding: 10px; font-size: 0.9em; color: #6c757d;">
+                            状态码: ${result.statusCode || 'N/A'} | 响应时间: ${result.responseTime || 'N/A'}ms
+                        </div>
+                    </div>
+                `).join('');
+                
+                return `
+                    <div id="details" style="padding: 20px;">
+                        <h2 style="margin-bottom: 15px;">📊 详细测试结果</h2>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            ${resultHTML}
+                        </div>
+                        ${detailedResults.length > 10 ? `<div style="text-align: center; margin: 10px; color: #6c757d;">
+                            显示前10条结果，共${detailedResults.length}条
+                        </div>` : ''}
+                    </div>
+                `;
+            }
+
+            renderDifferenceDetails(diff) {
+                let details = '';
+                
+                if (diff.go !== undefined && diff.js !== undefined) {
+                    details += `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 5px 0;">
+                            <div><strong>Go版本:</strong> ${this.formatValue(diff.go)}</div>
+                            <div><strong>JS版本:</strong> ${this.formatValue(diff.js)}</div>
+                        </div>
+                    `;
+                }
+                
+                if (diff.missingInJS) {
+                    details += `<div><strong>JS中缺失:</strong> ${diff.missingInJS.join(', ')}</div>`;
+                }
+                
+                if (diff.extraInJS) {
+                    details += `<div><strong>JS中额外:</strong> ${diff.extraInJS.join(', ')}</div>`;
+                }
+                
+                if (diff.difference) {
+                    details += `<div><strong>差异:</strong> ${diff.difference}ms</div>`;
+                }
+                
+                return details;
+            }
+
+            getTypeDescription(type) {
+                const descriptions = {
+                    'status_code': '状态码不匹配',
+                    'response_time': '响应时间差异',
+                    'null_comparison': '空值比较差异',
+                    'missing_fields': '字段缺失',
+                    'extra_fields': '额外字段',
+                    'value_mismatch': '值不匹配'
+                };
+                return descriptions[type] || type;
+            }
+
+            formatValue(value) {
+                if (value === null) return 'null';
+                if (value === undefined) return 'undefined';
+                if (typeof value === 'object') return JSON.stringify(value);
+                return String(value);
+            }
+
+            formatJSON(obj, indent = 0) {
+                const spaces = '  '.repeat(indent);
+                
+                if (obj === null) {
+                    return `<span class="json-null">null</span>`;
+                }
+                
+                if (typeof obj === 'string') {
+                    return `<span class="json-string">"${this.escapeHtml(obj)}"</span>`;
+                }
+                
+                if (typeof obj === 'number') {
+                    return `<span class="json-number">${obj}</span>`;
+                }
+                
+                if (typeof obj === 'boolean') {
+                    return `<span class="json-boolean">${obj}</span>`;
+                }
+                
+                if (Array.isArray(obj)) {
+                    if (obj.length === 0) {
+                        return '<span class="json-null">[]</span>';
+                    }
+                    
+                    let html = '[';
+                    obj.forEach((item, index) => {
+                        html += `\n${spaces}  ${this.formatJSON(item, indent + 1)}`;
+                        if (index < obj.length - 1) {
+                            html += ',';
+                        }
+                    });
+                    html += `\n${spaces}]`;
+                    return html;
+                }
+                
+                if (typeof obj === 'object') {
+                    const keys = Object.keys(obj);
+                    if (keys.length === 0) {
+                        return '<span class="json-null">{}</span>';
+                    }
+                    
+                    let html = '{';
+                    keys.forEach((key, index) => {
+                        html += `\n${spaces}  <span class="json-key">"${this.escapeHtml(key)}"</span>: ${this.formatJSON(obj[key], indent + 1)}`;
+                        if (index < keys.length - 1) {
+                            html += ',';
+                        }
+                    });
+                    html += `\n${spaces}}`;
+                    return html;
+                }
+                
+                return `<span class="json-string">"${this.escapeHtml(String(obj))}"</span>`;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            updateStats() {
+                if (!this.report || !this.report.data) return;
+                
+                const data = this.report.data;
+                
+                // 优先使用statistics字段，然后fallback到其他字段
+                const stats = data.statistics || {};
+                const summary = data.summary || {};
+                const differences = data.differences || {};
+                
+                // 计算各种统计值
+                let totalTests = stats.totalTests || 0;
+                let passedTests = stats.passed || 0;
+                let failedTests = stats.failed || 0;
+                let criticalIssues = summary.criticalIssues || 0;
+                let warnings = summary.warnings || 0;
+                let suggestions = summary.suggestions || 0;
+                
+                // 如果没有statistics字段，从detailedResults计算
+                if (!stats.totalTests && data.detailedResults) {
+                    totalTests = data.detailedResults.length;
+                    passedTests = data.detailedResults.filter(test => test.status === 'passed').length;
+                    failedTests = data.detailedResults.filter(test => test.status === 'failed' || test.status === 'error').length;
+                }
+                
+                // 计算通过率
+                let passRate = 0;
+                if (totalTests > 0) {
+                    passRate = ((passedTests / totalTests) * 100).toFixed(1);
+                } else if (summary.criticalIssues !== undefined) {
+                    const totalIssues = criticalIssues + warnings + suggestions;
+                    passRate = totalIssues > 0 ? ((1 - criticalIssues / totalIssues) * 100).toFixed(1) : '100.0';
+                }
+                
+                // 确定状态文本和颜色
+                let statusText = summary.overallStatus || 'N/A';
+                if (statusText === 'PASSED' && criticalIssues > 0) {
+                    statusText = '部分通过';
+                } else if (statusText === 'N/A' && totalTests > 0) {
+                    statusText = passRate === '100.0' ? '全部通过' : '部分失败';
+                }
+                
+                // 更新统计卡片显示
+                const statsCard = document.getElementById('statsCard');
+                if (statsCard) {
+                    statsCard.style.display = 'block';
+                    
+                    document.getElementById('totalTests').textContent = totalTests || '0';
+                    document.getElementById('passRate').textContent = passRate + '%';
+                    document.getElementById('criticalIssues').textContent = criticalIssues || '0';
+                    document.getElementById('testStatus').textContent = statusText;
+                    
+                    // 设置通过率颜色
+                    const passRateElement = document.getElementById('passRate');
+                    const passRateValue = parseFloat(passRate);
+                    if (passRateValue >= 80) {
+                        passRateElement.style.color = '#68d391';
+                    } else if (passRateValue >= 60) {
+                        passRateElement.style.color = '#f6ad55';
+                    } else {
+                        passRateElement.style.color = '#e53e3e';
+                    }
+                    
+                    // 设置测试状态颜色
+                    const statusElement = document.getElementById('testStatus');
+                    if (statusText.includes('通过')) {
+                        statusElement.style.color = '#68d391';
+                    } else if (statusText.includes('失败')) {
+                        statusElement.style.color = '#e53e3e';
+                    } else {
+                        statusElement.style.color = '#f6ad55';
+                    }
+                }
+                
+                // 显示快速导航
+                const quickNav = document.getElementById('quickNav');
+                if (quickNav) {
+                    quickNav.style.display = 'block';
+                }
+            }
+
+            truncateFileName(name, maxLength) {
+                if (name.length <= maxLength) return name;
+                const extension = name.split('.').pop();
+                const nameWithoutExt = name.slice(0, -(extension.length + 1));
+                const truncated = nameWithoutExt.slice(0, maxLength - extension.length - 4);
+                return `${truncated}...${extension}`;
+            }
+        }
+
+        // 初始化API测试报告查看器
+        const viewer = new APITestReportViewer();
+
+        // 添加一些快捷键支持
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'o':
+                        e.preventDefault();
+                        document.getElementById('fileInput').click();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        viewer.scrollToSection('errors');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        viewer.scrollToSection('warnings');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        viewer.scrollToSection('suggestions');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        viewer.scrollToSection('details');
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        viewer.scrollToSection('summary');
+                        break;
+                }
+            }
+        });
+
+        // 添加拖拽支持
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                viewer.handleFileSelect(files);
+            }
+        });
+
+        // 页面加载提示
+        window.addEventListener('load', () => {
+            console.log('🚀 JSON报告查看器已加载');
+            console.log('💡 快捷键: Ctrl+O 打开文件夹');
+        });
+    </script>
+</body>
+</html>

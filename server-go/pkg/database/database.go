@@ -49,7 +49,9 @@ func InitDB(dbPath string) (*Database, error) {
 func AutoMigrate(db *gorm.DB) error {
 	// 执行迁移，忽略表已存在的错误
 	err := db.AutoMigrate(
-		&models.Expense{},
+		&models.Member{},
+		&models.SubscriptionPlan{},
+		&models.UserSubscription{},
 	)
 	
 	// 如果是表已存在的错误，记录日志并返回nil

@@ -191,12 +191,12 @@ func getCPUModel() string {
 				if strings.Contains(line, "Name=") {
 					model := strings.TrimSpace(strings.TrimPrefix(line, "Name="))
 					if model != "" && (strings.Contains(model, "Intel") || strings.Contains(model, "AMD")) {
-						return model
+							return model
+						}
 					}
 				}
 			}
 		}
-	}
 	
 	// 方法2: 使用注册表查询，改进参数
 	if out, err := exec.Command("wmic", "path", "win32_processor", "get", "name", "/value").Output(); err == nil {
@@ -206,13 +206,13 @@ func getCPUModel() string {
 			for _, line := range lines {
 				if strings.Contains(line, "Name=") {
 					model := strings.TrimSpace(strings.TrimPrefix(line, "Name="))
-					if model != "" {
-						return model
+						if model != "" {
+							return model
+						}
 					}
 				}
 			}
 		}
-	}
 	
 	// 方法3: 使用注册表查询的另一种方式
 	if _, err := exec.Command("wmic", "path", "win32_processor", "get", "processorid", "/value").Output(); err == nil {
@@ -305,6 +305,11 @@ func main() {
 
 	// 创建Repository实例
 	expenseRepo := repository.NewExpenseRepository(db.GetDB())
+	
+	// 创建会员相关的Repository实例
+	memberRepo := repository.NewMemberRepository(db.GetDB())
+	planRepo := repository.NewSubscriptionPlanRepository(db.GetDB())
+	subscriptionRepo := repository.NewUserSubscriptionRepository(db.GetDB())
 
 	// 设置Gin模式
 	if os.Getenv("GIN_MODE") == "release" {
@@ -571,6 +576,9 @@ func main() {
 
 	// 设置API路由
 	routes.SetupExpenseRoutes(router, expenseRepo)
+	
+	// 设置会员相关的API路由 - 对应JS版本的memberRoutes
+	routes.SetupMemberRoutes(router, memberRepo, planRepo, subscriptionRepo)
 
 	// 创建HTTP服务器
 	srv := &http.Server{
