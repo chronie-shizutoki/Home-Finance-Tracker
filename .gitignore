@@ -24,3 +24,4 @@ client/src/assets/markdown/expense-report.ja-JP.md
 client/src/assets/markdown/expense-report.zh-TW.md
 server/data/donation_records.json
 node_modules
+server-go/server.exe
