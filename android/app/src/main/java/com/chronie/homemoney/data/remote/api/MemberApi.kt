@@ -1,6 +1,7 @@
 package com.chronie.homemoney.data.remote.api
 
 import com.chronie.homemoney.data.remote.dto.ApiResponse
+import com.chronie.homemoney.data.remote.dto.HealthDto
 import com.chronie.homemoney.data.remote.dto.MemberDto
 import com.chronie.homemoney.data.remote.dto.MemberRequest
 import com.chronie.homemoney.data.remote.dto.SubscriptionPlanDto
@@ -11,6 +12,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface MemberApi {
+    @GET("api/health/lite")
+    suspend fun checkHealth(): HealthDto
     @POST("api/members/members")
     suspend fun getOrCreateMember(@Body request: MemberRequest): ApiResponse<MemberDto>
 

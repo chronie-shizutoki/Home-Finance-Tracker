@@ -37,6 +37,7 @@ import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipPurchaseScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
+import com.chronie.homemoney.service.HealthCheckService
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -93,6 +94,9 @@ class MainActivity : ComponentActivity() {
         // 启动定期会员状态检查
         startPeriodicMembershipCheck()
         
+        // 启动健康检查服务
+        HealthCheckService.start(this)
+        
         setContent {
             val currentLanguage by languageManager.currentLanguage.collectAsState()
             
@@ -130,6 +134,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         membershipCheckJob?.cancel()
+        HealthCheckService.stop(this)
     }
     
     private fun startPeriodicMembershipCheck() {

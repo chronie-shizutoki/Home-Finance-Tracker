@@ -347,4 +347,12 @@
     <string name="purchasing">Processing…</string>
     <string name="days">days</string>
 
+    <!-- Health Check -->
+    <string name="health_check_channel_name">Server Connection Monitor</string>
+    <string name="health_check_channel_description">Monitors server connection status</string>
+    <string name="health_check_running">Monitoring Server</string>
+    <string name="health_check_monitoring">Checking server connection…</string>
+    <string name="server_connection_error">Server Connection Lost</string>
+    <string name="server_connection_error_message">Unable to connect to server. Please check your network connection.</string>
+
 </resources>

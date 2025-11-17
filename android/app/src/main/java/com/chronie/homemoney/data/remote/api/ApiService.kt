@@ -1,6 +1,6 @@
 package com.chronie.homemoney.data.remote.api
 
-import com.chronie.homemoney.data.remote.dto.HealthCheckResponse
+import com.chronie.homemoney.data.remote.dto.HealthDto
 import retrofit2.Response
 import retrofit2.http.GET
 
@@ -12,6 +12,6 @@ interface ApiService {
     /**
      * 健康检查
      */
-    @GET("api/health")
-    suspend fun healthCheck(): Response<HealthCheckResponse>
+    @GET("api/health/lite")
+    suspend fun checkHealth(): HealthDto
 }

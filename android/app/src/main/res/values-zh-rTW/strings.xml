@@ -347,4 +347,12 @@
     <string name="purchasing">處理中…</string>
     <string name="days">天</string>
 
+    <!-- 健康檢查 -->
+    <string name="health_check_channel_name">伺服器連接監控</string>
+    <string name="health_check_channel_description">監控伺服器連接狀態</string>
+    <string name="health_check_running">監控伺服器</string>
+    <string name="health_check_monitoring">正在檢查伺服器連接…</string>
+    <string name="server_connection_error">伺服器連接失敗</string>
+    <string name="server_connection_error_message">無法連接到伺服器，請檢查您的網路連接。</string>
+
 </resources>
