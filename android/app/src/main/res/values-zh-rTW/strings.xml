@@ -6,16 +6,16 @@
     <string name="custom_url_scheme">com.chronie.homemoney</string>
     
     <!-- Settings -->
-    <string name="settings">設定</string>
-    <string name="language_settings">語言設定</string>
+    <string name="settings">設置</string>
+    <string name="language_settings">語言設置</string>
     <string name="select_language">選擇語言</string>
     <string name="developer_tools">開發者工具</string>
     
     <!-- Common -->
     <string name="back">返回</string>
     <string name="cancel">取消</string>
-    <string name="confirm">確定</string>
-    <string name="save">儲存</string>
+    <string name="confirm">確認</string>
+    <string name="save">保存</string>
     <string name="delete">刪除</string>
     <string name="edit">編輯</string>
     <string name="loading">載入中…</string>
@@ -29,74 +29,74 @@
     <!-- Developer Options -->
     <string name="developer_options">開發者選項</string>
     <string name="developer_mode">開發者模式</string>
-    <string name="developer_mode_description">啟用後可存取資料庫測試等開發功能</string>
+    <string name="developer_mode_description">啟用後可訪問資料庫測試等開發功能</string>
     
     <!-- Database Test -->
     <string name="database_test">資料庫測試</string>
-    <string name="add_test_data">新增測試資料</string>
-    <string name="clear_data">清除資料</string>
+    <string name="add_test_data">添加測試資料</string>
+    <string name="clear_data">清空數據</string>
     <string name="database_statistics">資料庫統計</string>
     <string name="record_count">記錄數: %d</string>
     <string name="total_amount">總金額</string>
     <string name="expense_records">支出記錄</string>
-    <string name="no_data">暫無資料</string>
+    <string name="no_data">暫無數據</string>
     <string name="synced">已同步</string>
     <string name="not_synced">未同步</string>
     
     <!-- Sync -->
     <string name="sync_title">資料同步</string>
     <string name="sync_status">同步狀態</string>
-    <string name="sync_status_idle">閒置</string>
+    <string name="sync_status_idle">空閒</string>
     <string name="sync_status_syncing">同步中…</string>
     <string name="sync_status_success">成功</string>
     <string name="sync_status_failed">失敗</string>
     <string name="sync_status_conflict">衝突</string>
     <string name="sync_last_time">最後同步</string>
     <string name="sync_never">從未同步</string>
-    <string name="sync_pending_count">待同步項目</string>
+    <string name="sync_pending_count">待同步項</string>
     <string name="sync_manual_trigger">立即同步</string>
     <string name="sync_syncing">同步中…</string>
-    <string name="add_success">新增成功</string>
-    <string name="add_failed">新增失敗: %s</string>
-    <string name="clear_success">清除成功</string>
-    <string name="clear_failed">清除失敗: %s</string>
+    <string name="add_success">添加成功</string>
+    <string name="add_failed">添加失敗: %s</string>
+    <string name="clear_success">清空成功</string>
+    <string name="clear_failed">清空失敗: %s</string>
     <string name="load_success">資料載入成功</string>
-    <string name="load_failed">載入資料失敗: %s</string>
+    <string name="load_failed">載入數據失敗: %s</string>
     
     <!-- 支出類型 -->
     <string name="expense_type_daily_goods">日常用品</string>
     <string name="expense_type_luxury">奢侈品</string>
-    <string name="expense_type_communication">通訊費</string>
+    <string name="expense_type_communication">通訊費用</string>
     <string name="expense_type_food">食品</string>
-    <string name="expense_type_snacks">零食點心</string>
+    <string name="expense_type_snacks">零食糖果</string>
     <string name="expense_type_cold_drinks">冷飲</string>
-    <string name="expense_type_convenience_food">速食</string>
+    <string name="expense_type_convenience_food">方便食品</string>
     <string name="expense_type_textiles">紡織品</string>
     <string name="expense_type_beverages">飲品</string>
     <string name="expense_type_condiments">調味品</string>
-    <string name="expense_type_transportation">交通</string>
+    <string name="expense_type_transportation">交通出行</string>
     <string name="expense_type_dining">餐飲</string>
-    <string name="expense_type_medical">醫療</string>
+    <string name="expense_type_medical">醫療費用</string>
     <string name="expense_type_fruits">水果</string>
     <string name="expense_type_other">其他</string>
-    <string name="expense_type_seafood">水產</string>
+    <string name="expense_type_seafood">水產品</string>
     <string name="expense_type_dairy">乳製品</string>
-    <string name="expense_type_gifts">禮品交際</string>
-    <string name="expense_type_travel">旅遊</string>
-    <string name="expense_type_government">政府規費</string>
-    <string name="expense_type_utilities">水電瓦斯</string>
+    <string name="expense_type_gifts">禮物人情</string>
+    <string name="expense_type_travel">旅行度假</string>
+    <string name="expense_type_government">政務</string>
+    <string name="expense_type_utilities">水電煤氣</string>
     
     <!-- 支出列表 -->
     <string name="expense_list_title">支出</string>
     <string name="expense_list_empty">暫無支出記錄</string>
-    <string name="expense_list_empty_description">新增記錄或調整篩選條件</string>
-    <string name="expense_list_reset_filters">重設篩選</string>
-    <string name="expense_list_search_hint">搜尋備註…</string>
+    <string name="expense_list_empty_description">添加新記錄或調整篩選條件</string>
+    <string name="expense_list_reset_filters">重置篩選</string>
+    <string name="expense_list_search_hint">搜索備註…</string>
     <string name="expense_list_filter_type">分類</string>
     <string name="expense_list_filter_month">月份</string>
     <string name="expense_list_filter_amount_range">金額範圍</string>
-    <string name="expense_list_filter_min_amount">最低金額</string>
-    <string name="expense_list_filter_max_amount">最高金額</string>
+    <string name="expense_list_filter_min_amount">最小金額</string>
+    <string name="expense_list_filter_max_amount">最大金額</string>
     <string name="expense_list_all_types">全部分類</string>
     <string name="expense_list_all_months">全部月份</string>
     <string name="expense_list_sort">排序</string>
@@ -104,16 +104,16 @@
     <string name="expense_list_sort_date_asc">日期（舊到新）</string>
     <string name="expense_list_sort_amount_desc">金額（高到低）</string>
     <string name="expense_list_sort_amount_asc">金額（低到高）</string>
-    <string name="expense_list_apply_filters">套用篩選</string>
+    <string name="expense_list_apply_filters">應用篩選</string>
     <string name="expense_list_clear_filters">清除篩選</string>
-    <string name="expense_list_filter_title">篩選與搜尋</string>
+    <string name="expense_list_filter_title">篩選和搜索</string>
     <string name="expense_list_filter_date_range">日期範圍</string>
     <string name="expense_list_filter_start_date">開始日期</string>
     <string name="expense_list_filter_end_date">結束日期</string>
     <string name="expense_list_filter_all_types">全部分類</string>
     <string name="expense_list_filter_select_types">選擇分類</string>
-    <string name="expense_list_filtered_count">篩選結果: %d 筆</string>
-    <string name="common_search">搜尋</string>
+    <string name="expense_list_filtered_count">篩選結果: %d 條</string>
+    <string name="common_search">搜索</string>
     <string name="common_filter">篩選</string>
     
     <!-- 支出統計 -->
@@ -127,11 +127,11 @@
     <string name="common_loading">載入中…</string>
     <string name="common_error">錯誤</string>
     <string name="common_retry">重試</string>
-    <string name="common_refresh">重新整理</string>
+    <string name="common_refresh">刷新</string>
     <string name="common_more_functions">更多功能</string>
-
-    <!-- 新增支出 -->
-    <string name="add_expense_title">新增支出</string>
+    
+    <!-- 添加支出 -->
+    <string name="add_expense_title">記一筆</string>
     <string name="add_expense_type_label">分類 *</string>
     <string name="add_expense_type_hint">選擇支出分類</string>
     <string name="add_expense_amount_label">金額 *</string>
@@ -139,97 +139,116 @@
     <string name="add_expense_date_label">日期 *</string>
     <string name="add_expense_remark_label">備註</string>
     <string name="add_expense_remark_hint">輸入備註…</string>
-    <string name="add_expense_save_success">新增成功</string>
-    <string name="add_expense_save_failed">新增失敗: %s</string>
+    <string name="add_expense_save_success">添加成功</string>
+    <string name="add_expense_save_failed">添加失敗: %s</string>
     <string name="add_expense_validation_type_required">請選擇支出分類</string>
     <string name="add_expense_validation_amount_required">請輸入金額</string>
-    <string name="add_expense_validation_amount_invalid">金額必須大於 0</string>
+    <string name="add_expense_validation_amount_invalid">金額必須大於0</string>
     <string name="add_expense_validation_date_required">請選擇日期</string>
     
-    <!-- AI 智能辨識 -->
-    <string name="ai_expense_title">AI 智能辨識</string>
+    <!-- AI 智慧識別 -->
+    <string name="ai_expense_title">AI智能記帳</string>
     <string name="ai_expense_select_images">選擇圖片</string>
-    <string name="ai_expense_add_images">新增圖片</string>
+    <string name="ai_expense_add_images">添加圖片</string>
     <string name="ai_expense_or_input_text">或輸入文字</string>
-    <string name="ai_expense_text_hint">例如：今天買了蘋果 30 元，香蕉 20 元</string>
-    <string name="ai_expense_start_recognition">開始辨識</string>
-    <string name="ai_expense_recognizing">辨識中…</string>
-    <string name="ai_expense_results">辨識結果</string>
-    <string name="ai_expense_save_all">全部儲存</string>
-    <string name="ai_expense_saving">儲存中…</string>
+    <string name="ai_expense_text_hint">例如：今天買了蘋果30元，香蕉20元</string>
+    <string name="ai_expense_start_recognition">開始識別</string>
+    <string name="ai_expense_recognizing">識別中…</string>
+    <string name="ai_expense_results">識別結果</string>
+    <string name="ai_expense_save_all">全部保存</string>
+    <string name="ai_expense_saving">保存中…</string>
     <string name="ai_expense_edit_record">編輯記錄</string>
     <string name="ai_expense_delete_record">刪除記錄</string>
     <string name="ai_expense_edited">已編輯</string>
     <string name="ai_expense_no_input">請輸入文字或選擇圖片</string>
-    <string name="ai_expense_no_records">未辨識到消費記錄</string>
-    <string name="ai_expense_recognition_failed">辨識失敗: %s</string>
-    <string name="ai_expense_save_success">儲存成功</string>
-    <string name="ai_expense_save_failed">儲存失敗: %s</string>
-    <string name="ai_expense_no_valid_records">沒有有效的記錄可儲存</string>
+    <string name="ai_expense_no_records">未識別到消費記錄</string>
+    <string name="ai_expense_recognition_failed">識別失敗: %s</string>
+    <string name="ai_expense_save_success">保存成功</string>
+    <string name="ai_expense_save_failed">保存失敗: %s</string>
+    <string name="ai_expense_no_valid_records">沒有有效的記錄可保存</string>
     <string name="ai_expense_select_type">選擇分類</string>
     <string name="ai_expense_amount">金額</string>
     <string name="ai_expense_remark">備註</string>
-    <string name="ai_expense_click_to_add">點選新增圖片</string>
-    <string name="ai_expense_records_count">辨識結果 (%d筆)</string>
+    <string name="ai_expense_click_to_add">點按添加圖片</string>
+    <string name="ai_expense_records_count">識別結果 (%d條)</string>
     
-    <!-- AI 設定 -->
-    <string name="settings_ai_title">AI 設定</string>
-    <string name="settings_ai_api_key">SiliconFlow API 金鑰</string>
-    <string name="settings_ai_api_key_hint">輸入您的 API 金鑰</string>
-    <string name="settings_ai_api_key_description">用於 AI 智能辨識功能</string>
-    <string name="settings_ai_api_key_saved">API 金鑰已儲存</string>
+    <!-- AI 設置 -->
+    <string name="settings_ai_title">AI設置</string>
+    <string name="settings_ai_api_key">SiliconFlow API金鑰</string>
+    <string name="settings_ai_api_key_hint">輸入您的API金鑰</string>
+    <string name="settings_ai_api_key_description">用於AI智慧識別功能</string>
+    <string name="settings_ai_api_key_saved">API金鑰已保存</string>
     <string name="ai_expense_entry_description">拍照或輸入文字快速記帳</string>
     
     <!-- 預算管理 -->
     <string name="budget_enable_title">啟用預算管理</string>
-    <string name="budget_enable_description">設定每月預算，協助您更好地控制支出</string>
+    <string name="budget_enable_description">設置月度預算，説明您更好地控制支出</string>
     <string name="budget_enable_button">啟用預算</string>
     <string name="budget_enable_feature">啟用預算功能</string>
-    <string name="budget_monthly_progress">每月預算進度</string>
-    <string name="budget_settings">預算設定</string>
-    <string name="budget_settings_title">預算設定</string>
-    <string name="budget_monthly_limit">每月預算上限</string>
-    <string name="budget_warning_threshold">警告門檻 (%)</string>
-    <string name="budget_warning_threshold_hint">達到此百分比時顯示警告（0-100）</string>
+    <string name="budget_monthly_progress">月度預算進度</string>
+    <string name="budget_settings">預算設置</string>
+    <string name="budget_settings_title">預算設置</string>
+    <string name="budget_monthly_limit">月度預算限額</string>
+    <string name="budget_warning_threshold">預警閾值 (%)</string>
+    <string name="budget_warning_threshold_hint">達到此百分比時顯示預警（0-100）</string>
     <string name="budget_remaining">剩餘預算</string>
     <string name="budget_daily_average">日均消費</string>
     <string name="budget_recommended_daily">建議日均</string>
     <string name="budget_expand">展開</string>
-    <string name="budget_collapse">收合</string>
+    <string name="budget_collapse">收起</string>
     <string name="budget_alert_normal_title">預算正常</string>
-    <string name="budget_alert_normal_message">剩餘 NT$%1$s，還有 %2$.0f%% 可用</string>
-    <string name="budget_alert_warning_title">接近預算上限</string>
-    <string name="budget_alert_warning_message">剩餘 NT$%1$s（%2$.0f%%），請注意控制支出</string>
-    <string name="budget_alert_over_title">超出預算上限</string>
-    <string name="budget_alert_over_message">已超支 NT$%1$s，請合理規劃支出</string>
-    <string name="common_save">儲存</string>
+    <string name="budget_alert_normal_message">剩餘 ¥%1$s，還有 %2$.0f%% 可用</string>
+    <string name="budget_alert_warning_title">接近預算限額</string>
+    <string name="budget_alert_warning_message">剩餘 ¥%1$s（%2$.0f%%），請注意控制支出</string>
+    <string name="budget_alert_over_title">超出預算限額</string>
+    <string name="budget_alert_over_message">已超支 ¥%1$s，請合理規劃支出</string>
+    <string name="common_save">保存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">請輸入有效的預算金額</string>
-    <string name="budget_error_invalid_threshold">警告門檻必須在 0-100 之間</string>
-
+    <string name="budget_error_invalid_threshold">預警閾值必須在0-100之間</string>
+    
     <!-- 圖表 -->
     <string name="charts_title">統計分析</string>
-    <string name="statistics_summary">統計摘要</string>
+    <string name="statistics_summary">統計概覽</string>
     <string name="count">記錄數</string>
     <string name="average_amount">平均金額</string>
     <string name="median_amount">中位數</string>
     <string name="trend_chart">趨勢圖</string>
-    <string name="category_breakdown">分類佔比</string>
-    <string name="records">筆</string>
+    <string name="category_breakdown">分類占比</string>
+    <string name="weekday_analysis">深度洞析</string>
+    <string name="records">條</string>
+    <string name="expense_details">支出詳情</string>
+    <string name="percentage_of_total">占比</string>
     <string name="select_time_range">選擇時間範圍</string>
-    <string name="this_week">本週</string>
+    <string name="this_week">本周</string>
     <string name="this_month">本月</string>
-    <string name="this_quarter">本季</string>
+    <string name="this_quarter">本季度</string>
     <string name="this_year">今年</string>
-    <string name="custom_range">自訂範圍</string>
+    <string name="custom_range">自訂</string>
     <string name="close">關閉</string>
     <string name="retry">重試</string>
+    
+    <!-- 星期 -->
+    <string name="sunday">星期日</string>
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="sunday_short">日</string>
+    <string name="monday_short">一</string>
+    <string name="tuesday_short">二</string>
+    <string name="wednesday_short">三</string>
+    <string name="thursday_short">四</string>
+    <string name="friday_short">五</string>
+    <string name="saturday_short">六</string>
 
-    <!-- 資料匯入匯出 -->
-    <string name="data_import_export">資料匯入匯出</string>
-    <string name="data_import_export_description">將支出資料匯出或匯入為 Excel 檔案</string>
-    <string name="export_data">匯出資料</string>
-    <string name="import_data">匯入資料</string>
+    <!-- 數據導入匯出 -->
+    <string name="data_import_export">數據導入匯出</string>
+    <string name="data_import_export_description">將支出資料匯出或導入為Excel檔</string>
+    <string name="export_data">匯出數據</string>
+    <string name="import_data">導入數據</string>
     <string name="export_all_data">匯出全部資料</string>
     <string name="export_date_range">匯出日期範圍</string>
     <string name="export_select_range">選擇日期範圍</string>
@@ -238,80 +257,80 @@
     <string name="export_in_progress">匯出中…</string>
     <string name="export_success">匯出成功: %s</string>
     <string name="export_failed">匯出失敗: %s</string>
-    <string name="import_in_progress">匯入中…</string>
-    <string name="import_success">匯入成功: 已匯入 %d 筆記錄</string>
-    <string name="import_failed">匯入失敗: %s</string>
-    <string name="import_select_file">選擇 Excel 檔案</string>
+    <string name="import_in_progress">導入中…</string>
+    <string name="import_success">導入成功: 已導入 %d 條記錄</string>
+    <string name="import_failed">導入失敗: %s</string>
+    <string name="import_select_file">選擇Excel檔</string>
     <string name="import_validation_error">資料驗證錯誤: %s</string>
-    <string name="import_confirm_title">確認匯入</string>
-    <string name="import_confirm_message">發現 %d 筆記錄，是否繼續匯入？</string>
+    <string name="import_confirm_title">確認導入</string>
+    <string name="import_confirm_message">發現 %d 條記錄，是否繼續導入？</string>
     <string name="export_filename_prefix">支出匯出</string>
     <string name="excel_header_date">日期</string>
     <string name="excel_header_type">分類</string>
     <string name="excel_header_amount">金額</string>
     <string name="excel_header_remark">備註</string>
-    <string name="permission_storage_required">需要儲存權限才能匯出/匯入檔案</string>
+    <string name="permission_storage_required">需要存儲許可權才能匯出/導入檔</string>
     <string name="no_records_to_export">沒有可匯出的記錄</string>
 
     <!-- 意見回饋 -->
     <string name="feedback_title">意見回饋</string>
-    <string name="feedback_description">分享您的建議，協助我們改進</string>
+    <string name="feedback_description">分享您的建議，幫助我們改進</string>
 
-    <!-- 使用者認證 -->
-    <string name="auth_login_title">登入</string>
-    <string name="auth_username_label">使用者名稱</string>
-    <string name="auth_username_hint">請輸入使用者名稱</string>
-    <string name="auth_login_button">登入</string>
-    <string name="auth_logout_button">登出</string>
-    <string name="auth_current_user">目前使用者</string>
-    <string name="auth_not_logged_in">未登入</string>
-    <string name="auth_login_required">請先登入</string>
-    <string name="auth_username_empty">使用者名稱不能為空</string>
-    <string name="auth_login_success">登入成功</string>
-    <string name="auth_login_failed">登入失敗</string>
-    <string name="auth_logout_success">已登出</string>
-    <string name="auth_logging_in">正在登入…</string>
+    <!-- 用戶認證 -->
+    <string name="auth_login_title">登錄</string>
+    <string name="auth_username_label">用戶名</string>
+    <string name="auth_username_hint">請輸入用戶名</string>
+    <string name="auth_login_button">登錄</string>
+    <string name="auth_logout_button">退出登錄</string>
+    <string name="auth_current_user">當前用戶</string>
+    <string name="auth_not_logged_in">未登錄</string>
+    <string name="auth_login_required">請先登錄</string>
+    <string name="auth_username_empty">用戶名不能為空</string>
+    <string name="auth_login_success">登錄成功</string>
+    <string name="auth_login_failed">登錄失敗</string>
+    <string name="auth_logout_success">已退出登錄</string>
+    <string name="auth_logging_in">正在登錄…</string>
     <string name="auth_welcome_back">歡迎回來，%s！</string>
-    <string name="auth_login_hint">輸入使用者名稱即可登入或註冊</string>
-    <string name="auth_account_info">帳戶資訊</string>
-    <string name="auth_logout_confirm_title">登出</string>
-    <string name="auth_logout_confirm_message">確定要登出嗎？</string>
-
-<!-- 會員 -->
+    <string name="auth_login_hint">輸入用戶名即可登錄或註冊</string>
+    <string name="auth_account_info">帳戶信息</string>
+    <string name="auth_logout_confirm_title">退出登錄</string>
+    <string name="auth_logout_confirm_message">確定要退出登錄嗎？</string>
+    
+    <!-- 會員 -->
     <string name="membership_title">會員</string>
     <string name="membership_status">會員狀態</string>
-    <string name="membership_active">已啟用</string>
-    <string name="membership_inactive">未啟用</string>
+    <string name="membership_active">已啟動</string>
+    <string name="membership_inactive">未啟動</string>
     <string name="membership_expired">已過期</string>
-    <string name="membership_plan">目前方案</string>
+    <string name="membership_plan">當前方案</string>
     <string name="membership_expires_on">到期時間</string>
     <string name="membership_days_remaining">剩餘 %d 天</string>
     <string name="membership_no_subscription">無有效訂閱</string>
     <string name="membership_subscribe_now">立即訂閱</string>
-    <string name="membership_renew">續訂</string>
+    <string name="membership_renew">續費訂閱</string>
     <string name="membership_manage">管理訂閱</string>
     <string name="membership_required">需要會員</string>
     <string name="membership_required_message">此功能需要有效會員資格，請訂閱後繼續使用。</string>
-    <string name="membership_expiring_soon">您的會員將在 %d 天後到期</string>
+    <string name="membership_expiring_soon">您的會員將在 %d 天后到期</string>
     <string name="membership_check_failed">檢查會員狀態失敗</string>
-    <string name="membership_using_cached">使用快取的會員資訊（離線）</string>
+    <string name="membership_using_cached">使用緩存的會員資訊（離線）</string>
     <string name="membership_status_refreshed">會員狀態已刷新</string>
     <string name="membership_status_refresh_failed">刷新會員狀態失敗</string>
     <string name="membership_refresh">刷新狀態</string>
-
+    
     <!-- 會員購買 -->
     <string name="membership_benefits_title">會員權益</string>
     <string name="membership_plans_title">可選套餐</string>
-    <string name="current_membership">目前會員</string>
+    <string name="current_membership">當前會員</string>
     <string name="benefit_unlimited_expenses">無限制記帳</string>
-    <string name="benefit_advanced_charts">進階圖表分析</string>
-    <string name="benefit_data_export">匯出資料到 Excel</string>
+    <string name="benefit_advanced_charts">高級圖表分析</string>
+    <string name="benefit_data_export">匯出數據到 Excel</string>
     <string name="benefit_cloud_sync">雲端同步</string>
     <string name="benefit_priority_support">優先客戶支援</string>
     <string name="plan">套餐</string>
     <string name="duration">時長</string>
     <string name="purchase">購買</string>
-    <string name="refresh_membership_status">重新整理狀態</string>
+    <string name="refresh_membership_status">刷新狀態</string>
     <string name="subscription_history">訂閱歷史</string>
     <string name="no_subscription_history">暫無訂閱歷史</string>
     <string name="unknown_plan">未知套餐</string>
@@ -324,7 +343,7 @@
     <string name="remind_later">稍後提醒</string>
     <string name="confirm_purchase">確認購買</string>
     <string name="confirm_purchase_message">購買 %1$s，價格 ¥%2$.2f？</string>
-    <string name="purchase_note">付款將透過金流支付</string>
+    <string name="purchase_note">付款將通過金流支付</string>
     <string name="purchasing">處理中…</string>
     <string name="days">天</string>
 

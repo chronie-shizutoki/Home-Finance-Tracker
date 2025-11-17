@@ -215,7 +215,10 @@
     <string name="median_amount">中位数</string>
     <string name="trend_chart">趋势图</string>
     <string name="category_breakdown">分类占比</string>
+    <string name="weekday_analysis">深度洞察</string>
     <string name="records">条</string>
+    <string name="expense_details">支出信息</string>
+    <string name="percentage_of_total">占比</string>
     <string name="select_time_range">选择时间范围</string>
     <string name="this_week">本周</string>
     <string name="this_month">本月</string>
@@ -224,6 +227,22 @@
     <string name="custom_range">自定义</string>
     <string name="close">关闭</string>
     <string name="retry">重试</string>
+    
+    <!-- 星期 -->
+    <string name="sunday">星期日</string>
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="sunday_short">日</string>
+    <string name="monday_short">一</string>
+    <string name="tuesday_short">二</string>
+    <string name="wednesday_short">三</string>
+    <string name="thursday_short">四</string>
+    <string name="friday_short">五</string>
+    <string name="saturday_short">六</string>
 
     <!-- 数据导入导出 -->
     <string name="data_import_export">数据导入导出</string>

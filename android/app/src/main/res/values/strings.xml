@@ -215,7 +215,10 @@
     <string name="median_amount">Median</string>
     <string name="trend_chart">Trends</string>
     <string name="category_breakdown">By Category</string>
+    <string name="weekday_analysis">Weekday Insights</string>
     <string name="records">records</string>
+    <string name="expense_details">Expense Details</string>
+    <string name="percentage_of_total">Percentage of Total</string>
     <string name="select_time_range">Time Period</string>
     <string name="this_week">This Week</string>
     <string name="this_month">This Month</string>
@@ -224,6 +227,22 @@
     <string name="custom_range">Custom</string>
     <string name="close">Close</string>
     <string name="retry">Retry</string>
+    
+    <!-- Weekdays -->
+    <string name="sunday">Sunday</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday_short">Sun</string>
+    <string name="monday_short">Mon</string>
+    <string name="tuesday_short">Tue</string>
+    <string name="wednesday_short">Wed</string>
+    <string name="thursday_short">Thu</string>
+    <string name="friday_short">Fri</string>
+    <string name="saturday_short">Sat</string>
 
     <!-- Data Import/Export -->
     <string name="data_import_export">Import &amp; Export</string>

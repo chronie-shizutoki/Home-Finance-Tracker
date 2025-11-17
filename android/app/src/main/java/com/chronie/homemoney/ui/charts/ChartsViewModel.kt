@@ -95,12 +95,16 @@ class ChartsViewModel @Inject constructor(
                         // 生成分类数据
                         val categoryData = generateCategoryData(expenses)
                         
-                        android.util.Log.d("ChartsViewModel", "Loaded data: expenses=${expenses.size}, dailyData=${dailyData.size}, categoryData=${categoryData.size}, stats=${statistics.totalAmount}")
+                        // 生成星期数据
+                        val weekdayData = generateWeekdayData(expenses)
+                        
+                        android.util.Log.d("ChartsViewModel", "Loaded data: expenses=${expenses.size}, dailyData=${dailyData.size}, categoryData=${categoryData.size}, weekdayData=${weekdayData.size}, stats=${statistics.totalAmount}")
                         
                         _uiState.value = ChartsUiState.Success(
                             statistics = statistics,
                             dailyData = dailyData,
                             categoryData = categoryData,
+                            weekdayData = weekdayData,
                             startDate = startDate,
                             endDate = endDate
                         )
@@ -204,6 +208,59 @@ class ChartsViewModel @Inject constructor(
             )
         }.sortedByDescending { it.amount }
     }
+    
+    private fun generateWeekdayData(expenses: List<Expense>): List<WeekdayChartData> {
+        if (expenses.isEmpty()) {
+            // 返回7天的空数据（周日到周六）
+            return (0..6).map { dayOfWeek ->
+                WeekdayChartData(
+                    dayOfWeek = dayOfWeek,
+                    amount = 0.0,
+                    count = 0,
+                    percentage = 0f,
+                    categoryBreakdown = emptyList()
+                )
+            }
+        }
+        
+        // 按星期几分组（0=周日, 1=周一, ..., 6=周六）
+        val expensesByWeekday = expenses.groupBy { expense ->
+            val dayOfWeek = expense.time.dayOfWeek.value % 7 // 转换为0-6，周日为0
+            dayOfWeek
+        }
+        
+        val totalAmount = expenses.sumOf { it.amount }
+        
+        // 生成7天的数据（周日到周六）
+        return (0..6).map { dayOfWeek ->
+            val dayExpenses = expensesByWeekday[dayOfWeek] ?: emptyList()
+            val dayAmount = dayExpenses.sumOf { it.amount }
+            
+            // 生成该星期的类型占比
+            val categoryBreakdown = if (dayExpenses.isNotEmpty()) {
+                val expensesByType = dayExpenses.groupBy { it.type }
+                expensesByType.map { (type, typeExpenses) ->
+                    val typeAmount = typeExpenses.sumOf { it.amount }
+                    CategoryChartData(
+                        type = type.name,
+                        amount = typeAmount,
+                        count = typeExpenses.size,
+                        percentage = if (dayAmount > 0) (typeAmount / dayAmount * 100).toFloat() else 0f
+                    )
+                }.sortedByDescending { it.amount }
+            } else {
+                emptyList()
+            }
+            
+            WeekdayChartData(
+                dayOfWeek = dayOfWeek,
+                amount = dayAmount,
+                count = dayExpenses.size,
+                percentage = if (totalAmount > 0) (dayAmount / totalAmount * 100).toFloat() else 0f,
+                categoryBreakdown = categoryBreakdown
+            )
+        }
+    }
 }
 
 /**
@@ -215,6 +272,7 @@ sealed class ChartsUiState {
         val statistics: ExpenseStatistics,
         val dailyData: List<DailyChartData>,
         val categoryData: List<CategoryChartData>,
+        val weekdayData: List<WeekdayChartData>,
         val startDate: LocalDate,
         val endDate: LocalDate
     ) : ChartsUiState()
@@ -238,4 +296,15 @@ data class CategoryChartData(
     val amount: Double,
     val count: Int,
     val percentage: Float
+)
+
+/**
+ * 星期图表数据
+ */
+data class WeekdayChartData(
+    val dayOfWeek: Int, // 0=周日, 1=周一, ..., 6=周六
+    val amount: Double,
+    val count: Int,
+    val percentage: Float,
+    val categoryBreakdown: List<CategoryChartData> // 该星期的类型占比
 )

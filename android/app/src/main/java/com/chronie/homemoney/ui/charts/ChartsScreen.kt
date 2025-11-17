@@ -172,6 +172,11 @@ private fun ChartsContent(
         
         // 分类占比
         CategoryBreakdownCard(context, state.categoryData, currencyFormat)
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // 星期分析雷达图
+        WeekdayRadarChartCard(context, state.weekdayData, currencyFormat)
     }
 }
 
