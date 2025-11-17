@@ -32,16 +32,6 @@
         <span class="service-icon">📊</span>
         <span class="service-label">{{ $t('debt.title') }}</span>
       </a>
-
-      <a
-        class="service-item"
-        href="http://192.168.0.197:3010/charts"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="service-icon">📈</span>
-        <span class="service-label">{{ $t('chart.title') }}</span>
-      </a>
     </div>
   </div>
 </template>
