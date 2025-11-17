@@ -112,6 +112,48 @@ object NetworkModule {
     
     @Provides
     @Singleton
+    @javax.inject.Named("HealthCheckClient")
+    fun provideHealthCheckOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        loggingInterceptor: LoggingInterceptor,
+        errorHandlingInterceptor: ErrorHandlingInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(2, TimeUnit.SECONDS) // 健康检查使用更短的超时
+            .readTimeout(2, TimeUnit.SECONDS)
+            .writeTimeout(2, TimeUnit.SECONDS)
+            .addInterceptor(errorHandlingInterceptor)
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .retryOnConnectionFailure(false) // 健康检查不重试
+            .build()
+    }
+    
+    @Provides
+    @Singleton
+    @javax.inject.Named("HealthCheckRetrofit")
+    fun provideHealthCheckRetrofit(
+        @javax.inject.Named("HealthCheckClient") okHttpClient: OkHttpClient,
+        gson: Gson
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
+    
+    @Provides
+    @Singleton
+    @javax.inject.Named("HealthCheckApi")
+    fun provideHealthCheckMemberApi(
+        @javax.inject.Named("HealthCheckRetrofit") retrofit: Retrofit
+    ): MemberApi {
+        return retrofit.create(MemberApi::class.java)
+    }
+    
+    @Provides
+    @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }

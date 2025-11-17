@@ -1,75 +1,52 @@
 package com.chronie.homemoney.service
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.os.IBinder
-import androidx.core.app.NotificationCompat
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import com.chronie.homemoney.R
 import com.chronie.homemoney.data.remote.api.MemberApi
-import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@AndroidEntryPoint
-class HealthCheckService : Service() {
-
-    @Inject
-    lateinit var memberApi: MemberApi
-
+@Singleton
+class HealthCheckService @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @javax.inject.Named("HealthCheckApi") private val memberApi: MemberApi
+) {
     private val serviceScope = CoroutineScope(Dispatchers.IO + Job())
     private var healthCheckJob: Job? = null
     private var consecutiveFailures = 0
     private val maxConsecutiveFailures = 3
 
     companion object {
-        private const val CHANNEL_ID = "health_check_channel"
-        private const val ERROR_CHANNEL_ID = "health_check_error_channel"
-        private const val NOTIFICATION_ID = 1001
-        private const val ERROR_NOTIFICATION_ID = 1002
-        private const val CHECK_INTERVAL = 15000L // 15秒
-
-        fun start(context: Context) {
-            val intent = Intent(context, HealthCheckService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-        }
-
-        fun stop(context: Context) {
-            val intent = Intent(context, HealthCheckService::class.java)
-            context.stopService(intent)
-        }
+        private const val CHECK_INTERVAL = 5000L // 5秒
+        private const val HEALTH_CHECK_TIMEOUT = 2000L // 2秒超时
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification())
+    fun start() {
+        if (healthCheckJob?.isActive == true) {
+            android.util.Log.d("HealthCheckService", "Service already running")
+            return
+        }
         startHealthCheck()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY
-    }
-
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onDestroy() {
-        super.onDestroy()
+    fun stop() {
         healthCheckJob?.cancel()
+        healthCheckJob = null
+        consecutiveFailures = 0
     }
 
     private fun startHealthCheck() {
@@ -92,18 +69,27 @@ class HealthCheckService : Service() {
     private suspend fun checkServerHealth() {
         try {
             android.util.Log.d("HealthCheckService", "Checking server health...")
-            val response = memberApi.checkHealth()
+            
+            // 使用超时机制，避免长时间阻塞
+            val response = withTimeout(HEALTH_CHECK_TIMEOUT) {
+                memberApi.checkHealth()
+            }
+            
             android.util.Log.d("HealthCheckService", "Health check response: status=${response.status}, database=${response.database}")
             
             if (response.status == "OK" && response.database == "connected") {
                 if (consecutiveFailures > 0) {
                     android.util.Log.i("HealthCheckService", "Server connection restored")
+                    showToast(context.getString(R.string.server_connection_restored))
                 }
                 consecutiveFailures = 0
             } else {
                 android.util.Log.w("HealthCheckService", "Health check failed: status=${response.status}, database=${response.database}")
                 handleHealthCheckFailure()
             }
+        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+            android.util.Log.e("HealthCheckService", "Health check timeout after ${HEALTH_CHECK_TIMEOUT}ms")
+            handleHealthCheckFailure()
         } catch (e: Exception) {
             android.util.Log.e("HealthCheckService", "Health check exception: ${e.message}", e)
             handleHealthCheckFailure()
@@ -115,13 +101,19 @@ class HealthCheckService : Service() {
         android.util.Log.w("HealthCheckService", "Consecutive failures: $consecutiveFailures/$maxConsecutiveFailures")
         
         if (consecutiveFailures == maxConsecutiveFailures) {
-            android.util.Log.e("HealthCheckService", "Max consecutive failures reached, showing notification")
-            showConnectionErrorNotification()
+            android.util.Log.e("HealthCheckService", "Max consecutive failures reached, showing toast")
+            showToast(context.getString(R.string.server_connection_error_message))
+        }
+    }
+    
+    private fun showToast(message: String) {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val network = connectivityManager.activeNetwork ?: return false
@@ -136,55 +128,4 @@ class HealthCheckService : Service() {
         }
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            
-            // 创建低优先级通道用于前台服务
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.health_check_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = getString(R.string.health_check_channel_description)
-            }
-            notificationManager.createNotificationChannel(serviceChannel)
-            
-            // 创建高优先级通道用于错误通知
-            val errorChannel = NotificationChannel(
-                ERROR_CHANNEL_ID,
-                getString(R.string.server_connection_error),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = getString(R.string.server_connection_error_message)
-            }
-            notificationManager.createNotificationChannel(errorChannel)
-        }
-    }
-
-    private fun createNotification() = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setContentTitle(getString(R.string.health_check_running))
-        .setContentText(getString(R.string.health_check_monitoring))
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .build()
-
-    private fun showConnectionErrorNotification() {
-        try {
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            val notification = NotificationCompat.Builder(this, ERROR_CHANNEL_ID)
-                .setContentTitle(getString(R.string.server_connection_error))
-                .setContentText(getString(R.string.server_connection_error_message))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .build()
-            
-            android.util.Log.i("HealthCheckService", "Showing error notification")
-            notificationManager.notify(ERROR_NOTIFICATION_ID, notification)
-        } catch (e: Exception) {
-            android.util.Log.e("HealthCheckService", "Failed to show notification", e)
-        }
-    }
 }

@@ -61,6 +61,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var checkMembershipUseCase: CheckMembershipUseCase
     
+    @Inject
+    lateinit var healthCheckService: HealthCheckService
+    
     private var membershipCheckJob: kotlinx.coroutines.Job? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +98,7 @@ class MainActivity : ComponentActivity() {
         startPeriodicMembershipCheck()
         
         // 启动健康检查服务
-        HealthCheckService.start(this)
+        healthCheckService.start()
         
         setContent {
             val currentLanguage by languageManager.currentLanguage.collectAsState()
@@ -134,7 +137,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         membershipCheckJob?.cancel()
-        HealthCheckService.stop(this)
+        healthCheckService.stop()
     }
     
     private fun startPeriodicMembershipCheck() {

@@ -353,6 +353,7 @@
     <string name="health_check_running">Monitoring Server</string>
     <string name="health_check_monitoring">Checking server connection…</string>
     <string name="server_connection_error">Server Connection Lost</string>
-    <string name="server_connection_error_message">Unable to connect to server. Please check your network connection.</string>
+    <string name="server_connection_error_message">Unable to connect to server. Check network connection</string>
+    <string name="server_connection_restored">Server connection restored</string>
 
 </resources>

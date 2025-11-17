@@ -353,6 +353,7 @@
     <string name="health_check_running">监控服务器</string>
     <string name="health_check_monitoring">正在检查服务器连接…</string>
     <string name="server_connection_error">服务器连接失败</string>
-    <string name="server_connection_error_message">无法连接到服务器，请检查您的网络连接。</string>
+    <string name="server_connection_error_message">无法连接到服务器，请检查网络连接</string>
+    <string name="server_connection_restored">服务器连接已恢复</string>
 
 </resources>
