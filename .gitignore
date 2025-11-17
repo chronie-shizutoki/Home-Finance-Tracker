@@ -25,3 +25,4 @@ client/src/assets/markdown/expense-report.zh-TW.md
 server/data/donation_records.json
 node_modules
 server-go/server.exe
+server/api-test-report-*.json

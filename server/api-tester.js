@@ -31,32 +31,246 @@ class APITester {
 
         // 定义要测试的API端点
         this.apiEndpoints = [
+            // 基础健康检查端点
             {
-                name: '健康检查',
+                name: '系统健康检查',
                 method: 'GET',
-                paths: ['/api/health', '/api/health/lite']
+                paths: ['/api/health']
             },
             {
-                name: '消费记录',
+                name: '轻量级健康检查',
+                method: 'GET',
+                paths: ['/api/health/lite']
+            },
+            
+            // 消费记录端点
+            {
+                name: '获取消费记录',
                 method: 'GET',
                 paths: ['/api/expenses'],
-                params: { page: 1, limit: 5 }
+                params: { page: 1, limit: 10 }
+            },
+            {
+                name: '添加消费记录',
+                method: 'POST',
+                paths: ['/api/expenses'],
+                data: {
+                    amount: 50.00,
+                    category: 'food',
+                    description: 'Test expense',
+                    date: new Date().toISOString().split('T')[0],
+                    tags: ['test']
+                }
+            },
+            {
+                name: '删除消费记录',
+                method: 'DELETE',
+                paths: ['/api/expenses/1']
             },
             {
                 name: '消费统计',
                 method: 'GET',
                 paths: ['/api/expenses/statistics']
             },
+            
+            // 债务管理端点
+            {
+                name: '获取债务记录',
+                method: 'GET',
+                paths: ['/api/debts'],
+                params: { page: 1, limit: 10 }
+            },
+            {
+                name: '添加债务记录',
+                method: 'POST',
+                paths: ['/api/debts'],
+                data: {
+                    creditor: 'Test Creditor',
+                    amount: 1000.00,
+                    interest_rate: 5.5,
+                    start_date: new Date().toISOString().split('T')[0],
+                    due_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+                    description: 'Test debt record'
+                }
+            },
+            {
+                name: '更新债务记录',
+                method: 'PUT',
+                paths: ['/api/debts/1'],
+                data: {
+                    creditor: 'Updated Creditor',
+                    amount: 1200.00,
+                    interest_rate: 6.0,
+                    description: 'Updated test debt record'
+                }
+            },
+            {
+                name: '删除债务记录',
+                method: 'DELETE',
+                paths: ['/api/debts/1']
+            },
+            
+            // JSON文件操作端点
+            {
+                name: '获取JSON文件列表',
+                method: 'GET',
+                paths: ['/api/json-files']
+            },
+            {
+                name: '读取指定JSON文件',
+                method: 'GET',
+                paths: ['/api/json-files/test.json']
+            },
+            {
+                name: '写入数据到JSON文件',
+                method: 'POST',
+                paths: ['/api/json-files/test-data.json'],
+                data: {
+                    key: 'test_value',
+                    timestamp: new Date().toISOString(),
+                    data: { test: true, value: 123 }
+                }
+            },
+            {
+                name: '删除指定JSON文件',
+                method: 'DELETE',
+                paths: ['/api/json-files/test-data.json']
+            },
+            
+            // 支付端点
+            {
+                name: '捐赠支付',
+                method: 'POST',
+                paths: ['/api/payments/donate'],
+                data: {
+                    amount: 10.00,
+                    currency: 'USD',
+                    donor_name: 'Test Donor',
+                    message: 'Test donation'
+                }
+            },
+            {
+                name: '订阅支付',
+                method: 'POST',
+                paths: ['/api/payments/subscribe'],
+                data: {
+                    plan_id: 'basic',
+                    user_id: 'test-user',
+                    amount: 9.99,
+                    currency: 'USD'
+                }
+            },
+            
+            // 导入导出端点
+            {
+                name: '导出Excel文件',
+                method: 'GET',
+                paths: ['/api/export/excel']
+            },
+            {
+                name: '导入Excel文件',
+                method: 'POST',
+                paths: ['/api/import/excel'],
+                data: {
+                    filename: 'test-import.xlsx',
+                    data: [
+                        { amount: 100, category: 'food', description: 'Lunch', date: '2025-11-01' },
+                        { amount: 50, category: 'transport', description: 'Bus fare', date: '2025-11-02' }
+                    ]
+                }
+            },
+            
+            // 会员管理端点
+            {
+                name: '获取或创建会员',
+                method: 'POST',
+                paths: ['/api/members'],
+                data: {
+                    username: 'testuser',
+                    email: 'test@example.com',
+                    display_name: 'Test User'
+                }
+            },
+            {
+                name: '获取会员信息',
+                method: 'GET',
+                paths: ['/api/members/testuser']
+            },
+            {
+                name: '更新会员状态',
+                method: 'PUT',
+                paths: ['/api/members/1/status'],
+                data: {
+                    status: 'active',
+                    notes: 'Updated status via API test'
+                }
+            },
             {
                 name: '订阅计划',
                 method: 'GET',
-                paths: ['/api/members/subscription-plans']
+                paths: ['/api/subscription-plans']
             },
             {
-                name: '日志管理',
-                method: 'GET',
-                paths: ['/api/logs', '/api/logs/stats']
+                name: '创建订阅',
+                method: 'POST',
+                paths: ['/api/subscriptions'],
+                data: {
+                    username: 'testuser',
+                    plan_id: 'basic',
+                    duration: 'monthly'
+                }
             },
+            {
+                name: '获取会员订阅',
+                method: 'GET',
+                paths: ['/api/members/testuser/subscriptions']
+            },
+            {
+                name: '获取当前订阅',
+                method: 'GET',
+                paths: ['/api/members/testuser/current-subscription']
+            },
+            {
+                name: '取消订阅',
+                method: 'DELETE',
+                paths: ['/api/members/testuser/subscriptions']
+            },
+            
+            // 日志管理端点
+            {
+                name: '接收操作日志',
+                method: 'POST',
+                paths: ['/api/logs'],
+                data: {
+                    user_id: 'test-user',
+                    action: 'test_action',
+                    details: 'This is a test log entry',
+                    timestamp: new Date().toISOString()
+                }
+            },
+            {
+                name: '获取日志列表',
+                method: 'GET',
+                paths: ['/api/logs'],
+                params: { page: 1, limit: 10 }
+            },
+            {
+                name: '日志统计',
+                method: 'GET',
+                paths: ['/api/logs/stats'],
+                params: { 
+                    start_date: new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0],
+                    end_date: new Date().toISOString().split('T')[0]
+                }
+            },
+            {
+                name: '清理过期日志',
+                method: 'DELETE',
+                paths: ['/api/logs/clean'],
+                params: { days: 30 }
+            },
+            
+            // 小程序端点
             {
                 name: '小程序列表',
                 method: 'GET',
@@ -68,7 +282,7 @@ class APITester {
     /**
      * 执行单个API测试
      */
-    async testEndpoint(name, method, url, serverUrl, params = {}) {
+    async testEndpoint(name, method, url, serverUrl, params = {}, data = null) {
         const startTime = Date.now();
         const result = {
             name,
@@ -83,13 +297,23 @@ class APITester {
         };
 
         try {
-            const response = await axios({
+            const config = {
                 method,
                 url: `${serverUrl}${url}`,
                 params,
                 timeout: this.timeout,
                 validateStatus: () => true // 接受所有状态码
-            });
+            };
+
+            // 为POST/PUT/DELETE请求添加数据载荷
+            if (data && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+                config.data = data;
+                config.headers = {
+                    'Content-Type': 'application/json'
+                };
+            }
+
+            const response = await axios(config);
 
             const endTime = Date.now();
             result.responseTime = endTime - startTime;
@@ -247,7 +471,7 @@ class APITester {
      * 运行所有测试
      */
     async runAllTests() {
-        console.log('🚀 开始API测试...\n');
+        console.log('🚀 开始完整API测试...\n');
 
         for (const endpoint of this.apiEndpoints) {
             console.log(`📋 测试: ${endpoint.name}`);
@@ -257,8 +481,8 @@ class APITester {
 
                 // 并行测试两个服务器
                 const [goResult, jsResult] = await Promise.all([
-                    this.testEndpoint(endpoint.name, endpoint.method, apiPath, this.goServer, endpoint.params),
-                    this.testEndpoint(endpoint.name, endpoint.method, apiPath, this.jsServer, endpoint.params)
+                    this.testEndpoint(endpoint.name, endpoint.method, apiPath, this.goServer, endpoint.params || {}, endpoint.data || null),
+                    this.testEndpoint(endpoint.name, endpoint.method, apiPath, this.jsServer, endpoint.params || {}, endpoint.data || null)
                 ]);
 
                 // 记录单个测试结果
@@ -283,7 +507,7 @@ class APITester {
             }
         }
 
-        console.log('\n📊 测试完成！');
+        console.log('\n📊 完整API测试完成！');
         return this.testResults;
     }
 

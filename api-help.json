@@ -28,18 +28,6 @@
           "en": "Quick check of system and database status",
           "zh": "快速检查系统和数据库状态"
         }
-      },
-      {
-        "endpoint": "/api/healthcheck",
-        "method": "GET",
-        "description": {
-          "en": "Enhanced health check endpoint",
-          "zh": "增强版健康检查端点"
-        },
-        "usage": {
-          "en": "Returns service information, version, and memory usage",
-          "zh": "返回服务信息、版本和内存使用情况"
-        }
       }
     ],
     "expenses": [
