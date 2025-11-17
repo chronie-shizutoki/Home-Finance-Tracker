@@ -141,7 +141,6 @@ fun MainScreen(
                         // 设置界面
                         SettingsScreen(
                             context = context,
-                            onNavigateBack = { selectedTab = 0 },
                             onNavigateToDatabaseTest = onNavigateToDatabaseTest,
                             onNavigateToMembership = {
                                 android.util.Log.d("MainScreen", "收到 onNavigateToMembership 回调")

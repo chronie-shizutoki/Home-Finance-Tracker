@@ -68,6 +68,16 @@ class MainActivity : ComponentActivity() {
         // 初始化同步调度器
         syncScheduler.initialize()
         
+        // 应用启动时触发云同步尝试（允许失败）
+        lifecycleScope.launch {
+            try {
+                syncScheduler.triggerImmediateSync()
+            } catch (e: Exception) {
+                // 同步失败不影响应用启动
+                android.util.Log.w("MainActivity", "Failed to trigger sync on app start", e)
+            }
+        }
+        
         // 立即切换到正常主题，避免启动图背景影响 Popup 窗口
         setTheme(R.style.AppTheme_NoActionBar)
         
@@ -216,9 +226,6 @@ fun HomeMoneyApp(
         composable("settings") {
             SettingsScreen(
                 context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
                 onNavigateToDatabaseTest = {
                     navController.navigate("database_test")
                 },

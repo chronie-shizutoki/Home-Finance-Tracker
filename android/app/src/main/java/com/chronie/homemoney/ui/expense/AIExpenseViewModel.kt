@@ -24,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AIExpenseViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val aiRecordRepository: AIRecordRepository
+    private val aiRecordRepository: AIRecordRepository,
+    private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AIExpenseUiState())
@@ -165,6 +166,15 @@ class AIExpenseViewModel @Inject constructor(
                             textInput = ""
                         )
                     }
+                    
+                    // 触发云同步尝试（允许失败）
+                    try {
+                        syncScheduler.triggerImmediateSync()
+                    } catch (e: Exception) {
+                        // 同步失败不影响保存记录的成功
+                        android.util.Log.w("AIExpenseViewModel", "Failed to trigger sync after saving AI records", e)
+                    }
+                    
                     onSuccess()
                 }.onFailure { error ->
                     _uiState.update {

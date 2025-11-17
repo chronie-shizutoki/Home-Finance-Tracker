@@ -18,7 +18,6 @@ import com.chronie.homemoney.core.common.Language
 fun SettingsScreen(
     context: Context,
     viewModel: SettingsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToMembership: () -> Unit = {},
     onLogout: () -> Unit = {},

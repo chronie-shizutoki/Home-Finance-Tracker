@@ -23,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
+    private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler,
     val checkLoginStatusUseCase: com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase,
     val checkMembershipUseCase: com.chronie.homemoney.domain.usecase.CheckMembershipUseCase
 ) : ViewModel() {
@@ -98,6 +99,15 @@ class AddExpenseViewModel @Inject constructor(
                 
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isSaving = false) }
+                    
+                    // 触发云同步尝试（允许失败）
+                    try {
+                        syncScheduler.triggerImmediateSync()
+                    } catch (e: Exception) {
+                        // 同步失败不影响添加记录的成功
+                        android.util.Log.w("AddExpenseViewModel", "Failed to trigger sync after adding expense", e)
+                    }
+                    
                     onSuccess()
                 } else {
                     val error = result.exceptionOrNull()?.message ?: "Unknown error"

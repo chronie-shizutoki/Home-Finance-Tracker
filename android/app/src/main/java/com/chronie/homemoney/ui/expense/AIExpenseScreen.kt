@@ -135,6 +135,7 @@ fun AIExpenseScreen(
 /**
  * 图片选择区域
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSelectionSection(
     context: android.content.Context,
@@ -173,6 +174,7 @@ private fun ImageSelectionSection(
             }
         } else {
             Card(
+                onClick = onAddImages,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
