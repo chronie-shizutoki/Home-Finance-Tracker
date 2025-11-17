@@ -45,8 +45,8 @@ type ExpenseQuery struct {
 
 // ExpenseMeta 元数据
 type ExpenseMeta struct {
-	UniqueTypes     []string `json:"unique_types"`
-	AvailableMonths []string `json:"available_months"`
+	UniqueTypes     []string `json:"uniqueTypes"`
+	AvailableMonths []string `json:"availableMonths"`
 }
 
 // ExpenseStats 消费统计 - 与JS版本完全兼容
