@@ -21,3 +21,5 @@ jobs:
         run: cloc client/src
       - name: Count lines in server/src
         run: cloc server/src
+      - name: Count lines in server-go
+        run: cloc server-go
