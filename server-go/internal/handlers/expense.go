@@ -72,11 +72,6 @@ func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
 		return
 	}
 
-	// 设置默认时间
-	if expense.Time.IsZero() {
-		expense.Time = time.Now()
-	}
-
 	// 保存记录
 	if err := h.expenseRepo.Create(&expense); err != nil {
 		utils.ErrorResponseWithStatus(c, "无法添加记录", err.Error(), http.StatusInternalServerError)

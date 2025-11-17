@@ -11,23 +11,21 @@ import (
 
 // Expense 消费记录
 type Expense struct {
-	ID      uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	Type    string    `json:"type" gorm:"type:varchar(100);not null"`
-	Remark  *string   `json:"remark,omitempty" gorm:"type:text"`
-	Amount  float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
-	Time    time.Time `json:"time" gorm:"type:datetime;not null;index"`
-	
+	ID     uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	Type   string    `json:"type" gorm:"type:varchar(100);not null"`
+	Remark *string   `json:"remark,omitempty" gorm:"type:text"`
+	Amount float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
+	Time   time.Time `json:"time" gorm:"type:datetime;not null;index"`
+
 	// 时间戳
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt" gorm:"column:createdAt"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt"`
 }
 
 // TableName 指定表名
 func (Expense) TableName() string {
 	return "expenses"
 }
-
-
 
 // ExpenseQuery 消费记录查询条件
 type ExpenseQuery struct {
@@ -51,20 +49,20 @@ type ExpenseMeta struct {
 
 // ExpenseStats 消费统计 - 与JS版本完全兼容
 type ExpenseStats struct {
-	Count           int                  `json:"count" binding:"required"`
-	TotalAmount     float64              `json:"totalAmount" binding:"required"`
-	AverageAmount   float64              `json:"averageAmount" binding:"required"`
-	MedianAmount    float64              `json:"medianAmount" binding:"required"`
-	MinAmount       float64              `json:"minAmount" binding:"required"`
-	MaxAmount       float64              `json:"maxAmount" binding:"required"`
+	Count            int                             `json:"count" binding:"required"`
+	TotalAmount      float64                         `json:"totalAmount" binding:"required"`
+	AverageAmount    float64                         `json:"averageAmount" binding:"required"`
+	MedianAmount     float64                         `json:"medianAmount" binding:"required"`
+	MinAmount        float64                         `json:"minAmount" binding:"required"`
+	MaxAmount        float64                         `json:"maxAmount" binding:"required"`
 	TypeDistribution map[string]TypeDistributionItem `json:"typeDistribution" binding:"required"`
 }
 
 // TypeDistributionItem 类型分布统计项
 type TypeDistributionItem struct {
-	Count     int     `json:"count"`
-	Amount    float64 `json:"amount"`
-	Percentage int    `json:"percentage"`
+	Count      int     `json:"count"`
+	Amount     float64 `json:"amount"`
+	Percentage int     `json:"percentage"`
 }
 
 // Validate 验证字段
@@ -93,7 +91,7 @@ func (q *ExpenseQuery) Validate() error {
 	if q.Sort != "" && !validSorts[q.Sort] {
 		return fmt.Errorf("无效的排序参数: %s", q.Sort)
 	}
-	
+
 	// 验证分页参数
 	if q.Limit < 1 || q.Limit > 100 {
 		return errors.New("limit参数必须在1-100之间")
@@ -101,12 +99,12 @@ func (q *ExpenseQuery) Validate() error {
 	if q.Offset < 0 {
 		return errors.New("offset参数不能为负数")
 	}
-	
+
 	// 验证日期范围
 	if q.StartDate != nil && q.EndDate != nil && q.StartDate.After(*q.EndDate) {
 		return errors.New("开始日期不能晚于结束日期")
 	}
-	
+
 	// 验证金额范围
 	if q.MinAmount != nil && *q.MinAmount < 0 {
 		return errors.New("最小金额不能为负数")
@@ -117,14 +115,14 @@ func (q *ExpenseQuery) Validate() error {
 	if q.MinAmount != nil && q.MaxAmount != nil && *q.MinAmount > *q.MaxAmount {
 		return errors.New("最小金额不能大于最大金额")
 	}
-	
+
 	// 验证月份格式
 	if q.Month != "" {
 		if _, err := time.Parse("2006-01", q.Month); err != nil {
 			return fmt.Errorf("月份格式错误，期望格式: YYYY-MM")
 		}
 	}
-	
+
 	return nil
 }
 
@@ -133,7 +131,7 @@ func (q *ExpenseQuery) ToMonthRange() (time.Time, time.Time, error) {
 	if q.Month == "" {
 		return time.Time{}, time.Time{}, errors.New("月份不能为空")
 	}
-	
+
 	parsed, err := time.Parse("2006-01", q.Month)
 	if err != nil {
 		return time.Time{}, time.Time{}, fmt.Errorf("月份解析失败: %w", err)
@@ -191,14 +189,14 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 
 	// 构建SQL查询
 	sql := db.Model(&Expense{})
-	
+
 	// 应用查询条件
 	query.ApplyToQuery(sql)
 
 	// 获取总金额和数量
 	var totalAmount float64
 	var count int64
-	
+
 	if err := sql.Select("COALESCE(SUM(amount), 0)").Row().Scan(&totalAmount); err != nil {
 		return nil, fmt.Errorf("获取总金额失败: %w", err)
 	}
@@ -208,7 +206,7 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 		return nil, fmt.Errorf("获取总数失败: %w", err)
 	}
 	stats.Count = int(count)
-	
+
 	if count > 0 {
 		stats.AverageAmount = stats.TotalAmount / float64(count)
 	}
@@ -230,7 +228,7 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 	// 计算最大值和最小值
 	minAmount := allExpenses[0].Amount
 	maxAmount := allExpenses[0].Amount
-	
+
 	// 按类型统计
 	typeMap := make(map[string][]float64)
 	for _, expense := range allExpenses {
@@ -241,10 +239,10 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 		if expense.Amount > maxAmount {
 			maxAmount = expense.Amount
 		}
-		
+
 		typeMap[expense.Type] = append(typeMap[expense.Type], expense.Amount)
 	}
-	
+
 	stats.MinAmount = minAmount
 	stats.MaxAmount = maxAmount
 
@@ -253,7 +251,7 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 	for _, expense := range allExpenses {
 		amounts = append(amounts, expense.Amount)
 	}
-	
+
 	// 排序
 	for i := 0; i < len(amounts); i++ {
 		for j := i + 1; j < len(amounts); j++ {
@@ -262,7 +260,7 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 			}
 		}
 	}
-	
+
 	// 计算中位数
 	if len(amounts) > 0 {
 		if len(amounts)%2 == 0 {
@@ -278,15 +276,15 @@ func GetStatsWithSQL(db *gorm.DB, query *ExpenseQuery) (*ExpenseStats, error) {
 		for _, amount := range amounts {
 			typeTotal += amount
 		}
-		
+
 		percentage := 0
 		if int(count) > 0 && len(amounts) > 0 {
 			percentage = int(math.Round(float64(len(amounts)) * 100.0 / float64(count)))
 		}
-		
+
 		stats.TypeDistribution[expenseType] = TypeDistributionItem{
-			Count:     len(amounts),
-			Amount:    typeTotal,
+			Count:      len(amounts),
+			Amount:     typeTotal,
 			Percentage: percentage,
 		}
 	}
