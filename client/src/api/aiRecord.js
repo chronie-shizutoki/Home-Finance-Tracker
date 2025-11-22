@@ -36,7 +36,7 @@ export const parseTextToRecord = async (text) => {
 {
   "type": "消费类型", // 从预定义列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气
   "amount": 金额, // 数字类型
-  "date": "日期", // 日期格式，供浏览器日期选择器使用
+  "date": "日期", // 日期，格式YYYY-MM-DD
   "remark": "备注" // 详细说明，注意：此处必须包含消费物品/服务的名称
 }
 
@@ -93,7 +93,7 @@ export const parseImageToRecord = async (imageFile) => {
 {
   "type": "消费类型", // 从预定义列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气
   "amount": 金额, // 数字类型
-  "date": "日期", // 日期格式，供浏览器日期选择器使用
+  "date": "日期", // 日期，格式YYYY-MM-DD
   "remark": "备注" // 详细说明，注意：此处必须包含消费物品/服务的名称
 }
 
@@ -191,7 +191,7 @@ export const generateExpenseReport = async (expenses, question = '') => {
       recentExpenses: expenses.slice(0, 10).map(item => ({
         type: item.type,
         amount: item.amount,
-        date: item.time,
+        date: item.date,
         remark: item.remark
       }))
     };
