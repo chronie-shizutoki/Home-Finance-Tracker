@@ -125,7 +125,7 @@ const getExpenses = async (req, res) => {
 
 const addExpense = async (req, res) => {
   try {
-    const { type, remark, amount, time } = req.body
+    const { type, remark, amount, time, date } = req.body
 
     // 后端数据验证
     if (!type || !amount) {
@@ -133,8 +133,11 @@ const addExpense = async (req, res) => {
     }
 
     // 确保日期格式为YYYY-MM-DD字符串
+    // 优先使用date字段（前端现在使用的是date字段），如果date不存在再尝试使用time字段
     let dateStr = dayjs().format('YYYY-MM-DD')
-    if (time) {
+    if (date) {
+      dateStr = dayjs(date).format('YYYY-MM-DD')
+    } else if (time) {
       dateStr = dayjs(time).format('YYYY-MM-DD')
     }
 
@@ -173,7 +176,7 @@ const deleteExpense = async (req, res) => {
 const updateExpense = async (req, res) => {
   try {
     const { id } = req.params
-    const { type, remark, amount, time } = req.body
+    const { type, remark, amount, time, date } = req.body
 
     // 检查记录是否存在
     const existingExpense = await Expense.findByPk(id)
@@ -195,7 +198,12 @@ const updateExpense = async (req, res) => {
     if (type !== undefined) updateData.type = type
     if (remark !== undefined) updateData.remark = remark
     if (amount !== undefined) updateData.amount = parseFloat(amount)
-    if (time !== undefined) updateData.date = dayjs(time).format('YYYY-MM-DD')
+    // 优先使用date字段更新日期，如果date不存在再尝试使用time字段
+    if (date !== undefined) {
+      updateData.date = dayjs(date).format('YYYY-MM-DD')
+    } else if (time !== undefined) {
+      updateData.date = dayjs(time).format('YYYY-MM-DD')
+    }
 
     // 执行更新操作
     await Expense.update(updateData, {

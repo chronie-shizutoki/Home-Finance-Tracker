@@ -1349,16 +1349,25 @@ const handleAddRecord = async () => {
     const amountStr = form.amount.toString().replace(',', '.');
     const amount = Number(amountStr);
 
+    // 添加详细日志来跟踪日期
+    console.log('用户选择的原始日期:', form.date);
+    
     // 格式化日期为YYYY-MM-DD格式
-    const formattedDate = form.date ? new Date(form.date).toISOString().split('T')[0] : '';
+    const userSelectedDate = form.date ? new Date(form.date).toISOString().split('T')[0] : '';
+    console.log('格式化后的用户选择日期:', userSelectedDate);
+    
+    // 获取当前日期用于比较
+    const today = new Date().toISOString().split('T')[0];
+    console.log('今天的日期:', today);
 
     // 构建符合API要求的请求数据
     const expenseData = {
       type: form.type,
       amount: parseFloat(parseFloat(form.amount).toFixed(2)),
       remark: form.remark,
-      date: formattedDate // 服务器需要的日期字段
+      date: userSelectedDate // 服务器需要的日期字段
     };
+    console.log('发送到服务器的数据:', expenseData);
 
     // 检查是否有单笔大于500元的消费
     await checkAndShowLargeExpenseWarning([expenseData]);
@@ -1380,7 +1389,7 @@ const handleAddRecord = async () => {
     logUserAction('record_add_success', { 
       type: expenseData.type, 
       amount: expenseData.amount,
-      date: expenseData.time
+      date: expenseData.date
     });
     
     // 重置表单

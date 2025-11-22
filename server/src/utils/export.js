@@ -14,7 +14,16 @@ class ExportService {
   // 生成Excel文件
   async generateExcel () {
     const data = await this.getFullData()
-    const worksheet = XLSX.utils.json_to_sheet(data)
+    
+    // 处理数据，确保date字段存在且格式正确
+    const processedData = data.map(expense => ({
+      type: expense.type,
+      remark: expense.remark || '',
+      amount: expense.amount,
+      date: expense.date || new Date().toISOString().split('T')[0] // 确保有日期，如果没有则使用今天日期
+    }))
+    
+    const worksheet = XLSX.utils.json_to_sheet(processedData)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, '消费记录')
 
