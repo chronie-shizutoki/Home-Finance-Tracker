@@ -19,7 +19,7 @@ object AIRecordMapper {
         return AIExpenseRecord(
             type = parseExpenseType(dto.type),
             amount = dto.amount,
-            time = parseDateTime(dto.time),
+            date = dto.date, // 直接使用日期字符串
             remark = dto.remark,
             isEdited = false,
             isValid = validateRecord(dto)
@@ -58,14 +58,14 @@ object AIRecordMapper {
     /**
      * 解析日期时间
      */
-    private fun parseDateTime(timeStr: String): LocalDateTime {
+    private fun parseDateTime(dateStr: String): LocalDateTime {
         return try {
             // 尝试解析 ISO 格式
-            LocalDateTime.parse(timeStr, DateTimeFormatter.ISO_DATE_TIME)
+            LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME)
         } catch (e: Exception) {
             try {
                 // 尝试解析日期格式
-                val date = LocalDate.parse(timeStr, DateTimeFormatter.ISO_DATE)
+                val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE)
                 date.atStartOfDay()
             } catch (e2: Exception) {
                 // 默认使用当前时间

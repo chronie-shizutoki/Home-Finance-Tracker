@@ -88,12 +88,11 @@ class ExportExpensesUseCase @Inject constructor(
             }
             
             // 填充数据
-            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             expenses.forEachIndexed { index, expense ->
                 val row = sheet.createRow(index + 1)
                 
                 // 日期
-                row.createCell(0).setCellValue(expense.time.format(dateFormatter))
+                row.createCell(0).setCellValue(expense.date)
                 
                 // 类型（使用当前语言）
                 row.createCell(1).setCellValue(getExpenseTypeName(expense.type))

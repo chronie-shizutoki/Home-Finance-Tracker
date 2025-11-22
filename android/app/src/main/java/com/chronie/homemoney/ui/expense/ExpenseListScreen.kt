@@ -619,7 +619,6 @@ fun ExpenseListItem(
     // 使用传递的context来获取本地化字符串
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
     
-    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())
     
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -649,7 +648,7 @@ fun ExpenseListItem(
                     )
                 }
                 Text(
-                    text = expense.time.format(dateFormatter),
+                    text = expense.date,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

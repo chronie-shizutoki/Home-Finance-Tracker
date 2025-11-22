@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "expenses",
     indices = [
-        Index(value = ["time"]),
+        Index(value = ["date"]),
         Index(value = ["type"]),
         Index(value = ["is_synced"])
     ]
@@ -31,14 +31,8 @@ data class ExpenseEntity(
     @ColumnInfo(name = "amount")
     val amount: Double,
     
-    @ColumnInfo(name = "time")
-    val time: Long,
-    
-    @ColumnInfo(name = "created_at")
-    val createdAt: Long,
-    
-    @ColumnInfo(name = "updated_at")
-    val updatedAt: Long,
+    @ColumnInfo(name = "date")
+    val date: String,
     
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false,

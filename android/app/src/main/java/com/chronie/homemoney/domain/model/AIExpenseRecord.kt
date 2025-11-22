@@ -10,7 +10,7 @@ data class AIExpenseRecord(
     val id: String = UUID.randomUUID().toString(),
     val type: ExpenseType,
     val amount: Double,
-    val time: LocalDateTime,
+    val date: String,
     val remark: String,
     val isEdited: Boolean = false,
     val isValid: Boolean = true
@@ -23,7 +23,7 @@ data class AIExpenseRecord(
             id = id,
             type = type,
             amount = amount,
-            time = time,
+            date = date,
             remark = remark,
             isSynced = false
         )

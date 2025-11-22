@@ -1,7 +1,5 @@
 package com.chronie.homemoney.domain.model
 
-import java.time.LocalDateTime
-
 /**
  * 支出领域模型
  */
@@ -10,7 +8,7 @@ data class Expense(
     val type: ExpenseType,
     val remark: String?,
     val amount: Double,
-    val time: LocalDateTime,
+    val date: String,
     val isSynced: Boolean = false
 )
 

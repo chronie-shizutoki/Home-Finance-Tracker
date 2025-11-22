@@ -25,7 +25,7 @@ class DatabaseTestViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DatabaseTestUiState())
     val uiState: StateFlow<DatabaseTestUiState> = _uiState.asStateFlow()
     
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    // 不再需要日期格式化器，直接使用date字段
     
     init {
         loadExpenses()
@@ -55,7 +55,7 @@ class DatabaseTestViewModel @Inject constructor(
                                     type = expense.type,
                                     remark = expense.remark ?: "",
                                     amount = expense.amount,
-                                    timeFormatted = dateFormat.format(Date(expense.time)),
+                                    timeFormatted = expense.date,
                                     isSynced = expense.isSynced
                                 )
                             },
@@ -83,14 +83,15 @@ class DatabaseTestViewModel @Inject constructor(
                 val types = listOf("餐饮", "交通", "购物", "娱乐", "医疗", "其他")
                 val remarks = listOf("早餐", "午餐", "晚餐", "打车", "地铁", "购物", "看电影", "买药")
                 
+                // 获取当前日期字符串
+                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                
                 val expense = ExpenseEntity(
                     id = UUID.randomUUID().toString(),
                     type = types.random(),
                     remark = remarks.random(),
                     amount = (10..200).random().toDouble(),
-                    time = System.currentTimeMillis(),
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis(),
+                    date = currentDate,
                     isSynced = false,
                     serverId = null
                 )

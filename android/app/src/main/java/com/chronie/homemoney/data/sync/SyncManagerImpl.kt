@@ -266,10 +266,7 @@ class SyncManagerImpl @Inject constructor(
                         newItems++
                         Log.d(TAG, "Downloaded new expense: $serverId")
                     } else {
-                        // 检查是否有冲突
-                        val serverTimestamp = parseTimestamp(serverExpense.updatedAt)
-                        val localTimestamp = localExpense.updatedAt
-                        
+                        // 简化冲突解决逻辑，基于是否已同步和日期字段
                         if (localExpense.isSynced) {
                             // 本地已同步，直接更新
                             val expense = ExpenseMapper.toDomain(serverExpense)
@@ -281,43 +278,10 @@ class SyncManagerImpl @Inject constructor(
                             expenseDao.updateExpense(entity)
                             updatedItems++
                             Log.d(TAG, "Updated expense: $serverId")
-                        } else if (serverTimestamp > localTimestamp) {
-                            // 服务器版本更新，使用服务器版本
-                            val expense = ExpenseMapper.toDomain(serverExpense)
-                            val entity = ExpenseMapper.toEntity(expense).copy(
-                                id = localExpense.id,
-                                serverId = serverId,
-                                isSynced = true
-                            )
-                            expenseDao.updateExpense(entity)
-                            updatedItems++
-                            
-                            conflicts.add(
-                                SyncConflict(
-                                    entityType = "expense",
-                                    entityId = localExpense.id,
-                                    conflictType = ConflictType.UPDATE_CONFLICT,
-                                    localTimestamp = localTimestamp,
-                                    serverTimestamp = serverTimestamp,
-                                    resolution = ConflictResolution.USE_SERVER
-                                )
-                            )
-                            Log.d(TAG, "Resolved conflict for expense: $serverId (used server version)")
                         } else {
-                            // 本地版本更新，保持本地版本并添加到同步队列
+                            // 本地未同步，添加到同步队列
                             addToSyncQueue("expense", localExpense.id, "UPDATE", localExpense)
-                            
-                            conflicts.add(
-                                SyncConflict(
-                                    entityType = "expense",
-                                    entityId = localExpense.id,
-                                    conflictType = ConflictType.UPDATE_CONFLICT,
-                                    localTimestamp = localTimestamp,
-                                    serverTimestamp = serverTimestamp,
-                                    resolution = ConflictResolution.USE_LOCAL
-                                )
-                            )
-                            Log.d(TAG, "Resolved conflict for expense: $serverId (used local version)")
+                            Log.d(TAG, "Added local expense to sync queue: $serverId")
                         }
                     }
                     } catch (e: Exception) {

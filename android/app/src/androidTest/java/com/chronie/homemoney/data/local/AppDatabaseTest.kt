@@ -47,9 +47,7 @@ class AppDatabaseTest {
             type = "餐饮",
             remark = "午餐",
             amount = 45.0,
-            time = System.currentTimeMillis(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
+            date = "2024-01-01",
             isSynced = false,
             serverId = null
         )
@@ -76,18 +74,18 @@ class AppDatabaseTest {
                 type = "餐饮",
                 remark = "早餐",
                 amount = 15.0,
-                time = System.currentTimeMillis(),
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
+                date = "2024-01-01",
+                isSynced = false,
+                serverId = null
             ),
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
                 type = "交通",
                 remark = "打车",
                 amount = 32.0,
-                time = System.currentTimeMillis(),
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
+                date = "2024-01-01",
+                isSynced = false,
+                serverId = null
             )
         )
         
@@ -108,17 +106,16 @@ class AppDatabaseTest {
             type = "餐饮",
             remark = "午餐",
             amount = 45.0,
-            time = System.currentTimeMillis(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis()
+            date = "2024-01-01",
+            isSynced = false,
+            serverId = null
         )
         expenseDao.insertExpense(expense)
         
         // 更新数据
         val updatedExpense = expense.copy(
             amount = 50.0,
-            remark = "午餐（更新）",
-            updatedAt = System.currentTimeMillis()
+            remark = "午餐（更新）"
         )
         expenseDao.updateExpense(updatedExpense)
         
@@ -136,9 +133,9 @@ class AppDatabaseTest {
             type = "餐饮",
             remark = "午餐",
             amount = 45.0,
-            time = System.currentTimeMillis(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis()
+            date = "2024-01-01",
+            isSynced = false,
+            serverId = null
         )
         expenseDao.insertExpense(expense)
         
@@ -158,10 +155,9 @@ class AppDatabaseTest {
             type = "餐饮",
             remark = "已同步",
             amount = 45.0,
-            time = System.currentTimeMillis(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
-            isSynced = true
+            date = "2024-01-01",
+            isSynced = true,
+            serverId = null
         )
         
         val unsyncedExpense = ExpenseEntity(
@@ -169,10 +165,9 @@ class AppDatabaseTest {
             type = "交通",
             remark = "未同步",
             amount = 32.0,
-            time = System.currentTimeMillis(),
-            createdAt = System.currentTimeMillis(),
-            updatedAt = System.currentTimeMillis(),
-            isSynced = false
+            date = "2024-01-01",
+            isSynced = false,
+            serverId = null
         )
         
         expenseDao.insertExpenses(listOf(syncedExpense, unsyncedExpense))

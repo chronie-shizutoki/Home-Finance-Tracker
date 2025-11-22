@@ -9,8 +9,7 @@ import com.chronie.homemoney.domain.repository.ExpenseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+
 import java.util.*
 import javax.inject.Inject
 
@@ -86,7 +85,6 @@ class ImportExpensesUseCase @Inject constructor(
             }
             
             // 解析数据行
-            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             
             for (i in 1..sheet.lastRowNum) {
                 val row = sheet.getRow(i) ?: continue
@@ -94,25 +92,43 @@ class ImportExpensesUseCase @Inject constructor(
                 try {
                     // 日期
                     val dateCell = row.getCell(dateColIndex)
-                    val dateStr = when (dateCell?.cellType) {
-                        CellType.STRING -> dateCell.stringCellValue
-                        CellType.NUMERIC -> {
-                            val date = dateCell.dateCellValue
-                            val calendar = Calendar.getInstance()
-                            calendar.time = date
-                            String.format(
-                                "%04d-%02d-%02d %02d:%02d:%02d",
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH) + 1,
-                                calendar.get(Calendar.DAY_OF_MONTH),
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE),
-                                calendar.get(Calendar.SECOND)
-                            )
+                    // 提取日期字符串，确保格式为YYYY-MM-DD
+                        val dateStr = when (dateCell?.cellType) {
+                            CellType.STRING -> {
+                                val cellValue = dateCell.stringCellValue
+                                // 如果包含时间部分，只取日期部分
+                                if (cellValue.contains('T') || cellValue.contains(' ')) {
+                                    val datePart = cellValue.substringBefore('T').substringBefore(' ')
+                                    // 验证是否是有效的YYYY-MM-DD格式
+                                    try {
+                                        java.time.LocalDate.parse(datePart)
+                                        datePart
+                                    } catch (e: Exception) {
+                                        continue
+                                    }
+                                } else {
+                                    // 尝试直接解析为日期
+                                    try {
+                                        java.time.LocalDate.parse(cellValue)
+                                        cellValue
+                                    } catch (e: Exception) {
+                                        continue
+                                    }
+                                }
+                            }
+                            CellType.NUMERIC -> {
+                                val date = dateCell.dateCellValue
+                                val calendar = Calendar.getInstance()
+                                calendar.time = date
+                                String.format(
+                                    "%04d-%02d-%02d",
+                                    calendar.get(Calendar.YEAR),
+                                    calendar.get(Calendar.MONTH) + 1,
+                                    calendar.get(Calendar.DAY_OF_MONTH)
+                                )
+                            }
+                            else -> continue
                         }
-                        else -> continue
-                    }
-                    val dateTime = LocalDateTime.parse(dateStr, dateFormatter)
                     
                     // 类型
                     val typeCell = row.getCell(typeColIndex)
@@ -138,7 +154,7 @@ class ImportExpensesUseCase @Inject constructor(
                         type = expenseType,
                         remark = remark,
                         amount = amount,
-                        time = dateTime,
+                        date = dateStr,
                         isSynced = false
                     )
                     

@@ -29,11 +29,28 @@ object DatabaseMigrations {
     }
     
     /**
+     * 从版本2到版本3的迁移
+     * 向expenses表添加date字段
+     */
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // 添加date字段到expenses表
+            // 使用默认值确保现有记录不会出错
+            database.execSQL("ALTER TABLE expenses ADD COLUMN date TEXT NOT NULL DEFAULT CURRENT_DATE")
+            
+            // 更新现有记录的date字段值，从time字段转换
+            // 这里使用SQLite的date函数将时间戳转换为日期字符串
+            database.execSQL("UPDATE expenses SET date = date(time / 1000, 'unixepoch')")
+        }
+    }
+    
+    /**
      * 获取所有迁移策略
      */
     fun getAllMigrations(): Array<Migration> {
         return arrayOf(
-            MIGRATION_1_2
+            MIGRATION_1_2,
+            MIGRATION_2_3
         )
     }
 }

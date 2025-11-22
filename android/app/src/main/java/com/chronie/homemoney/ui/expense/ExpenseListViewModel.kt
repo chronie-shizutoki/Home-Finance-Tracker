@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
+
 import javax.inject.Inject
 
 /**
@@ -28,7 +28,7 @@ class ExpenseListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ExpenseListUiState())
     val uiState: StateFlow<ExpenseListUiState> = _uiState.asStateFlow()
     
-    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
     
     init {
         loadExpenses()
@@ -40,7 +40,7 @@ class ExpenseListViewModel @Inject constructor(
      */
     private fun groupExpensesByDate(expenses: List<Expense>): Map<String, List<Expense>> {
         return expenses.groupBy { expense ->
-            expense.time.format(dateFormatter)
+            expense.date // 直接使用date字段
         }.toSortedMap(compareByDescending { it })
     }
     

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
+
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
@@ -167,7 +167,7 @@ class ChartsViewModel @Inject constructor(
         endDate: LocalDate
     ): List<DailyChartData> {
         // 按日期分组
-        val expensesByDate = expenses.groupBy { it.time.toLocalDate() }
+        val expensesByDate = expenses.groupBy { LocalDate.parse(it.date) }
         
         // 生成日期范围内的所有日期
         val dailyData = mutableListOf<DailyChartData>()
@@ -225,7 +225,7 @@ class ChartsViewModel @Inject constructor(
         
         // 按星期几分组（0=周日, 1=周一, ..., 6=周六）
         val expensesByWeekday = expenses.groupBy { expense ->
-            val dayOfWeek = expense.time.dayOfWeek.value % 7 // 转换为0-6，周日为0
+            val dayOfWeek = LocalDate.parse(expense.date).dayOfWeek.value % 7 // 转换为0-6，周日为0
             dayOfWeek
         }
         

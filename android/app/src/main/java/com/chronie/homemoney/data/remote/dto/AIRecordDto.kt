@@ -64,6 +64,6 @@ data class AIResponseMessage(
 data class AIExpenseRecordDto(
     val type: String,
     val amount: Double,
-    val time: String,
+    val date: String,
     val remark: String
 )

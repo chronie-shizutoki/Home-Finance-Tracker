@@ -370,7 +370,7 @@ private fun RecordEditCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = record.time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        text = record.date,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -434,7 +434,7 @@ private fun RecordEditDialog(
     var selectedType by remember { mutableStateOf(record.type) }
     var amount by remember { mutableStateOf(record.amount.toString()) }
     var remark by remember { mutableStateOf(record.remark) }
-    var selectedDate by remember { mutableStateOf(record.time.toLocalDate()) }
+    var selectedDate by remember { mutableStateOf(java.time.LocalDate.parse(record.date)) }
     var showTypePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     
@@ -491,7 +491,7 @@ private fun RecordEditDialog(
                     val updatedRecord = record.copy(
                         type = selectedType,
                         amount = amount.toDoubleOrNull() ?: record.amount,
-                        time = selectedDate.atTime(record.time.toLocalTime()),
+                        date = selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                         remark = remark,
                         isEdited = true
                     )

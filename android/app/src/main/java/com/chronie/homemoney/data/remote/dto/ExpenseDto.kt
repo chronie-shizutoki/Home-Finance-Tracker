@@ -18,14 +18,8 @@ data class ExpenseDto(
     @SerializedName("amount")
     val amount: Double,
     
-    @SerializedName("time")
-    val time: String, // ISO 8601 格式
-    
-    @SerializedName("createdAt")
-    val createdAt: String? = null,
-    
-    @SerializedName("updatedAt")
-    val updatedAt: String? = null
+    @SerializedName("date")
+    val date: String, // 格式: "yyyy-MM-dd"
 )
 
 /**

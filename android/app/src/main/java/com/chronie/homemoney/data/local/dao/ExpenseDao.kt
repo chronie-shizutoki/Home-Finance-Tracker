@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ExpenseDao {
     
-    @Query("SELECT * FROM expenses ORDER BY time DESC")
+    @Query("SELECT * FROM expenses ORDER BY date DESC")
     fun getAllExpenses(): Flow<List<ExpenseEntity>>
     
     @Query("SELECT * FROM expenses WHERE id = :id")
@@ -19,10 +19,10 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE server_id = :serverId")
     suspend fun getExpenseByServerId(serverId: String): ExpenseEntity?
     
-    @Query("SELECT * FROM expenses WHERE time BETWEEN :startTime AND :endTime ORDER BY time DESC")
-    fun getExpensesByTimeRange(startTime: Long, endTime: Long): Flow<List<ExpenseEntity>>
+    @Query("SELECT * FROM expenses WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC")
+    fun getExpensesByDateRange(startDate: String, endDate: String): Flow<List<ExpenseEntity>>
     
-    @Query("SELECT * FROM expenses WHERE type = :type ORDER BY time DESC")
+    @Query("SELECT * FROM expenses WHERE type = :type ORDER BY date DESC")
     fun getExpensesByType(type: String): Flow<List<ExpenseEntity>>
     
     @Query("SELECT * FROM expenses WHERE is_synced = 0")
@@ -49,9 +49,9 @@ interface ExpenseDao {
     @Query("SELECT COUNT(*) FROM expenses")
     suspend fun getExpenseCount(): Int
     
-    @Query("SELECT SUM(amount) FROM expenses WHERE time BETWEEN :startTime AND :endTime")
-    suspend fun getTotalAmountByTimeRange(startTime: Long, endTime: Long): Double?
+    @Query("SELECT SUM(amount) FROM expenses WHERE date BETWEEN :startDate AND :endDate")
+    suspend fun getTotalAmountByDateRange(startDate: String, endDate: String): Double?
     
-    @Query("SELECT * FROM expenses WHERE date(time/1000, 'unixepoch') BETWEEN :startDate AND :endDate ORDER BY time DESC")
-    suspend fun getExpensesByDateRange(startDate: String, endDate: String): List<ExpenseEntity>
+    @Query("SELECT * FROM expenses WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC")
+    suspend fun getExpensesByDateRangeSync(startDate: String, endDate: String): List<ExpenseEntity>
 }

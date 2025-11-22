@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.time.LocalDate
 
 /**
  * 支出记录 Repository 实现
@@ -75,10 +76,10 @@ class ExpenseRepositoryImpl @Inject constructor(
                     
                     // 应用日期筛选（服务器可能不支持这些参数）
                     if (filters.startDate != null) {
-                        expenses = expenses.filter { it.time.toLocalDate() >= filters.startDate }
+                        expenses = expenses.filter { LocalDate.parse(it.date) >= filters.startDate }
                     }
                     if (filters.endDate != null) {
-                        expenses = expenses.filter { it.time.toLocalDate() <= filters.endDate }
+                        expenses = expenses.filter { LocalDate.parse(it.date) <= filters.endDate }
                     }
                     
                     // 保存到本地数据库（仅第一页时清空旧数据）
@@ -124,20 +125,20 @@ class ExpenseRepositoryImpl @Inject constructor(
             
             if (filters.startDate != null) {
                 filteredExpenses = filteredExpenses.filter { 
-                    it.time.toLocalDate() >= filters.startDate 
+                    LocalDate.parse(it.date) >= filters.startDate 
                 }
             }
             
             if (filters.endDate != null) {
                 filteredExpenses = filteredExpenses.filter { 
-                    it.time.toLocalDate() <= filters.endDate 
+                    LocalDate.parse(it.date) <= filters.endDate 
                 }
             }
             
             // 应用排序
             filteredExpenses = when (filters.sortBy) {
-                SortOption.DATE_ASC -> filteredExpenses.sortedBy { it.time }
-                SortOption.DATE_DESC -> filteredExpenses.sortedByDescending { it.time }
+                SortOption.DATE_ASC -> filteredExpenses.sortedBy { it.date }
+                SortOption.DATE_DESC -> filteredExpenses.sortedByDescending { it.date }
                 SortOption.AMOUNT_ASC -> filteredExpenses.sortedBy { it.amount }
                 SortOption.AMOUNT_DESC -> filteredExpenses.sortedByDescending { it.amount }
             }
@@ -196,8 +197,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                     expenseApi.updateExpense(expenseId.toLong(), ExpenseMapper.toDto(expense))
                     // 如果API调用成功，则标记为已同步
                     val entity = ExpenseMapper.toEntity(expense).copy(
-                        isSynced = true,
-                        updatedAt = System.currentTimeMillis()
+                        isSynced = true
                     )
                     expenseDao.updateExpense(entity)
                     return Result.success(expense)
@@ -211,8 +211,7 @@ class ExpenseRepositoryImpl @Inject constructor(
             
             // 本地更新逻辑（服务器同步失败时）
             val entity = ExpenseMapper.toEntity(expense).copy(
-                isSynced = false,
-                updatedAt = System.currentTimeMillis()
+                isSynced = false
             )
             expenseDao.updateExpense(entity)
             
@@ -301,14 +300,24 @@ class ExpenseRepositoryImpl @Inject constructor(
             }
             
             if (filters.startDate != null) {
-                expenses = expenses.filter { 
-                    it.time.toLocalDate() >= filters.startDate 
+                expenses = expenses.filter { expense ->
+                    try {
+                        val expenseDate = java.time.LocalDate.parse(expense.date)
+                        expenseDate >= filters.startDate
+                    } catch (e: Exception) {
+                        false
+                    }
                 }
             }
             
             if (filters.endDate != null) {
-                expenses = expenses.filter { 
-                    it.time.toLocalDate() <= filters.endDate 
+                expenses = expenses.filter { expense ->
+                    try {
+                        val expenseDate = java.time.LocalDate.parse(expense.date)
+                        expenseDate <= filters.endDate
+                    } catch (e: Exception) {
+                        false
+                    }
                 }
             }
             

@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -85,7 +83,7 @@ class AddExpenseViewModel @Inject constructor(
                             expenseId = expenseId,
                             selectedType = expense.type,
                             amount = expense.amount.toString(),
-                            selectedDate = expense.time.toLocalDate(),
+                            selectedDate = LocalDate.parse(expense.date),
                             remark = expense.remark ?: "",
                             isSaving = false
                         )
@@ -124,14 +122,14 @@ class AddExpenseViewModel @Inject constructor(
         
         viewModelScope.launch {
             try {
-                // 用户选择的日期设置为00:00:00
-                val dateTime = LocalDateTime.of(state.selectedDate, LocalTime.MIDNIGHT)
+                // 用户选择的日期转换为字符串格式
+                val dateStr = state.selectedDate.toString() // 使用YYYY-MM-DD格式
                 
                 val expense = Expense(
                     id = state.expenseId ?: UUID.randomUUID().toString(),
                     type = state.selectedType!!,
                     amount = state.amount.toDouble(),
-                    time = dateTime,
+                    date = dateStr,
                     remark = state.remark.ifBlank { null },
                     isSynced = false
                 )

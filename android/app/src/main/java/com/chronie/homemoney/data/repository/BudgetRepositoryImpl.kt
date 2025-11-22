@@ -71,16 +71,16 @@ class BudgetRepositoryImpl @Inject constructor(
                 return null
             }
             
-            // 获取当月的起始和结束时间戳
-            val now = LocalDate.now()
-            val yearMonth = YearMonth.from(now)
-            val startOfMonth = yearMonth.atDay(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-            val endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            // 获取当月的起始和结束日期字符串
+            val now = java.time.LocalDate.now()
+            val yearMonth = java.time.YearMonth.from(now)
+            val startOfMonth = yearMonth.atDay(1).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val endOfMonth = yearMonth.atEndOfMonth().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             
             android.util.Log.d("BudgetRepository", "Querying expenses from $startOfMonth to $endOfMonth")
             
             // 查询当月支出总额
-            val currentSpending: Double = expenseDao.getTotalAmountByTimeRange(startOfMonth, endOfMonth) ?: 0.0
+            val currentSpending: Double = expenseDao.getTotalAmountByDateRange(startOfMonth, endOfMonth) ?: 0.0
             
             android.util.Log.d("BudgetRepository", "Current spending: $currentSpending")
         val remainingAmount: Double = budget.monthlyLimit - currentSpending
