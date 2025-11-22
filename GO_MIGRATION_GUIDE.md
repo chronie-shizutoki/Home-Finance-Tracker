@@ -20,14 +20,12 @@ server/
 │   ├── app.js              # 主应用入口
 │   ├── db.js               # 数据库配置
 │   ├── controllers/        # 控制器层
-│   │   ├── debtController.js
 │   │   ├── expenseController.js
 │   │   ├── memberController.js
 │   │   ├── paymentController.js
 │   │   ├── subscriptionController.js
 │   │   ├── logController.js
 │   ├── models/             # 数据模型
-│   │   ├── debt.js
 │   │   ├── expense.js
 │   │   ├── member.js
 │   │   ├── log.js
@@ -36,7 +34,6 @@ server/
 │   ├── routes/             # 路由配置
 │   │   ├── api.js
 │   │   ├── expense.js
-│   │   ├── debt.js
 │   │   └── ...
 │   └── utils/              # 工具函数
 └── package.json
@@ -52,14 +49,12 @@ server-go/
 │   ├── config/             # 配置管理
 │   │   └── config.go
 │   ├── handlers/           # 控制器层 (Go术语)
-│   │   ├── debt.go
 │   │   ├── expense.go
 │   │   ├── member.go
 │   │   ├── payment.go
 │   │   ├── subscription.go
 │   │   ├── log.go
 │   ├── models/             # 数据模型
-│   │   ├── debt.go
 │   │   ├── expense.go
 │   │   ├── member.go
 │   │   ├── log.go
@@ -67,7 +62,6 @@ server-go/
 │   │   └── user.go
 │   ├── repository/         # 数据访问层
 │   │   ├── expense.go
-│   │   ├── debt.go
 │   │   └── ...
 │   ├── service/            # 业务逻辑层
 │   │   ├── expense_service.go
@@ -186,11 +180,6 @@ func main() {
         api.DELETE("/expenses/:id", handlers.DeleteExpense)
         api.GET("/expenses/statistics", handlers.GetExpenseStatistics)
         
-        api.GET("/debts", handlers.GetDebts)
-        api.POST("/debts", handlers.CreateDebt)
-        api.PUT("/debts/:id", handlers.UpdateDebt)
-        api.DELETE("/debts/:id", handlers.DeleteDebt)
-        
         api.POST("/members/get-or-create", handlers.GetOrCreateMember)
         api.GET("/members/:username", handlers.GetMemberInfo)
         api.PUT("/members/:id/status", handlers.UpdateMemberStatus)
@@ -252,110 +241,6 @@ func main() {
 ### 2. 数据模型迁移
 
 #### Node.js Models
-
-**债务模型 (debt.js)**:
-```javascript
-const { DataTypes } = require('sequelize')
-
-module.exports = (sequelize) => {
-  const Debt = sequelize.define('Debt', {
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { isIn: [['lend', 'borrow']] }
-    },
-    person: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { notEmpty: true }
-    },
-    amount: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-      validate: { isFloat: true, min: 0.01 }
-    },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    isRepaid: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
-    remark: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  return Debt
-}
-```
-
-#### Go Models
-
-**债务模型 (models/debt.go)**:
-```go
-package models
-
-import (
-    "time"
-    
-    "github.com/google/uuid"
-    "gorm.io/gorm"
-)
-
-// Debt 债务记录
-type Debt struct {
-    ID      uuid.UUID `json:"id" gorm:"type:uuid;primary_key"`
-    Type    string    `json:"type" gorm:"type:varchar(20);not null;check:type in ('lend','borrow')"`
-    Person  string    `json:"person" gorm:"type:varchar(100);not null"`
-    Amount  float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
-    Date    time.Time `json:"date" gorm:"type:datetime;not null"`
-    IsRepaid bool     `json:"isRepaid" gorm:"type:boolean;default:false"`
-    Remark  *string   `json:"remark,omitempty" gorm:"type:text"`
-    
-    // 时间戳
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
-    DeletedAt time.Time `json:"deleted_at" gorm:"index"`
-}
-
-// TableName 指定表名
-func (Debt) TableName() string {
-    return "debts"
-}
-
-// BeforeCreate GORM钩子
-func (d *Debt) BeforeCreate(tx *gorm.DB) error {
-    if d.ID == uuid.Nil {
-        d.ID = uuid.New()
-    }
-    return nil
-}
-
-// Validate 验证字段
-func (d *Debt) Validate() error {
-    if d.Type != "lend" && d.Type != "borrow" {
-        return ErrInvalidDebtType
-    }
-    if d.Person == "" {
-        return ErrPersonRequired
-    }
-    if d.Amount <= 0 {
-        return ErrInvalidAmount
-    }
-    return nil
-}
-
-// 错误定义
-var (
-    ErrInvalidDebtType = errors.New("债务类型必须是 'lend' 或 'borrow'")
-    ErrPersonRequired  = errors.New("交易对方姓名是必填项")
-    ErrInvalidAmount   = errors.New("金额必须大于0")
-)
-```
-
 **消费模型 (models/expense.go)**:
 ```go
 package models
@@ -873,13 +758,12 @@ const sequelize = new Sequelize({
 
 // 导入模型
 const Expense = require('./models/expense')(sequelize)
-const Debt = require('./models/debt')(sequelize)
 
 // 定义关系
 Member.hasMany(UserSubscription, { foreignKey: 'memberId' })
 UserSubscription.belongsTo(Member, { foreignKey: 'memberId' })
 
-module.exports = { sequelize, Expense, Debt, /* ... */ }
+module.exports = { sequelize, Expense, /* ... */ }
 ```
 
 #### Go: pkg/database/database.go
@@ -934,7 +818,6 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 func AutoMigrate(db *gorm.DB) error {
     return db.AutoMigrate(
         &models.Expense{},
-        &models.Debt{},
         &models.Member{},
         &models.SubscriptionPlan{},
         &models.UserSubscription{},
@@ -1151,25 +1034,6 @@ func (f LogFormat) String() string {
 }
 ```
 
-### 2. 债务管理接口
-
-#### GET /api/debts
-**功能**: 获取债务记录列表
-
-#### POST /api/debts
-**功能**: 创建债务记录
-
-**请求体**:
-```json
-{
-  "type": "lend",
-  "person": "张三",
-  "amount": 1000.00,
-  "date": "2024-01-15T00:00:00Z",
-  "isRepaid": false,
-  "remark": "借款"
-}
-```
 
 ### 3. 会员管理接口
 

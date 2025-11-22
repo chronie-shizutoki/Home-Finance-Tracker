@@ -100,12 +100,6 @@ object NetworkModule {
     
     @Provides
     @Singleton
-    fun provideDebtApi(retrofit: Retrofit): DebtApi {
-        return retrofit.create(DebtApi::class.java)
-    }
-    
-    @Provides
-    @Singleton
     fun provideMemberApi(retrofit: Retrofit): MemberApi {
         return retrofit.create(MemberApi::class.java)
     }

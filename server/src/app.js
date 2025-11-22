@@ -31,7 +31,6 @@ app.use('/api/expenses', require('./routes/expense'))
 app.use('/api/json-files', require('./routes/jsonFiles'))
 app.use('/api/payments', require('./routes/payment'))
 app.use('/api/members', require('./routes/memberRoutes'))
-app.use('/api/debts', require('./routes/debt'))
 
 app.use('/api', require('./routes/api'))
 

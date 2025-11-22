@@ -4,7 +4,6 @@ const sequelize = new Sequelize({ dialect: 'sqlite', storage: path.join(__dirnam
 
 // 导入现有模型
 const Expense = require('./models/expense')(sequelize)
-const Debt = require('./models/debt')(sequelize)
 
 // 导入会员相关模型
 const Member = require('./models/member')(sequelize)
@@ -33,7 +32,6 @@ const syncDatabase = async () => {
 module.exports = {
   sequelize,
   Expense,
-  Debt,
   Member,
   SubscriptionPlan,
   UserSubscription,

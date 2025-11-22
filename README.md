@@ -19,7 +19,7 @@ The Home Finance Tracker is a modern multilingual financial management applicati
   - Support for automatic scanning of mini-applications in the public directory
   - Custom metadata definition via package.json
   - Example calculator mini-application included
-- **Debt Management**: Track and manage debts with detailed records
+- **Expense Tracking**: Record and categorize daily expenses with custom categories
 - **To-Do List**: Manage tasks and reminders related to financial activities
 - **Donation Tracking**: Record and track charitable donations
 
@@ -124,7 +124,7 @@ This endpoint returns a JSON response containing:
 The documentation includes endpoints for:
 - Base system health checks
 - Expense tracking and management
-- Debt management
+- Expense tracking and analysis
 - JSON file operations
 - Payment processing (donations and subscriptions)
 - Data import/export functionality

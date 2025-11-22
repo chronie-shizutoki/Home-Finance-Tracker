@@ -3,12 +3,10 @@ package com.chronie.homemoney.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.chronie.homemoney.data.local.dao.BudgetDao
-import com.chronie.homemoney.data.local.dao.DebtDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.MemberDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
 import com.chronie.homemoney.data.local.entity.BudgetEntity
-import com.chronie.homemoney.data.local.entity.DebtEntity
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.MemberEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
@@ -21,7 +19,6 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 @Database(
     entities = [
         ExpenseEntity::class,
-        DebtEntity::class,
         MemberEntity::class,
         SyncQueueEntity::class,
         BudgetEntity::class
@@ -32,7 +29,6 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 abstract class AppDatabase : RoomDatabase() {
     
     abstract fun expenseDao(): ExpenseDao
-    abstract fun debtDao(): DebtDao
     abstract fun memberDao(): MemberDao
     abstract fun syncQueueDao(): SyncQueueDao
     abstract fun budgetDao(): BudgetDao

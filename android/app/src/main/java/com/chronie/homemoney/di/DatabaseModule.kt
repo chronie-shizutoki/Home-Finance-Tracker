@@ -6,7 +6,6 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chronie.homemoney.data.local.AppDatabase
 import com.chronie.homemoney.data.local.DatabaseMigrations
-import com.chronie.homemoney.data.local.dao.DebtDao
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.MemberDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
@@ -98,14 +97,6 @@ object DatabaseModule {
     @Provides
     fun provideExpenseDao(database: AppDatabase): ExpenseDao {
         return database.expenseDao()
-    }
-    
-    /**
-     * 提供 DebtDao
-     */
-    @Provides
-    fun provideDebtDao(database: AppDatabase): DebtDao {
-        return database.debtDao()
     }
     
     /**

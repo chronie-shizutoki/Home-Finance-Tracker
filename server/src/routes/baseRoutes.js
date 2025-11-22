@@ -243,56 +243,7 @@ router.get('/api', (req, res) => {
           }
         }
       ],
-      debts: [
-        {
-          endpoint: '/api/debts',
-          method: 'GET',
-          description: {
-            en: 'Get debt records',
-            zh: '获取债务记录'
-          },
-          usage: {
-            en: 'Retrieve all debt records with pagination and filtering support',
-            zh: '获取所有债务记录，支持分页和筛选'
-          }
-        },
-        {
-          endpoint: '/api/debts',
-          method: 'POST',
-          description: {
-            en: 'Add new debt record',
-            zh: '添加新的债务记录'
-          },
-          usage: {
-            en: 'Create a new debt entry in the system',
-            zh: '在系统中创建新的债务记录'
-          }
-        },
-        {
-          endpoint: '/api/debts/:id',
-          method: 'PUT',
-          description: {
-            en: 'Update debt record',
-            zh: '更新债务记录'
-          },
-          usage: {
-            en: 'Modify an existing debt record by its ID',
-            zh: '通过ID修改现有的债务记录'
-          }
-        },
-        {
-          endpoint: '/api/debts/:id',
-          method: 'DELETE',
-          description: {
-            en: 'Delete debt record',
-            zh: '删除债务记录'
-          },
-          usage: {
-            en: 'Remove a debt record by its ID',
-            zh: '通过ID删除债务记录'
-          }
-        }
-      ],
+    
       jsonFiles: [
         {
           endpoint: '/api/json-files',
@@ -546,8 +497,8 @@ router.get('/api', (req, res) => {
 
     },
     usageGuide: {
-      en: 'This API provides endpoints for managing household finances including expense tracking, debt management, subscription handling, and data import/export functionality.',
-      zh: '本API提供了家庭财务管理的各种端点，包括消费记录跟踪、债务管理、订阅处理和数据导入/导出功能。'
+      en: 'This API provides endpoints for managing household finances including expense tracking, subscription handling, and data import/export functionality.',
+      zh: '本API提供了家庭财务管理的各种端点，包括消费记录跟踪、订阅处理和数据导入/导出功能。'
     },
     lastUpdated: new Date().toISOString()
   }

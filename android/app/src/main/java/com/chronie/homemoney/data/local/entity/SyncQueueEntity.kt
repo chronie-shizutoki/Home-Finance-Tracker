@@ -22,7 +22,7 @@ data class SyncQueueEntity(
     val id: Long = 0,
     
     @ColumnInfo(name = "entity_type")
-    val entityType: String, // "expense", "debt", etc.
+    val entityType: String, // "expense", "member", etc.
     
     @ColumnInfo(name = "entity_id")
     val entityId: String,

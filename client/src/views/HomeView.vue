@@ -124,10 +124,6 @@
             </div>
           </template>
           <div class="card-content">
-            <el-button type="warning" @click="goToDebts" size="default">
-              <el-icon><CreditCard /></el-icon>
-              {{ t('debt.title') }}
-            </el-button>
             <el-button type="success" @click="goToMembership" size="default">
               <el-icon><Star /></el-icon>
               {{ t('membership.title') }}
@@ -200,11 +196,6 @@
         
         <!-- 其他组件组按钮 -->
         <div v-else-if="selectedFunctionGroup === 'other'" class="mobile-button-group">
-          <el-button type="warning" @click="goToDebts" size="large" class="mobile-btn">
-            <el-icon><CreditCard /></el-icon>
-            {{ t('debt.title') }}
-          </el-button>
-
           <el-button type="success" @click="goToMembership" size="large" class="mobile-btn">
             <el-icon><Star /></el-icon>
             {{ t('membership.title') }}
@@ -866,10 +857,6 @@ const showMembershipModal = ref(false);
 const hasActiveMembership = ref(false);
 let membershipCheckTimer = null;
 
-// 前往债务管理页面
-const goToDebts = () => {
-  router.push('/debts');
-};
 
 // 前往图表页面
 const goToCharts = () => {

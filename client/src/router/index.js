@@ -11,7 +11,6 @@ import NotFoundView from '@/views/NotFoundView.vue';
  */
 
 import DonationView from '@/views/DonationView.vue';
-import DebtView from '@/views/DebtView.vue';
 import ChartsView from '@/views/ChartsView.vue';
 import MembershipView from '@/views/MembershipView.vue';
 import AndroidView from '@/views/Android.vue';
@@ -25,18 +24,11 @@ const router = createRouter({
       meta: { title: 'app.title' }, // 路由元信息：对应i18n的键
       component: HomeView
     },
-
     {
       path: '/donation',
       name: 'donation',
       meta: { title: 'donation.title' },
       component: DonationView
-    },
-    {
-      path: '/debts',
-      name: 'debts',
-      meta: { title: 'debt.title' },
-      component: DebtView
     },
     {
       path: '/charts',

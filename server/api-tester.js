@@ -73,43 +73,7 @@ class APITester {
                 paths: ['/api/expenses/statistics']
             },
             
-            // 债务管理端点
-            {
-                name: '获取债务记录',
-                method: 'GET',
-                paths: ['/api/debts'],
-                params: { page: 1, limit: 10 }
-            },
-            {
-                name: '添加债务记录',
-                method: 'POST',
-                paths: ['/api/debts'],
-                data: {
-                    creditor: 'Test Creditor',
-                    amount: 1000.00,
-                    interest_rate: 5.5,
-                    start_date: new Date().toISOString().split('T')[0],
-                    due_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
-                    description: 'Test debt record'
-                }
-            },
-            {
-                name: '更新债务记录',
-                method: 'PUT',
-                paths: ['/api/debts/1'],
-                data: {
-                    creditor: 'Updated Creditor',
-                    amount: 1200.00,
-                    interest_rate: 6.0,
-                    description: 'Updated test debt record'
-                }
-            },
-            {
-                name: '删除债务记录',
-                method: 'DELETE',
-                paths: ['/api/debts/1']
-            },
-            
+    
             // JSON文件操作端点
             {
                 name: '获取JSON文件列表',
