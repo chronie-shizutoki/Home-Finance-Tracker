@@ -48,6 +48,12 @@
     <string name="sync_status">同步狀態</string>
     <string name="sync_status_idle">空閒</string>
     <string name="sync_status_syncing">同步中…</string>
+    
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_confirm_title">刪除確認</string>
+    <string name="delete_confirm_message">確定要刪除這條支出記錄嗎？</string>
+    <string name="delete_second_confirm_title">再次確認</string>
+    <string name="delete_second_confirm_message">此操作不可撤銷，確定要繼續刪除嗎？</string>
     <string name="sync_status_success">成功</string>
     <string name="sync_status_failed">失敗</string>
     <string name="sync_status_conflict">衝突</string>

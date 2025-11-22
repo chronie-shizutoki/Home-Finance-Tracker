@@ -69,6 +69,47 @@ class AddExpenseViewModel @Inject constructor(
     }
     
     /**
+     * 加载支出记录用于编辑
+     */
+    fun loadExpenseForEdit(expenseId: String) {
+        _uiState.update { it.copy(isSaving = true) }
+        
+        viewModelScope.launch {
+            try {
+                val expenseResult = expenseRepository.getExpenseById(expenseId)
+                
+                if (expenseResult.isSuccess) {
+                    val expense = expenseResult.getOrThrow()
+                    _uiState.update {
+                        it.copy(
+                            expenseId = expenseId,
+                            selectedType = expense.type,
+                            amount = expense.amount.toString(),
+                            selectedDate = expense.time.toLocalDate(),
+                            remark = expense.remark ?: "",
+                            isSaving = false
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            saveError = expenseResult.exceptionOrNull()?.message ?: "Expense not found"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        saveError = e.message ?: "Unknown error"
+                    )
+                }
+            }
+        }
+    }
+    
+    /**
      * 验证并保存支出
      */
     fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -87,7 +128,7 @@ class AddExpenseViewModel @Inject constructor(
                 val dateTime = LocalDateTime.of(state.selectedDate, LocalTime.MIDNIGHT)
                 
                 val expense = Expense(
-                    id = UUID.randomUUID().toString(),
+                    id = state.expenseId ?: UUID.randomUUID().toString(),
                     type = state.selectedType!!,
                     amount = state.amount.toDouble(),
                     time = dateTime,
@@ -95,7 +136,11 @@ class AddExpenseViewModel @Inject constructor(
                     isSynced = false
                 )
                 
-                val result = expenseRepository.addExpense(expense)
+                val result = if (state.expenseId != null) {
+                    expenseRepository.updateExpense(expense)
+                } else {
+                    expenseRepository.addExpense(expense)
+                }
                 
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isSaving = false) }
@@ -105,7 +150,7 @@ class AddExpenseViewModel @Inject constructor(
                         syncScheduler.triggerImmediateSync()
                     } catch (e: Exception) {
                         // 同步失败不影响添加记录的成功
-                        android.util.Log.w("AddExpenseViewModel", "Failed to trigger sync after adding expense", e)
+                        android.util.Log.w("AddExpenseViewModel", "Failed to trigger sync after saving expense", e)
                     }
                     
                     onSuccess()
@@ -161,6 +206,7 @@ class AddExpenseViewModel @Inject constructor(
  * 添加支出 UI 状态
  */
 data class AddExpenseUiState(
+    val expenseId: String? = null,
     val selectedType: ExpenseType? = null,
     val amount: String = "",
     val selectedDate: LocalDate = LocalDate.now(),

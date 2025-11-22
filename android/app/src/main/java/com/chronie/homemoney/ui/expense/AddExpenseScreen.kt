@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddExpenseScreen(
     context: android.content.Context,
+    expenseId: String? = null,
     viewModel: AddExpenseViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToAI: () -> Unit = {},
@@ -42,7 +43,7 @@ fun AddExpenseScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     
-    // 会员验证
+    // 会员验证和编辑模式初始化
     LaunchedEffect(Unit) {
         val isLoggedIn = viewModel.checkLoginStatusUseCase()
         val isMember = viewModel.checkMembershipUseCase()
@@ -50,6 +51,12 @@ fun AddExpenseScreen(
         when {
             !isLoggedIn -> onRequireLogin()
             !isMember -> onRequireMembership()
+            else -> {
+                // 如果有expenseId，加载支出记录进行编辑
+                if (expenseId != null) {
+                    viewModel.loadExpenseForEdit(expenseId)
+                }
+            }
         }
     }
     
@@ -59,7 +66,7 @@ fun AddExpenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.add_expense_title)) },
+                title = { Text(context.getString(R.string.add_expense_title)) }, // 使用统一标题
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))

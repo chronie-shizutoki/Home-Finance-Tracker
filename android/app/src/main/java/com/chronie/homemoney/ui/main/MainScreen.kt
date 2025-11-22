@@ -26,6 +26,8 @@ fun MainScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToDatabaseTest: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
+    onNavigateToEditExpense: (expenseId: String) -> Unit = {},
+    onNavigateToMoreFunctions: () -> Unit = {},
     onRequireLogin: () -> Unit = {},
     onRequireMembership: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
@@ -126,7 +128,8 @@ fun MainScreen(
                             shouldRefresh = shouldRefreshExpenses,
                             onRefreshHandled = onRefreshHandled,
                             onNavigateToMoreFunctions = {},
-                            onNavigateToAddExpense = onNavigateToAddExpense
+                            onNavigateToAddExpense = onNavigateToAddExpense,
+                            onNavigateToEditExpense = onNavigateToEditExpense
                         )
                     }
                     1 -> {

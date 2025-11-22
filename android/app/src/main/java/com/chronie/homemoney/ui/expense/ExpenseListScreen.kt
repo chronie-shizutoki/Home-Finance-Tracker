@@ -1,11 +1,20 @@
 package com.chronie.homemoney.ui.expense
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -13,8 +22,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
@@ -36,7 +47,8 @@ fun ExpenseListScreen(
     shouldRefresh: Boolean = false,
     onRefreshHandled: () -> Unit = {},
     onNavigateToMoreFunctions: () -> Unit = {},
-    onNavigateToAddExpense: () -> Unit = {}
+    onNavigateToAddExpense: () -> Unit = {},
+    onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -221,9 +233,11 @@ fun ExpenseListScreen(
                                 items = expenses,
                                 key = { expense -> "expense_${expense.id}" }
                             ) { expense ->
-                                ExpenseListItem(
+                                SwipeableExpenseItem(
                                     expense = expense,
-                                    context = context
+                                    context = context,
+                                    onEdit = { onNavigateToEditExpense(expense.id) },
+                                    onDelete = { viewModel.deleteExpense(expense) }
                                 )
                             }
                         }
@@ -390,6 +404,210 @@ fun StatisticItem(
 }
 
 /**
+ * 可滑动的支出列表项
+ */
+@Composable
+fun SwipeableExpenseItem(
+    expense: Expense,
+    context: android.content.Context,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // 滑动偏移量
+    val swipeOffset = remember { mutableStateOf(0f) }
+    // 动画偏移量
+    val animatedOffset by animateDpAsState(
+        targetValue = swipeOffset.value.dp,
+        label = "Swipe offset"
+    )
+    // 滑动阈值 - 增大值使滑动更容易被检测
+    val swipeThreshold = 100.dp
+    
+    // 检查是否正在执行操作 - 提前定义，确保在handleSwipeEnd中可用
+    val isPerformingAction = remember { mutableStateOf(false) }
+    
+    // 弹窗状态 - 第一次确认
+    val showFirstConfirmDialog = remember { mutableStateOf(false) }
+    // 弹窗状态 - 第二次确认
+    val showSecondConfirmDialog = remember { mutableStateOf(false) }
+    
+    // 重置滑动状态
+    fun resetSwipe() {
+        swipeOffset.value = 0f
+    }
+    
+    // 处理滑动结束 - 符合MD3规范，直接触发操作
+    fun handleSwipeEnd() {
+        when {
+            // 调整阈值比较，使操作更容易触发
+            swipeOffset.value > swipeThreshold.value / 3 -> {
+                // 从左向右滑动超过阈值，直接触发编辑操作
+                onEdit()
+                isPerformingAction.value = true
+                resetSwipe()
+            }
+            swipeOffset.value < -swipeThreshold.value / 3 -> {
+                // 从右向左滑动超过阈值，显示第一次确认弹窗
+                isPerformingAction.value = true
+                resetSwipe()
+                showFirstConfirmDialog.value = true
+            }
+            else -> {
+                // 未超过阈值，重置
+                resetSwipe()
+            }
+        }
+    }
+    
+    // 处理第一次确认
+    fun handleFirstConfirm() {
+        showFirstConfirmDialog.value = false
+        showSecondConfirmDialog.value = true
+    }
+    
+    // 处理第二次确认
+    fun handleSecondConfirm() {
+        showSecondConfirmDialog.value = false
+        onDelete()
+    }
+    
+    // 取消删除
+    fun cancelDelete() {
+        showFirstConfirmDialog.value = false
+        showSecondConfirmDialog.value = false
+    }
+    
+    Box(modifier = modifier.fillMaxWidth()) {
+        // 背景操作按钮 - 长方形提示按钮
+        Row(
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // 左侧编辑按钮提示 - 长方形
+            Button(
+                onClick = {
+                    onEdit()
+                    resetSwipe()
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(80.dp) // 长方形高度
+                    .align(Alignment.CenterVertically),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                enabled = swipeOffset.value < -swipeThreshold.value / 3
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "Edit",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            
+            // 右侧删除按钮提示 - 长方形
+            Button(
+                onClick = {
+                    onDelete()
+                    resetSwipe()
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(80.dp) // 长方形高度
+                    .align(Alignment.CenterVertically),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                ),
+                enabled = swipeOffset.value > swipeThreshold.value / 3
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        
+        // 可滑动的主要内容
+        ExpenseListItem(
+            expense = expense,
+            context = context,
+            modifier = Modifier
+                .offset(x = animatedOffset)
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { change, dragAmount ->
+                            if (isPerformingAction.value) return@detectHorizontalDragGestures
+                            
+                            // 更新偏移量，但限制在阈值范围内
+                            val newOffset = swipeOffset.value + dragAmount
+                            swipeOffset.value = when {
+                                newOffset > swipeThreshold.value -> swipeThreshold.value
+                                newOffset < -swipeThreshold.value -> -swipeThreshold.value
+                                else -> newOffset
+                            }
+                            change.consume()
+                        },
+                        onDragEnd = {
+                            if (!isPerformingAction.value) {
+                                handleSwipeEnd()
+                            }
+                            isPerformingAction.value = false
+                        }
+                    )
+                }
+        )
+        
+        // 第一次确认弹窗
+        if (showFirstConfirmDialog.value) {
+            AlertDialog(
+                onDismissRequest = { cancelDelete() },
+                title = { Text(text = context.getString(R.string.delete_confirm_title)) },
+                text = { Text(text = context.getString(R.string.delete_confirm_message)) },
+                confirmButton = {
+                    Button(onClick = { handleFirstConfirm() }) {
+                        Text(text = context.getString(R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { cancelDelete() }) {
+                        Text(text = context.getString(R.string.cancel))
+                    }
+                }
+            )
+        }
+        
+        // 第二次确认弹窗
+        if (showSecondConfirmDialog.value) {
+            AlertDialog(
+                onDismissRequest = { cancelDelete() },
+                title = { Text(text = context.getString(R.string.delete_second_confirm_title)) },
+                text = { Text(text = context.getString(R.string.delete_second_confirm_message)) },
+                confirmButton = {
+                    Button(
+                        onClick = { handleSecondConfirm() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Text(text = context.getString(R.string.delete))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { cancelDelete() }) {
+                        Text(text = context.getString(R.string.cancel))
+                    }
+                }
+            )
+        }
+    }
+}
+
+/**
  * 支出列表项
  */
 @Composable
@@ -404,7 +622,8 @@ fun ExpenseListItem(
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())
     
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation()
     ) {
         Row(
             modifier = Modifier

@@ -273,6 +273,11 @@ fun HomeMoneyApp(
                 onNavigateToAddExpense = {
                     navController.navigate("add_expense")
                 },
+                onNavigateToEditExpense = { expenseId ->
+                        navController.navigate(
+                            route = "add_expense?expenseId=$expenseId"
+                        )
+                    },
                 onRequireLogin = {
                     // 未登录时，清空导航栈并返回欢迎页
                     navController.navigate("welcome") {
@@ -288,9 +293,11 @@ fun HomeMoneyApp(
             )
         }
         
-        composable("add_expense") {
+        composable("add_expense") { backStackEntry ->
+            val expenseId = backStackEntry.arguments?.getString("expenseId")
             AddExpenseScreen(
                 context = context,
+                expenseId = expenseId,
                 onNavigateBack = {
                     shouldRefreshExpenses = true
                     navController.popBackStack()

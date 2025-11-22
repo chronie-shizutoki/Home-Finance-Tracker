@@ -215,6 +215,38 @@ class ExpenseListViewModel @Inject constructor(
         loadExpenses(refresh = true)
         loadStatistics()
     }
+    
+    /**
+     * 删除支出记录
+     */
+    fun deleteExpense(expense: Expense) {
+        viewModelScope.launch {
+            expenseRepository.deleteExpense(expense.id).fold(
+                onSuccess = {
+                    // 从当前列表中移除删除的支出
+                    val updatedExpenses = _uiState.value.expenses.filter { it.id != expense.id }
+                    val grouped = groupExpensesByDate(updatedExpenses)
+                    
+                    _uiState.update {
+                        it.copy(
+                            expenses = updatedExpenses,
+                            groupedExpenses = grouped
+                        )
+                    }
+                    
+                    // 重新加载统计信息
+                    loadStatistics()
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            error = error.message ?: "Failed to delete expense"
+                        )
+                    }
+                }
+            )
+        }
+    }
 }
 
 /**

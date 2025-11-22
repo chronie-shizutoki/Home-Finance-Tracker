@@ -187,6 +187,29 @@ class ExpenseRepositoryImpl @Inject constructor(
     
     override suspend fun updateExpense(expense: Expense): Result<Expense> {
         return try {
+            // 先尝试同步到服务器
+            try {
+                // 注意：后端API接受Int类型的ID，但我们使用String类型
+                val expenseId = expense.id.toIntOrNull()
+                if (expenseId != null) {
+                    // 调用后端API更新支出记录 - 转换为正确的类型
+                    expenseApi.updateExpense(expenseId.toLong(), ExpenseMapper.toDto(expense))
+                    // 如果API调用成功，则标记为已同步
+                    val entity = ExpenseMapper.toEntity(expense).copy(
+                        isSynced = true,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    expenseDao.updateExpense(entity)
+                    return Result.success(expense)
+                } else {
+                    android.util.Log.w("ExpenseRepository", "Invalid expense ID format for server sync: ${expense.id}")
+                }
+            } catch (apiError: Exception) {
+                // API调用失败，继续本地更新和同步队列处理
+                android.util.Log.w("ExpenseRepository", "Failed to update expense on server, will retry later", apiError)
+            }
+            
+            // 本地更新逻辑（服务器同步失败时）
             val entity = ExpenseMapper.toEntity(expense).copy(
                 isSynced = false,
                 updatedAt = System.currentTimeMillis()
@@ -208,6 +231,20 @@ class ExpenseRepositoryImpl @Inject constructor(
             if (entity != null) {
                 // 添加到同步队列（在删除之前）
                 addToSyncQueue("expense", id, "DELETE", entity)
+                
+                // 尝试先同步到服务器
+                try {
+                    // 注意：后端API接受Int类型的ID，但我们使用String类型
+                    // 这里尝试转换，如果失败则跳过服务器同步，但仍保留本地删除和同步队列
+                    val expenseId = id.toIntOrNull()
+                    if (expenseId != null) {
+                        expenseApi.deleteExpense(expenseId)
+                        // 如果API调用成功，不需要做特殊处理，因为我们即将删除该记录
+                    }
+                } catch (apiError: Exception) {
+                    // API调用失败，不影响本地操作，继续保留在同步队列中
+                    android.util.Log.w("ExpenseRepository", "Failed to delete expense on server, will retry later", apiError)
+                }
                 
                 // 从本地数据库删除
                 expenseDao.deleteExpenseById(id)
