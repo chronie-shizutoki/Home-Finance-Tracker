@@ -24,7 +24,7 @@ export function useExcelExport () {
     if (!expenses || !Array.isArray(expenses)) return { header: [], data: [] };
     const header = [i18n.global.t('expense.columns.date'), i18n.global.t('expense.columns.type'), i18n.global.t('expense.columns.amount'), i18n.global.t('expense.columns.remark')];
     const data = expenses.map(expense => [
-      expense.time,
+      expense.date || expense.time,
       expense.type,
       `¥${expense.amount}`,
       expense.remark || '-'
