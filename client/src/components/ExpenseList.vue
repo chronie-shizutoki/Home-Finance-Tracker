@@ -387,7 +387,7 @@ export default {
       const currentSort = searchParams.value.sortOption;
       let newSort = '';
 
-      if (field === 'time') {
+      if (field === 'date') {
         newSort = currentSort === 'dateAsc' ? 'dateDesc' : 'dateAsc';
       } else if (field === 'amount') {
         newSort = currentSort === 'amountAsc' ? 'amountDesc' : 'amountAsc';

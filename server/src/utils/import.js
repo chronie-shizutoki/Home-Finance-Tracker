@@ -14,8 +14,8 @@ class ImportService {
       type: item['分类'] || item.Category,
       remark: item['备注'] || item.Description || '',
       amount: parseFloat((item['金额'] || item['Amount'] || '').toString().replace(/[^0-9.]/g, '')) || 0,
-      time: dayjs(item['日期'] || item.Date).toDate()
-    })).filter(r => r.type && r.amount > 0 && r.time)
+      date: dayjs(item['日期'] || item.Date).format('YYYY-MM-DD')
+    })).filter(r => r.type && r.amount > 0 && r.date)
 
     if (records.length === 0) {
       return { success: true, message: '没有有效数据被导入。' }

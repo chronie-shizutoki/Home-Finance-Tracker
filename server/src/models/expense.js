@@ -14,10 +14,13 @@ module.exports = (sequelize) => {
       type: DataTypes.FLOAT,
       allowNull: false
     },
-    time: {
-      type: DataTypes.DATE,
+    date: {
+      type: DataTypes.STRING,
       allowNull: false
     }
+  }, {
+    // 禁用自动时间戳功能
+    timestamps: false
   })
 
   return Expense

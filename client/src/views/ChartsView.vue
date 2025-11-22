@@ -86,7 +86,7 @@ const loadExpenses = async () => {
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
         amount: Number(item.amount),
-        time: item.time
+        date: item.date
       }))
       .filter(item => !isNaN(item.amount) && item.amount > 0);
 

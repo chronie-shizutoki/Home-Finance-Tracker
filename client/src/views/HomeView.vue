@@ -911,7 +911,7 @@ const handleEditExpense = (expense) => {
   editingExpense.id = expense.id;
   editingExpense.type = expense.type || '';
   editingExpense.amount = expense.amount || '';
-  editingExpense.date = expense.date ? new Date(expense.date).toISOString().split('T')[0] : '';
+  editingExpense.date = expense.date || ''; // 直接使用date字段的值
   editingExpense.remark = expense.remark || '';
   
   // 清空错误提示
@@ -961,21 +961,21 @@ const validateEditForm = () => {
 };
 
 // 确认编辑消费记录
-const confirmEdit = async () => {
-  if (!validateEditForm()) {
-    return;
-  }
-  
-  try {
-    const expenseData = {
-      type: editingExpense.type.trim(),
-      amount: parseFloat(editingExpense.amount).toFixed(2),
-      date: new Date(editingExpense.date).toISOString(),
-      remark: editingExpense.remark.trim()
-    };
+  const confirmEdit = async () => {
+    if (!validateEditForm()) {
+      return;
+    }
     
-    console.log('Updating expense:', expenseData);
-    await ExpenseAPI.updateExpense(editingExpense.id, expenseData);
+    try {
+      const expenseData = {
+        type: editingExpense.type.trim(),
+        amount: parseFloat(editingExpense.amount).toFixed(2),
+        date: editingExpense.date, // 直接使用YYYY-MM-DD格式
+        remark: editingExpense.remark.trim()
+      };
+
+      console.log('Updating expense:', expenseData);
+      await ExpenseAPI.updateExpense(editingExpense.id, expenseData);
     
     ElMessage.success(t('expense.updateSuccess'));
     showEditDialog.value = false;
@@ -1357,7 +1357,7 @@ const handleAddRecord = async () => {
       type: form.type,
       amount: parseFloat(parseFloat(form.amount).toFixed(2)),
       remark: form.remark,
-      time: formattedDate // 服务器需要的时间字段
+      date: formattedDate // 服务器需要的日期字段
     };
 
     // 检查是否有单笔大于500元的消费
@@ -1483,7 +1483,7 @@ const loadExpenses = async () => {
         type: item.type?.trim() || item.type,
         remark: item.remark?.trim() || item.remark,
         amount: Number(item.amount),
-        time: item.time
+        date: item.date
       }))
       .filter(item => !isNaN(item.amount) && item.amount > 0);
 
@@ -1594,7 +1594,7 @@ const handleMultiRecordsSubmit = async () => {
         type: record.type,
         amount: parseFloat(parseFloat(record.amount).toFixed(2)),
         remark: record.remark || '',
-        time: record.date // 服务器需要的时间字段
+        date: record.date // 使用date字段，不再需要time字段
       });
       console.log('Valid record prepared:', { index: validRecords.length, type: record.type, amount: record.amount });
     }

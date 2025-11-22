@@ -111,7 +111,7 @@
       ctx.fillStyle = '#000000';
       
       // 定义列名
-      const columns = ['消费类型', '金额(元)', '日期时间', '备注'];
+      const columns = ['消费类型', '金额(元)', '日期', '备注'];
       
       // 计算每列的最大宽度（自适应）
       function calculateColumnWidths() {
@@ -225,8 +225,8 @@
         ctx.textAlign = 'left';
         x += columnWidths[1] + 20;
         
-        // 日期时间
-        ctx.fillText(item['日期时间'], x, y);
+        // 日期
+        ctx.fillText(item['日期'], x, y);
         x += columnWidths[2] + 20;
         
         // 备注（完全重写的换行逻辑，使用字符级别处理）
@@ -337,20 +337,21 @@
         
         // 过滤当月数据
         const filteredData = Array.isArray(data.data) ? data.data.filter(expense => {
-          if (!expense || !expense.time) return false;
-          const expenseDate = new Date(expense.time);
-          return expenseDate >= startOfMonth && expenseDate <= endOfMonth;
+          // 使用date字段替代time字段，保持向后兼容
+          if (!expense || (!expense.date && !expense.time)) return false;
+          const expenseDate = expense.date || expense.time;
+          return new Date(expenseDate) >= startOfMonth && new Date(expenseDate) <= endOfMonth;
         }) : [];
         
         // 按日期排序（从新到旧）
-        filteredData.sort((a, b) => new Date(b.time) - new Date(a.time));
+        filteredData.sort((a, b) => new Date(b.date || b.time) - new Date(a.date || a.time));
         
         // 准备导出数据
         const exportData = filteredData.map(expense => ({
           '消费类型': expense.type || '未知类型',
           '金额(元)': expense.amount,
           // 只显示日期，不显示时间
-          '日期时间': new Date(expense.time).toLocaleDateString('zh-CN', {
+          '日期': new Date(expense.date || expense.time).toLocaleDateString('zh-CN', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'

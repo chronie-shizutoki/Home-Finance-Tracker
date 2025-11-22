@@ -71,7 +71,9 @@ export const ExpenseAPI = {
         transformRequest: [(data) => JSON.stringify({
           ...data,
           amount: parseFloat(data.amount),
-          // 使用remark字段，不再需要itemName
+          // 确保使用date字段，不再需要time字段
+          date: data.date,
+          // 使用remark字段
           remark: data.remark || ''
         })]
       });
@@ -117,7 +119,9 @@ export const ExpenseAPI = {
         },
         transformRequest: [(data) => JSON.stringify({
           ...data,
-          amount: parseFloat(data.amount)
+          amount: parseFloat(data.amount),
+          // 确保使用date字段，不再需要time字段
+          date: data.date
         })]
       });
       return response.data;

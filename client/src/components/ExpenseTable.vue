@@ -6,9 +6,9 @@
       <table class="expense-table">
         <thead>
           <tr>
-            <th @click="$emit('sort', 'time')" class="sortable">
+            <th @click="$emit('sort', 'date')" class="sortable">
               {{ $t('expense.date') }}
-              <span v-if="sortField && sortField === 'time'" class="sort-indicator">
+              <span v-if="sortField && sortField === 'date'" class="sort-indicator">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
@@ -30,7 +30,7 @@
         </thead>
         <transition-group name="row-fade" tag="tbody">
           <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
-            <td>{{ formatDate(expense.time) }}</td>
+            <td>{{ formatDate(expense.date) }}</td>
             <td>
               <span class="type-tag" :style="{ backgroundColor: getTypeColor(expense.type, isDarkMode) }">
                 {{ expense.type }}
@@ -58,7 +58,7 @@
       <transition-group name="row-fade" tag="div">
         <div v-for="(expense, index) in expenses" :key="expense.id" class="expense-card" :data-index="index">
           <div class="card-header">
-            <div class="date">{{ formatDate(expense.time) }}</div>
+            <div class="date">{{ formatDate(expense.date) }}</div>
             <div class="amount">¥{{ expense.amount.toFixed(2) }}</div>
           </div>
           <div class="card-body">
@@ -142,18 +142,8 @@ export default {
     });
 
     const formatDate = (dateString) => {
-      if (!dateString) return '';
-      try {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const formatted = `${year}-${month}-${day}`;
-        return formatted;
-      } catch (error) {
-        console.error('Date formatting error:', { dateString, error: error.message });
-        return dateString;
-      }
+      // 直接返回YYYY-MM-DD格式的日期字符串，不再需要转换
+      return dateString || '';
     };
     
     // 处理编辑事件

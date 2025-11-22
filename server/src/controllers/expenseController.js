@@ -17,10 +17,10 @@ const getExpenses = async (req, res) => {
       // 解析月份并构建日期范围
       try {
         const [year, monthNum] = month.split('-').map(Number)
-        const startDate = new Date(year, monthNum - 1, 1)
-        const endDate = new Date(year, monthNum, 0, 23, 59, 59, 999)
-        where.time = {
-          [Op.between]: [startDate, endDate]
+        const startDateStr = `${year}-${String(monthNum).padStart(2, '0')}-01`
+        const endDateStr = `${year}-${String(monthNum).padStart(2, '0')}-${new Date(year, monthNum, 0).getDate()}`
+        where.date = {
+          [Op.between]: [startDateStr, endDateStr]
         }
       } catch (error) {
         console.warn('无效的月份格式:', month)
@@ -48,10 +48,10 @@ const getExpenses = async (req, res) => {
     let order = []
     switch (sort) {
       case 'dateAsc':
-        order = [['time', 'ASC']]
+        order = [['date', 'ASC']]
         break
       case 'dateDesc':
-        order = [['time', 'DESC']]
+        order = [['date', 'DESC']]
         break
       case 'amountAsc':
         order = [['amount', 'ASC']]
@@ -60,7 +60,7 @@ const getExpenses = async (req, res) => {
         order = [['amount', 'DESC']]
         break
       default:
-        order = [['time', 'DESC']]
+        order = [['date', 'DESC']]
     }
 
     const { count, rows } = await Expense.findAndCountAll({
@@ -95,7 +95,7 @@ const getExpenses = async (req, res) => {
       const monthsResult = await Expense.findAll({
         attributes: [
           [
-            sequelize.fn('strftime', '%Y-%m', sequelize.col('time')),
+            sequelize.fn('strftime', '%Y-%m', sequelize.col('date')),
             'month'
           ]
         ],
@@ -132,11 +132,17 @@ const addExpense = async (req, res) => {
       return res.status(400).json({ error: '消费类型和金额是必填项' })
     }
 
+    // 确保日期格式为YYYY-MM-DD字符串
+    let dateStr = dayjs().format('YYYY-MM-DD')
+    if (time) {
+      dateStr = dayjs(time).format('YYYY-MM-DD')
+    }
+
     const newExpense = await Expense.create({
       type,
       remark,
       amount: parseFloat(amount),
-      time: time ? dayjs(time).toDate() : dayjs().toDate()
+      date: dateStr
     })
 
     res.status(201).json(newExpense)
@@ -189,7 +195,7 @@ const updateExpense = async (req, res) => {
     if (type !== undefined) updateData.type = type
     if (remark !== undefined) updateData.remark = remark
     if (amount !== undefined) updateData.amount = parseFloat(amount)
-    if (time !== undefined) updateData.time = dayjs(time).toDate()
+    if (time !== undefined) updateData.date = dayjs(time).format('YYYY-MM-DD')
 
     // 执行更新操作
     await Expense.update(updateData, {
@@ -216,10 +222,10 @@ const getStatistics = async (req, res) => {
     if (month) {
       try {
         const [year, monthNum] = month.split('-').map(Number)
-        const startDate = new Date(year, monthNum - 1, 1)
-        const endDate = new Date(year, monthNum, 0, 23, 59, 59, 999)
-        where.time = {
-          [Op.between]: [startDate, endDate]
+        const startDateStr = `${year}-${String(monthNum).padStart(2, '0')}-01`
+        const endDateStr = `${year}-${String(monthNum).padStart(2, '0')}-${new Date(year, monthNum, 0).getDate()}`
+        where.date = {
+          [Op.between]: [startDateStr, endDateStr]
         }
       } catch (error) {
         console.warn('无效的月份格式:', month)
