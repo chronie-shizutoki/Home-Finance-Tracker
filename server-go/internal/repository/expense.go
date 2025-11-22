@@ -3,8 +3,9 @@ package repository
 import (
 	"fmt"
 
-	"gorm.io/gorm"
 	"homemoney/internal/models"
+
+	"gorm.io/gorm"
 )
 
 // ExpenseRepository 消费记录数据仓库
@@ -105,25 +106,15 @@ func (r *ExpenseRepository) GetMeta() (*models.ExpenseMeta, error) {
 	}
 	meta.UniqueTypes = uniqueTypes
 
-	// 获取可用月份 - 使用更兼容的方式
+	// 获取可用月份 - 由于date现在是字符串类型，使用字符串截取方式获取年月
 	var availableMonths []string
-	
-	// 先尝试PostgreSQL/MariaDB方式
 	if err := r.db.Model(&models.Expense{}).
-		Order("time DESC").
+		Order("date DESC").
 		Distinct().
-		Pluck("DATE_FORMAT(time, '%Y-%m')", &availableMonths).Error; err == nil {
-		meta.AvailableMonths = availableMonths
-	} else {
-		// 如果失败，尝试SQLite方式
-		if err := r.db.Model(&models.Expense{}).
-			Order("time DESC").
-			Distinct().
-			Pluck("strftime('%Y-%m', time)", &availableMonths).Error; err != nil {
-			return nil, fmt.Errorf("获取月份数据失败: %w", err)
-		}
-		meta.AvailableMonths = availableMonths
+		Pluck("SUBSTRING(date, 1, 7)", &availableMonths).Error; err != nil {
+		return nil, fmt.Errorf("获取月份数据失败: %w", err)
 	}
+	meta.AvailableMonths = availableMonths
 
 	return &meta, nil
 }
@@ -177,7 +168,8 @@ func (r *ExpenseRepository) Update(expense *models.Expense) error {
 // FindAll 获取所有消费记录（用于迁移测试）
 func (r *ExpenseRepository) FindAll() ([]models.Expense, error) {
 	var expenses []models.Expense
-	if err := r.db.Order("time DESC").Find(&expenses).Error; err != nil {
+	// 由于date是字符串类型，直接按字符串排序
+	if err := r.db.Order("date DESC").Find(&expenses).Error; err != nil {
 		return nil, err
 	}
 	return expenses, nil

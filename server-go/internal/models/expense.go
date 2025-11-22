@@ -9,17 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// Expense 消费记录
+// Expense 消费记录 - 与JS版本完全一致
 type Expense struct {
-	ID     uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	Type   string    `json:"type" gorm:"type:varchar(100);not null"`
-	Remark *string   `json:"remark,omitempty" gorm:"type:text"`
-	Amount float64   `json:"amount" gorm:"type:decimal(10,2);not null"`
-	Time   time.Time `json:"time" gorm:"type:datetime;not null;index"`
-
-	// 时间戳
-	CreatedAt time.Time `json:"createdAt" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt"`
+	ID     uint    `json:"id" gorm:"primaryKey;autoIncrement"`
+	Type   string  `json:"type" gorm:"type:string;not null"`
+	Remark *string `json:"remark,omitempty" gorm:"type:string"`
+	Amount float64 `json:"amount" gorm:"type:float;not null"`
+	Date   string  `json:"date" gorm:"type:string;not null;index"`
 }
 
 // TableName 指定表名
@@ -29,16 +25,16 @@ func (Expense) TableName() string {
 
 // ExpenseQuery 消费记录查询条件
 type ExpenseQuery struct {
-	Keyword   string     `form:"keyword"`
-	Type      string     `form:"type"`
-	Month     string     `form:"month"`
-	StartDate *time.Time `form:"startDate"`
-	EndDate   *time.Time `form:"endDate"`
-	MinAmount *float64   `form:"minAmount"`
-	MaxAmount *float64   `form:"maxAmount"`
-	Limit     int        `form:"limit,default=20"`
-	Offset    int        `form:"offset,default=0"`
-	Sort      string     `form:"sort,default=dateDesc"`
+	Keyword   string   `form:"keyword"`
+	Type      string   `form:"type"`
+	Month     string   `form:"month"`
+	StartDate string   `form:"startDate"`
+	EndDate   string   `form:"endDate"`
+	MinAmount *float64 `form:"minAmount"`
+	MaxAmount *float64 `form:"maxAmount"`
+	Limit     int      `form:"limit,default=20"`
+	Offset    int      `form:"offset,default=0"`
+	Sort      string   `form:"sort,default=dateDesc"`
 }
 
 // ExpenseMeta 元数据
@@ -73,8 +69,13 @@ func (e *Expense) Validate() error {
 	if e.Amount <= 0 {
 		return errors.New("消费金额必须大于0")
 	}
-	if e.Time.IsZero() {
-		return errors.New("消费时间不能为空")
+	if e.Date == "" {
+		return errors.New("消费日期不能为空")
+	}
+	// 验证日期格式是否为yyyy-mm-dd
+	_, err := time.Parse("2006-01-02", e.Date)
+	if err != nil {
+		return errors.New("消费日期格式错误，应为yyyy-mm-dd格式")
 	}
 	return nil
 }
@@ -100,9 +101,25 @@ func (q *ExpenseQuery) Validate() error {
 		return errors.New("offset参数不能为负数")
 	}
 
+	// 验证日期格式
+	if q.StartDate != "" {
+		if _, err := time.Parse("2006-01-02", q.StartDate); err != nil {
+			return errors.New("开始日期格式错误，应为yyyy-mm-dd格式")
+		}
+	}
+	if q.EndDate != "" {
+		if _, err := time.Parse("2006-01-02", q.EndDate); err != nil {
+			return errors.New("结束日期格式错误，应为yyyy-mm-dd格式")
+		}
+	}
+
 	// 验证日期范围
-	if q.StartDate != nil && q.EndDate != nil && q.StartDate.After(*q.EndDate) {
-		return errors.New("开始日期不能晚于结束日期")
+	if q.StartDate != "" && q.EndDate != "" {
+		start, _ := time.Parse("2006-01-02", q.StartDate)
+		end, _ := time.Parse("2006-01-02", q.EndDate)
+		if start.After(end) {
+			return errors.New("开始日期不能晚于结束日期")
+		}
 	}
 
 	// 验证金额范围
@@ -127,21 +144,20 @@ func (q *ExpenseQuery) Validate() error {
 }
 
 // ToMonthRange 将月份转换为日期范围
-func (q *ExpenseQuery) ToMonthRange() (time.Time, time.Time, error) {
+func (q *ExpenseQuery) ToMonthRange() (string, string, error) {
 	if q.Month == "" {
-		return time.Time{}, time.Time{}, errors.New("月份不能为空")
+		return "", "", errors.New("月份不能为空")
 	}
 
 	parsed, err := time.Parse("2006-01", q.Month)
 	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("月份解析失败: %w", err)
+		return "", "", fmt.Errorf("月份解析失败: %w", err)
 	}
 
 	startDate := time.Date(parsed.Year(), parsed.Month(), 1, 0, 0, 0, 0, time.UTC)
 	endDate := startDate.AddDate(0, 1, -1)
-	endDate = time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 23, 59, 59, 999999999, time.UTC)
 
-	return startDate, endDate, nil
+	return startDate.Format("2006-01-02"), endDate.Format("2006-01-02"), nil
 }
 
 // ApplyToQuery 应用查询条件到GORM查询
@@ -153,8 +169,12 @@ func (q *ExpenseQuery) ApplyToQuery(db *gorm.DB) *gorm.DB {
 	if q.Type != "" {
 		db = db.Where("type = ?", q.Type)
 	}
-	if q.StartDate != nil && q.EndDate != nil {
-		db = db.Where("time BETWEEN ? AND ?", *q.StartDate, *q.EndDate)
+	if q.StartDate != "" && q.EndDate != "" {
+		db = db.Where("date BETWEEN ? AND ?", q.StartDate, q.EndDate)
+	} else if q.StartDate != "" {
+		db = db.Where("date >= ?", q.StartDate)
+	} else if q.EndDate != "" {
+		db = db.Where("date <= ?", q.EndDate)
 	}
 	if q.MinAmount != nil {
 		db = db.Where("amount >= ?", *q.MinAmount)
@@ -169,15 +189,15 @@ func (q *ExpenseQuery) ApplyToQuery(db *gorm.DB) *gorm.DB {
 func (q *ExpenseQuery) ApplySort(db *gorm.DB) *gorm.DB {
 	switch q.Sort {
 	case "dateAsc":
-		return db.Order("time ASC")
+		return db.Order("date ASC")
 	case "dateDesc":
-		return db.Order("time DESC")
+		return db.Order("date DESC")
 	case "amountAsc":
 		return db.Order("amount ASC")
 	case "amountDesc":
 		return db.Order("amount DESC")
 	default:
-		return db.Order("time DESC")
+		return db.Order("date DESC")
 	}
 }
 

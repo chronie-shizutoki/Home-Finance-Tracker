@@ -9,6 +9,7 @@ import (
 	"homemoney/internal/models"
 	"homemoney/internal/repository"
 	"homemoney/pkg/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -103,7 +104,7 @@ func (h *ExpenseHandler) GetExpenseStatistics(c *gin.Context) {
 // DeleteExpense 删除消费记录
 func (h *ExpenseHandler) DeleteExpense(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	// 检查记录是否存在
 	exists, err := h.expenseRepo.Exists(id)
 	if err != nil {
@@ -128,7 +129,7 @@ func (h *ExpenseHandler) DeleteExpense(c *gin.Context) {
 // UpdateExpense 更新消费记录（需要先添加这个功能）
 func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	// 查找现有记录
 	expense, err := h.expenseRepo.FindByID(id)
 	if err != nil {
@@ -151,7 +152,7 @@ func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 	expense.Type = updateData.Type
 	expense.Remark = updateData.Remark
 	expense.Amount = updateData.Amount
-	expense.Time = updateData.Time
+	expense.Date = updateData.Date
 
 	// 保存更新
 	if err := h.expenseRepo.Update(expense); err != nil {
@@ -192,26 +193,18 @@ func (h *ExpenseHandler) parseExpenseQuery(c *gin.Context) (*models.ExpenseQuery
 		}
 	}
 
-	// 解析日期参数
-	if startDateStr := c.Query("startDate"); startDateStr != "" {
-		if startDate, err := time.Parse(time.RFC3339, startDateStr); err == nil {
-			query.StartDate = &startDate
-		}
-	}
-	if endDateStr := c.Query("endDate"); endDateStr != "" {
-		if endDate, err := time.Parse(time.RFC3339, endDateStr); err == nil {
-			query.EndDate = &endDate
-		}
-	}
+	// 解析日期参数（直接使用字符串）
+	query.StartDate = c.Query("startDate")
+	query.EndDate = c.Query("endDate")
 
 	// 如果提供了month，将其转换为日期范围
-	if query.Month != "" {
+	if query.Month != "" && (query.StartDate == "" || query.EndDate == "") {
 		startDate, endDate, err := query.ToMonthRange()
 		if err != nil {
 			return nil, fmt.Errorf("月份解析失败: %w", err)
 		}
-		query.StartDate = &startDate
-		query.EndDate = &endDate
+		query.StartDate = startDate
+		query.EndDate = endDate
 	}
 
 	// 验证查询参数
@@ -259,7 +252,7 @@ func (h *ExpenseHandler) BatchCreateExpense(c *gin.Context) {
 // GetExpenseByID 根据ID获取消费记录
 func (h *ExpenseHandler) GetExpenseByID(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	expense, err := h.expenseRepo.FindByID(id)
 	if err != nil {
 		utils.ErrorResponseWithStatus(c, "查找记录失败", err.Error(), http.StatusInternalServerError)
