@@ -38,6 +38,8 @@
         <ExpenseTable
           :expenses="paginatedExpenses"
           @sort="sortBy"
+          @edit="handleEdit"
+          @delete="handleDelete"
         />
 
         <!-- 分页组件 -->
@@ -78,11 +80,21 @@ export default {
     }
   },
 
-  emits: ['refreshCompleted'],
+  emits: ['refreshCompleted', 'edit', 'delete'],
   
   setup (props, { emit }) {
     const { t, locale } = useI18n(); // 解构出locale响应式对象
     const searchComponent = ref(null);
+    
+    // 处理编辑事件
+    const handleEdit = (expense) => {
+      emit('edit', expense);
+    };
+    
+    // 处理删除事件
+    const handleDelete = (expense) => {
+      emit('delete', expense);
+    };
 
     // 统一搜索参数
     const searchParams = ref({
@@ -441,6 +453,8 @@ export default {
       handleSearch,
       resetFilters,
       changePage,
+      handleEdit,
+      handleDelete,
       sortBy,
       refreshData
     };

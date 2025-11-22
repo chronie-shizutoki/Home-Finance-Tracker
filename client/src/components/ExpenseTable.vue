@@ -25,6 +25,7 @@
               </span>
             </th>
             <th>{{ $t('expense.remark') }}</th>
+            <th>{{ $t('common.action') }}</th>
           </tr>
         </thead>
         <transition-group name="row-fade" tag="tbody">
@@ -37,6 +38,16 @@
             </td>
             <td class="amount-cell">¥{{ expense.amount.toFixed(2) }}</td>
             <td>{{ expense.remark || '-' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="edit-btn" @click="handleEdit(expense)">
+                  {{ $t('common.edit') }}
+                </button>
+                <button class="delete-btn" @click="handleDelete(expense.id)">
+                  {{ $t('common.delete') }}
+                </button>
+              </div>
+            </td>
           </tr>
         </transition-group>
       </table>
@@ -60,6 +71,14 @@
             <div v-if="expense.remark" class="remark-section">
               <span class="remark-label">{{ $t('expense.remark') }}:</span>
               <span class="remark-text">{{ expense.remark }}</span>
+            </div>
+            <div class="card-actions">
+              <button class="card-edit-btn" @click="handleEdit(expense)">
+                {{ $t('common.edit') }}
+              </button>
+              <button class="card-delete-btn" @click="handleDelete(expense.id)">
+                {{ $t('common.delete') }}
+              </button>
             </div>
           </div>
         </div>
@@ -96,7 +115,7 @@ export default {
     }
   },
 
-  setup (props) {
+  setup (props, { emit }) {
     const isDarkMode = ref(false);
     
     // 检测当前系统主题
@@ -137,6 +156,18 @@ export default {
       }
     };
     
+    // 处理编辑事件
+    const handleEdit = (expense) => {
+      console.log('Edit expense clicked:', expense);
+      emit('edit', expense);
+    };
+
+    // 处理删除事件
+    const handleDelete = (id) => {
+      console.log('Delete expense clicked:', { id });
+      emit('delete', id);
+    };
+
     // 监听数据变化
     watch(() => props.expenses, (newVal) => {
       console.log('Expense data updated:', { recordCount: newVal?.length || 0 });
@@ -145,7 +176,9 @@ export default {
     return {
       getTypeColor,
       formatDate,
-      isDarkMode
+      isDarkMode,
+      handleEdit,
+      handleDelete
     };
   }
 };
@@ -251,11 +284,47 @@ export default {
 }
 
 .remark-text {
-  font-size: 14px;
-  color: #333;
-  flex: 1;
-  word-break: break-word;
-}
+    font-size: 14px;
+    color: #333;
+    flex: 1;
+    word-break: break-word;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .card-edit-btn,
+  .card-delete-btn {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .card-edit-btn {
+    background-color: #4361ee;
+    color: white;
+  }
+
+  .card-edit-btn:hover {
+    background-color: #3a56d4;
+  }
+
+  .card-delete-btn {
+    background-color: #e63946;
+    color: white;
+  }
+
+  .card-delete-btn:hover {
+    background-color: #c1121f;
+  }
 
 /* 通用样式 */
 .sortable {
@@ -281,6 +350,39 @@ export default {
 .amount-cell {
   font-weight: 600;
   color: #2b2d42;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #4361ee;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #3a56d4;
+}
+
+.delete-btn {
+  background-color: #e63946;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c1121f;
 }
 
 .no-data {
@@ -418,6 +520,16 @@ export default {
   .type-label,
   .remark-label {
     color: #888;
+  }
+  
+  .card-edit-btn,
+  .card-delete-btn {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-edit-btn:hover,
+  .card-delete-btn:hover {
+    opacity: 0.9;
   }
 }
 </style>

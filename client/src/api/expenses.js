@@ -105,5 +105,37 @@ export const ExpenseAPI = {
       console.error('获取统计数据失败:', error);
       return { error: error.message || '未知错误' };
     }
+  },
+
+  // 更新消费记录
+  async updateExpense (id, data) {
+    try {
+      console.log(`[Expense API] 更新消费记录 ID: ${id}`, data);
+      const response = await axios.put(`${API_BASE}/expenses/${id}`, data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        transformRequest: [(data) => JSON.stringify({
+          ...data,
+          amount: parseFloat(data.amount)
+        })]
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`更新消费记录失败 ID: ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // 删除消费记录
+  async deleteExpense (id) {
+    try {
+      console.log(`[Expense API] 删除消费记录 ID: ${id}`);
+      const response = await axios.delete(`${API_BASE}/expenses/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`删除消费记录失败 ID: ${id}:`, error);
+      throw error;
+    }
   }
 };

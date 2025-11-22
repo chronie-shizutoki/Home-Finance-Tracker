@@ -245,7 +245,11 @@
       {{ t('chart.title') }}
     </el-button>
     
-    <ExpenseList :refresh-trigger="refreshTrigger" />
+    <ExpenseList 
+      :refresh-trigger="refreshTrigger" 
+      @edit="handleEditExpense"
+      @delete="handleDeleteExpense"
+    />
     <div :class="['header']"></div>
     <Transition name="button">
       <ExportButton
@@ -337,6 +341,102 @@
       </div>
     </div>
   </transition>
+
+  <!-- 编辑消费记录对话框 -->
+  <div v-if="showEditDialog" class="custom-dialog-overlay" @click.self="showEditDialog = false">
+    <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+      <div class="dialog-header">
+        <h3 class="dialog-title">{{ t('expense.edit') }}</h3>
+        <button class="dialog-close-btn" @click="showEditDialog = false" aria-label="关闭">
+          ×
+        </button>
+      </div>
+      
+      <div class="dialog-body">
+        <form class="custom-form" @submit.prevent="confirmEdit">
+          <div class="form-group">
+            <label class="form-label" :class="{ 'error': editErrors.type }">
+              {{ t('expense.type') }}
+            </label>
+            <CustomSelect 
+              v-model="editingExpense.type" 
+              :options="expenseTypes.map(type => ({ label: type, value: type }))"
+              :empty-option-label="t('expense.selectType')"
+              class="form-select"
+              :class="{ 'error': editErrors.type }"
+            />
+            <span v-if="editErrors.type" class="error-message">{{ editErrors.type }}</span>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" :class="{ 'error': editErrors.amount }">
+              {{ t('expense.amount') }}
+            </label>
+            <input 
+              v-model="editingExpense.amount" 
+              type="number" 
+              step="0.01" 
+              min="0" 
+              class="form-input" 
+              :class="{ 'error': editErrors.amount }" 
+              :placeholder="0"
+              required
+            />
+            <span v-if="editErrors.amount" class="error-message">{{ editErrors.amount }}</span>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" :class="{ 'error': editErrors.date }">
+              {{ t('expense.date') }}
+            </label>
+            <input 
+              v-model="editingExpense.date" 
+              type="date" 
+              class="form-input" 
+              :class="{ 'error': editErrors.date }" 
+              required
+            />
+            <span v-if="editErrors.date" class="error-message">{{ editErrors.date }}</span>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">{{ t('expense.remark') }}</label>
+            <textarea 
+              v-model="editingExpense.remark" 
+              class="form-textarea" 
+              :placeholder="t('expense.enterRemark')"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="dialog-footer">
+        <button class="btn btn-secondary" @click="showEditDialog = false">{{ t('common.cancel') }}</button>
+        <button class="btn btn-primary" @click="confirmEdit">{{ t('common.confirm') }}</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 删除确认对话框 -->
+  <div v-if="showDeleteDialog" class="custom-dialog-overlay" @click.self="showDeleteDialog = false">
+    <div class="custom-dialog" :class="{ 'dark-theme': isDarkMode }">
+      <div class="dialog-header">
+        <h3 class="dialog-title">{{ t('expense.deleteConfirm') }}</h3>
+        <button class="dialog-close-btn" @click="showDeleteDialog = false" aria-label="关闭">
+          ×
+        </button>
+      </div>
+      
+      <div class="dialog-body">
+        <p>{{ t('expense.deleteMessage') }}</p>
+      </div>
+      
+      <div class="dialog-footer">
+        <button class="btn btn-secondary" @click="showDeleteDialog = false">{{ t('common.cancel') }}</button>
+        <button class="btn btn-danger" @click="confirmDelete">{{ t('common.delete') }}</button>
+      </div>
+    </div>
+  </div>
 
   <!-- API密钥设置对话框 -->
   <el-dialog v-model="showApiKeyDialog" title="设置SiliconFlow API密钥" width="50%">
@@ -513,6 +613,7 @@ import Papa from 'papaparse';
 import { useExpenseData } from '@/composables/useExpenseData';
 import { useExcelExport } from '@/composables/useExcelExport';
 import { fetchAllPages, createCancellationController } from '@/utils/pagination';
+import { ExpenseAPI } from '@/api/expenses';
 
 const MessageTip = defineAsyncComponent(() => import('@/components/MessageTip.vue'));
 const Header = defineAsyncComponent(() => import('@/components/Header.vue'));
@@ -706,6 +807,22 @@ const showMultiRecordsDialog = ref(false);
 const showAiReportDialog = ref(false);
 // 新增：显示小程序管理器对话框
 const showMiniAppManager = ref(false);
+// 新增：编辑和删除对话框状态
+const showEditDialog = ref(false);
+const showDeleteDialog = ref(false);
+const editingExpenseId = ref('');
+const editingExpense = reactive({
+  id: '',
+  type: '',
+  amount: '',
+  date: '',
+  remark: ''
+});
+const editErrors = reactive({
+  type: '',
+  amount: '',
+  date: ''
+});
 
 // 功能组数据和选中状态（用于手机端）
 const selectedFunctionGroup = ref('primary');
@@ -785,6 +902,107 @@ const proceedToMembership = () => {
   localStorage.setItem('redirectAfterMembership', currentPath);
   // 跳转到会员订阅页面
   router.push('/membership');
+};
+
+// 处理编辑消费记录
+const handleEditExpense = (expense) => {
+  console.log('Editing expense:', expense);
+  editingExpenseId.value = expense.id;
+  editingExpense.id = expense.id;
+  editingExpense.type = expense.type || '';
+  editingExpense.amount = expense.amount || '';
+  editingExpense.date = expense.date ? new Date(expense.date).toISOString().split('T')[0] : '';
+  editingExpense.remark = expense.remark || '';
+  
+  // 清空错误提示
+  editErrors.type = '';
+  editErrors.amount = '';
+  editErrors.date = '';
+  
+  showEditDialog.value = true;
+};
+
+// 处理删除消费记录
+const handleDeleteExpense = (id) => {
+  console.log('Deleting expense:', id);
+  editingExpenseId.value = id;
+  showDeleteDialog.value = true;
+};
+
+// 验证编辑表单
+const validateEditForm = () => {
+  let isValid = true;
+  
+  // 清空错误
+  editErrors.type = '';
+  editErrors.amount = '';
+  editErrors.date = '';
+  
+  // 验证类型
+  if (!editingExpense.type.trim()) {
+    editErrors.type = t('expense.typeRequired');
+    isValid = false;
+  }
+  
+  // 验证金额
+  const amount = parseFloat(editingExpense.amount);
+  if (!editingExpense.amount || isNaN(amount) || amount <= 0) {
+    editErrors.amount = t('expense.amountRequired');
+    isValid = false;
+  }
+  
+  // 验证日期
+  if (!editingExpense.date) {
+    editErrors.date = t('expense.dateRequired');
+    isValid = false;
+  }
+  
+  return isValid;
+};
+
+// 确认编辑消费记录
+const confirmEdit = async () => {
+  if (!validateEditForm()) {
+    return;
+  }
+  
+  try {
+    const expenseData = {
+      type: editingExpense.type.trim(),
+      amount: parseFloat(editingExpense.amount).toFixed(2),
+      date: new Date(editingExpense.date).toISOString(),
+      remark: editingExpense.remark.trim()
+    };
+    
+    console.log('Updating expense:', expenseData);
+    await ExpenseAPI.updateExpense(editingExpense.id, expenseData);
+    
+    ElMessage.success(t('expense.updateSuccess'));
+    showEditDialog.value = false;
+    
+    // 刷新消费记录列表
+    refreshTrigger.value++;
+  } catch (error) {
+    console.error('Update expense failed:', error);
+    ElMessage.error(t('expense.updateFailed'));
+  }
+};
+
+// 确认删除消费记录
+const confirmDelete = async () => {
+  try {
+    console.log('Deleting expense:', editingExpenseId.value);
+    await ExpenseAPI.deleteExpense(editingExpenseId.value);
+    
+    ElMessage.success(t('expense.deleteSuccess'));
+    showDeleteDialog.value = false;
+    
+    // 刷新消费记录列表
+    refreshTrigger.value++;
+  } catch (error) {
+    console.error('Delete expense failed:', error);
+    ElMessage.error(t('expense.deleteFailed'));
+  }
 };
 
 // 检查会员状态

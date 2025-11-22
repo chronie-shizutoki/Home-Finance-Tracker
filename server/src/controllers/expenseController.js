@@ -164,6 +164,47 @@ const deleteExpense = async (req, res) => {
   }
 }
 
+const updateExpense = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { type, remark, amount, time } = req.body
+
+    // 检查记录是否存在
+    const existingExpense = await Expense.findByPk(id)
+    if (!existingExpense) {
+      return res.status(404).json({ error: '未找到要更新的记录' })
+    }
+
+    // 后端数据验证
+    if (type === undefined && amount === undefined && remark === undefined && time === undefined) {
+      return res.status(400).json({ error: '至少需要提供一个要更新的字段' })
+    }
+
+    if (amount !== undefined && (isNaN(amount) || parseFloat(amount) <= 0)) {
+      return res.status(400).json({ error: '金额必须是有效的正数' })
+    }
+
+    // 构建更新数据对象
+    const updateData = {}
+    if (type !== undefined) updateData.type = type
+    if (remark !== undefined) updateData.remark = remark
+    if (amount !== undefined) updateData.amount = parseFloat(amount)
+    if (time !== undefined) updateData.time = dayjs(time).toDate()
+
+    // 执行更新操作
+    await Expense.update(updateData, {
+      where: { id: id }
+    })
+
+    // 获取更新后的记录
+    const updatedExpense = await Expense.findByPk(id)
+    res.json(updatedExpense)
+  } catch (error) {
+    console.error('更新消费记录失败:', error)
+    res.status(500).json({ error: '无法更新记录' })
+  }
+}
+
 // 统计功能API
 const getStatistics = async (req, res) => {
   try {
@@ -280,5 +321,6 @@ module.exports = {
   getExpenses,
   addExpense,
   deleteExpense,
+  updateExpense,
   getStatistics
 }
