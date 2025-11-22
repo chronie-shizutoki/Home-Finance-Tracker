@@ -43,8 +43,7 @@ npm run dev:server  # Starts backend development server
 
 ## Project Structure
 - `client/`: Vue.js frontend application
-  - `public/`: Static assets and mini-applications
-    - `miniapp/`: Mini-applications directory containing individual apps
+  - `public/`: Static assets
   - `src/`: Source code
     - `components/`: Reusable UI components
     - `views/`: Application views/pages

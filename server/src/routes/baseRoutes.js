@@ -543,20 +543,7 @@ router.get('/api', (req, res) => {
           }
         }
       ],
-      miniapp: [
-        {
-          endpoint: '/api/miniapp/list',
-          method: 'GET',
-          description: {
-            en: 'Get mini-app list',
-            zh: '获取小程序列表'
-          },
-          usage: {
-            en: 'Retrieve all available mini-applications',
-            zh: '获取所有可用的小程序'
-          }
-        }
-      ]
+
     },
     usageGuide: {
       en: 'This API provides endpoints for managing household finances including expense tracking, debt management, subscription handling, and data import/export functionality.',

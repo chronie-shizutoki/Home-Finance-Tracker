@@ -32,7 +32,7 @@ app.use('/api/json-files', require('./routes/jsonFiles'))
 app.use('/api/payments', require('./routes/payment'))
 app.use('/api/members', require('./routes/memberRoutes'))
 app.use('/api/debts', require('./routes/debt'))
-app.use('/api/miniapp', require('./routes/miniapp'))
+
 app.use('/api', require('./routes/api'))
 
 // 根路径路由

@@ -26,7 +26,6 @@ server/
 │   │   ├── paymentController.js
 │   │   ├── subscriptionController.js
 │   │   ├── logController.js
-│   │   └── miniappController.js
 │   ├── models/             # 数据模型
 │   │   ├── debt.js
 │   │   ├── expense.js
@@ -59,7 +58,6 @@ server-go/
 │   │   ├── payment.go
 │   │   ├── subscription.go
 │   │   ├── log.go
-│   │   └── miniapp.go
 │   ├── models/             # 数据模型
 │   │   ├── debt.go
 │   │   ├── expense.go
@@ -210,8 +208,6 @@ func main() {
         api.GET("/logs", handlers.GetLogsList)
         api.DELETE("/logs/clean", handlers.CleanLogs)
         api.GET("/logs/stats", handlers.GetLogStats)
-        
-        api.GET("/miniapp", handlers.GetMiniAppList)
     }
 
     // 基础路由

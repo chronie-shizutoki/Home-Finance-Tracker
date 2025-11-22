@@ -22,7 +22,6 @@
 | **memberRoutes** | 会员系统 | 9个 | 高 |
 | **payment** | 支付功能 | 2个 | 高 |
 | **jsonFiles** | JSON文件操作 | 4个 | 中 |
-| **miniapp** | 小程序 | 1个 | 无需迁移，废弃功能 |
 | **logRoutes** | 日志管理 | 4个 | 中 |
 | **exportRoutes** | 数据导入导出 | 2个 | 中 |
 
@@ -55,9 +54,6 @@
 - GET `/api/json-files` - 获取文件列表
 - DELETE `/api/json-files/:filename` - 删除JSON文件
 
-#### 5. 小程序 (`/api/miniapp`)无需迁移，已废弃
-- GET `/api/miniapp/list` - 获取小程序列表
-
 #### 6. 日志管理 (`/api/logs`)
 - POST `/api/logs` - 接收操作日志
 - GET `/api/logs` - 获取日志列表
@@ -73,7 +69,7 @@
 ```
 总体进度: 11.1% (1/9 模块完成)
 - 已完成: 1个模块 (expense)
-- 未完成: 8个模块 (debt, memberRoutes, payment, jsonFiles, miniapp, logRoutes, exportRoutes, api)
+- 未完成: 8个模块 (debt, memberRoutes, payment, jsonFiles, logRoutes, exportRoutes, api)
 
 总端点数: 36个
 - 已迁移: 4个端点 (expense相关)
@@ -91,9 +87,6 @@
 4. **logRoutes** - 日志管理
 5. **exportRoutes** - 数据导入导出
 6. **jsonFiles** - JSON文件操作
-
-**低优先级 (扩展功能):**
-7. **miniapp** - 小程序
 
         
             
@@ -116,6 +109,6 @@ Todos updated: 1 items
    - 包含订阅、支付等重要业务逻辑
 
 3. **最后**: 辅助功能模块
-   - `logRoutes`, `exportRoutes`, `jsonFiles`, `miniapp`
+   - `logRoutes`, `exportRoutes`, `jsonFiles`
 
 **总结**: Go版本的API迁移工作还处于早期阶段，仅完成了11.1%的功能。还有7个主要模块需要迁移，建议优先处理核心业务模块以确保系统功能的完整性。

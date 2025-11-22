@@ -1,8 +1,0 @@
-{
-  "name": "液态玻璃计算器",
-  "description": "一个简洁实用的在线计算器小程序，支持基本的数学运算，具有液态玻璃效果和自动深色模式适配",
-  "version": "1.1.0",
-  "author": "系统内置",
-  "main": "index.html",
-  "type": "module"
-}

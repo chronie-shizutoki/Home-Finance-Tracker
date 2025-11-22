@@ -269,13 +269,7 @@ class APITester {
                 paths: ['/api/logs/clean'],
                 params: { days: 30 }
             },
-            
-            // 小程序端点
-            {
-                name: '小程序列表',
-                method: 'GET',
-                paths: ['/api/miniapp/list']
-            }
+
         ];
     }
 

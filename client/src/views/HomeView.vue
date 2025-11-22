@@ -128,10 +128,6 @@
               <el-icon><CreditCard /></el-icon>
               {{ t('debt.title') }}
             </el-button>
-            <el-button type="primary" @click="showMiniAppManager = true" size="default">
-              <el-icon><Box /></el-icon>
-              {{ t('miniapp.title') }}
-            </el-button>
             <el-button type="success" @click="goToMembership" size="default">
               <el-icon><Star /></el-icon>
               {{ t('membership.title') }}
@@ -208,10 +204,7 @@
             <el-icon><CreditCard /></el-icon>
             {{ t('debt.title') }}
           </el-button>
-          <el-button type="primary" @click="showMiniAppManager = true" size="large" class="mobile-btn">
-            <el-icon><Box /></el-icon>
-            {{ t('miniapp.title') }}
-          </el-button>
+
           <el-button type="success" @click="goToMembership" size="large" class="mobile-btn">
             <el-icon><Star /></el-icon>
             {{ t('membership.title') }}
@@ -588,13 +581,7 @@
       :content="markdownContent"
     />
   
-  <!-- 小程序管理器对话框 -->
-  <el-dialog v-model="showMiniAppManager" :title="t('miniapp.title')" width="90%" top="10vh">
-    <MiniAppManager />
-    <template #footer>
-      <el-button @click="showMiniAppManager = false">{{ t('common.cancel') }}</el-button>
-    </template>
-  </el-dialog>
+
 
 </template>
 
@@ -622,7 +609,7 @@ const ExpenseCharts = defineAsyncComponent(() => import('@/components/ExpenseCha
 const ExportButton = defineAsyncComponent(() => import('@/components/ExportButton.vue'));
 const MarkdownDialog = defineAsyncComponent(() => import('@/components/MarkdownDialog.vue'));
 const SpendingLimitDisplay = defineAsyncComponent(() => import('@/components/SpendingLimitDisplay.vue'));
-const MiniAppManager = defineAsyncComponent(() => import('@/components/MiniAppManager.vue'));
+
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -805,8 +792,7 @@ const showAiAddDialog = ref(false);
 const showMultiRecordsDialog = ref(false);
 // 新增：显示AI报告对话框
 const showAiReportDialog = ref(false);
-// 新增：显示小程序管理器对话框
-const showMiniAppManager = ref(false);
+
 // 新增：编辑和删除对话框状态
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);

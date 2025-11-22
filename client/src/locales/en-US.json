@@ -107,16 +107,6 @@
   "expense.sort.dateAsc": "Date (Oldest First)",
   "expense.sort.dateDesc": "Date (Newest First)",
   "expense.sort.amountAsc": "Amount (Low to High)",
-  "miniapp": {
-    "title": "Apps",
-    "emptyList": "No apps available",
-    "loading": "Loading apps...",
-    "openApp": "Open",
-    "appName": "App Name",
-    "appDescription": "Description",
-    "author": "Author",
-    "version": "Version"
-  },
   "expense.sort.amountDesc": "Amount (High to Low)",
   "expense.stats.rowCount": "Total Records",
   "expense.stats.totalAmount": "Total Amount",

@@ -379,20 +379,6 @@
           "zh": "删除早于指定天数的日志"
         }
       }
-    ],
-    "miniapp": [
-      {
-        "endpoint": "/api/miniapp/list",
-        "method": "GET",
-        "description": {
-          "en": "Get mini-app list",
-          "zh": "获取小程序列表"
-        },
-        "usage": {
-          "en": "Retrieve all available mini-applications",
-          "zh": "获取所有可用的小程序"
-        }
-      }
     ]
   },
   "usageGuide": {
