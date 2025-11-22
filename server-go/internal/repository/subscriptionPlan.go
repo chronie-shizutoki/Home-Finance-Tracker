@@ -87,3 +87,15 @@ func (r *SubscriptionPlanRepository) Exists(id string) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+// FindByPeriod 根据订阅周期类型查找订阅计划
+func (r *SubscriptionPlanRepository) FindByPeriod(period string) (*models.SubscriptionPlan, error) {
+	var plan models.SubscriptionPlan
+	if err := r.db.First(&plan, "period = ? AND is_active = ?", period, true).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &plan, nil
+}

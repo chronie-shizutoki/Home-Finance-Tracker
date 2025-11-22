@@ -9,14 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"homemoney/pkg/database"
 	"homemoney/internal/repository"
 	"homemoney/internal/routes"
+	"homemoney/internal/service"
+	"homemoney/pkg/database"
+
+	"github.com/gin-gonic/gin"
 )
-
-
-
 
 func main() {
 	// 记录服务器启动时间
@@ -40,7 +39,7 @@ func main() {
 
 	// 创建Repository实例
 	expenseRepo := repository.NewExpenseRepository(db.GetDB())
-	
+
 	// 创建会员相关的Repository实例
 	memberRepo := repository.NewMemberRepository(db.GetDB())
 	planRepo := repository.NewSubscriptionPlanRepository(db.GetDB())
@@ -75,9 +74,22 @@ func main() {
 
 	// 设置API路由
 	routes.SetupExpenseRoutes(router, expenseRepo)
-	
+
 	// 设置会员相关的API路由 - 对应JS版本的memberRoutes
 	routes.SetupMemberRoutes(router, memberRepo, planRepo, subscriptionRepo)
+
+	// 初始化服务实例
+	// 创建支付服务实例
+	paymentService := service.NewPaymentService(planRepo, memberRepo)
+	// 创建JSON文件服务实例
+	jsonFileService := service.NewJsonFileService()
+	// 创建日志服务实例
+	logService := service.NewLogService(db.GetDB())
+
+	// 注册路由
+	routes.SetupPaymentRoutes(router, paymentService)
+	routes.SetupJsonFileRoutes(router.Group("/api"), jsonFileService)
+	routes.SetupLogRoutes(router.Group("/api"), logService)
 
 	// 创建HTTP服务器
 	srv := &http.Server{
@@ -92,7 +104,7 @@ func main() {
 	go func() {
 		log.Printf("服务器启动在端口 %s", config.Port)
 		log.Printf("API文档: http://localhost:%s/api", config.Port)
-		
+
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("服务器启动失败: %v", err)
 		}
