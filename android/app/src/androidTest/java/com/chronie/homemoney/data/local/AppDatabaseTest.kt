@@ -48,8 +48,7 @@ class AppDatabaseTest {
             remark = "午餐",
             amount = 45.0,
             date = "2024-01-01",
-            isSynced = false,
-            serverId = null
+            isSynced = false
         )
         
         // 插入数据
@@ -62,7 +61,7 @@ class AppDatabaseTest {
         assertNotNull(result)
         assertEquals(expense.id, result?.id)
         assertEquals(expense.type, result?.type)
-        assertEquals(expense.amount, result?.amount, 0.01)
+        result?.amount?.let { assertEquals(expense.amount, it, 0.01) }
     }
     
     @Test
@@ -75,8 +74,7 @@ class AppDatabaseTest {
                 remark = "早餐",
                 amount = 15.0,
                 date = "2024-01-01",
-                isSynced = false,
-                serverId = null
+                isSynced = false
             ),
             ExpenseEntity(
                 id = UUID.randomUUID().toString(),
@@ -84,8 +82,7 @@ class AppDatabaseTest {
                 remark = "打车",
                 amount = 32.0,
                 date = "2024-01-01",
-                isSynced = false,
-                serverId = null
+                isSynced = false
             )
         )
         
@@ -107,8 +104,7 @@ class AppDatabaseTest {
             remark = "午餐",
             amount = 45.0,
             date = "2024-01-01",
-            isSynced = false,
-            serverId = null
+            isSynced = false
         )
         expenseDao.insertExpense(expense)
         
@@ -121,7 +117,7 @@ class AppDatabaseTest {
         
         // 查询验证
         val result = expenseDao.getExpenseById(expense.id)
-        assertEquals(50.0, result?.amount, 0.01)
+        result?.amount?.let { assertEquals(50.0, it, 0.01) }
         assertEquals("午餐（更新）", result?.remark)
     }
     
@@ -134,8 +130,7 @@ class AppDatabaseTest {
             remark = "午餐",
             amount = 45.0,
             date = "2024-01-01",
-            isSynced = false,
-            serverId = null
+            isSynced = false
         )
         expenseDao.insertExpense(expense)
         
@@ -156,8 +151,7 @@ class AppDatabaseTest {
             remark = "已同步",
             amount = 45.0,
             date = "2024-01-01",
-            isSynced = true,
-            serverId = null
+            isSynced = true
         )
         
         val unsyncedExpense = ExpenseEntity(
@@ -166,8 +160,7 @@ class AppDatabaseTest {
             remark = "未同步",
             amount = 32.0,
             date = "2024-01-01",
-            isSynced = false,
-            serverId = null
+            isSynced = false
         )
         
         expenseDao.insertExpenses(listOf(syncedExpense, unsyncedExpense))
