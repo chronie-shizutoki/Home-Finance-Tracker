@@ -8,8 +8,6 @@
 startup_logs/
 .trae/
 .vscode/
-*.csv
-expenses_initial.csv
 .github/workflows/error.txt
 server/database.sqlite
 server/uploads
@@ -19,3 +17,5 @@ server/data/expenses.db
 server/data/donation_records.json
 node_modules
 android/app/release/
+bin/
+server-go/server
