@@ -79,6 +79,14 @@ type TypeDistributionItem struct {
 	Percentage int     `json:"percentage"`
 }
 
+// DateGroup 按日期分组的消费记录 - 与JS版本getExpensesByDate完全一致
+type DateGroup struct {
+	Date        string    `json:"date"`
+	Count       int       `json:"count"`
+	TotalAmount float64   `json:"totalAmount"`
+	Expenses    []Expense `json:"expenses"`
+}
+
 // Validate 验证字段
 func (e *Expense) Validate() error {
 	if e.Type == "" {
