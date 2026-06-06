@@ -63,7 +63,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: 'Click to upload avatar'
+    default: '',
   },
   maxSize: {
     type: Number,
