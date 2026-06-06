@@ -53,8 +53,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.Expense{},
 		&models.Member{},
 		&models.ErrorReport{},
-		&models.SubscriptionPlan{},
-		&models.UserSubscription{},
 	)
 	
 	// 如果表已存在，通过手动ALTER TABLE添加缺失的列

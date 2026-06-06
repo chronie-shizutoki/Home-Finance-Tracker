@@ -77,10 +77,10 @@ func (r *MemberRepository) GetOrCreate(username string) (*models.Member, error) 
 	return member, nil
 }
 
-// GetMemberInfo 获取会员信息（包含订阅信息）
+// GetMemberInfo 获取会员信息
 func (r *MemberRepository) GetMemberInfo(username string) (*models.Member, error) {
 	var member models.Member
-	if err := r.db.Preload("UserSubscriptions").First(&member, "username = ?", username).Error; err != nil {
+	if err := r.db.First(&member, "username = ?", username).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -127,28 +127,4 @@ func (r *MemberRepository) FindAll() ([]models.Member, error) {
 		return nil, err
 	}
 	return members, nil
-}
-
-// GetMemberWithActiveSubscription 获取会员及其当前订阅信息
-func (r *MemberRepository) GetMemberWithActiveSubscription(username string) (*models.Member, *models.UserSubscription, error) {
-	var member models.Member
-
-	// 获取会员信息
-	if err := r.db.First(&member, "username = ?", username).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil, nil
-		}
-		return nil, nil, err
-	}
-
-	// 获取活跃订阅
-	var activeSubscription models.UserSubscription
-	if err := r.db.Where("member_id = ? AND is_active = ?", member.ID, true).First(&activeSubscription).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return &member, nil, nil
-		}
-		return &member, nil, err
-	}
-
-	return &member, &activeSubscription, nil
 }
