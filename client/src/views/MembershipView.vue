@@ -17,7 +17,7 @@
     <!-- 用户登录/注册表单 -->
     <div class="login-form" v-if="!isLoggedIn">
       <GlassForm @submit.prevent="handleLogin">
-        <GlassFormItem :label="$t('membership.goldStreamUsername')" prop="username" error="">
+        <GlassFormItem :label="$t('membership.username')" prop="username" error="">
           <GlassInput 
             v-model="loginForm.username" 
             :placeholder="$t('membership.usernamePlaceholder')" 

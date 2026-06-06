@@ -274,6 +274,7 @@
     "username": "用戶名",
     "loginOrRegister": "登錄/註冊",
     "logout": "退出登錄",
+    "usernamePlaceholder": "請輸入用戶名",
     "error": {
       "requiredUsername": "請輸入用戶名",
       "usernameFormat": "用戶名只能包含大小寫英文字母",

@@ -59,7 +59,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://192.168.0.197:3010', // 替换为后端实际局域网IP
+        target: 'http://0.0.0.0:3010', // 替换为后端实际局域网IP
         secure: false,
         changeOrigin: true
       }

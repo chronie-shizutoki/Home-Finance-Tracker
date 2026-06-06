@@ -271,6 +271,7 @@
     "username": "用户名",
     "loginOrRegister": "登录/注册",
     "logout": "退出登录",
+    "usernamePlaceholder": "请输入用户名",
     "error": {
       "requiredUsername": "请输入用户名",
       "usernameFormat": "用户名只能包含大小写英文字母",

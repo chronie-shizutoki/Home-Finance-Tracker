@@ -274,7 +274,6 @@
     "username": "Username",
     "loginOrRegister": "Login / Register",
     "logout": "Logout",
-    "goldStreamUsername": "Username",
     "usernamePlaceholder": "Enter your username",
     "error": {
       "requiredUsername": "Please enter username",
