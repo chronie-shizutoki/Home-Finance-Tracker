@@ -88,9 +88,7 @@ func (s *LogService) InitLogTable() error {
 		CREATE INDEX IF NOT EXISTS idx_logs_timestamp ON operation_logs(timestamp);
 	CREATE INDEX IF NOT EXISTS idx_logs_type ON operation_logs(type);
 	`
-	var err error
-	err = s.db.Exec(query).Error
-	if err != nil {
+	if err := s.db.Exec(query).Error; err != nil {
 		return fmt.Errorf("初始化日志表失败: %w", err)
 	}
 	return nil
@@ -237,7 +235,7 @@ func (s *LogService) GetLogs(params QueryLogParams) ([]map[string]interface{}, i
 	if err != nil {
 		return nil, 0, fmt.Errorf("查询日志失败: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	// 解析结果
 	logs, err := s.parseLogRows(rows)

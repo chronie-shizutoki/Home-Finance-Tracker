@@ -50,30 +50,30 @@ func (h *ExportHandler) ExportExcel(c *gin.Context) {
 	// 创建Excel文件
 	f := excelize.NewFile()
 	sheet := "Expenses"
-	f.SetSheetName("Sheet1", sheet)
+	_ = f.SetSheetName("Sheet1", sheet)
 
 	// 写入表头
-	f.SetCellValue(sheet, "A1", header["date"])
-	f.SetCellValue(sheet, "B1", header["type"])
-	f.SetCellValue(sheet, "C1", header["amount"])
-	f.SetCellValue(sheet, "D1", header["remark"])
+	_ = f.SetCellValue(sheet, "A1", header["date"])
+	_ = f.SetCellValue(sheet, "B1", header["type"])
+	_ = f.SetCellValue(sheet, "C1", header["amount"])
+	_ = f.SetCellValue(sheet, "D1", header["remark"])
 
 	// 写入数据
 	for i, expense := range expenses {
 		row := i + 2
-		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), expense.Date)
-		f.SetCellValue(sheet, fmt.Sprintf("B%d", row), expense.Type)
-		f.SetCellValue(sheet, fmt.Sprintf("C%d", row), expense.Amount)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("A%d", row), expense.Date)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("B%d", row), expense.Type)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("C%d", row), expense.Amount)
 		if expense.Remark != nil {
-			f.SetCellValue(sheet, fmt.Sprintf("D%d", row), *expense.Remark)
+			_ = f.SetCellValue(sheet, fmt.Sprintf("D%d", row), *expense.Remark)
 		}
 	}
 
 	// 设置列宽
-	f.SetColWidth(sheet, "A", "A", 12)
-	f.SetColWidth(sheet, "B", "B", 15)
-	f.SetColWidth(sheet, "C", "C", 10)
-	f.SetColWidth(sheet, "D", "D", 30)
+	_ = f.SetColWidth(sheet, "A", "A", 12)
+	_ = f.SetColWidth(sheet, "B", "B", 15)
+	_ = f.SetColWidth(sheet, "C", "C", 10)
+	_ = f.SetColWidth(sheet, "D", "D", 30)
 
 	// 生成文件名
 	timestamp := time.Now().Format("20060102150405")

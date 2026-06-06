@@ -99,40 +99,38 @@ jobs:
           CGO_ENABLED: 0
         run: |
           mkdir -p build
-          OUTPUT="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          BIN_NAME="server"
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            OUTPUT="${OUTPUT}.exe"
+            BIN_NAME="server.exe"
           fi
-          go build -ldflags="-s -w" -o "$OUTPUT" ./cmd/server/
+          go build -ldflags="-s -w" -o "build/${BIN_NAME}" ./cmd/server/
         working-directory: server-go
 
       - name: Package with frontend dist
         run: |
-          PKG_DIR="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
-          rm -rf "$PKG_DIR"
-          mkdir -p "$PKG_DIR/client/dist"
+          PKG="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          PKG_DIR="build/${PKG}"
+          mkdir -p "${PKG_DIR}/client/dist"
           # 复制二进制文件
-          BIN="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          BIN_NAME="server"
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            BIN="${BIN}.exe"
+            BIN_NAME="server.exe"
           fi
-          cp "$BIN" "$PKG_DIR/"
+          cp "build/${BIN_NAME}" "${PKG_DIR}/"
           # 复制前端dist
-          cp -r ../client/dist/* "$PKG_DIR/client/dist/"
-          # 复制配置文件模板
-          cp config.example.yaml "$PKG_DIR/" 2>/dev/null || true
+          cp -r ../client/dist/* "${PKG_DIR}/client/dist/"
         working-directory: server-go
 
       - name: Create archive
         run: |
           cd server-go/build
-          DIR="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          PKG="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            zip -r "$DIR.zip" "$DIR"
-            echo "ASSET=$DIR.zip" >> $GITHUB_ENV
+            zip -r "${PKG}.zip" "${PKG}"
+            echo "ASSET=${PKG}.zip" >> $GITHUB_ENV
           else
-            tar -czf "$DIR.tar.gz" "$DIR"
-            echo "ASSET=$DIR.tar.gz" >> $GITHUB_ENV
+            tar -czf "${PKG}.tar.gz" "${PKG}"
+            echo "ASSET=${PKG}.tar.gz" >> $GITHUB_ENV
           fi
 
       - name: Upload build artifact

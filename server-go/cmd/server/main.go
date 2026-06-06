@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("数据库初始化失败: %v", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	// 创建Repository实例
 	expenseRepo := repository.NewExpenseRepository(db.GetDB())
@@ -170,13 +170,6 @@ func main() {
 	}
 
 	log.Println("服务器已退出")
-}
-
-// 在main函数之后添加一些辅助函数和配置验证
-// validateConfig 验证服务器配置，目前直接返回 nil，可后续扩展
-func validateConfig() error {
-	// 这里可以添加配置验证逻辑
-	return nil
 }
 
 // SetupLogLevel 设置日志级别
