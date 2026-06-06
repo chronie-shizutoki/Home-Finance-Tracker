@@ -47,7 +47,13 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 
 	// 保存临时文件
 	tmpDir := filepath.Join(".", "uploads")
-	os.MkdirAll(tmpDir, 0755)
+	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "创建临时目录失败",
+		})
+		return
+	}
 	tmpPath := filepath.Join(tmpDir, fmt.Sprintf("import_%d_%s", time.Now().UnixMilli(), file.Filename))
 	if err := c.SaveUploadedFile(file, tmpPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -56,7 +62,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 		})
 		return
 	}
-	defer os.Remove(tmpPath)
+	defer func() { _ = os.Remove(tmpPath) }()
 
 	// 读取Excel文件
 	f, err := excelize.OpenFile(tmpPath)
@@ -97,7 +103,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 				record.Remark = &remark
 			case "金额", "Amount", "金額":
 				var amount float64
-				fmt.Sscanf(strings.Map(func(r rune) rune {
+				_, _ = fmt.Sscanf(strings.Map(func(r rune) rune {
 					if (r >= '0' && r <= '9') || r == '.' {
 						return r
 					}
