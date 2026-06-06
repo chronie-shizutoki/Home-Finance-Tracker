@@ -9,7 +9,7 @@ import (
 
 // SubscriptionPlan 订阅计划模型
 type SubscriptionPlan struct {
-	ID        string         `json:"id" gorm:"type:uuid;primaryKey"`
+	ID        string         `json:"id" gorm:"type:varchar(36);primaryKey"`
 	Name      string         `json:"name" gorm:"type:varchar(255);not null"`
 	Duration  int            `json:"duration" gorm:"type:integer;not null;comment:'订阅时长（天）'"`
 	Price     float64        `json:"price" gorm:"type:float;not null"`
@@ -39,9 +39,9 @@ func (s *SubscriptionPlan) BeforeCreate(tx *gorm.DB) error {
 
 // UserSubscription 用户订阅模型
 type UserSubscription struct {
-	ID         string         `json:"id" gorm:"type:uuid;primaryKey"`
-	MemberID   string         `json:"memberId" gorm:"type:uuid;not null;index"`
-	PlanID     string         `json:"planId" gorm:"type:uuid;not null"`
+	ID         string         `json:"id" gorm:"type:varchar(36);primaryKey"`
+	MemberID   string         `json:"memberId" gorm:"type:varchar(36);not null;index"`
+	PlanID     string         `json:"planId" gorm:"type:varchar(36);not null"`
 	StartDate  time.Time      `json:"startDate" gorm:"not null"`
 	EndDate    time.Time      `json:"endDate" gorm:"not null"`
 	IsActive   bool           `json:"isActive" gorm:"default:true"`

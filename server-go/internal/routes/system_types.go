@@ -208,7 +208,7 @@ func formatBytes(bytes uint64) string {
 func GetDefaultConfig() *ServerConfig {
 	return &ServerConfig{
 		Host:         "0.0.0.0",
-		Port:         "8080",
+		Port:         "3010",
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,

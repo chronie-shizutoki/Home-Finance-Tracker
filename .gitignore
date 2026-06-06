@@ -19,3 +19,4 @@ node_modules
 android/app/release/
 bin/
 server-go/server
+server-go/server.exe

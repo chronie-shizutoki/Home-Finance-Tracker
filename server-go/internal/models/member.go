@@ -9,13 +9,12 @@ import (
 
 // Member 会员模型 - 与JS版本完全一致
 type Member struct {
-	ID        string         `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
-	Username  string         `json:"username" gorm:"type:varchar(255);not null;uniqueIndex;comment:'用户名'"`
-	Avatar    *string        `json:"avatar,omitempty" gorm:"type:text;comment:'头像数据'"`
-	IsActive  bool           `json:"isActive" gorm:"default:false;comment:'是否激活'"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+	ID        string    `json:"id" gorm:"type:varchar(36);primaryKey"`
+	Username  string    `json:"username" gorm:"type:varchar(255);not null;uniqueIndex;comment:'用户名'"`
+	Avatar    *string   `json:"avatar,omitempty" gorm:"type:text;comment:'头像数据'"`
+	IsActive  bool      `json:"isActive" gorm:"column:isActive;default:false;comment:'是否激活'"`
+	CreatedAt time.Time `json:"createdAt" gorm:"column:createdAt"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt"`
 }
 
 // MemberResponse 会员响应结构 - 包含会员信息及订阅状态
