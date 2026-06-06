@@ -147,7 +147,7 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 		healthData := HealthCheckResponse{
 			Status:      "OK",
 			Timestamp:   time.Now().UTC().Format(time.RFC3339),
-			Version:     "3.0.0",
+			Version:     "2026.6",
 			Uptime:      fmt.Sprintf("%.2fs", time.Since(startTime).Seconds()),
 			Environment: *systemInfo,
 			Resources:   resourceInfo,

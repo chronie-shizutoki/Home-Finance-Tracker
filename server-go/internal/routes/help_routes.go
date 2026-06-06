@@ -12,7 +12,7 @@ func SetupHelpRoutes(router *gin.Engine) {
 	// 项目API帮助文档端点
 	router.GET("/api", func(c *gin.Context) {
 		apiHelp := gin.H{
-			"apiVersion": "3.0.0",
+			"apiVersion": "2026.6",
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 			"projectName": "Home Finance Tracker API (Go Version)",
 			"description": "家庭财务管理系统后端API文档 - Go语言实现",

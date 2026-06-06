@@ -172,6 +172,18 @@ func (r *ExpenseRepository) BatchCreate(expenses []models.Expense) error {
 	return nil
 }
 
+// FindByDates 根据日期列表查找记录 - 用于导入去重
+func (r *ExpenseRepository) FindByDates(dates []string) ([]models.Expense, error) {
+	if len(dates) == 0 {
+		return nil, nil
+	}
+	var expenses []models.Expense
+	if err := r.db.Where("date IN ? AND deletedAt IS NULL", dates).Find(&expenses).Error; err != nil {
+		return nil, err
+	}
+	return expenses, nil
+}
+
 // Update 更新消费记录
 func (r *ExpenseRepository) Update(expense *models.Expense) error {
 	if err := expense.Validate(); err != nil {

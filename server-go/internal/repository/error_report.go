@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"time"
 
 	"homemoney/internal/models"
 
@@ -73,6 +74,56 @@ func (r *ErrorReportRepository) FindWithPagination(params ErrorReportQueryParams
 // MarkAsProcessed 标记错误报告为已处理
 func (r *ErrorReportRepository) MarkAsProcessed(id string) error {
 	return r.db.Model(&models.ErrorReport{}).Where("id = ?", id).Update("is_processed", true).Error
+}
+
+// ErrorStats 错误统计信息
+type ErrorStats struct {
+	ByType       []ErrorTypeStat `json:"byType"`
+	ByStatus     []ErrorStatusStat `json:"byStatus"`
+	Last24Hours  int64            `json:"last24Hours"`
+}
+
+// ErrorTypeStat 错误类型统计
+type ErrorTypeStat struct {
+	ErrorType string `json:"errorType"`
+	Count     int64  `json:"count"`
+}
+
+// ErrorStatusStat 错误状态统计
+type ErrorStatusStat struct {
+	IsProcessed bool  `json:"isProcessed"`
+	Count       int64 `json:"count"`
+}
+
+// GetErrorStats 获取错误统计信息
+func (r *ErrorReportRepository) GetErrorStats() (*ErrorStats, error) {
+	stats := &ErrorStats{}
+
+	// 按错误类型统计
+	if err := r.db.Model(&models.ErrorReport{}).
+		Select("error_type, COUNT(id) as count").
+		Group("error_type").
+		Scan(&stats.ByType).Error; err != nil {
+		return nil, err
+	}
+
+	// 按处理状态统计
+	if err := r.db.Model(&models.ErrorReport{}).
+		Select("is_processed, COUNT(id) as count").
+		Group("is_processed").
+		Scan(&stats.ByStatus).Error; err != nil {
+		return nil, err
+	}
+
+	// 过去24小时的错误数量
+	last24Hours := time.Now().Add(-24 * time.Hour)
+	if err := r.db.Model(&models.ErrorReport{}).
+		Where("created_at >= ?", last24Hours).
+		Count(&stats.Last24Hours).Error; err != nil {
+		return nil, err
+	}
+
+	return stats, nil
 }
 
 // ErrorReportQueryParams 错误报告查询参数

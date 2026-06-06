@@ -25,8 +25,5 @@ func SetupJsonFileRoutes(router *gin.RouterGroup, jsonFileService *service.JsonF
 		
 		// DELETE /api/json-files/:filename - 删除指定JSON文件
 		jsonFileRoutes.DELETE("/:filename", jsonFileHandler.DeleteJsonFile)
-		
-		// GET /api/json-files/:filename/info - 获取文件信息
-		jsonFileRoutes.GET("/:filename/info", jsonFileHandler.GetFileInfo)
 	}
 }

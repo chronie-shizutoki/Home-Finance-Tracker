@@ -19,6 +19,9 @@ func SetupErrorReportRoutes(router *gin.Engine, errorReportRepo *repository.Erro
 		// 获取错误报告列表
 		api.GET("/errors", errorReportHandler.GetErrorReports)
 
+		// 获取错误统计信息
+		api.GET("/errors/stats", errorReportHandler.GetErrorStats)
+
 		// 标记错误报告为已处理
 		api.PUT("/errors/:reportId/process", errorReportHandler.ProcessErrorReport)
 	}
