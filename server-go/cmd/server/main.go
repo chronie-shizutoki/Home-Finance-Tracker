@@ -111,13 +111,16 @@ func main() {
 	routes.SetupJsonFileRoutes(router.Group("/api"), jsonFileService)
 	routes.SetupLogRoutes(router.Group("/api"), logService)
 
-	// 生产环境：提供前端静态文件服务
-	if os.Getenv("NODE_ENV") == "production" {
-		distPath := filepath.Join("..", "..", "client", "dist")
+	// 提供前端静态文件服务（当client/dist存在时自动启用）
+	distPath := filepath.Join("..", "client", "dist")
+	if _, err := os.Stat(filepath.Join(distPath, "index.html")); err == nil {
 		log.Printf("Serving static files from: %s", distPath)
-		router.Static("/", distPath)
-		router.StaticFile("/", filepath.Join(distPath, "index.html"))
-		// SPA fallback
+		router.Static("/assets", filepath.Join(distPath, "assets"))
+		router.StaticFile("/favicon.ico", filepath.Join(distPath, "favicon.ico"))
+		router.GET("/", func(c *gin.Context) {
+			c.File(filepath.Join(distPath, "index.html"))
+		})
+		// SPA fallback - 非API路径返回index.html
 		router.NoRoute(func(c *gin.Context) {
 			c.File(filepath.Join(distPath, "index.html"))
 		})

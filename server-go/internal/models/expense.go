@@ -18,8 +18,8 @@ type Expense struct {
 	Amount    float64 `json:"amount" gorm:"type:float;not null"`
 	Date      string  `json:"date" gorm:"type:varchar(10);not null;index"`
 	Version   int     `json:"version" gorm:"type:integer;not null;default:1"`
-	UpdatedAt int64   `json:"updatedAt" gorm:"type:bigint;not null"`
-	DeletedAt *int64  `json:"deletedAt,omitempty" gorm:"type:bigint"`
+	UpdatedAt int64   `json:"updatedAt" gorm:"column:updatedAt;type:bigint;not null"`
+	DeletedAt *int64  `json:"deletedAt,omitempty" gorm:"column:deletedAt;type:bigint"`
 }
 
 // BeforeCreate 创建前钩子 - 生成UUID
@@ -112,8 +112,8 @@ func (q *ExpenseQuery) Validate() error {
 	}
 
 	// 验证分页参数
-	if q.Limit < 1 || q.Limit > 100 {
-		return errors.New("limit参数必须在1-100之间")
+	if q.Limit < 1 {
+		return errors.New("limit参数不能小于1")
 	}
 	if q.Offset < 0 {
 		return errors.New("offset参数不能为负数")
@@ -181,7 +181,7 @@ func (q *ExpenseQuery) ToMonthRange() (string, string, error) {
 // ApplyToQuery 应用查询条件到GORM查询
 func (q *ExpenseQuery) ApplyToQuery(db *gorm.DB) *gorm.DB {
 	// 默认过滤已删除记录
-	db = db.Where("deleted_at IS NULL")
+	db = db.Where("deletedAt IS NULL")
 	if q.Keyword != "" {
 		keyword := "%" + q.Keyword + "%"
 		db = db.Where("(type LIKE ? OR remark LIKE ?)", keyword, keyword)

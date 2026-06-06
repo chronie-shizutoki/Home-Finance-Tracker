@@ -110,7 +110,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	}
 
 	// 批量创建（跳过重复）
-	created, _, err := h.expenseRepo.SyncExpenses(candidateRecords)
+	serverChanges, _, err := h.expenseRepo.SyncExpenses(nil, candidateRecords, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -121,10 +121,10 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": fmt.Sprintf("成功导入 %d 条记录。", created),
+		"message": fmt.Sprintf("成功导入 %d 条记录。", len(serverChanges)),
 		"stats": gin.H{
 			"total":    len(candidateRecords),
-			"imported": created,
+			"imported": len(serverChanges),
 		},
 	})
 }

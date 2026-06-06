@@ -22,16 +22,18 @@ func SetupMemberRoutes(router *gin.Engine, memberRepo *repository.MemberReposito
 	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService, planService)
 
 	// 创建会员相关的路由组 - 与JS版本完全一致
-	memberGroup := router.Group("/api/members")
+	// JS版本: app.use('/api/members', router) 其中 router.post('/members', ...)
+	// 所以完整路径为: POST /api/members/members
+	memberGroup := router.Group("/api/members/members")
 
-	// 对应JS版本: POST /api/members - 创建或获取会员
+	// 对应JS版本: POST /api/members/members - 创建或获取会员
 	memberGroup.POST("", memberHandler.GetOrCreateMember)
 
-	// 对应JS版本: GET /api/members/:username - 获取会员信息
-	memberGroup.GET(":username", memberHandler.GetMemberInfo)
+	// 对应JS版本: GET /api/members/members/:username - 获取会员信息
+	memberGroup.GET("/:username", memberHandler.GetMemberInfo)
 
-	// 对应JS版本: PUT /api/members/:username/avatar - 更新头像
-	memberGroup.PUT(":username/avatar", memberHandler.UpdateAvatar)
+	// 对应JS版本: PUT /api/members/members/:username/avatar - 更新头像
+	memberGroup.PUT("/:username/avatar", memberHandler.UpdateAvatar)
 
 	// 管理员功能路由
 	_ = router.Group("/api/admin")

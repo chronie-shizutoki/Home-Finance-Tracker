@@ -6,6 +6,7 @@ import (
 
 	"homemoney/internal/models"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -77,7 +78,7 @@ func (r *ExpenseRepository) FindWithPagination(query *models.ExpenseQuery) ([]mo
 // Delete 软删除消费记录（设置deletedAt）
 func (r *ExpenseRepository) Delete(id string) error {
 	now := time.Now().UnixMilli()
-	result := r.db.Model(&models.Expense{}).Where("id = ? AND deleted_at IS NULL", id).Update("deleted_at", now)
+	result := r.db.Model(&models.Expense{}).Where("id = ? AND deletedAt IS NULL", id).Update("deletedAt", now)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -136,7 +137,7 @@ func (r *ExpenseRepository) GetMeta() (*models.ExpenseMeta, error) {
 // Exists 检查记录是否存在（未删除的）
 func (r *ExpenseRepository) Exists(id string) (bool, error) {
 	var count int64
-	if err := r.db.Model(&models.Expense{}).Where("id = ? AND deleted_at IS NULL", id).Count(&count).Error; err != nil {
+	if err := r.db.Model(&models.Expense{}).Where("id = ? AND deletedAt IS NULL", id).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil
@@ -179,42 +180,98 @@ func (r *ExpenseRepository) Update(expense *models.Expense) error {
 	return r.db.Save(expense).Error
 }
 
-// SyncExpenses 同步消费记录（批量upsert）
-func (r *ExpenseRepository) SyncExpenses(expenses []models.Expense) (int, int, error) {
-	created := 0
-	updated := 0
+// SyncExpenses 同步消费记录 - 与JS版本完全一致
+func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.Expense, localIDs []string) ([]models.Expense, []gin.H, error) {
+	serverChanges := make([]models.Expense, 0)
+	conflicts := make([]gin.H, 0)
 
-	for _, expense := range expenses {
-		var existing models.Expense
-		err := r.db.Where("id = ?", expense.ID).First(&existing).Error
+	// 如果客户端提供了localIDs，返回客户端缺失的记录
+	if len(localIDs) > 0 {
+		// 获取所有服务器记录ID
+		var allServerRecords []models.Expense
+		if err := r.db.Model(&models.Expense{}).Select("id").Find(&allServerRecords).Error; err != nil {
+			return nil, nil, fmt.Errorf("获取服务器记录失败: %w", err)
+		}
+
+		allServerIDs := make(map[string]bool)
+		for _, r := range allServerRecords {
+			allServerIDs[r.ID] = true
+		}
+		localIDSet := make(map[string]bool)
+		for _, id := range localIDs {
+			localIDSet[id] = true
+		}
+
+		// 找出服务器有但客户端没有的记录
+		var missingIDs []string
+		for id := range allServerIDs {
+			if !localIDSet[id] {
+				missingIDs = append(missingIDs, id)
+			}
+		}
+
+		if len(missingIDs) > 0 {
+			if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
+				return nil, nil, fmt.Errorf("获取缺失记录失败: %w", err)
+			}
+		}
+	} else if lastSyncTime != nil && *lastSyncTime > 0 {
+		// 旧行为：返回lastSyncTime之后更新的记录
+		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
+			return nil, nil, fmt.Errorf("获取更新记录失败: %w", err)
+		}
+	}
+
+	// 处理客户端提交的变更
+	for _, change := range changes {
+		if change.DeletedAt != nil {
+			// 删除操作
+			var serverRecord models.Expense
+			err := r.db.Where("id = ?", change.ID).First(&serverRecord).Error
+			if err == nil {
+				r.db.Model(&serverRecord).Updates(map[string]interface{}{
+					"deletedAt": *change.DeletedAt,
+					"updatedAt": change.UpdatedAt,
+				})
+			}
+			continue
+		}
+
+		var serverRecord models.Expense
+		err := r.db.Where("id = ?", change.ID).First(&serverRecord).Error
 		if err == gorm.ErrRecordNotFound {
 			// 创建新记录
-			if createErr := r.Create(&expense); createErr != nil {
-				return created, updated, fmt.Errorf("创建记录失败: %w", createErr)
+			if createErr := r.Create(&change); createErr != nil {
+				fmt.Printf("Error processing change: %s, %v\n", change.ID, createErr)
 			}
-			created++
 		} else if err != nil {
-			return created, updated, err
+			fmt.Printf("Error processing change: %s, %v\n", change.ID, err)
 		} else {
-			// 检查版本号，只有客户端版本更新时才更新
-			if expense.UpdatedAt > existing.UpdatedAt {
-				expense.Version = existing.Version + 1
-				if updateErr := r.db.Model(&existing).Updates(map[string]interface{}{
-					"type":       expense.Type,
-					"remark":     expense.Remark,
-					"amount":     expense.Amount,
-					"date":       expense.Date,
-					"version":    expense.Version,
-					"updated_at": expense.UpdatedAt,
-				}).Error; updateErr != nil {
-					return created, updated, fmt.Errorf("更新记录失败: %w", updateErr)
-				}
-				updated++
+			if change.UpdatedAt > serverRecord.UpdatedAt {
+				// 客户端版本更新，更新服务器
+				r.db.Model(&serverRecord).Updates(map[string]interface{}{
+					"type":      change.Type,
+					"remark":    change.Remark,
+					"amount":    change.Amount,
+					"date":      change.Date,
+					"version":   change.Version,
+					"updatedAt": change.UpdatedAt,
+				})
+			} else if change.UpdatedAt < serverRecord.UpdatedAt {
+				// 冲突
+				conflicts = append(conflicts, gin.H{
+					"id":              change.ID,
+					"clientVersion":   change.Version,
+					"serverVersion":   serverRecord.Version,
+					"clientUpdatedAt": change.UpdatedAt,
+					"serverUpdatedAt": serverRecord.UpdatedAt,
+					"serverData":      serverRecord,
+				})
 			}
 		}
 	}
 
-	return created, updated, nil
+	return serverChanges, conflicts, nil
 }
 
 // GetExpensesByDate 按日期分组获取消费记录
@@ -246,7 +303,7 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) (map[s
 // FindAll 获取所有消费记录（用于迁移测试）
 func (r *ExpenseRepository) FindAll() ([]models.Expense, error) {
 	var expenses []models.Expense
-	if err := r.db.Where("deleted_at IS NULL").Order("date DESC").Find(&expenses).Error; err != nil {
+	if err := r.db.Where("deletedAt IS NULL").Order("date DESC").Find(&expenses).Error; err != nil {
 		return nil, err
 	}
 	return expenses, nil

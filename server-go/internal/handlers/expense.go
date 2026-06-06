@@ -250,24 +250,41 @@ func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 	})
 }
 
-// SyncExpenses 同步消费记录
+// SyncExpenses 同步消费记录 - 与JS版本完全一致
 func (h *ExpenseHandler) SyncExpenses(c *gin.Context) {
-	var expenses []models.Expense
-	if err := c.ShouldBindJSON(&expenses); err != nil {
-		utils.ErrorResponseWithStatus(c, "请求参数错误", err.Error(), http.StatusBadRequest)
+	var syncRequest struct {
+		LastSyncTime *int64            `json:"lastSyncTime"`
+		Changes      []models.Expense  `json:"changes"`
+		LocalIDs     []string          `json:"localIds"`
+	}
+	if err := c.ShouldBindJSON(&syncRequest); err != nil {
+		// 接受空请求体，返回空结果
+		c.JSON(http.StatusOK, gin.H{
+			"serverChanges": []models.Expense{},
+			"conflicts":     []gin.H{},
+			"syncTime":      time.Now().UnixMilli(),
+		})
 		return
 	}
 
-	created, updated, err := h.expenseRepo.SyncExpenses(expenses)
+	serverChanges, conflicts, err := h.expenseRepo.SyncExpenses(syncRequest.LastSyncTime, syncRequest.Changes, syncRequest.LocalIDs)
 	if err != nil {
 		utils.ErrorResponseWithStatus(c, "同步失败", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// 确保返回空数组而非null
+	if serverChanges == nil {
+		serverChanges = []models.Expense{}
+	}
+	if conflicts == nil {
+		conflicts = []gin.H{}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"created": created,
-		"updated": updated,
+		"serverChanges": serverChanges,
+		"conflicts":     conflicts,
+		"syncTime":      time.Now().UnixMilli(),
 	})
 }
 
