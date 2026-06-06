@@ -34,12 +34,6 @@ const router = createRouter({
       component: MembershipView
     },
     {
-      path: '/photo.html',
-      name: 'photo',
-      meta: { title: 'photo.title' },
-      component: () => import('@/../photo.html')
-    },
-    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView
