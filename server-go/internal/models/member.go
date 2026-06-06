@@ -17,16 +17,6 @@ type Member struct {
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt"`
 }
 
-// MemberResponse 会员响应结构 - 包含会员信息及订阅状态
-type MemberResponse struct {
-	ID                string           `json:"id"`
-	Username          string           `json:"username"`
-	IsActive          bool             `json:"isActive"`
-	CreatedAt         *time.Time       `json:"createdAt,omitempty"`
-	UpdatedAt         *time.Time       `json:"updatedAt,omitempty"`
-	CurrentSubscription *UserSubscription `json:"currentSubscription,omitempty"`
-}
-
 // TableName 指定表名
 func (Member) TableName() string {
 	return "Members"

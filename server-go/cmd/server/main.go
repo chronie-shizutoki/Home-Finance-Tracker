@@ -43,8 +43,6 @@ func main() {
 
 	// 创建会员相关的Repository实例
 	memberRepo := repository.NewMemberRepository(db.GetDB())
-	planRepo := repository.NewSubscriptionPlanRepository(db.GetDB())
-	subscriptionRepo := repository.NewUserSubscriptionRepository(db.GetDB())
 
 	// 设置Gin模式
 	if os.Getenv("GIN_MODE") == "release" {
@@ -92,7 +90,7 @@ func main() {
 	routes.SetupExpenseRoutes(router, expenseRepo)
 
 	// 设置会员相关的API路由 - 对应JS版本的memberRoutes
-	routes.SetupMemberRoutes(router, memberRepo, planRepo, subscriptionRepo)
+	routes.SetupMemberRoutes(router, memberRepo)
 
 	// 设置错误报告路由
 	errorReportRepo := repository.NewErrorReportRepository(db.GetDB())

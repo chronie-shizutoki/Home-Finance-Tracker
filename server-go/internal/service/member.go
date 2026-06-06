@@ -9,15 +9,13 @@ import (
 
 // MemberService 会员服务
 type MemberService struct {
-	memberRepo       *repository.MemberRepository
-	subscriptionRepo *repository.UserSubscriptionRepository
+	memberRepo *repository.MemberRepository
 }
 
 // NewMemberService 创建新的会员服务
-func NewMemberService(memberRepo *repository.MemberRepository, subscriptionRepo *repository.UserSubscriptionRepository) *MemberService {
+func NewMemberService(memberRepo *repository.MemberRepository) *MemberService {
 	return &MemberService{
-		memberRepo:       memberRepo,
-		subscriptionRepo: subscriptionRepo,
+		memberRepo: memberRepo,
 	}
 }
 
