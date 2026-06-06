@@ -1,0 +1,226 @@
+name: Go Build & Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server-go/**'
+      - 'client/**'
+      - '.github/workflows/go-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server-go/**'
+      - 'client/**'
+      - '.github/workflows/go-build.yml'
+  workflow_dispatch:
+
+jobs:
+  # ========== 前端构建 ==========
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.16.0'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: client
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: client
+
+      - name: Upload frontend dist artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: frontend-dist
+          path: client/dist/
+          retention-days: 1
+
+  # ========== Go 多平台构建 ==========
+  build-go:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - goos: linux
+            goarch: amd64
+            artifact: linux-amd64
+          - goos: linux
+            goarch: arm64
+            artifact: linux-arm64
+          # Windows
+          - goos: windows
+            goarch: amd64
+            artifact: windows-amd64
+          - goos: windows
+            goarch: arm64
+            artifact: windows-arm64
+          # macOS
+          - goos: darwin
+            goarch: amd64
+            artifact: darwin-amd64
+          - goos: darwin
+            goarch: arm64
+            artifact: darwin-arm64
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+          check-latest: true
+
+      - name: Download frontend dist
+        uses: actions/download-artifact@v5
+        with:
+          name: frontend-dist
+          path: client/dist/
+
+      - name: Go mod tidy
+        run: go mod tidy
+        working-directory: server-go
+
+      - name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p build
+          OUTPUT="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            OUTPUT="${OUTPUT}.exe"
+          fi
+          go build -ldflags="-s -w" -o "$OUTPUT" ./cmd/server/
+        working-directory: server-go
+
+      - name: Package with frontend dist
+        run: |
+          PKG_DIR="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          rm -rf "$PKG_DIR"
+          mkdir -p "$PKG_DIR/client/dist"
+          # 复制二进制文件
+          BIN="build/home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            BIN="${BIN}.exe"
+          fi
+          cp "$BIN" "$PKG_DIR/"
+          # 复制前端dist
+          cp -r ../client/dist/* "$PKG_DIR/client/dist/"
+          # 复制配置文件模板
+          cp config.example.yaml "$PKG_DIR/" 2>/dev/null || true
+        working-directory: server-go
+
+      - name: Create archive
+        run: |
+          cd server-go/build
+          DIR="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip -r "$DIR.zip" "$DIR"
+            echo "ASSET=$DIR.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$DIR.tar.gz" "$DIR"
+            echo "ASSET=$DIR.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: home-finance-tracker-${{ matrix.artifact }}
+          path: server-go/build/${{ env.ASSET }}
+          retention-days: 7
+
+  # ========== Go 测试 ==========
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+          check-latest: true
+
+      - name: Run tests
+        run: go test ./... -v -cover
+        working-directory: server-go
+
+  # ========== Go 代码检查 ==========
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+          check-latest: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: latest
+          working-directory: server-go
+          args: --timeout=5m
+
+  # ========== 发布（仅push到main时触发）==========
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build-go, test, lint]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts/
+          pattern: home-finance-tracker-*
+          merge-multiple: false
+
+      - name: Generate checksums
+        run: |
+          find artifacts/ -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec sha256sum {} \; > checksums.txt
+
+      - name: Create/Update Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: "Go Server Build ${{ github.run_number }}"
+          tag_name: "go-build-${{ github.run_number }}"
+          body: |
+            ## Go Server 自动构建
+
+            - **Commit**: ${{ github.sha }}
+            - **Branch**: ${{ github.ref_name }}
+
+            ### 构建产物
+            | 平台 | 架构 |
+            |------|------|
+            | Linux | amd64, arm64 |
+            | Windows | amd64, arm64 |
+            | macOS | amd64, arm64 |
+
+            每个包内包含 Go 服务器二进制文件 + 前端 `client/dist/` 静态文件。
+          files: |
+            artifacts/home-finance-tracker-*/*
+            checksums.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
