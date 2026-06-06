@@ -286,30 +286,134 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 	return serverChanges, conflicts, nil
 }
 
-// GetExpensesByDate 按日期分组获取消费记录
-func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) (map[string][]models.Expense, int64, error) {
-	var expenses []models.Expense
+// GetExpensesByDate 按日期分组获取消费记录 - 与JS版本getExpensesByDate完全一致
+// 返回格式: [{date, count, totalAmount, expenses}, ...]
+// 实现智能分页：确保同一个日期组的记录不会被拆分到不同页
+func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]models.DateGroup, int64, *models.ExpenseMeta, error) {
+	var allExpenses []models.Expense
 	var total int64
 
 	baseQuery := r.db.Model(&models.Expense{})
 	query.ApplyToQuery(baseQuery)
 
+	// 计算总数
 	if err := baseQuery.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, nil, err
 	}
 
+	// 应用排序获取所有符合条件的数据
 	query.ApplySort(baseQuery)
-	if err := baseQuery.Find(&expenses).Error; err != nil {
-		return nil, 0, err
+	if err := baseQuery.Find(&allExpenses).Error; err != nil {
+		return nil, 0, nil, err
 	}
 
 	// 按日期分组
-	grouped := make(map[string][]models.Expense)
-	for _, e := range expenses {
-		grouped[e.Date] = append(grouped[e.Date], e)
+	groupedMap := make(map[string][]models.Expense)
+	var dateOrder []string
+	for _, e := range allExpenses {
+		if _, exists := groupedMap[e.Date]; !exists {
+			dateOrder = append(dateOrder, e.Date)
+		}
+		groupedMap[e.Date] = append(groupedMap[e.Date], e)
 	}
 
-	return grouped, total, nil
+	// 为每个日期组添加统计信息，与JS版本格式一致
+	dateGroups := make([]models.DateGroup, 0, len(groupedMap))
+	for _, date := range dateOrder {
+		expenses := groupedMap[date]
+		var totalAmount float64
+		for _, exp := range expenses {
+			totalAmount += exp.Amount
+		}
+		dateGroups = append(dateGroups, models.DateGroup{
+			Date:        date,
+			Count:       len(expenses),
+			TotalAmount: totalAmount,
+			Expenses:    expenses,
+		})
+	}
+
+	// 根据排序类型对日期组进行排序 - 与JS版本一致
+	isAmountSort := query.Sort == "amountAsc" || query.Sort == "amountDesc"
+	if isAmountSort {
+		// 按金额排序时，日期组按组内第一条记录的金额排序
+		for i := 0; i < len(dateGroups); i++ {
+			for j := i + 1; j < len(dateGroups); j++ {
+				amountA := dateGroups[i].Expenses[0].Amount
+				amountB := dateGroups[j].Expenses[0].Amount
+				if query.Sort == "amountDesc" {
+					if amountA < amountB {
+						dateGroups[i], dateGroups[j] = dateGroups[j], dateGroups[i]
+					}
+				} else {
+					if amountA > amountB {
+						dateGroups[i], dateGroups[j] = dateGroups[j], dateGroups[i]
+					}
+				}
+			}
+		}
+	} else {
+		// 按日期排序
+		for i := 0; i < len(dateGroups); i++ {
+			for j := i + 1; j < len(dateGroups); j++ {
+				if query.Sort == "dateDesc" {
+					if dateGroups[i].Date < dateGroups[j].Date {
+						dateGroups[i], dateGroups[j] = dateGroups[j], dateGroups[i]
+					}
+				} else {
+					if dateGroups[i].Date > dateGroups[j].Date {
+						dateGroups[i], dateGroups[j] = dateGroups[j], dateGroups[i]
+					}
+				}
+			}
+		}
+	}
+
+	// 智能分页：确保同一个日期组的记录不会被拆分到不同页
+	// 按日期组进行分页
+	pageSize := query.Limit
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	var pages [][]models.DateGroup
+	var currentPageData []models.DateGroup
+	var currentRecordCount int
+
+	for _, group := range dateGroups {
+		groupRecordCount := group.Count
+		// 如果当前页为空，或者添加这个组不会超过太多记录限制，则添加到当前页
+		if currentRecordCount == 0 || currentRecordCount+groupRecordCount <= int(float64(pageSize)*1.5) {
+			currentPageData = append(currentPageData, group)
+			currentRecordCount += groupRecordCount
+		} else {
+			// 开始新的一页
+			pages = append(pages, currentPageData)
+			currentPageData = []models.DateGroup{group}
+			currentRecordCount = groupRecordCount
+		}
+	}
+	// 添加最后一页
+	if len(currentPageData) > 0 {
+		pages = append(pages, currentPageData)
+	}
+
+	// 获取请求的页码数据
+	pageNum := 1
+	if query.Limit > 0 {
+		pageNum = query.Offset/query.Limit + 1
+	}
+	var pagedData []models.DateGroup
+	if pageNum > 0 && pageNum <= len(pages) {
+		pagedData = pages[pageNum-1]
+	}
+
+	// 获取元数据
+	meta, err := r.GetMeta()
+	if err != nil {
+		meta = &models.ExpenseMeta{}
+	}
+
+	return pagedData, total, meta, nil
 }
 
 // FindAll 获取所有消费记录（用于迁移测试）

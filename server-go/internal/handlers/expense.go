@@ -227,7 +227,7 @@ func (h *ExpenseHandler) HardDeleteExpense(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// GetExpensesByDate 按日期分组获取消费记录
+// GetExpensesByDate 按日期分组获取消费记录 - 与JS版本完全一致
 func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 	query, err := h.parseExpenseQuery(c)
 	if err != nil {
@@ -235,7 +235,7 @@ func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 		return
 	}
 
-	grouped, total, err := h.expenseRepo.GetExpensesByDate(query)
+	grouped, total, meta, err := h.expenseRepo.GetExpensesByDate(query)
 	if err != nil {
 		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
 		return
@@ -247,6 +247,7 @@ func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 		"total": total,
 		"page":  page,
 		"limit": query.Limit,
+		"meta":  meta,
 	})
 }
 
