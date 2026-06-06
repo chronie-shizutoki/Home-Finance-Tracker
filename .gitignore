@@ -18,3 +18,4 @@ server/.env
 server/data/expenses.db
 server/data/donation_records.json
 node_modules
+android/app/release/
