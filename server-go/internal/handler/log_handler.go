@@ -34,7 +34,9 @@ func (h *LogHandler) ReceiveLog(c *gin.Context) {
 	// 绑定请求体
 	if err := c.ShouldBindJSON(&logData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "请求体格式错误",
+			"success": false,
+			"message": "请求体不能为空",
+			"errors":  nil,
 		})
 		return
 	}
@@ -42,7 +44,9 @@ func (h *LogHandler) ReceiveLog(c *gin.Context) {
 	// 验证必要字段
 	if logData.Timestamp == "" || logData.Type == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "参数错误",
+			"success": false,
+			"message": "参数错误",
+			"errors":  nil,
 		})
 		return
 	}
@@ -50,10 +54,13 @@ func (h *LogHandler) ReceiveLog(c *gin.Context) {
 	// 异步处理日志，不阻塞响应
 	h.logService.HandleLog(c, logData)
 
-	// 立即返回成功响应
+	// 立即返回成功响应 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "日志接收成功",
+		"message": "操作成功",
+		"data": gin.H{
+			"message": "日志接收成功",
+		},
 	})
 }
 
@@ -76,7 +83,9 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 	// 绑定查询参数
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "查询参数错误",
+			"success": false,
+			"message": "查询参数错误",
+			"errors":  nil,
 		})
 		return
 	}
@@ -93,7 +102,9 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 	logs, total, err := h.logService.GetLogs(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "服务器内部错误",
+			"success": false,
+			"message": "服务器内部错误",
+			"errors":  nil,
 		})
 		return
 	}
@@ -102,17 +113,17 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 	page := params.Offset/params.Limit + 1
 	totalPages := (total + params.Limit - 1) / params.Limit
 
-	// 返回结果
+	// 返回结果 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "获取日志列表成功",
-		"data": gin.H{
+		"message": gin.H{
 			"logs":       logs,
 			"total":      total,
 			"page":       page,
 			"pageSize":   params.Limit,
 			"totalPages": totalPages,
 		},
+		"data": "获取日志列表成功",
 	})
 }
 
@@ -131,7 +142,9 @@ func (h *LogHandler) GetLogStats(c *gin.Context) {
 	// 绑定查询参数
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "查询参数错误",
+			"success": false,
+			"message": "查询参数错误",
+			"errors":  nil,
 		})
 		return
 	}
@@ -140,16 +153,22 @@ func (h *LogHandler) GetLogStats(c *gin.Context) {
 	stats, err := h.logService.GetLogStats(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "获取日志统计失败",
+			"success": false,
+			"message": "获取日志统计失败",
+			"errors":  err,
 		})
 		return
 	}
 
-	// 返回结果
+	// 返回结果 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "获取日志统计成功",
-		"data":    stats,
+		"message": gin.H{
+			"total":     stats.Total,
+			"typeStats": stats.TypeStats,
+			"period":    stats.Period,
+		},
+		"data": "获取日志统计成功",
 	})
 }
 
@@ -167,7 +186,9 @@ func (h *LogHandler) CleanLogs(c *gin.Context) {
 	days, err := strconv.Atoi(daysStr)
 	if err != nil || days < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "清理日志参数错误",
+			"success": false,
+			"message": "清理日志参数错误",
+			"errors":  nil,
 		})
 		return
 	}
@@ -176,19 +197,21 @@ func (h *LogHandler) CleanLogs(c *gin.Context) {
 	deletedCount, err := h.logService.CleanLogs(days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "清理日志失败",
+			"success": false,
+			"message": "清理日志失败",
+			"errors":  err,
 		})
 		return
 	}
 
-	// 返回结果
+	// 返回结果 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "清理日志成功",
-		"data": gin.H{
+		"message": gin.H{
 			"message":      "成功清理" + strconv.FormatInt(deletedCount, 10) + "条过期日志",
 			"deletedCount": deletedCount,
 			"keptDays":     days,
 		},
+		"data": "清理日志成功",
 	})
 }

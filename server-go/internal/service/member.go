@@ -29,8 +29,8 @@ func (s *MemberService) GetOrCreateMember(username string) (*models.Member, erro
 	return s.memberRepo.GetOrCreate(username)
 }
 
-// GetMemberInfo 获取会员信息
-func (s *MemberService) GetMemberInfo(username string) (*models.MemberResponse, error) {
+// GetMemberInfo 获取会员信息 - 与JS版本完全一致（不包含订阅信息）
+func (s *MemberService) GetMemberInfo(username string) (*models.Member, error) {
 	member, err := s.memberRepo.GetMemberInfo(username)
 	if err != nil {
 		return nil, err
@@ -39,24 +39,7 @@ func (s *MemberService) GetMemberInfo(username string) (*models.MemberResponse, 
 		return nil, fmt.Errorf("会员不存在")
 	}
 
-	// 构建响应
-	currentSubscription, _ := s.subscriptionRepo.FindActiveByMemberID(member.ID)
-	response := &models.MemberResponse{
-		ID:                  member.ID,
-		Username:            member.Username,
-		IsActive:            member.IsActive,
-		CurrentSubscription: currentSubscription,
-	}
-
-	// 添加时间字段（如果需要）
-	if !member.CreatedAt.IsZero() {
-		response.CreatedAt = &member.CreatedAt
-	}
-	if !member.UpdatedAt.IsZero() {
-		response.UpdatedAt = &member.UpdatedAt
-	}
-
-	return response, nil
+	return member, nil
 }
 
 // UpdateAvatar 更新会员头像

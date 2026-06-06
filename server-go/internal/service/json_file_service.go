@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // JsonFileService JSON文件操作服务
@@ -116,32 +115,6 @@ func (s *JsonFileService) DeleteJsonFile(filename string) error {
 	}
 	
 	return nil
-}
-
-// GetFileInfo 获取文件信息
-func (s *JsonFileService) GetFileInfo(filename string) (map[string]interface{}, error) {
-	// 确保文件名格式正确
-	filename = sanitizeFilename(filename)
-	filePath := filepath.Join(s.storageDir, filename+".json")
-	
-	// 获取文件信息
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("文件不存在")
-		}
-		return nil, fmt.Errorf("获取文件信息失败: %w", err)
-	}
-	
-	// 构建文件信息响应
-	info := map[string]interface{}{
-		"filename":    filename,
-		"size":        fileInfo.Size(),
-		"modified_at": fileInfo.ModTime().Format(time.RFC3339),
-		"created_at":  fileInfo.ModTime().Format(time.RFC3339), // 在Go中，我们使用ModTime作为创建时间的近似值
-	}
-	
-	return info, nil
 }
 
 // sanitizeFilename 清理文件名，防止路径遍历攻击

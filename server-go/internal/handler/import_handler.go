@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"homemoney/internal/models"
@@ -22,6 +23,15 @@ type ImportHandler struct {
 // NewImportHandler 创建新的导入处理器
 func NewImportHandler(expenseRepo *repository.ExpenseRepository) *ImportHandler {
 	return &ImportHandler{expenseRepo: expenseRepo}
+}
+
+// getRecordKey 生成记录的唯一键 - 与JS版本完全一致
+func getRecordKey(record models.Expense) string {
+	remark := ""
+	if record.Remark != nil {
+		remark = strings.TrimSpace(*record.Remark)
+	}
+	return fmt.Sprintf("%s_%s_%.0f_%s", record.Date, record.Type, record.Amount, remark)
 }
 
 // ImportExcel 导入Excel文件 - 对应JS版本的 POST /api/import/excel
@@ -87,7 +97,12 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 				record.Remark = &remark
 			case "金额", "Amount", "金額":
 				var amount float64
-				fmt.Sscanf(cell, "%f", &amount)
+				fmt.Sscanf(strings.Map(func(r rune) rune {
+					if (r >= '0' && r <= '9') || r == '.' {
+						return r
+					}
+					return -1
+				}, cell), "%f", &amount)
 				record.Amount = amount
 			case "日期", "Date":
 				record.Date = cell
@@ -109,9 +124,64 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 		return
 	}
 
-	// 批量创建（跳过重复）
-	serverChanges, _, err := h.expenseRepo.SyncExpenses(nil, candidateRecords, nil)
-	if err != nil {
+	// 步骤1: 去重Excel文件内部的重复记录 - 与JS版本完全一致
+	uniqueRecordsMap := make(map[string]models.Expense)
+	for _, record := range candidateRecords {
+		key := getRecordKey(record)
+		if _, exists := uniqueRecordsMap[key]; !exists {
+			uniqueRecordsMap[key] = record
+		}
+	}
+	var uniqueInFile []models.Expense
+	for _, record := range uniqueRecordsMap {
+		uniqueInFile = append(uniqueInFile, record)
+	}
+	fileInternalDuplicates := len(candidateRecords) - len(uniqueInFile)
+
+	// 步骤2: 查询数据库中的现有记录，检查是否重复
+	existingKeys := make(map[string]bool)
+	if len(uniqueInFile) > 0 {
+		uniqueDates := make(map[string]bool)
+		var dates []string
+		for _, r := range uniqueInFile {
+			if !uniqueDates[r.Date] {
+				uniqueDates[r.Date] = true
+				dates = append(dates, r.Date)
+			}
+		}
+		existingRecords, err := h.expenseRepo.FindByDates(dates)
+		if err == nil {
+			for _, record := range existingRecords {
+				existingKeys[getRecordKey(record)] = true
+			}
+		}
+	}
+
+	// 步骤3: 过滤出真正要导入的新记录
+	var recordsToImport []models.Expense
+	for _, record := range uniqueInFile {
+		if !existingKeys[getRecordKey(record)] {
+			recordsToImport = append(recordsToImport, record)
+		}
+	}
+	duplicatesWithDatabase := len(uniqueInFile) - len(recordsToImport)
+
+	if len(recordsToImport) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "所有记录都已存在，没有新数据导入。",
+			"stats": gin.H{
+				"total":           len(candidateRecords),
+				"skippedInternal": fileInternalDuplicates,
+				"skippedExisting": duplicatesWithDatabase,
+				"imported":        0,
+			},
+		})
+		return
+	}
+
+	// 批量创建
+	if err := h.expenseRepo.BatchCreate(recordsToImport); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"message": "数据库插入失败。",
@@ -119,12 +189,26 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 		return
 	}
 
+	message := fmt.Sprintf("成功导入 %d 条记录。", len(recordsToImport))
+	if fileInternalDuplicates > 0 || duplicatesWithDatabase > 0 {
+		var skipDetails []string
+		if fileInternalDuplicates > 0 {
+			skipDetails = append(skipDetails, fmt.Sprintf("%d 条文件内重复", fileInternalDuplicates))
+		}
+		if duplicatesWithDatabase > 0 {
+			skipDetails = append(skipDetails, fmt.Sprintf("%d 条已存在", duplicatesWithDatabase))
+		}
+		message += fmt.Sprintf(" (跳过: %s)", strings.Join(skipDetails, ", "))
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": fmt.Sprintf("成功导入 %d 条记录。", len(serverChanges)),
+		"message": message,
 		"stats": gin.H{
-			"total":    len(candidateRecords),
-			"imported": len(serverChanges),
+			"total":           len(candidateRecords),
+			"skippedInternal": fileInternalDuplicates,
+			"skippedExisting": duplicatesWithDatabase,
+			"imported":        len(recordsToImport),
 		},
 	})
 }

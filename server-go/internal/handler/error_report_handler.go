@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"homemoney/internal/models"
@@ -41,14 +42,32 @@ func (h *ErrorReportHandler) ReportError(c *gin.Context) {
 		return
 	}
 
+	// 处理设备信息 - 与JS版本一致：合并additionalInfo到deviceInfo
+	var deviceInfoStr *string
+	if request.DeviceInfo != nil || request.AdditionalInfo != nil {
+		deviceInfo := make(map[string]interface{})
+		if request.DeviceInfo != nil {
+			deviceInfo = request.DeviceInfo
+		}
+		if request.AdditionalInfo != nil {
+			deviceInfo["additionalInfo"] = request.AdditionalInfo
+		}
+		// 序列化为JSON字符串存储
+		if jsonBytes, err := json.Marshal(deviceInfo); err == nil {
+			jsonStr := string(jsonBytes)
+			deviceInfoStr = &jsonStr
+		}
+	}
+
 	report := &models.ErrorReport{
-		ErrorType:   request.ErrorType,
-		Message:     request.Message,
-		StackTrace:  request.StackTrace,
-		AppVersion:  request.AppVersion,
-		AppBuild:    request.AppBuild,
+		ErrorType:  request.ErrorType,
+		Message:    request.Message,
+		StackTrace: request.StackTrace,
+		DeviceInfo: deviceInfoStr,
+		AppVersion: request.AppVersion,
+		AppBuild:   request.AppBuild,
 		Environment: request.Environment,
-		MemberID:    request.MemberID,
+		MemberID:   request.MemberID,
 		IsProcessed: false,
 	}
 
@@ -144,5 +163,22 @@ func (h *ErrorReportHandler) ProcessErrorReport(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "错误报告已标记为处理",
+	})
+}
+
+// GetErrorStats 获取错误统计信息 - 对应JS版本的 GET /api/errors/stats
+func (h *ErrorReportHandler) GetErrorStats(c *gin.Context) {
+	stats, err := h.errorReportRepo.GetErrorStats()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "获取错误统计信息时发生错误",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    stats,
 	})
 }
