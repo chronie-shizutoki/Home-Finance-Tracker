@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -115,11 +116,21 @@ func main() {
 		log.Printf("Serving static files from: %s", distPath)
 		router.Static("/assets", filepath.Join(distPath, "assets"))
 		router.StaticFile("/favicon.ico", filepath.Join(distPath, "favicon.ico"))
+		router.StaticFile("/photo.html", filepath.Join(distPath, "photo.html"))
 		router.GET("/", func(c *gin.Context) {
 			c.File(filepath.Join(distPath, "index.html"))
 		})
-		// SPA fallback - 非API路径返回index.html
+		// SPA fallback - 只对页面路由返回index.html，静态资源请求返回404
+		// 避免JS/CSS等静态资源请求被错误返回index.html导致MIME类型错误
 		router.NoRoute(func(c *gin.Context) {
+			path := c.Request.URL.Path
+			// API路径返回404（API路由应已注册）
+			// 带扩展名的静态资源请求（.js/.css/.png等）返回404而非index.html
+			if strings.HasPrefix(path, "/api/") || isStaticAsset(path) {
+				c.Status(http.StatusNotFound)
+				return
+			}
+			// 页面路由返回index.html实现SPA
 			c.File(filepath.Join(distPath, "index.html"))
 		})
 	}
@@ -178,4 +189,22 @@ func SetupLogLevel(level string) {
 	default:
 		gin.SetMode(gin.TestMode)
 	}
+}
+
+// isStaticAsset 判断请求路径是否为静态资源请求
+// 静态资源通常带有文件扩展名（.js/.css/.png/.woff2等）
+func isStaticAsset(path string) bool {
+	// 已知的静态资源扩展名
+	staticExtensions := []string{
+		".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg",
+		".ico", ".woff", ".woff2", ".ttf", ".eot",
+		".json", ".xml", ".txt", ".map",
+	}
+	lowerPath := strings.ToLower(path)
+	for _, ext := range staticExtensions {
+		if strings.HasSuffix(lowerPath, ext) {
+			return true
+		}
+	}
+	return false
 }
