@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"homemoney/internal/models"
@@ -43,31 +42,28 @@ func (h *ErrorReportHandler) ReportError(c *gin.Context) {
 	}
 
 	// 处理设备信息 - 与JS版本一致：合并additionalInfo到deviceInfo
-	var deviceInfoStr *string
+	var deviceInfo models.JSONMap
 	if request.DeviceInfo != nil || request.AdditionalInfo != nil {
-		deviceInfo := make(map[string]interface{})
+		deviceInfo = make(models.JSONMap)
 		if request.DeviceInfo != nil {
-			deviceInfo = request.DeviceInfo
+			for k, v := range request.DeviceInfo {
+				deviceInfo[k] = v
+			}
 		}
 		if request.AdditionalInfo != nil {
 			deviceInfo["additionalInfo"] = request.AdditionalInfo
 		}
-		// 序列化为JSON字符串存储
-		if jsonBytes, err := json.Marshal(deviceInfo); err == nil {
-			jsonStr := string(jsonBytes)
-			deviceInfoStr = &jsonStr
-		}
 	}
 
 	report := &models.ErrorReport{
-		ErrorType:  request.ErrorType,
-		Message:    request.Message,
-		StackTrace: request.StackTrace,
-		DeviceInfo: deviceInfoStr,
-		AppVersion: request.AppVersion,
-		AppBuild:   request.AppBuild,
+		ErrorType:   request.ErrorType,
+		Message:     request.Message,
+		StackTrace:  request.StackTrace,
+		DeviceInfo:  deviceInfo,
+		AppVersion:  request.AppVersion,
+		AppBuild:    request.AppBuild,
 		Environment: request.Environment,
-		MemberID:   request.MemberID,
+		MemberID:    request.MemberID,
 		IsProcessed: false,
 	}
 

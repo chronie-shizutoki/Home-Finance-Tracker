@@ -59,18 +59,49 @@ func (h *ExpenseHandler) GetExpenses(c *gin.Context) {
 	})
 }
 
-// CreateExpense 创建消费记录
+// CreateExpense 创建消费记录 - 与JS版本addExpense完全一致
 func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
-	var expense models.Expense
-	if err := c.ShouldBindJSON(&expense); err != nil {
+	var request struct {
+		ID        string  `json:"id"`
+		Type      string  `json:"type"`
+		Remark    *string `json:"remark"`
+		Amount    float64 `json:"amount"`
+		Time      *string `json:"time"`
+		Date      *string `json:"date"`
+		Version   *int    `json:"version"`
+		UpdatedAt *int64  `json:"updatedAt"`
+	}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		utils.ErrorResponseWithStatus(c, "消费类型和金额是必填项", err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// 后端数据验证
-	if expense.Type == "" || expense.Amount <= 0 {
+	if request.Type == "" || request.Amount <= 0 {
 		utils.ErrorResponseWithStatus(c, "消费类型和金额是必填项", "", http.StatusBadRequest)
 		return
+	}
+
+	// 日期处理 - 与JS版本完全一致：date > time > 默认今天
+	dateStr := time.Now().Format("2006-01-02")
+	if request.Date != nil && *request.Date != "" {
+		dateStr = parseDateString(*request.Date)
+	} else if request.Time != nil && *request.Time != "" {
+		dateStr = parseDateString(*request.Time)
+	}
+
+	expense := models.Expense{
+		ID:     request.ID,
+		Type:   request.Type,
+		Remark: request.Remark,
+		Amount: request.Amount,
+		Date:   dateStr,
+	}
+	if request.Version != nil {
+		expense.Version = *request.Version
+	}
+	if request.UpdatedAt != nil {
+		expense.UpdatedAt = *request.UpdatedAt
 	}
 
 	// 保存记录
@@ -81,6 +112,27 @@ func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
 
 	// 返回格式与Node.js完全一致 - 直接返回创建的对象
 	c.JSON(http.StatusCreated, expense)
+}
+
+// parseDateString 解析日期字符串，提取YYYY-MM-DD格式 - 与JS dayjs().format('YYYY-MM-DD')一致
+func parseDateString(s string) string {
+	// 尝试多种日期格式解析
+	formats := []string{
+		"2006-01-02",
+		"2006-01-02T15:04:05Z",
+		"2006-01-02T15:04:05.000Z",
+		time.RFC3339,
+	}
+	for _, format := range formats {
+		if t, err := time.Parse(format, s); err == nil {
+			return t.Format("2006-01-02")
+		}
+	}
+	// 如果都解析失败，提取前10个字符作为日期
+	if len(s) >= 10 {
+		return s[:10]
+	}
+	return time.Now().Format("2006-01-02")
 }
 
 // GetExpenseStatistics 获取消费统计

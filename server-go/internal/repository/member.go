@@ -69,7 +69,6 @@ func (r *MemberRepository) GetOrCreate(username string) (*models.Member, error) 
 	// 如果不存在，创建新会员
 	member = &models.Member{
 		Username: username,
-		IsActive: false,
 	}
 	if err := r.Create(member); err != nil {
 		return nil, err
@@ -94,20 +93,6 @@ func (r *MemberRepository) Update(member *models.Member) error {
 	if member.ID == "" {
 		return fmt.Errorf("会员ID不能为空")
 	}
-	return r.db.Save(member).Error
-}
-
-// UpdateMemberStatus 更新会员状态
-func (r *MemberRepository) UpdateMemberStatus(username string, isActive bool) error {
-	member, err := r.FindByUsername(username)
-	if err != nil {
-		return err
-	}
-	if member == nil {
-		return fmt.Errorf("会员不存在")
-	}
-
-	member.IsActive = isActive
 	return r.db.Save(member).Error
 }
 

@@ -13,7 +13,6 @@ type Member struct {
 	ID        string  `json:"id" gorm:"type:varchar(36);primaryKey"`
 	Username  string  `json:"username" gorm:"type:varchar(255);not null;uniqueIndex;comment:'用户名'"`
 	Avatar    *string `json:"avatar,omitempty" gorm:"type:text;comment:'头像数据'"`
-	IsActive  bool    `json:"isActive" gorm:"column:isActive;default:false;comment:'是否激活'"`
 	CreatedAt string  `json:"createdAt" gorm:"column:createdAt;type:text"`
 	UpdatedAt string  `json:"updatedAt" gorm:"column:updatedAt;type:text"`
 }
@@ -49,7 +48,6 @@ func (m *Member) ToJSON() map[string]interface{} {
 	result := map[string]interface{}{
 		"id":        m.ID,
 		"username":  m.Username,
-		"isActive":  m.IsActive,
 		"createdAt": m.CreatedAt,
 		"updatedAt": m.UpdatedAt,
 	}

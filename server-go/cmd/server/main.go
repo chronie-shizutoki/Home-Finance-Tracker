@@ -68,7 +68,16 @@ func main() {
 		gin.Logger(),
 		// CORS 中间件 - 与JS版本一致
 		func(c *gin.Context) {
-			c.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+			origin := c.Request.Header.Get("Origin")
+			allowedOrigins := map[string]bool{
+				"http://localhost:5173":  true,
+				"http://0.0.0.0:5173":   true,
+			}
+			if allowedOrigins[origin] {
+				c.Header("Access-Control-Allow-Origin", origin)
+			} else {
+				c.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+			}
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			c.Header("Access-Control-Allow-Credentials", "true")
