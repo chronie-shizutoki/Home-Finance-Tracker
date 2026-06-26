@@ -27,7 +27,7 @@ data class LibraryInfo(
 val libraries = listOf(
     LibraryInfo(
         name = "Kotlin Stdlib",
-        version = "2.3.21",
+        version = "2.4.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://kotlinlang.org/"
@@ -41,7 +41,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Core KTX",
-        version = "1.18.0",
+        version = "1.19.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/core"
@@ -97,7 +97,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Jetpack Compose BOM",
-        version = "2026.05.01",
+        version = "2026.06.00",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-bom"
@@ -118,28 +118,28 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Material3",
-        version = "1.5.0-alpha20",
+        version = "1.5.0-alpha22",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
     ),
     LibraryInfo(
         name = "AndroidX Material3 Window Size Class",
-        version = "1.5.0-alpha20",
+        version = "1.5.0-alpha22",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
     ),
     LibraryInfo(
         name = "AndroidX Lifecycle Runtime Compose",
-        version = "2.10.0",
+        version = "2.11.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
     ),
     LibraryInfo(
         name = "AndroidX Lifecycle ViewModel Compose",
-        version = "2.10.0",
+        version = "2.11.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
@@ -153,7 +153,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Dagger Hilt Android",
-        version = "2.59.2",
+        version = "2.60",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://dagger.dev/hilt/"
@@ -202,7 +202,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "OkHttp Logging Interceptor",
-        version = "5.3.2",
+        version = "5.4.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/square/okhttp"
@@ -265,14 +265,14 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "FastExcel",
-        version = "0.20.1",
+        version = "0.20.2",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/dhatim/fastexcel"
     ),
     LibraryInfo(
         name = "FastExcel Reader",
-        version = "0.20.1",
+        version = "0.20.2",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/dhatim/fastexcel"
@@ -300,7 +300,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "MockK",
-        version = "1.14.9",
+        version = "1.14.11",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://mockk.io/"
