@@ -266,9 +266,6 @@ fun HomeMoneyApp(
                 onNavigateToDatabaseTest = {
                     navController.navigate("database_test")
                 },
-                onNavigateToMembership = {
-                    navController.navigate("membership")
-                },
                 onNavigateToLanSync = {
                     navController.navigate("lan_sync")
                 },
