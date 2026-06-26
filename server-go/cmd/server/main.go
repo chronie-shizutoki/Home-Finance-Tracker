@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// 初始化数据库
-	db, err := database.InitDB("../server/database.sqlite")
+	db, err := database.InitDB("./database.sqlite")
 	if err != nil {
 		log.Fatalf("数据库初始化失败: %v", err)
 	}
@@ -120,7 +120,7 @@ func main() {
 	routes.SetupLogRoutes(router.Group("/api"), logService)
 
 	// 提供前端静态文件服务（当client/dist存在时自动启用）
-	distPath := filepath.Join("..", "client", "dist")
+	distPath := filepath.Join(".", "client", "dist")
 	if _, err := os.Stat(filepath.Join(distPath, "index.html")); err == nil {
 		log.Printf("Serving static files from: %s", distPath)
 		router.Static("/assets", filepath.Join(distPath, "assets"))
