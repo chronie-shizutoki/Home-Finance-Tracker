@@ -21,8 +21,8 @@ func SetupMemberRoutes(router *gin.Engine, memberRepo *repository.MemberReposito
 	// 创建会员相关的路由组 - 与前端API调用完全一致
 	memberGroup := router.Group("/api/members")
 
-	// 对应前端: POST /api/members - 创建或获取会员
-	memberGroup.POST("", memberHandler.GetOrCreateMember)
+	// 对应前端: POST /api/members/members - 创建或获取会员
+	memberGroup.POST("/members", memberHandler.GetOrCreateMember)
 
 	// 对应前端: GET /api/members/members/:username - 获取会员信息
 	memberGroup.GET("/members/:username", memberHandler.GetMemberInfo)
