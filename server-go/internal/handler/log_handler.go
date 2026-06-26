@@ -116,14 +116,14 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 	// 返回结果 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": gin.H{
+		"message": "获取日志列表成功",
+		"data": gin.H{
 			"logs":       logs,
 			"total":      total,
 			"page":       page,
 			"pageSize":   params.Limit,
 			"totalPages": totalPages,
 		},
-		"data": "获取日志列表成功",
 	})
 }
 
@@ -163,12 +163,12 @@ func (h *LogHandler) GetLogStats(c *gin.Context) {
 	// 返回结果 - 与JS apiResponse.success格式一致
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": gin.H{
+		"message": "获取日志统计成功",
+		"data": gin.H{
 			"total":     stats.Total,
 			"typeStats": stats.TypeStats,
 			"period":    stats.Period,
 		},
-		"data": "获取日志统计成功",
 	})
 }
 
