@@ -19,7 +19,5 @@ jobs:
         run: cloc android
       - name: Count lines in client/src
         run: cloc client/src
-      - name: Count lines in server/src
-        run: cloc server/src
       - name: Count lines in server-go
         run: cloc server-go
