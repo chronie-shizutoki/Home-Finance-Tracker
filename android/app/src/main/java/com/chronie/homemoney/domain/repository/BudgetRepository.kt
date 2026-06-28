@@ -5,32 +5,32 @@ import com.chronie.homemoney.domain.model.BudgetUsage
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 预算仓库接口
+ * Budget Repository Interface
  */
 interface BudgetRepository {
     
     /**
-     * 获取预算设置
+     * Get Budget Settings
      */
     fun getBudget(): Flow<Budget?>
     
     /**
-     * 获取预算设置（一次性）
+     * Get Budget Settings (Once)
      */
     suspend fun getBudgetOnce(): Budget?
     
     /**
-     * 保存预算设置
+     * Save Budget Settings
      */
     suspend fun saveBudget(budget: Budget)
     
     /**
-     * 获取当月预算使用情况
+     * Get Current Month Budget Usage
      */
     suspend fun getCurrentMonthUsage(): BudgetUsage?
     
     /**
-     * 启用/禁用预算功能
+     * Toggle Budget Enabled
      */
     suspend fun toggleBudgetEnabled(enabled: Boolean)
 }

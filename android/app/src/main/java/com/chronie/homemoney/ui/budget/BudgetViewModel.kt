@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * 预算管理ViewModel
+ * Budget Management ViewModel
  */
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
@@ -38,7 +38,7 @@ class BudgetViewModel @Inject constructor(
                     if (budget?.isEnabled == true) {
                         loadBudgetUsage()
                     } else {
-                        // 清除预算使用情况
+                        // Clear budget usage when disabled
                         _uiState.update { it.copy(budgetUsage = null) }
                     }
                 }
@@ -110,7 +110,7 @@ class BudgetViewModel @Inject constructor(
 }
 
 /**
- * 预算UI状态
+ * Budget UI State
  */
 data class BudgetUiState(
     val budget: Budget? = null,

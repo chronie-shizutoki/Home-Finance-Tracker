@@ -15,7 +15,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 网络状态监听器
+ * Network Monitor class
+ * Observes network connection status and emits network status updates
  */
 @Singleton
 class NetworkMonitor @Inject constructor(
@@ -29,7 +30,7 @@ class NetworkMonitor @Inject constructor(
     }
     
     /**
-     * 观察网络连接状态
+     * Observe network connection status and emit network status updates
      */
     fun observeNetworkStatus(): Flow<NetworkStatus> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
@@ -70,7 +71,7 @@ class NetworkMonitor @Inject constructor(
         
         connectivityManager.registerNetworkCallback(networkRequest, callback)
         
-        // 发送初始状态
+        // Send initial status update
         trySend(getCurrentNetworkStatus())
         
         awaitClose {
@@ -80,7 +81,7 @@ class NetworkMonitor @Inject constructor(
     }.distinctUntilChanged()
     
     /**
-     * 获取当前网络状态
+     * Get current network status
      */
     fun getCurrentNetworkStatus(): NetworkStatus {
         val network = connectivityManager.activeNetwork
@@ -97,7 +98,7 @@ class NetworkMonitor @Inject constructor(
     }
     
     /**
-     * 检查是否有网络连接
+     * Check if there is a network connection
      */
     fun isNetworkAvailable(): Boolean {
         return getCurrentNetworkStatus() == NetworkStatus.Available
@@ -105,7 +106,7 @@ class NetworkMonitor @Inject constructor(
 }
 
 /**
- * 网络状态
+ * Network Status Enum
  */
 sealed class NetworkStatus {
     object Available : NetworkStatus()

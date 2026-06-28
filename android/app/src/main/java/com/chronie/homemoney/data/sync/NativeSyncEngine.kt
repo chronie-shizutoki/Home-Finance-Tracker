@@ -8,11 +8,11 @@ class NativeSyncEngine {
     
     interface SyncRequestListener {
         /**
-         * 当接收到同步数据时回调
-         * @param deviceId 发送方的设备 ID
-         * @param deviceName 发送方的设备名称
-         * @param data 远程发送过来的 Protobuf 数据
-         * @return 返回本地要同步给对方的 Protobuf 数据，若拒绝同步返回 null
+         * Callback when a sync request is received from a remote device
+         * @param deviceId Remote device ID
+         * @param deviceName Remote device name
+         * @param data Remote Protobuf data
+         * @return Local Protobuf data to sync to the remote device, or null to reject sync
          */
         fun onSyncDataReceived(deviceId: String, deviceName: String, data: ByteArray): ByteArray?
     }
@@ -24,7 +24,7 @@ class NativeSyncEngine {
     }
 
     /**
-     * 由 Native 层通过 JNI 调用
+     * Handle incoming sync requests from remote devices via JNI
      */
     @Keep
     fun handleIncomingSyncRequest(deviceId: String, deviceName: String, data: ByteArray): ByteArray? {

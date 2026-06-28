@@ -14,12 +14,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 错误报告器类
- * 负责收集应用中的错误信息，保存到本地日志文件，并上报到后端
+ * Error Reporter Class
+ * Responsible for collecting, saving, and reporting error information to the backend server
  */
 @Singleton
 class ErrorReporter @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val errorReportApi = MockErrorReportApi()
     private val logFileManager = LogFileManager(context)
@@ -36,7 +36,7 @@ class ErrorReporter @Inject constructor(
     private val errorQueue = ArrayDeque<ErrorInfo>()
 
     /**
-     * 初始化错误收集器
+     * Initialize the error reporter class
      */
     fun initialize() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
@@ -49,7 +49,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 公开的错误上报方法，供UncaughtExceptionHandler调用
+     * Public method to report errors to the server, called by UncaughtExceptionHandler
      */
     @WorkerThread
     suspend fun reportErrorToServer(errorInfo: ErrorInfo) {
@@ -57,7 +57,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 记录自定义错误
+     * Record a custom error
      */
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         val errorInfo = ErrorInfo(
@@ -76,7 +76,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 记录网络错误
+     * Record network errors
      */
     fun logNetworkError(endpoint: String, errorCode: Int, message: String, throwable: Throwable? = null) {
         val errorInfo = ErrorInfo(
@@ -99,7 +99,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 保存错误到本地文件
+     * Save error information to local log file
      */
     @WorkerThread
     suspend fun saveErrorToLocal(errorInfo: ErrorInfo) {
@@ -113,7 +113,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 上报错误到服务器的内部实现方法
+     * Internal method to report errors to the server
      */
     @WorkerThread
     private suspend fun reportErrorToServerInternal(errorInfo: ErrorInfo) {
@@ -157,28 +157,28 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 获取堆栈跟踪字符串
+     * Get the stack trace string of a throwable
      */
     private fun getStackTraceString(throwable: Throwable): String {
         return Log.getStackTraceString(throwable)
     }
 
     /**
-     * 获取当前线程的堆栈跟踪
+     * Get the current thread's stack trace
      */
     private fun getCurrentStackTrace(): String {
         return Thread.currentThread().stackTrace.joinToString("\n") { it.toString() }
     }
 
     /**
-     * 获取环境信息
+     * Get environment information
      */
     private fun getEnvironment(): String {
         return if (isDebugMode()) "development" else "production"
     }
 
     /**
-     * 检查是否为调试模式
+     * Check if the app is running in debug mode
      */
     private fun isDebugMode(): Boolean {
         return try {
@@ -190,7 +190,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 添加到错误队列
+     * Add error information to the queue for reporting
      */
     private fun addToQueue(errorInfo: ErrorInfo) {
         synchronized(errorQueue) {
@@ -202,7 +202,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 异步保存到本地
+     * Asynchronously save error information to local log file
      */
     private fun saveErrorToLocalAsync(errorInfo: ErrorInfo) {
         executorService.execute {
@@ -213,7 +213,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 异步上报到服务器
+     * Asynchronously report error information to the server
      */
     private fun reportErrorToServerAsync(errorInfo: ErrorInfo) {
         if (!ThreadUtils.isMainThread()) {
@@ -234,7 +234,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 获取错误队列中的错误数量
+     * Get the number of errors in the error queue
      */
     fun getErrorQueueSize(): Int {
         synchronized(errorQueue) {
@@ -243,7 +243,7 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 清空错误队列
+     * Clear the error queue
      */
     fun clearErrorQueue() {
         synchronized(errorQueue) {
@@ -252,12 +252,12 @@ class ErrorReporter @Inject constructor(
     }
 
     /**
-     * 获取所有日志文件
+     * Get all log files
      */
     fun getLogFiles() = logFileManager.getLogFiles()
 
     /**
-     * 清除所有日志文件
+     * Clear all log files
      */
     fun clearLogFiles() = logFileManager.clearLogFiles()
 }

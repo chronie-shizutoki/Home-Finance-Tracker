@@ -10,7 +10,8 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
 /**
- * 日志拦截器 - 记录网络请求和响应
+ * Logging Interceptor
+ * Logs network requests and responses
  */
 class LoggingInterceptor : Interceptor {
     
@@ -22,13 +23,13 @@ class LoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         
-        // 记录请求
+        // Log request
         val requestStartTime = System.currentTimeMillis()
         Log.d(TAG, "→ ${request.method} ${request.url}")
         
-        // 记录请求头
+        // Log request headers
         request.headers.forEach { (name, value) ->
-            // 不记录敏感信息
+            // Do not log sensitive information
             if (name.equals("Authorization", ignoreCase = true)) {
                 Log.d(TAG, "  $name: [REDACTED]")
             } else {
@@ -36,7 +37,7 @@ class LoggingInterceptor : Interceptor {
             }
         }
         
-        // 记录请求体
+        // Log request body
         request.body?.let { body ->
             try {
                 val buffer = Buffer()
@@ -49,7 +50,7 @@ class LoggingInterceptor : Interceptor {
             }
         }
         
-        // 执行请求
+        // Execute request and log response duration
         val response: Response
         try {
             response = chain.proceed(request)
@@ -60,15 +61,15 @@ class LoggingInterceptor : Interceptor {
         
         val requestDuration = System.currentTimeMillis() - requestStartTime
         
-        // 记录响应
+        // Log response
         Log.d(TAG, "← ${response.code} ${request.url} (${requestDuration}ms)")
         
-        // 记录响应头
+        // Log response headers
         response.headers.forEach { (name, value) ->
             Log.d(TAG, "  $name: $value")
         }
         
-        // 记录响应体
+        // Log response body
         val responseBody = response.body
         if (responseBody != null) {
             val source = responseBody.source()
@@ -88,7 +89,7 @@ class LoggingInterceptor : Interceptor {
     }
     
     /**
-     * 分段记录长字符串，避免超过Android Log的长度限制
+     * Log long strings in segments to avoid exceeding Android Log's length limit
      */
     private fun logLongString(message: String) {
         if (message.length <= MAX_LOG_LENGTH) {

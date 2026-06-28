@@ -5,7 +5,7 @@ import com.chronie.homemoney.domain.repository.BudgetRepository
 import javax.inject.Inject
 
 /**
- * 保存预算设置用例
+ * Save Budget Use Case
  */
 class SaveBudgetUseCase @Inject constructor(
     private val budgetRepository: BudgetRepository

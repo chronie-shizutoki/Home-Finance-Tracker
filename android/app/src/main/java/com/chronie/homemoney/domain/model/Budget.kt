@@ -1,16 +1,16 @@
 package com.chronie.homemoney.domain.model
 
 /**
- * 预算领域模型
+ * Budget Domain Model
  */
 data class Budget(
     val monthlyLimit: Double,
-    val warningThreshold: Double = 0.8, // 默认80%时警告
+    val warningThreshold: Double = 0.8, // Default warning threshold is 80% when budget is exceeded
     val isEnabled: Boolean = false
 )
 
 /**
- * 预算使用情况
+ * Budget Usage
  */
 data class BudgetUsage(
     val monthlyLimit: Double,
@@ -26,10 +26,10 @@ data class BudgetUsage(
 )
 
 /**
- * 预算状态
+ * Budget Status
  */
 enum class BudgetStatus {
-    NORMAL,      // 正常
-    WARNING,     // 接近限额
-    OVER_LIMIT   // 超出限额
+    NORMAL,      // Normal
+    WARNING,     // Warning
+    OVER_LIMIT   // Over Limit
 }

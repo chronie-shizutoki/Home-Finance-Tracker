@@ -5,7 +5,7 @@ import com.chronie.homemoney.data.local.entity.MemberEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 会员信息数据访问对象
+ * Member Data Access Object
  */
 @Dao
 interface MemberDao {

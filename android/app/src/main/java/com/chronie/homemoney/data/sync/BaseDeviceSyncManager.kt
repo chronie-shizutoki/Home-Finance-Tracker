@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 /**
- * 设备间同步管理器抽象类
- * 提供通用的同步逻辑
+ * Base Device Sync Manager Abstract Class
+ * Provides common sync logic for device-to-device communication
  */
 abstract class BaseDeviceSyncManager(
     protected val expenseDao: ExpenseDao,
@@ -31,7 +31,7 @@ abstract class BaseDeviceSyncManager(
     protected var currentDevice: DeviceInfo? = null
     
     override fun searchDevices(): Flow<DeviceInfo> = flow {
-        // 默认实现，子类需重写
+        // Default implementation, subclass must override this
         Log.d(TAG, "Default searchDevices implementation")
     }
     
@@ -63,34 +63,34 @@ abstract class BaseDeviceSyncManager(
         Log.d(TAG, "Starting sync with device: ${device.deviceName}")
         
         return try {
-            // 1. 建立连接
+            // 1. Connect to device
             if (!connect(device)) {
                 return createFailedSyncResult("Failed to connect to device")
             }
             
-            // 2. 获取本地数据
+            // 2. Prepare local data for sync
             val localData = prepareLocalData()
             
-            // 3. 发送本地数据到设备
+            // 3. Send local data to device
             if (!sendData(localData)) {
                 disconnect()
                 return createFailedSyncResult("Failed to send data to device")
             }
             
-            // 4. 接收设备数据
+            // 4. Receive device data
             val deviceData = receiveData()
             if (deviceData == null) {
                 disconnect()
                 return createFailedSyncResult("Failed to receive data from device")
             }
             
-            // 5. 处理设备数据
+            // 5. Process device data
             val downloadResult = processDeviceData(deviceData)
             
-            // 6. 断开连接
+            // 6. Disconnect from device
             disconnect()
             
-            // 7. 返回同步结果
+            // 7. Return sync result
             com.chronie.homemoney.domain.model.SyncResult(
                 success = true,
                 uploadResult = UploadResult(
@@ -109,7 +109,7 @@ abstract class BaseDeviceSyncManager(
     }
     
     /**
-     * 准备本地数据用于同步
+     * Prepare local data for sync
      */
     protected open suspend fun prepareLocalData(): DeviceSyncData {
         val allExpenses = expenseDao.getAllExpenses().first()
@@ -137,7 +137,7 @@ abstract class BaseDeviceSyncManager(
     }
     
     /**
-     * 处理从设备接收的数据
+     * Process data received from device
      */
     protected suspend fun processDeviceData(deviceData: DeviceSyncData): DownloadResult {
         val conflicts = mutableListOf<com.chronie.homemoney.domain.model.SyncConflict>()
@@ -159,20 +159,20 @@ abstract class BaseDeviceSyncManager(
                     val localExpense = expenseDao.getExpenseById(entity.entityId)
                     
                     if (localExpense == null) {
-                        // 新记录，直接插入
+                        // New record, insert it
                         expenseDao.insertExpense(expenseEntity)
                         newItems++
                         Log.d(TAG, "Added new expense from device: ${expenseEntity.id}")
                     } else {
-                        // 已存在记录，使用较新的版本
-                        // 使用当前时间作为比较基准
+                        // Record already exists, use newer version
+                        // Use current timestamp as comparison base
                         val localTimestamp = System.currentTimeMillis()
                         if (entity.timestamp > localTimestamp) {
                             expenseDao.insertExpense(expenseEntity)
                             updatedItems++
                             Log.d(TAG, "Updated expense from device: ${expenseEntity.id}")
                         } else {
-                            // 冲突：本地版本更新
+                            // Conflict: Local version is newer, use it
                             conflicts.add(
                                 com.chronie.homemoney.domain.model.SyncConflict(
                                     entityType = "expense",
@@ -192,10 +192,10 @@ abstract class BaseDeviceSyncManager(
             }
             
             processedCount++
-            // 每100个实体更新一次进度
+            // Update progress every 100 entities
             if (processedCount % 100 == 0 || processedCount == totalEntities) {
                 val progress = 0.3f + (processedCount.toFloat() / totalEntities * 0.5f)
-                updateSyncProgress(progress, "正在处理数据... ($processedCount/$totalEntities)", true)
+                updateSyncProgress(progress, "Processing data... ($processedCount/$totalEntities)", true)
             }
         }
         
@@ -208,7 +208,7 @@ abstract class BaseDeviceSyncManager(
     }
     
     /**
-     * 创建失败的同步结果
+     * Create a failed sync result
      */
     protected fun createFailedSyncResult(error: String): com.chronie.homemoney.domain.model.SyncResult {
         return com.chronie.homemoney.domain.model.SyncResult(

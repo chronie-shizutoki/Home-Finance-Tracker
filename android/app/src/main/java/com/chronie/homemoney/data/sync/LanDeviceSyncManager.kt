@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 /**
- * 局域网设备间同步管理器 - 高性能 gRPC + UDP 发现版
+ * LAN Device Sync Manager - High Performance gRPC + UDP Discovery Version
  */
 class LanDeviceSyncManager(
     private val context: Context,
@@ -52,7 +52,7 @@ class LanDeviceSyncManager(
             override fun onSyncDataReceived(deviceId: String, deviceName: String, data: ByteArray): ByteArray? {
                 Log.d(TAG, "B-Side: Received sync data request from $deviceName ($deviceId)")
                 
-                // 1. 解析对方的数据包
+                // 1. Parse remote data packet
                 val remoteProto = try {
                     if (data.isEmpty()) {
                         Log.e(TAG, "Received empty data from $deviceName")
@@ -64,13 +64,13 @@ class LanDeviceSyncManager(
                     return null
                 }
 
-                // 使用解析出来的真实设备名
+                // Use parsed device name and ID from remote proto
                 val realName = if (remoteProto.deviceName.isNotEmpty()) remoteProto.deviceName else deviceName
                 val realId = if (remoteProto.deviceId.isNotEmpty()) remoteProto.deviceId else deviceId
                 
                 Log.d(TAG, "Parsed remote device info: $realName ($realId)")
 
-                // 2. 询问用户是否接受 (阻塞调用)
+                // 2. Ask user if to accept (Blocking call)
                 val callback = syncRequestCallback
                 if (callback == null) {
                     Log.w(TAG, "B-Side: No syncRequestCallback set! The app might not be on the sync screen. Current callback is null.")
@@ -81,7 +81,7 @@ class LanDeviceSyncManager(
                 val latch = java.util.concurrent.CountDownLatch(1)
                 
                 Log.d(TAG, "B-Side: Launching Main coroutine for sync request dialog")
-                // 使用 CoroutineScope 代替 GlobalScope
+                // Use CoroutineScope instead of GlobalScope to ensure UI thread is not blocked by network operations
                 val requestJob = CoroutineScope(Dispatchers.Main).launch {
                     try {
                         Log.d(TAG, "B-Side: Showing sync request dialog for $realName")
@@ -96,7 +96,7 @@ class LanDeviceSyncManager(
                     }
                 }
                 
-                // 等待用户响应，设置超时防止永久阻塞 (例如 60秒)
+                // Wait for user response with timeout (e.g., 60 seconds)
                 try {
                     val waitSuccess = latch.await(60, java.util.concurrent.TimeUnit.SECONDS)
                     if (!waitSuccess) {
@@ -115,18 +115,18 @@ class LanDeviceSyncManager(
                     return null
                 }
 
-                // 3. 用户接受，处理对方数据并准备自己的数据
+                // 3. User accepted, process remote data and prepare local data for sync
                 Log.d(TAG, "B-Side: Processing sync data from $realName")
                 return runBlocking(Dispatchers.IO) {
                     try {
-                        updateSyncProgress(0.4f, "正在处理来自 $realName 的数据...", true)
+                        updateSyncProgress(0.4f, "Processing remote $realName data...", true)
                         processDeviceData(SyncProtoConverter.toDomain(remoteProto))
                         
-                        updateSyncProgress(0.7f, "正在同步本地数据到对方...", true)
+                        updateSyncProgress(0.7f, "Syncing local data to $realName...", true)
                         val localData = prepareLocalData()
                         val responseBytes = SyncProtoConverter.toProto(localData).toByteArray()
                         
-                        updateSyncProgress(1.0f, "同步完成！", false)
+                        updateSyncProgress(1.0f, "Sync completed!", false)
                         delay(1000)
                         clearSyncProgress()
                         
@@ -134,7 +134,7 @@ class LanDeviceSyncManager(
                         responseBytes
                     } catch (e: Exception) {
                         Log.e(TAG, "Error processing sync on B-side", e)
-                        updateSyncProgress(1.0f, "同步失败: ${e.message}", false)
+                        updateSyncProgress(1.0f, "Sync failed: ${e.message}", false)
                         delay(2000)
                         clearSyncProgress()
                         null

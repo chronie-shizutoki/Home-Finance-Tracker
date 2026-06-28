@@ -46,7 +46,7 @@ fun MainScreen(
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    // 原生界面（带底部 Tab 栏）
+    // Native screen (with bottom navigation bar)
     Box(modifier = Modifier
         .fillMaxSize()
         .windowInsetsPadding(WindowInsets.safeDrawing)) {
@@ -56,7 +56,7 @@ fun MainScreen(
         ) {
             when (selectedTab) {
                 0 -> {
-                    // 支出记录界面
+                    // Expense list screen
                     ExpenseListScreen(
                         context = context,
                         shouldRefresh = shouldRefreshExpenses,
@@ -67,7 +67,7 @@ fun MainScreen(
                     )
                 }
                 1 -> {
-                    // 图表界面
+                    // Chart screen
                     com.chronie.homemoney.ui.charts.ChartsScreen(
                         context = context,
                         onRequireLogin = onRequireLogin,
@@ -75,14 +75,14 @@ fun MainScreen(
                     )
                 }
                 2 -> {
-                    // 设置界面
+                    // Settings screen
                     SettingsScreen(
                         context = context,
                         onNavigateToDatabaseTest = onNavigateToDatabaseTest,
                         onNavigateToLanSync = onNavigateToLanSync,
                         onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
                         onLogout = {
-                            android.util.Log.d("MainScreen", "收到 onLogout 回调")
+                            android.util.Log.d("MainScreen", "Received onLogout callback")
                             onRequireLogin()
                         },
                         onRequireLogin = onRequireLogin
@@ -91,7 +91,7 @@ fun MainScreen(
             }
         }
 
-        // 悬浮导航栏
+        // Floating navigation bar
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)

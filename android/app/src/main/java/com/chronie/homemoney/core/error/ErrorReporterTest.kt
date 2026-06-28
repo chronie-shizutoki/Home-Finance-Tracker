@@ -5,9 +5,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 错误收集系统测试类
- * 提供方法用于测试错误收集系统的各种功能
- * 仅在开发环境使用，生产环境应当禁用
+ * Error Reporter Test Class
+ * Provides methods to test the error reporter class
+ * Only use in development environment, disable in production environment
  */
 @Singleton
 class ErrorReporterTest @Inject constructor(
@@ -19,8 +19,8 @@ class ErrorReporterTest @Inject constructor(
     }
 
     /**
-     * 测试记录普通错误
-     * 模拟应用中的一个自定义错误
+     * Test logging a normal error message
+     * Simulate a custom error in the application
      */
     fun testLogError() {
         Log.d(TAG, "Testing log error functionality")
@@ -37,8 +37,8 @@ class ErrorReporterTest @Inject constructor(
     }
 
     /**
-     * 测试记录网络错误
-     * 模拟一个网络请求失败的场景
+     * Test logging network errors
+     * Simulate a scenario where a network request fails
      */
     fun testNetworkError() {
         Log.d(TAG, "Testing network error functionality")
@@ -56,19 +56,19 @@ class ErrorReporterTest @Inject constructor(
     }
 
     /**
-     * 测试未捕获异常处理
-     * 注意：此方法会导致应用崩溃，仅用于测试环境
-     * 警告：请谨慎使用，不要在生产环境调用
+     * Test uncaught exception handling
+     * Note: This method will crash the app, only use in test environment
+     * Warning: Do not call in production environment
      */
     fun testUncaughtException() {
         Log.d(TAG, "Testing uncaught exception handling")
         Log.w(TAG, "WARNING: This will crash the app. Only call in test environment!")
-        // 抛出一个未捕获的异常，应该被我们的UncaughtExceptionHandler捕获
+        // Throw an uncaught exception
         throw RuntimeException("Test uncaught exception")
     }
 
     /**
-     * 测试不带异常的错误日志
+     * Test logging errors without an exception
      */
     fun testErrorWithoutException() {
         Log.d(TAG, "Testing error logging without exception")
@@ -84,18 +84,18 @@ class ErrorReporterTest @Inject constructor(
     }
 
     /**
-     * 测试在不同线程中记录错误
+     * Test logging errors in different threads
      */
     fun testErrorInDifferentThreads() {
         Log.d(TAG, "Testing error logging in different threads")
         
-        // 在主线程记录一个错误
+        // Log an error in the main thread
         errorReporter.logError(
             tag = "MainThread",
             message = "Error logged from main thread"
         )
         
-        // 在工作线程记录一个错误
+        // Log an error in a worker thread
         Thread {
             errorReporter.logError(
                 tag = "WorkerThread",

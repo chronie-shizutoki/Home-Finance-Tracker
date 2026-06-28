@@ -49,7 +49,7 @@ fun ChartsScreen(
     
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 顶部工具栏
+            // Top toolbar with title and time range selector
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
@@ -77,7 +77,7 @@ fun ChartsScreen(
                 }
             }
             
-            // 内容区域
+            // Content area
             when (val state = uiState) {
                 is ChartsUiState.Loading -> {
                     Box(
@@ -141,7 +141,7 @@ private fun ChartsContent(
     val scrollState = rememberScrollState()
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
     
-    // 调试日志
+    // Debug logging
     LaunchedEffect(state) {
         android.util.Log.d("ChartsScreen", "UI updated: total=${state.statistics.totalAmount}, categories=${state.categoryData.size}, daily=${state.dailyData.size}")
     }
@@ -153,27 +153,27 @@ private fun ChartsContent(
             .padding(16.dp)
             .padding(bottom = 80.dp)
     ) {
-        // 时间范围显示
+        // Time range display
         TimeRangeCard(context, selectedTimeRange, state)
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 统计摘要
+        // Statistics summary
         StatisticsSummaryCard(context, state.statistics, currencyFormat)
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 趋势折线图
+        // Trend line chart
         TrendLineChartCard(context, state.dailyData, currencyFormat)
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 分类占比
+        // Category breakdown
         CategoryBreakdownCard(context, state.categoryData, currencyFormat)
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // 星期分析雷达图
+        // Weekday analysis radar chart
         WeekdayRadarChartCard(
             context = context,
             weekdayData = state.weekdayData,
@@ -341,13 +341,13 @@ private fun HighQualityLineChart(
             color = textColor.toArgb()
         }
         
-        // 绘制Y轴网格线和标签
+        // Draw Y-axis grid lines and labels
         val ySteps = 5
         for (i in 0..ySteps) {
             val y = paddingTop + (chartHeight / ySteps) * i
             val amount = maxAmount * (1 - i.toFloat() / ySteps)
             
-            // 网格线
+            // Grid line
             drawLine(
                 color = gridColor,
                 start = Offset(paddingLeft, y),
@@ -355,7 +355,7 @@ private fun HighQualityLineChart(
                 strokeWidth = 1f
             )
             
-            // Y轴标签
+            // Y-axis label
             val label = currencyFormat.format(amount)
             drawContext.canvas.nativeCanvas.drawText(
                 label,
@@ -365,7 +365,7 @@ private fun HighQualityLineChart(
             )
         }
         
-        // 绘制坐标轴
+        // Draw axes
         drawLine(
             color = textColor.copy(alpha = 0.5f),
             start = Offset(paddingLeft, paddingTop),
@@ -379,7 +379,7 @@ private fun HighQualityLineChart(
             strokeWidth = 2f
         )
         
-        // 绘制折线
+        // Draw line chart
         val path = Path()
         val points = mutableListOf<Pair<Float, Float>>()
         
@@ -396,18 +396,18 @@ private fun HighQualityLineChart(
             }
         }
         
-        // 绘制折线
+        // Draw line chart
         drawPath(
             path = path,
             color = primaryColor,
             style = Stroke(width = 4f)
         )
         
-        // 绘制数据点和标签
+        // Draw data points and labels
         data.forEachIndexed { index, dailyData ->
             val (x, y) = points[index]
             
-            // 数据点
+            // Data point
             drawCircle(
                 color = primaryColor,
                 radius = 6f,
@@ -420,7 +420,7 @@ private fun HighQualityLineChart(
                 center = Offset(x, y)
             )
             
-            // 显示所有非零数值标签
+            // Draw value label for non-zero data points
             if (dailyData.amount > 0) {
                 val valueLabel = String.format("%.0f", dailyData.amount)
                 drawContext.canvas.nativeCanvas.drawText(
@@ -436,7 +436,7 @@ private fun HighQualityLineChart(
             }
         }
         
-        // X轴日期标签
+        // Draw X-axis date labels
         val xLabelStep = (data.size / 7).coerceAtLeast(1)
         data.forEachIndexed { index, dailyData ->
             if (index % xLabelStep == 0 || index == data.size - 1) {

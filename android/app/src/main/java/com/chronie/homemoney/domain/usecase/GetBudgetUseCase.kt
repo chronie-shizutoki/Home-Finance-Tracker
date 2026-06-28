@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * 获取预算设置用例
+ * Get Budget Use Case
  */
 class GetBudgetUseCase @Inject constructor(
     private val budgetRepository: BudgetRepository

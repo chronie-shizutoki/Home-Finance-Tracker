@@ -46,7 +46,8 @@ import com.yalantis.ucrop.UCropActivity
 import android.content.Intent
 
 /**
- * AI 智能记录界面
+ * AI Expense Screen
+ * Displays AI-generated expense records and allows user interaction
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,16 +59,16 @@ fun AIExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    // 裁剪图片启动器
+    // Crop Image Launcher
     val cropLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == android.app.Activity.RESULT_OK) {
-            // 从uCrop获取裁剪后的图片URI
+            // Get cropped image URI from uCrop
             val outputUri = UCrop.getOutput(it.data ?: Intent())
             outputUri?.let {
                 viewModel.addImages(listOf(it))
-                // 删除临时文件
+                // Delete temporary file
                 val file = File(it.path ?: "")
                 if (file.exists()) {
                     file.delete()
@@ -76,16 +77,16 @@ fun AIExpenseScreen(
         }
     }
     
-    // 用于已有图片裁剪的启动器
+    // Crop Existing Image Launcher
     val existingImageCropLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == android.app.Activity.RESULT_OK) {
-            // 从uCrop获取裁剪后的图片URI
+            // Get cropped image URI from uCrop
             val outputUri = UCrop.getOutput(it.data ?: Intent())
             outputUri?.let {
                 viewModel.addImages(listOf(it))
-                // 删除临时文件
+                // Delete temporary file
                 val file = File(it.path ?: "")
                 if (file.exists()) {
                     file.delete()
@@ -94,15 +95,15 @@ fun AIExpenseScreen(
         }
     }
     
-    // 图片选择器
+    // Image Picker Launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) {
         it.forEach { uri ->
-            // 启动裁剪
-            try {
-                // 创建临时文件用于保存裁剪结果
-                val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+                // Start cropping
+                try {
+                    // Create temporary file to store cropped result
+                    val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
                 val imageFileName = "CROP_${timeStamp}_"
                 val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
                 val image = File(storageDir, "$imageFileName.jpg")
@@ -111,22 +112,22 @@ fun AIExpenseScreen(
                     "${context.packageName}.fileprovider",
                     image
                 )
-                // 配置uCrop
+                // Configure uCrop options
                 val options = UCrop.Options()
                 options.setCompressionQuality(90)
                 options.setHideBottomControls(false)
                 options.setFreeStyleCropEnabled(true)
-                // 设置工具栏和状态栏颜色，避免与状态栏重叠
+                // Set toolbar and status bar colors to avoid overlap
                 options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
                 options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-                // 确保裁剪界面正确处理状态栏空间
+                // Ensure crop interface correctly handles status bar space
                 options.setToolbarTitle("")
                 options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-                // 为顶部工具栏添加额外padding，确保不占用状态栏空间
+                // Add extra padding to top toolbar to avoid overlapping status bar space
                 options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
                 options.setShowCropGrid(false)
                 options.setShowCropFrame(true)
-                // 启动裁剪
+                // Start cropping
                 val uCrop = UCrop.of(uri, outputUri)
                     .withAspectRatio(1f, 1f)
                     .withMaxResultSize(1080, 1080)
@@ -138,19 +139,19 @@ fun AIExpenseScreen(
         }
     }
 
-    // 相机拍摄临时文件URI
+    // Camera temporary file URI
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    // 相机拍摄启动器
+    // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) {
         if (it) {
-            // 拍摄成功，将图片添加到选择列表
+            // Capture successful, add image to selection list
             cameraImageUri?.let { uri ->
-                // 启动裁剪
+                // Start cropping
                 try {
-                    // 创建临时文件用于保存裁剪结果
+                    // Create temporary file to store cropped result
                     val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
                     val imageFileName = "CROP_${timeStamp}_"
                     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -160,22 +161,22 @@ fun AIExpenseScreen(
                         "${context.packageName}.fileprovider",
                         image
                     )
-                    // 配置uCrop
+                    // Configure uCrop options
                     val options = UCrop.Options()
                     options.setCompressionQuality(90)
                     options.setHideBottomControls(false)
                     options.setFreeStyleCropEnabled(true)
-                    // 设置工具栏和状态栏颜色，避免与状态栏重叠
+                    // Set toolbar and status bar colors to avoid overlap
                     options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
                     options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-                    // 确保裁剪界面正确处理状态栏空间
+                    // Ensure crop interface correctly handles status bar space
                     options.setToolbarTitle("")
                     options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-                    // 为顶部工具栏添加额外padding，确保不占用状态栏空间
+                    // Add extra padding to top toolbar to avoid overlapping status bar space
                     options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
                     options.setShowCropGrid(false)
                     options.setShowCropFrame(true)
-                    // 启动裁剪
+                    // Start cropping
                     val uCrop = UCrop.of(uri, outputUri)
                         .withAspectRatio(1f, 1f)
                         .withMaxResultSize(1080, 1080)
@@ -188,12 +189,12 @@ fun AIExpenseScreen(
         }
     }
     
-    // 处理已有图片裁剪
+    // Handle existing image cropping request
     fun handleCropExistingImage(uri: Uri) {
         try {
-            // 从列表中移除旧图片
+            // Remove old image from selection list
             viewModel.removeImage(uri)
-            // 创建临时文件用于保存裁剪结果
+            // Create temporary file to store cropped result
             val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
             val imageFileName = "CROP_${timeStamp}_"
             val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -203,21 +204,21 @@ fun AIExpenseScreen(
                 "${context.packageName}.fileprovider",
                 image
             )
-            // 配置uCrop
+            // Configure uCrop options
             val options = UCrop.Options()
             options.setCompressionQuality(90)
                 options.setHideBottomControls(false)
                 options.setFreeStyleCropEnabled(true)
                 options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
                 options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-            // 确保裁剪界面正确处理状态栏空间
+            // Ensure crop interface correctly handles status bar space
             options.setToolbarTitle("")
             options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-            // 为顶部工具栏添加额外padding，确保不占用状态栏空间
+            // Add extra padding to top toolbar to avoid overlapping status bar space
             options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
             options.setShowCropGrid(false)
             options.setShowCropFrame(true)
-            // 启动裁剪
+            // Start cropping
             val uCrop = UCrop.of(uri, outputUri)
                 .withAspectRatio(1f, 1f)
                 .withMaxResultSize(1080, 1080)
@@ -228,7 +229,7 @@ fun AIExpenseScreen(
         }
     }
 
-    // 创建临时文件用于相机拍摄
+    // Create temporary file for camera capture
     fun createImageFile(context: Context): Uri? {
         val TAG = "AIExpenseScreen"
         return try {
@@ -238,25 +239,25 @@ fun AIExpenseScreen(
             
             Log.d(TAG, "Storage dir: $storageDir")
             
-            // 确保存储目录存在
+            // Ensure storage directory exists
             if (storageDir?.exists() != true) {
                 Log.d(TAG, "Creating storage dir: ${storageDir?.mkdirs()}")
             }
             
-            // 创建文件
+            // Create file
             val image = File(storageDir, "$imageFileName.jpg")
             
             Log.d(TAG, "Image file path: ${image.absolutePath}")
             
-            // 如果文件已存在，删除它
+            // If file already exists, delete it
             if (image.exists()) {
                 Log.d(TAG, "Deleting existing file: ${image.delete()}")
             }
             
-            // 确保文件被正确创建
+            // Ensure file is created successfully
             if (image.createNewFile()) {
                 Log.d(TAG, "File created successfully")
-                // 使用FileProvider创建URI，避免FileUriExposedException
+                // Use FileProvider to create URI, avoiding FileUriExposedException
                 val uri = androidx.core.content.FileProvider.getUriForFile(
                     context,
                     "${context.packageName}.fileprovider",
@@ -277,12 +278,12 @@ fun AIExpenseScreen(
         }
     }
 
-    // 相机权限请求启动器
+    // Camera permission request launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
-            // 权限授予，启动相机
+            // Permission granted, launch camera
             cameraImageUri = createImageFile(context)
             cameraImageUri?.let { uri ->
                 cameraLauncher.launch(uri)
@@ -290,7 +291,7 @@ fun AIExpenseScreen(
         }
     }
 
-    // 控制图片来源选择对话框的显示
+    // Control display of image source selection dialog box
     var showImageSourceDialog by remember { mutableStateOf(false) }
     
     Scaffold(
@@ -317,7 +318,7 @@ fun AIExpenseScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 图片选择区域
+            // Image selection section
             ImageSelectionSection(
                 context = context,
                 selectedImages = uiState.selectedImages,
@@ -328,7 +329,7 @@ fun AIExpenseScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 文本输入区域
+            // Text input section
             TextInputSection(
                 context = context,
                 textInput = uiState.textInput,
@@ -337,7 +338,7 @@ fun AIExpenseScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 识别按钮
+            // Recognition button
             Button(
                 onClick = { viewModel.startRecognition() },
                 modifier = Modifier.fillMaxWidth(),
@@ -358,7 +359,7 @@ fun AIExpenseScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 识别结果列表
+            // Recognized records list
             if (uiState.recognizedRecords.isNotEmpty()) {
                 RecognizedRecordsSection(
                     context = context,
@@ -370,7 +371,7 @@ fun AIExpenseScreen(
                 )
             }
             
-            // 错误提示
+            // Error prompt
             uiState.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -382,32 +383,32 @@ fun AIExpenseScreen(
         }
     }
 
-    // 图片来源选择BottomSheet
+    // Image source selection BottomSheet
     if (showImageSourceDialog) {
         ImageSourceSelectionBottomSheet(
             context = context,
             onDismiss = { showImageSourceDialog = false },
             onCameraSelected = {
-                // 检查相机权限
+                // Check camera permission
                 val hasCameraPermission = ContextCompat.checkSelfPermission(
                     context,
                     android.Manifest.permission.CAMERA
                 ) == PackageManager.PERMISSION_GRANTED
                 
                 if (hasCameraPermission) {
-                    // 已有权限，直接启动相机
+                    // If permission granted, launch camera directly
                     cameraImageUri = createImageFile(context)
                     cameraImageUri?.let {
                         cameraLauncher.launch(it)
                     }
                 } else {
-                    // 请求相机权限
+                    // Request camera permission
                     permissionLauncher.launch(android.Manifest.permission.CAMERA)
                 }
                 showImageSourceDialog = false
             },
             onGallerySelected = {
-                // 启动相册选择器
+                // Launch gallery picker launcher
                 imagePickerLauncher.launch("image/*")
                 showImageSourceDialog = false
             }
@@ -416,7 +417,7 @@ fun AIExpenseScreen(
 }
 
 /**
- * 图片来源选择BottomSheet
+ * Image source selection BottomSheet
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -447,7 +448,7 @@ private fun ImageSourceSelectionBottomSheet(
                 fontWeight = FontWeight.Bold
             )
             
-            // 相机选项
+            // Camera option
             OutlinedButton(
                 onClick = onCameraSelected,
                 modifier = Modifier.fillMaxWidth()
@@ -468,7 +469,7 @@ private fun ImageSourceSelectionBottomSheet(
                 }
             }
 
-            // 相册选项
+            // Gallery option
             OutlinedButton(
                 onClick = onGallerySelected,
                 modifier = Modifier.fillMaxWidth()
@@ -493,7 +494,7 @@ private fun ImageSourceSelectionBottomSheet(
 }
 
 /**
- * 图片选择区域
+ * Image selection section
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -569,7 +570,7 @@ private fun ImageSelectionSection(
 }
 
 /**
- * 图片预览卡片
+ * Image preview card
  */
 @Composable
 private fun ImagePreviewCard(
@@ -599,7 +600,7 @@ private fun ImagePreviewCard(
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = "删除",
+                    contentDescription = "Remove",
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -608,7 +609,7 @@ private fun ImagePreviewCard(
 }
 
 /**
- * 文本输入区域
+ * Text input section
  */
 @Composable
 private fun TextInputSection(
@@ -635,7 +636,7 @@ private fun TextInputSection(
 }
 
 /**
- * 识别结果区域
+ * Recognized records section
  */
 @Composable
 private fun RecognizedRecordsSection(
@@ -693,7 +694,7 @@ private fun RecognizedRecordsSection(
 
 
 /**
- * 记录编辑卡片
+ * Record edit card
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -785,7 +786,7 @@ private fun RecordEditCard(
 }
 
 /**
- * 记录编辑对话框
+ * Record edit dialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -810,7 +811,7 @@ private fun RecordEditDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // 类型选择
+                // Type selection
                 OutlinedButton(
                     onClick = { showTypePicker = true },
                     modifier = Modifier.fillMaxWidth()
@@ -820,7 +821,7 @@ private fun RecordEditDialog(
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 }
                 
-                // 金额输入
+                // Amount input
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
@@ -829,7 +830,7 @@ private fun RecordEditDialog(
                     prefix = { Text(context.getString(R.string.currency_symbol)) }
                 )
                 
-                // 日期选择
+                // Date picker
                 OutlinedButton(
                     onClick = { showDatePicker = true },
                     modifier = Modifier.fillMaxWidth()
@@ -839,7 +840,7 @@ private fun RecordEditDialog(
                     Icon(Icons.Default.DateRange, contentDescription = null)
                 }
                 
-                // 备注输入
+                // Remark input
                 OutlinedTextField(
                     value = remark,
                     onValueChange = { remark = it },
@@ -915,7 +916,7 @@ private fun RecordEditDialog(
 }
 
 /**
- * 支出类型选择对话框 - 支持搜索功能
+ * Expense type picker dialog - with search capability
  */
 @Composable
 private fun ExpenseTypePickerDialog(

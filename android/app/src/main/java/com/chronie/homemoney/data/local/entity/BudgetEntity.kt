@@ -5,13 +5,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * 预算设置实体
+ * Budget Entity Class
  */
 @Entity(tableName = "budgets")
 data class BudgetEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
-    val id: Int = 1, // 只有一条记录
+    val id: Int = 1, // Only one record
     
     @ColumnInfo(name = "monthly_limit")
     val monthlyLimit: Double,

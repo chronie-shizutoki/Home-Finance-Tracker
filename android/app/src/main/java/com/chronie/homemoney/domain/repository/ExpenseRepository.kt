@@ -7,12 +7,12 @@ import com.chronie.homemoney.domain.model.ExpenseStatistics
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 支出记录 Repository 接口
+ * Expense Repository Interface
  */
 interface ExpenseRepository {
     
     /**
-     * 获取支出记录列表（分页）
+     * Get Expense List (Paged)
      */
     fun getExpenses(
         page: Int,
@@ -21,7 +21,7 @@ interface ExpenseRepository {
     ): Flow<PagingData<Expense>>
     
     /**
-     * 获取支出记录列表（简单版本，用于初始实现）
+     * Get Expense List (Simple Version, for Initial Implementation)
      */
     suspend fun getExpensesList(
         page: Int,
@@ -30,32 +30,32 @@ interface ExpenseRepository {
     ): Result<List<Expense>>
     
     /**
-     * 根据ID获取支出记录
+     * Get Expense by ID
      */
     suspend fun getExpenseById(id: String): Result<Expense>
     
     /**
-     * 添加支出记录
+     * Add Expense
      */
     suspend fun addExpense(expense: Expense): Result<Expense>
     
     /**
-     * 更新支出记录
+     * Update Expense Record
      */
     suspend fun updateExpense(expense: Expense): Result<Expense>
     
     /**
-     * 删除支出记录
+     * Delete Expense Record
      */
     suspend fun deleteExpense(id: String): Result<Unit>
     
     /**
-     * 获取统计数据
+     * Get Statistics Data
      */
     suspend fun getStatistics(filters: ExpenseFilters): Result<ExpenseStatistics>
     
     /**
-     * 与服务器同步
+     * Sync with Server
      */
     suspend fun syncWithServer(): Result<Unit>
 }

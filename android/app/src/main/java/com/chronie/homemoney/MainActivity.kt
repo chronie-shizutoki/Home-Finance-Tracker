@@ -77,23 +77,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 初始化同步调度器
+        // Initialize sync scheduler
         syncScheduler.initialize()
 
-        // 应用启动时触发云同步尝试（允许失败）
+        // Trigger immediate sync on app start (allow failure)
         lifecycleScope.launch {
             try {
                 syncScheduler.triggerImmediateSync()
             } catch (e: Exception) {
-                // 同步失败不影响应用启动
+                // Sync failure does not affect app startup
                 android.util.Log.w("MainActivity", "Failed to trigger sync on app start", e)
             }
         }
 
-        // 立即切换到正常主题，避免启动图背景影响 Popup 窗口
+        // Switch to normal theme immediately to avoid splash screen background affecting Popup windows
         setTheme(R.style.AppTheme_NoActionBar)
 
-        // 清除启动图背景，设置为透明背景
+        // Clear splash screen background, set to transparent background
         window.setBackgroundDrawableResource(android.R.color.transparent)
 
         // Enable edge-to-edge display
@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
         // Make sure the window draws behind system bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // 启动健康检查服务
+        // Start health check service
         healthCheckService.start()
 
         setContent {
@@ -161,7 +161,7 @@ fun HomeMoneyApp(
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
 
-    // 确定初始路由
+    // Determine initial route
     val startDestination = remember {
         val isLoggedIn = checkLoginStatusUseCase()
         if (isLoggedIn) "main" else "welcome"
@@ -273,7 +273,7 @@ fun HomeMoneyApp(
                     navController.navigate("open_source_licenses")
                 },
                 onLogout = {
-                    // 退出登录后，清空整个导航栈并返回欢迎页
+                    // Logout, clear entire navigation stack and return to welcome page
                     navController.navigate("welcome") {
                         popUpTo(0) { inclusive = true }
                     }
@@ -335,7 +335,7 @@ fun HomeMoneyApp(
                     navController.navigate("open_source_licenses")
                 },
                 onRequireLogin = {
-                    // 未登录时，清空导航栈并返回欢迎页
+                    // Logout, clear entire navigation stack and return to welcome page
                     navController.navigate("welcome") {
                         popUpTo(0) { inclusive = true }
                     }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * AI 记录数据映射器
+ * AI Record Data Mapper
  */
 object AIRecordMapper {
     
@@ -19,7 +19,7 @@ object AIRecordMapper {
         return AIExpenseRecord(
             type = parseExpenseType(dto.type),
             amount = dto.amount,
-            date = dto.date, // 直接使用日期字符串
+            date = dto.date, // Direct use of date string
             remark = dto.remark,
             isEdited = false,
             isValid = validateRecord(dto)
@@ -27,7 +27,7 @@ object AIRecordMapper {
     }
     
     /**
-     * 解析支出类型
+     * Parse expense type from string
      */
     private fun parseExpenseType(typeStr: String): ExpenseType {
         return when (typeStr) {
@@ -56,26 +56,26 @@ object AIRecordMapper {
     }
     
     /**
-     * 解析日期时间
+     * Parse date time from string
      */
     private fun parseDateTime(dateStr: String): LocalDateTime {
         return try {
-            // 尝试解析 ISO 格式
+            // Try to parse ISO format
             LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME)
         } catch (e: Exception) {
             try {
-                // 尝试解析日期格式
+                // Try to parse date format
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE)
                 date.atStartOfDay()
             } catch (e2: Exception) {
-                // 默认使用当前时间
+                // Default to current time if parsing fails
                 LocalDateTime.now()
             }
         }
     }
     
     /**
-     * 验证记录有效性
+     * Validate record validity
      */
     private fun validateRecord(dto: AIExpenseRecordDto): Boolean {
         return dto.amount > 0 && dto.remark.isNotBlank()

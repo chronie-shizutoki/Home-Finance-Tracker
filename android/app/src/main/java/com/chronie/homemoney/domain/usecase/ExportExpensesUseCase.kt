@@ -69,7 +69,7 @@ class ExportExpensesUseCase @Inject constructor(
             android.util.Log.d("ExportExpensesUseCase", "Valid expenses count: ${validExpenses.size}")
             
             if (validExpenses.isEmpty()) {
-                return Result.failure(Exception("没有有效的支出记录可以导出"))
+                return Result.failure(Exception("No valid records to export"))
             }
             
             android.util.Log.d("ExportExpensesUseCase", "Preparing Downloads directory")
@@ -149,10 +149,10 @@ class ExportExpensesUseCase @Inject constructor(
         } catch (e: Exception) {
             android.util.Log.e("ExportExpensesUseCase", "Export failed", e)
             val errorMessage = when (e) {
-                is java.security.AccessControlException -> "存储权限被拒绝"
-                is java.io.FileNotFoundException -> "找不到存储目录"
-                is java.io.IOException -> "文件写入失败: ${e.message}"
-                else -> e.message ?: "未知错误"
+                is java.security.AccessControlException -> "Storage permission denied"
+                is java.io.FileNotFoundException -> "Storage directory not found"
+                is java.io.IOException -> "File write error: ${e.message}"
+                else -> e.message ?: "Unknown error"
             }
             Result.failure(Exception(errorMessage))
         }

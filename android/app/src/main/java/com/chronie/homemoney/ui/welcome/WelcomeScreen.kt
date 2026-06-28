@@ -23,7 +23,7 @@ fun WelcomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val username by viewModel.username.collectAsState()
 
-    // 监听跳过登录事件
+    // Listen for skip login event
     LaunchedEffect(Unit) {
         viewModel.skipLoginEvent.collect {
             onGetStartedClick()
@@ -32,7 +32,7 @@ fun WelcomeScreen(
 
     LaunchedEffect(uiState) {
         if (uiState is WelcomeUiState.Error) {
-            // 错误会在UI中显示，3秒后自动清除
+            // Show error message in UI for 3 seconds then clear
             kotlinx.coroutines.delay(3000)
             viewModel.clearError()
         }
@@ -150,7 +150,7 @@ private fun LoginForm(
 
     Spacer(modifier = Modifier.height(8.dp))
 
-    // 跳过登录按钮
+    // Skip login button
     TextButton(
         onClick = onSkipLogin,
         modifier = Modifier.fillMaxWidth()

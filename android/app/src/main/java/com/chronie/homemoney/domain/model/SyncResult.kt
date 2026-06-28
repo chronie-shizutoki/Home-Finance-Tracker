@@ -1,7 +1,7 @@
 package com.chronie.homemoney.domain.model
 
 /**
- * 同步结果
+ * Sync Result Domain Model
  */
 data class SyncResult(
     val success: Boolean,
@@ -12,7 +12,7 @@ data class SyncResult(
 )
 
 /**
- * 上传结果
+ * Upload Result Domain Model
  */
 data class UploadResult(
     val totalItems: Int,
@@ -22,7 +22,7 @@ data class UploadResult(
 )
 
 /**
- * 下载结果
+ * Download Result Domain Model
  */
 data class DownloadResult(
     val totalItems: Int,
@@ -32,7 +32,7 @@ data class DownloadResult(
 )
 
 /**
- * 同步冲突
+ * Sync Conflict Domain Model
  */
 data class SyncConflict(
     val entityType: String,
@@ -44,24 +44,24 @@ data class SyncConflict(
 )
 
 /**
- * 冲突类型
+ * Conflict Type Enum
  */
 enum class ConflictType {
-    UPDATE_CONFLICT,  // 本地和服务器都有更新
-    DELETE_CONFLICT   // 一方删除，另一方更新
+    UPDATE_CONFLICT,  // Local Conflict with Server
+    DELETE_CONFLICT   // Delete Conflict with Local
 }
 
 /**
- * 冲突解决方案
+ * Conflict Resolution Enum
  */
 enum class ConflictResolution {
-    USE_LOCAL,        // 使用本地版本
-    USE_SERVER,       // 使用服务器版本
-    MERGE             // 合并（如果可能）
+    USE_LOCAL,        // Use Local Version
+    USE_SERVER,       // Use Server Version
+    MERGE             // Merge(If Possible)
 }
 
 /**
- * 失败的同步项
+ * Failed Sync Item Domain Model
  */
 data class FailedSyncItem(
     val entityType: String,
@@ -71,12 +71,12 @@ data class FailedSyncItem(
 )
 
 /**
- * 同步状态
+ * Sync Status
  */
 enum class SyncStatus {
-    IDLE,             // 空闲
-    SYNCING,          // 同步中
-    SUCCESS,          // 成功
-    FAILED,           // 失败
-    CONFLICT          // 有冲突
+    IDLE,             // Idle
+    SYNCING,          // Syncing
+    SUCCESS,          // Success
+    FAILED,           // Failed
+    CONFLICT          // Conflict
 }

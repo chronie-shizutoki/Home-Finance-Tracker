@@ -5,12 +5,12 @@ import retrofit2.Response
 import retrofit2.http.GET
 
 /**
- * 通用API服务接口
+ * General API Service Interface
  */
 interface ApiService {
     
     /**
-     * 健康检查
+     * Health Check
      */
     @GET("api/health/lite")
     suspend fun checkHealth(): HealthDto

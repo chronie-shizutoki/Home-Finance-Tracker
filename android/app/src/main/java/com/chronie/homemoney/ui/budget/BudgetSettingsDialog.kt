@@ -18,7 +18,7 @@ import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.CircularIconButton
 
 /**
- * 预算设置对话框
+ * Budget Settings Dialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +50,7 @@ fun BudgetSettingsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // 启用开关
+                // Enable feature switch
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -66,7 +66,7 @@ fun BudgetSettingsDialog(
                     )
                 }
                 
-                // 月度预算输入
+                // Monthly Budget Input
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -108,7 +108,7 @@ fun BudgetSettingsDialog(
                     }
                 }
                 
-                // 警告阈值输入
+                // Warning threshold input
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -153,7 +153,7 @@ fun BudgetSettingsDialog(
                     }
                 }
                 
-                // 错误提示
+                // Error message
                 if (showError) {
                     Text(
                         text = errorMessage,
@@ -166,7 +166,7 @@ fun BudgetSettingsDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    // 验证输入
+                    // Validate input
                     val limit = monthlyLimit.toDoubleOrNull()
                     val threshold = warningThreshold.toDoubleOrNull()
                     

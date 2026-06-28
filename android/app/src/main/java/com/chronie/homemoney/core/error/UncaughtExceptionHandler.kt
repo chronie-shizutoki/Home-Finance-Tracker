@@ -5,8 +5,8 @@ import android.util.Log
 import kotlinx.coroutines.runBlocking
 
 /**
- * 自定义未捕获异常处理器
- * 捕获应用中所有未被捕获的异常，记录到日志文件并上报
+ * Custom Uncaught Exception Handler
+ * Catches all uncaught exceptions in the app, logs them to a file, and reports them to the server
  */
 class UncaughtExceptionHandler(
     private val defaultHandler: Thread.UncaughtExceptionHandler,
@@ -16,6 +16,9 @@ class UncaughtExceptionHandler(
     companion object {
         private const val TAG = "UncaughtExceptionHandler"
         
+        /**
+         * Initialize the custom uncaught exception handler
+         */
         fun init(context: Context, errorReporter: ErrorReporter) {
             val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
             val uncaughtExceptionHandler = UncaughtExceptionHandler(

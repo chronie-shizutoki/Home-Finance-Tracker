@@ -30,7 +30,7 @@ import com.kyant.m3color.scheme.SchemeRainbow
 import com.kyant.m3color.scheme.SchemeTonalSpot
 import com.kyant.m3color.scheme.SchemeVibrant
 
-// 颜色方案样式枚举
+// Color scheme style enum
 enum class PaletteStyle {
     TonalSpot,
     Neutral,
@@ -43,19 +43,19 @@ enum class PaletteStyle {
     Content,
 }
 
-// 创建主题设置的LocalContext
+// Theme settings local context
 val LocalThemeSettings = staticCompositionLocalOf<MutableState<ThemeSettings>> {
     error("No ThemeSettings provided")
 }
 
-// 主题设置数据类
+// Theme settings data class
 class ThemeSettings(
     val useDynamicColor: Boolean,
     val primaryColor: Int,
     val paletteStyle: PaletteStyle
 )
 
-// 从SharedPreferences加载主题设置
+// Load theme settings from SharedPreferences
 fun loadThemeSettings(context: Context): ThemeSettings {
     val prefs: SharedPreferences = context.getSharedPreferences("theme_settings", Context.MODE_PRIVATE)
     val useDynamicColor = prefs.getBoolean("use_dynamic_color", true)
@@ -65,7 +65,7 @@ fun loadThemeSettings(context: Context): ThemeSettings {
     return ThemeSettings(useDynamicColor, primaryColor, paletteStyle)
 }
 
-// 更新主题设置到SharedPreferences
+// Update theme settings in SharedPreferences
 fun updateThemeSettings(context: Context, settings: ThemeSettings) {
     val prefs: SharedPreferences = context.getSharedPreferences("theme_settings", Context.MODE_PRIVATE)
     prefs.edit().apply {
@@ -75,7 +75,7 @@ fun updateThemeSettings(context: Context, settings: ThemeSettings) {
     }.apply()
 }
 
-// 使用m3color库生成颜色方案
+// Generate color scheme using m3color library
 @Stable
 fun dynamicColorScheme(
     keyColor: Color,
@@ -153,7 +153,7 @@ fun dynamicColorScheme(
 @Suppress("NOTHING_TO_INLINE")
 private inline fun Int.toColor(): Color = Color(this)
 
-// 手动派生 primary 颜色的数据类
+// Derived primary color data class
 data class PrimaryColors(
     val primary: Color,
     val onPrimary: Color,
@@ -166,7 +166,7 @@ data class PrimaryColors(
     val inversePrimary: Color
 )
 
-// 手动派生 primary 颜色的函数
+// Derived primary color function
 @Stable
 fun derivePrimaryColors(
     keyColor: Color,
@@ -178,7 +178,7 @@ fun derivePrimaryColors(
     val chroma = hct.chroma
     val tone = hct.tone
 
-    // 根据不同的调色板风格调整色度
+    // Adjust chroma based on palette style
     val adjustedChroma = when (style) {
         PaletteStyle.TonalSpot -> chroma
         PaletteStyle.Neutral -> chroma * 0.5
@@ -191,9 +191,9 @@ fun derivePrimaryColors(
         PaletteStyle.Content -> chroma * 0.8
     }.coerceAtMost(150.0).coerceAtLeast(0.0)
 
-    // 根据亮色/暗色模式设置不同的色调值
+    // Set tone values based on light/dark mode
     if (isDark) {
-        // 暗色模式的色调设置
+        // Dark mode tone settings
         val primaryTone = when {
             tone >= 60 -> 80.0
             tone >= 40 -> 70.0
@@ -226,7 +226,7 @@ fun derivePrimaryColors(
             inversePrimary = Hct.from(hue, adjustedChroma, inversePrimaryTone).toInt().toColor()
         )
     } else {
-        // 亮色模式的色调设置
+        // Light mode tone settings
         val primaryTone = when {
             tone >= 60 -> 40.0
             tone >= 40 -> 40.0
@@ -261,7 +261,7 @@ fun derivePrimaryColors(
     }
 }
 
-// 根据主题和颜色设置创建颜色方案
+// Create color scheme function from theme and color settings
 fun createColorScheme(
     context: Context,
     darkTheme: Boolean,
@@ -272,14 +272,14 @@ fun createColorScheme(
     val userPrimaryColor = Color(primaryColor)
     
     if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        // 使用系统生成的完整动态颜色方案
+        // Use system-generated dynamic color scheme if available
         return if (darkTheme) {
             dynamicDarkColorScheme(context)
         } else {
             dynamicLightColorScheme(context)
         }
     } else {
-        // 使用m3color库生成颜色方案
+        // Use m3color library to generate color scheme
         return dynamicColorScheme(
             keyColor = userPrimaryColor,
             isDark = darkTheme,
@@ -297,15 +297,15 @@ fun HomeMoneyTheme(
 ) {
     val context = LocalContext.current
     
-    // 实时获取系统主题模式，确保能响应系统主题变化
+    // Get system theme mode in real-time, ensure it responds to system theme changes
     val darkTheme = isSystemInDarkTheme()
     
-    // 创建可观察的主题设置
+    // Create observable theme settings
     val themeSettings = remember {
         mutableStateOf(loadThemeSettings(context))
     }
     
-    // 监听SharedPreferences变化，确保主题设置能够实时更新
+    // Listen for SharedPreferences changes to update theme settings in real-time
     DisposableEffect(Unit) {
         val prefs = context.getSharedPreferences("theme_settings", Context.MODE_PRIVATE)
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -313,13 +313,13 @@ fun HomeMoneyTheme(
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
         
-        // 清理监听器
+        // Clean up listener
         onDispose {
             prefs.unregisterOnSharedPreferenceChangeListener(listener)
         }
     }
     
-    // 当主题设置或系统主题模式变化时，自动重新计算颜色方案
+    // Recalculate color scheme when theme settings or system theme mode changes
     val colorScheme = remember(themeSettings.value, darkTheme) {
         createColorScheme(
             context = context,
@@ -336,16 +336,16 @@ fun HomeMoneyTheme(
             val window = (view.context as Activity).window
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = !darkTheme
-            // 设置导航栏颜色为基本白/黑色
+            // Set navigation bar color to basic white/black based on theme mode
             window.navigationBarColor = if (darkTheme) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-            // 设置状态栏颜色为基本白/黑色，在高版本安卓系统上，状态栏颜色会被系统忽略（由系统自动管理）
+            // Set status bar color to basic white/black based on theme mode, ignore on high versions of Android
             window.statusBarColor = if (darkTheme) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-            // 确保导航栏图标颜色正确
+            // Ensure navigation bar icon colors are correct
             insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
-    // 将主题设置提供给所有子组件
+    // Provide theme settings to all children in the composition
     CompositionLocalProvider(
         LocalThemeSettings provides themeSettings
     ) {

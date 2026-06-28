@@ -3,7 +3,7 @@ package com.chronie.homemoney.domain.model
 import java.time.LocalDateTime
 
 /**
- * AI 识别的支出记录
+ * AI recognized Expense Record
  */
 data class AIExpenseRecord(
     val id: String = "",
@@ -15,7 +15,7 @@ data class AIExpenseRecord(
     val isValid: Boolean = true
 ) {
     /**
-     * 转换为普通支出记录
+     * Convert to normal expense record
      */
     fun toExpense(): Expense {
         return Expense(

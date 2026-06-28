@@ -33,7 +33,7 @@ class MembershipViewModel @Inject constructor(
             try {
                 val username = checkLoginStatusUseCase.getUsername()
                 if (username.isNullOrEmpty()) {
-                    _uiState.value = MembershipUiState.Error("未登录")
+                    _uiState.value = MembershipUiState.Error("Not logged in")
                     return@launch
                 }
 
@@ -45,12 +45,12 @@ class MembershipViewModel @Inject constructor(
                     )
                 } else {
                     _uiState.value = MembershipUiState.Error(
-                        memberResult.exceptionOrNull()?.message ?: "获取会员信息失败"
+                        memberResult.exceptionOrNull()?.message ?: "Failed to get member info"
                     )
                 }
             } catch (e: Exception) {
                 _uiState.value = MembershipUiState.Error(
-                    e.message ?: "加载失败"
+                    e.message ?: "Loading failed"
                 )
             }
         }
@@ -61,7 +61,7 @@ class MembershipViewModel @Inject constructor(
             try {
                 val username = checkLoginStatusUseCase.getUsername()
                 if (username.isNullOrEmpty()) {
-                    _uiState.value = MembershipUiState.Error("未登录")
+                    _uiState.value = MembershipUiState.Error("Not logged in")
                     return@launch
                 }
 
@@ -73,12 +73,12 @@ class MembershipViewModel @Inject constructor(
                     }
                 } else {
                     _uiState.value = MembershipUiState.Error(
-                        result.exceptionOrNull()?.message ?: "更新头像失败"
+                        result.exceptionOrNull()?.message ?: "Failed to update avatar"
                     )
                 }
             } catch (e: Exception) {
                 _uiState.value = MembershipUiState.Error(
-                    e.message ?: "更新头像失败"
+                    e.message ?: "Failed to update avatar"
                 )
             }
         }

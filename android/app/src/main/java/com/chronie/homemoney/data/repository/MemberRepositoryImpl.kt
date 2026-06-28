@@ -46,7 +46,7 @@ class MemberRepositoryImpl @Inject constructor(
             if (response.success && response.data != null) {
                 Result.success(MemberMapper.toDomain(response.data))
             } else {
-                Result.failure(Exception(response.error ?: "更新头像失败"))
+                Result.failure(Exception(response.error ?: "Failed to update avatar"))
             }
         } catch (e: Exception) {
             Result.failure(e)

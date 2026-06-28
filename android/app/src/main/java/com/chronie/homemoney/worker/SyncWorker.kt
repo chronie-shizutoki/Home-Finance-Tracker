@@ -10,8 +10,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 /**
- * 后台同步 Worker
- * 使用 WorkManager 定期执行数据同步
+ * Background Sync Worker
+ * Uses WorkManager to periodically sync data with the server
  */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
@@ -29,7 +29,7 @@ class SyncWorker @AssistedInject constructor(
         Log.d(TAG, "Starting background sync")
         
         return try {
-            // 执行完整同步
+            // Execute full sync
             val syncResult = syncManager.performFullSync()
             
             if (syncResult.isSuccess) {

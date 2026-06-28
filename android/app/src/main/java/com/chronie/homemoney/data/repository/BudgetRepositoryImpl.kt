@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 预算仓库实现
+ * Budget Repository Implementation
  */
 @Singleton
 class BudgetRepositoryImpl @Inject constructor(
@@ -71,7 +71,7 @@ class BudgetRepositoryImpl @Inject constructor(
                 return null
             }
             
-            // 获取当月的起始和结束日期字符串
+            // Get current month start and end date strings
             val now = java.time.LocalDate.now()
             val yearMonth = java.time.YearMonth.from(now)
             val startOfMonth = yearMonth.atDay(1).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -79,7 +79,7 @@ class BudgetRepositoryImpl @Inject constructor(
             
             android.util.Log.d("BudgetRepository", "Querying expenses from $startOfMonth to $endOfMonth")
             
-            // 查询当月支出总额
+            // Query total month spending amount
             val currentSpending: Double = expenseDao.getTotalAmountByDateRange(startOfMonth, endOfMonth) ?: 0.0
             
             android.util.Log.d("BudgetRepository", "Current spending: $currentSpending")
@@ -93,11 +93,11 @@ class BudgetRepositoryImpl @Inject constructor(
         val isOverLimit = currentSpending > budget.monthlyLimit
         val isNearLimit = spendingPercentage >= (budget.warningThreshold * 100)
         
-        // 计算日均消费
+        // Calculate daily average spending amount
         val currentDay = now.dayOfMonth
         val dailyAverage = if (currentDay > 0) currentSpending / currentDay else 0.0
         
-        // 计算建议日均消费
+        // Calculate recommended daily spending amount
         val daysInMonth = yearMonth.lengthOfMonth()
         val remainingDays = daysInMonth - currentDay
         val recommendedDaily = if (remainingDays > 0) remainingAmount / remainingDays else 0.0
@@ -131,7 +131,7 @@ class BudgetRepositoryImpl @Inject constructor(
         if (current != null) {
             budgetDao.updateBudget(current.copy(isEnabled = enabled))
         } else {
-            // 如果没有预算设置，创建一个默认的
+            // If no budget is set, create a default one with enabled status
             val defaultBudget = BudgetEntity(
                 id = 1,
                 monthlyLimit = 0.0,

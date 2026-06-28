@@ -5,7 +5,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
 
 /**
- * 支出类型本地化工具
+ * Expense Type Localizer
  */
 object ExpenseTypeLocalizer {
     
@@ -44,14 +44,14 @@ object ExpenseTypeLocalizer {
     }
     
     /**
-     * 根据类型名称字符串获取本地化名称
+     * Get localized expense type name from string representation
      */
     fun getLocalizedTypeName(context: Context, typeName: String): String {
         return try {
             val type = ExpenseType.valueOf(typeName)
             getLocalizedName(context, type)
         } catch (e: IllegalArgumentException) {
-            typeName // 如果无法解析，返回原始名称
+            typeName // Return original name if parsing fails
         }
     }
 }

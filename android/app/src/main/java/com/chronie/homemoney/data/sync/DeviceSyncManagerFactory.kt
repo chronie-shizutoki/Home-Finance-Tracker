@@ -7,8 +7,9 @@ import com.chronie.homemoney.domain.sync.DeviceSyncManager
 import com.google.gson.Gson
 
 /**
- * 设备同步管理器工厂类
- * 仅支持局域网同步
+ * Device Sync Manager Factory
+ * Factory class for creating device sync managers
+ * Only LAN (Local Area Network) sync is supported
  */
 class DeviceSyncManagerFactory(
     private val context: Context,
@@ -17,18 +18,18 @@ class DeviceSyncManagerFactory(
     private val wifiManager: WifiManager
 ) {
 
-    // 单例实例，确保服务器只启动一次
+    // Singleton instance, ensuring server remains running
     private val lanDeviceSyncManager: LanDeviceSyncManager by lazy {
         LanDeviceSyncManager(context, expenseDao, gson, wifiManager).apply {
-            // 启动同步服务器，监听其他设备的连接请求
+            // Start sync server to listen for device connection requests
             startSyncServer()
         }
     }
 
     /**
-     * 创建设备同步管理器
-     * 仅支持局域网(LAN)同步
-     * 返回单例实例，确保服务器保持运行
+     * Create Device Sync Manager Instance
+     * Only LAN (Local Area Network) sync is supported
+     * Returns singleton instance, ensuring server remains running
      */
     fun createDeviceSyncManager(): DeviceSyncManager {
         return lanDeviceSyncManager

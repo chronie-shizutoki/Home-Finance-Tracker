@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * 支出筛选对话框
+ * Expense Filter Dialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +63,7 @@ fun ExpenseFilterDialog(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // 标题栏
+                // Title bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -82,7 +82,7 @@ fun ExpenseFilterDialog(
                 
                 Divider()
                 
-                // 筛选内容
+                // Filter content area
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -90,7 +90,7 @@ fun ExpenseFilterDialog(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 搜索关键词
+                    // Search keyword
                     OutlinedTextField(
                         value = keyword,
                         onValueChange = { keyword = it },
@@ -100,7 +100,7 @@ fun ExpenseFilterDialog(
                         singleLine = true
                     )
                     
-                    // 支出类型选择
+                    // Expense Type Selection
                     OutlinedButton(
                         onClick = { showTypeSelector = true },
                         modifier = Modifier.fillMaxWidth()
@@ -114,7 +114,7 @@ fun ExpenseFilterDialog(
                         )
                     }
                     
-                    // 日期范围
+                    // Date range
                     Text(
                         text = context.getString(R.string.expense_list_filter_date_range),
                         style = MaterialTheme.typography.titleSmall
@@ -145,7 +145,7 @@ fun ExpenseFilterDialog(
                         }
                     }
                     
-                    // 金额范围
+                    // Amount range
                     Text(
                         text = context.getString(R.string.expense_list_filter_amount_range),
                         style = MaterialTheme.typography.titleSmall
@@ -174,7 +174,7 @@ fun ExpenseFilterDialog(
                         )
                     }
                     
-                    // 排序选项
+                    // Sorting options
                     Text(
                         text = context.getString(R.string.expense_list_sort),
                         style = MaterialTheme.typography.titleSmall
@@ -201,7 +201,7 @@ fun ExpenseFilterDialog(
                 
                 Divider()
                 
-                // 底部按钮
+                // Bottom buttons area
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,7 +246,7 @@ fun ExpenseFilterDialog(
         }
     }
     
-    // 类型选择对话框
+    // Expense Type Selection Dialog Box
     if (showTypeSelector) {
         ExpenseTypeSelector(
             context = context,
@@ -259,7 +259,7 @@ fun ExpenseFilterDialog(
         )
     }
     
-    // 开始日期选择器
+    // Start Date Picker
     if (showStartDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = startDate?.toEpochDay()?.times(86400000L)
@@ -286,7 +286,7 @@ fun ExpenseFilterDialog(
         }
     }
     
-    // 结束日期选择器
+    // End Date Picker
     if (showEndDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = endDate?.toEpochDay()?.times(86400000L)
@@ -315,7 +315,7 @@ fun ExpenseFilterDialog(
 }
 
 /**
- * 支出类型选择器 - 支持搜索功能
+ * Expense Type Selector - Supports Search Functionality
  */
 @Composable
 fun ExpenseTypeSelector(
@@ -435,7 +435,7 @@ fun ExpenseTypeSelector(
 }
 
 /**
- * 获取排序选项的本地化文本
+ * Get localized text for sorting options
  */
 private fun getSortOptionText(context: android.content.Context, option: SortOption): String {
     return when (option) {
