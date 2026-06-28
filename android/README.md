@@ -1,4 +1,4 @@
-# Home Money - Android Native Application
+# Home Finance Tracker - Android Native Application
 
 ## Overview
 
@@ -7,28 +7,30 @@ This is the native Android implementation of the Home Money financial tracking a
 ## Features
 
 ### Core Functionality
-- **Expense Tracking**: Add, view, edit, and delete expense records with support for 21 expense categories
-- **AI-Powered Recognition**: Intelligent expense recognition from images and text using SiliconFlow API
+- **Expense Tracking**: Add, view, edit, and delete expense records with support for 26 expense categories
+- **AI-Powered Recognition**: Intelligent expense recognition from images and text using SiliconFlow API (Qwen models)
 - **Budget Management**: Set monthly spending limits with warning thresholds and real-time usage tracking
-- **Data Synchronization**: Automatic background sync with server, offline support with local caching
+- **Data Synchronization**: Automatic background sync with server via WorkManager, offline support with local caching
 - **Search & Filtering**: Advanced filtering by date range, expense type, amount range, and keywords
-- **Multi-language Support**: Full internationalization support for English, Simplified Chinese, Traditional Chinese, Hong Kong, Macau, and Singapore variants
+- **Multi-language Support**: 12 languages including English, Indonesian, Japanese, Korean, Malay, Simplified Chinese (Mainland & Singapore), Thai, Traditional Chinese (Hong Kong, Macau, Taiwan), and Vietnamese
 
 ### New & Enhanced Features
-- **LAN Device Sync**: Peer-to-peer data synchronization between devices over local network using Bluetooth
-- **Data Visualization**: Interactive charts and radar charts for weekday spending analysis
-- **Membership Management**: User profile and membership features
-- **Excel Import/Export**: Import expenses from Excel files and export data for backup
-- **Image Cropping**: Built-in image cropping for AI expense recognition
-- **Error Reporting**: Automatic crash reporting and error logging for debugging
-- **Health Check Service**: Server health monitoring
+- **LAN Device Sync**: Peer-to-peer data synchronization via gRPC + Protobuf over UDP multicast discovery on WiFi local network
+- **Native C++ Sync Engine**: High-performance JNI-based sync server with socket-level networking for device-to-device communication
+- **Data Visualization**: Interactive charts with weekday radar chart and spending trend analysis
+- **Membership Management**: User profile with avatar upload via server API
+- **Excel Import/Export**: Import expenses from Excel files and export data for backup using fastExcel
+- **Image Cropping**: Built-in uCrop integration for AI expense recognition image preprocessing
+- **Error Reporting**: Automatic crash reporting, error logging, and log file management with server upload
+- **Health Check Service**: Server health monitoring via `/api/health/lite` endpoint
 
 ### Technical Features
-- **Encrypted Database**: SQLCipher-encrypted local storage for sensitive financial data
-- **Material Design 3 Expressive**: Modern UI following Google's latest design guidelines with expressive components
-- **Edge-to-Edge Display**: Immersive full-screen experience
+- **Encrypted Database**: SQLCipher-encrypted Room database with hardware-backed key storage via EncryptedSharedPreferences
+- **Material Design 3**: Modern UI with dynamic color support (Android 12+) and manual color picker customization
+- **Edge-to-Edge Display**: Immersive full-screen experience with transparent system bars
 - **Developer Mode**: Built-in database testing and debugging tools
-- **Customizable Theme**: Color picker for personalizing the app appearance
+- **Customizable Theme**: Manual color picker and dynamic color from wallpaper
+- **Protobuf Serialization**: Protocol Buffers for efficient LAN sync data exchange
 
 ## Architecture
 
@@ -43,7 +45,10 @@ This is the native Android implementation of the Home Money financial tracking a
 │  (Use Cases + Models + Repositories)    │
 ├─────────────────────────────────────────┤
 │         Data Layer                      │
-│  (Room DB + Retrofit + Mappers)         │
+│  (Room DB + Retrofit + gRPC + Mappers)  │
+├─────────────────────────────────────────┤
+│         Native Layer                    │
+│  (C++ JNI Sync Engine + Protobuf)       │
 ├─────────────────────────────────────────┤
 │         Framework Layer                 │
 │  (Android SDK + Third-party Libraries)  │
@@ -53,52 +58,63 @@ This is the native Android implementation of the Home Money financial tracking a
 ### Key Components
 
 #### Data Layer
-- **Room Database**: Encrypted local storage with SQLCipher
-- **Retrofit**: RESTful API client for server communication
-- **Repository Pattern**: Abstraction layer for data sources
+- **Room Database**: Encrypted local storage with SQLCipher (version 6, 6 migrations)
+- **Retrofit**: RESTful API client for server communication with auth, logging, and error-handling interceptors
+- **gRPC + Protobuf**: High-performance device-to-device sync protocol for LAN sync
+- **Repository Pattern**: Abstraction layer for data sources (Expense, Budget, Member, AI Record)
 - **Data Mappers**: Convert between Entity, Domain, and DTO models
-- **Excel Integration**: fastExcel for import/export functionality
+- **Excel Integration**: fastExcel for import/export with aalto-xml StAX parser and XZ compression
 
 #### Domain Layer
-- **Use Cases**: Business logic encapsulation
-- **Domain Models**: Pure Kotlin data classes
+- **Use Cases**: Business logic encapsulation (GetBudget, SaveBudget, GetStatistics, Export/Import, Login/Logout, CheckLoginStatus)
+- **Domain Models**: Pure Kotlin data classes (Expense with 26 types, Budget, Member, AIExpenseRecord, SyncResult)
 - **Repository Interfaces**: Contracts for data operations
-- **Sync Managers**: LAN and server synchronization
+- **Sync Managers**: DeviceSyncManager interface with LanDeviceSyncManager implementation
 
 #### Presentation Layer
 - **Jetpack Compose**: Modern declarative UI framework
-- **ViewModels**: UI state management with Kotlin Flow
-- **Navigation Component**: Type-safe navigation between screens
-- **Material 3 Expressive**: Enhanced UI components
+- **ViewModels**: UI state management with Kotlin StateFlow
+- **Navigation Component**: Type-safe navigation with animated transitions
+- **Material 3**: Material Design 3 components with window size classes
+- **Custom Components**: ExpressiveLinearProgressIndicator, ExpressiveLoadingIndicator, ExpressiveSwitch, CircularIconButton, ColorPickerBottomSheet, LanguageSelectorBottomSheet
+
+#### Native Layer
+- **C++ JNI Engine**: Native socket server for LAN sync (`native-lib.cpp`)
+- **Protobuf Schema**: Defined in `sync.proto` with SyncService gRPC service definition
+- **SyncEngine**: JNI bridge between Kotlin and native C++ for high-performance data transfer
 
 ## Tech Stack
 
 ### Core Technologies
-- **Language**: Kotlin 2.3.20
-- **UI Framework**: Jetpack Compose (BOM 2026.03.01)
-- **Dependency Injection**: Hilt 2.59.2
-- **Database**: Room 2.8.4 with SQLCipher 4.14.0
-- **Networking**: Retrofit 3.0.0 + OkHttp 5.3.2
-- **Async**: Kotlin Coroutines 1.10.2 + Flow
+- **Language**: Kotlin 2.4.0
+- **Android Gradle Plugin**: 9.2.1
+- **KSP**: 2.3.9
+- **UI Framework**: Jetpack Compose (BOM 2026.06.00)
+- **Dependency Injection**: Hilt 2.60
+- **Database**: Room 2.8.4 with SQLCipher 4.16.0
+- **Networking**: Retrofit 3.0.0 + OkHttp logging-interceptor 5.4.0
+- **Async**: Kotlin Coroutines 1.11.0 + Flow
 
 ### Key Libraries
-- **Material Design 3**: Modern UI components (1.5.0-alpha16)
-- **Material Expressive**: Enhanced Material components (1.14.0-alpha10)
-- **Navigation Compose**: Type-safe navigation (2.9.7)
-- **Paging 3**: Efficient data loading (3.4.2)
-- **WorkManager**: Background task scheduling (2.11.2)
-- **Coil**: Image loading and caching (2.7.0)
+- **Material Design 3**: Modern UI components (1.5.0-alpha22) with window-size-class
+- **Material (MDC)**: Material Components for Android (1.14.0)
+- **Navigation Compose**: Type-safe navigation (2.9.8)
+- **Paging 3**: Efficient data loading with Compose integration (3.5.0)
+- **WorkManager**: Background task scheduling (2.11.2) with Hilt integration
+- **Coil**: Image loading and caching (2.7.0) with custom DataUriMapper
 - **Gson**: JSON serialization
 - **DataStore**: Preferences storage (1.2.1)
-- **fastExcel**: Excel file handling (0.20.0)
+- **fastExcel**: Excel file handling (0.20.2) with aalto-xml (1.4.0) and XZ (1.12)
 - **uCrop**: Image cropping (2.2.11)
-- **m3color**: Material 3 color utilities (2025.4)
+- **m3color**: Material 3 color utilities (2026.1)
+- **Protobuf**: Protocol Buffers (4.35.1) with protobuf-javalite
+- **gRPC**: gRPC-Java (1.82.1) with okhttp and protobuf-lite
 
 ### Security
-- **SQLCipher**: Database encryption
-- **EncryptedSharedPreferences**: Secure key storage
-- **Android Keystore**: Hardware-backed key management
-- **Error Reporting**: Secure error logging
+- **SQLCipher**: Database encryption with runtime-generated random passphrase
+- **EncryptedSharedPreferences**: Secure key storage with AES256_GCM
+- **Android Keystore**: Hardware-backed master key management
+- **Error Reporting**: Secure error logging with device info anonymization
 
 ## Project Structure
 
@@ -107,58 +123,85 @@ android/
 ├── app/
 │   ├── src/
 │   │   ├── main/
+│   │   │   ├── cpp/                       # Native C++ code
+│   │   │   │   ├── CMakeLists.txt         # CMake build config (C++17)
+│   │   │   │   └── native-lib.cpp         # JNI sync engine
 │   │   │   ├── java/com/chronie/homemoney/
-│   │   │   │   ├── core/              # Core utilities
-│   │   │   │   │   ├── common/        # Common utilities (Language, DeveloperMode)
-│   │   │   │   │   ├── error/         # Error reporting system
-│   │   │   │   │   └── network/       # Network monitoring
-│   │   │   │   ├── data/              # Data layer
-│   │   │   │   │   ├── local/         # Room database
-│   │   │   │   │   │   ├── dao/       # Data access objects
-│   │   │   │   │   │   └── entity/    # Database entities
-│   │   │   │   │   ├── remote/        # API layer
-│   │   │   │   │   │   ├── api/       # Retrofit interfaces
-│   │   │   │   │   │   ├── dto/       # Data transfer objects
-│   │   │   │   │   │   └── interceptor/ # HTTP interceptors
-│   │   │   │   │   ├── repository/    # Repository implementations
-│   │   │   │   │   ├── mapper/        # Data mappers
-│   │   │   │   │   └── sync/          # Sync management (LAN + Server)
-│   │   │   │   ├── di/                # Dependency injection
-│   │   │   │   ├── domain/            # Domain layer
-│   │   │   │   │   ├── model/         # Domain models
-│   │   │   │   │   ├── repository/    # Repository interfaces
-│   │   │   │   │   ├── usecase/       # Use cases
-│   │   │   │   │   └── sync/          # Sync interfaces
-│   │   │   │   ├── service/           # Background services
-│   │   │   │   ├── ui/                # Presentation layer
-│   │   │   │   │   ├── budget/        # Budget management
-│   │   │   │   │   ├── charts/        # Data visualization
-│   │   │   │   │   ├── components/    # Reusable UI components
-│   │   │   │   │   ├── expense/       # Expense tracking
-│   │   │   │   │   ├── main/          # Main screen
-│   │   │   │   │   ├── membership/    # Membership features
-│   │   │   │   │   ├── settings/      # Settings
-│   │   │   │   │   ├── sync/          # LAN sync screen
-│   │   │   │   │   ├── test/          # Testing screens
-│   │   │   │   │   ├── theme/         # Material theme
-│   │   │   │   │   └── welcome/       # Welcome screen
-│   │   │   │   ├── worker/            # Background workers
-│   │   │   │   └── MainActivity.kt    # Main activity
-│   │   │   ├── res/                   # Resources
-│   │   │   │   ├── values/            # English strings
-│   │   │   │   ├── values-zh/         # Simplified Chinese
-│   │   │   │   ├── values-zh-rHK/     # Hong Kong Chinese
-│   │   │   │   ├── values-zh-rMO/     # Macau Chinese
-│   │   │   │   ├── values-zh-rSG/     # Singapore Chinese
-│   │   │   │   └── values-zh-rTW/     # Traditional Chinese
+│   │   │   │   ├── core/                  # Core utilities
+│   │   │   │   │   ├── coil/              # Coil custom mapper (DataUriMapper)
+│   │   │   │   │   ├── common/            # Language, LanguageManager, DeveloperMode
+│   │   │   │   │   ├── error/             # Error reporting system (ErrorReporter, ErrorInfo, LogFileManager, DeviceInfoUtils, UncaughtExceptionHandler, MockErrorReportApi)
+│   │   │   │   │   │   └── di/            # ErrorReportModule
+│   │   │   │   │   └── network/           # NetworkMonitor with Flow-based connectivity observation
+│   │   │   │   ├── data/                  # Data layer
+│   │   │   │   │   ├── local/             # Room database
+│   │   │   │   │   │   ├── dao/           # ExpenseDao, BudgetDao, MemberDao, SyncQueueDao
+│   │   │   │   │   │   ├── entity/        # ExpenseEntity, BudgetEntity, MemberEntity, SyncQueueEntity
+│   │   │   │   │   │   ├── AppDatabase.kt # Room database (version 6)
+│   │   │   │   │   │   ├── DatabaseMigrations.kt # 5 migrations (1→2→3→4→5→6)
+│   │   │   │   │   │   └── PreferencesManager.kt # User preferences and membership cache
+│   │   │   │   │   ├── remote/            # API layer
+│   │   │   │   │   │   ├── api/           # ExpenseApi, MemberApi, ApiService, AIRecordApi
+│   │   │   │   │   │   ├── dto/           # DTOs (ExpenseDto, MemberDto, AIRecordDto, ApiResponse, HealthDto, SyncRequestDto, SyncResponseDto)
+│   │   │   │   │   │   └── interceptor/   # AuthInterceptor, LoggingInterceptor, ErrorHandlingInterceptor
+│   │   │   │   │   ├── repository/        # Repository implementations (Expense, Budget, Member, AIRecord)
+│   │   │   │   │   ├── mapper/            # ExpenseMapper, MemberMapper, AIRecordMapper
+│   │   │   │   │   └── sync/              # SyncManagerImpl, SyncScheduler, LanDeviceSyncManager, BaseDeviceSyncManager, DeviceSyncManagerFactory, NativeSyncEngine, SyncProtoConverter
+│   │   │   │   ├── di/                    # Dependency injection modules
+│   │   │   │   │   ├── DatabaseModule.kt  # SQLCipher-encrypted Room database
+│   │   │   │   │   ├── NetworkModule.kt   # Retrofit + OkHttp with interceptors
+│   │   │   │   │   ├── RepositoryModule.kt
+│   │   │   │   │   ├── AIModule.kt        # Separate Retrofit instance for SiliconFlow API
+│   │   │   │   │   ├── SyncModule.kt      # SyncManager + DeviceSyncManagerFactory
+│   │   │   │   │   └── ImageLoaderModule.kt
+│   │   │   │   ├── domain/                # Domain layer
+│   │   │   │   │   ├── model/             # Expense (26 types), Budget, BudgetUsage, Member, AIExpenseRecord, ExpenseFilters, ExpenseStatistics, SyncResult
+│   │   │   │   │   ├── repository/        # ExpenseRepository, BudgetRepository, MemberRepository, AIRecordRepository
+│   │   │   │   │   ├── usecase/           # GetBudgetUseCase, SaveBudgetUseCase, GetBudgetUsageUseCase, GetStatisticsUseCase, ExportExpensesUseCase, ImportExpensesUseCase, LoginUseCase, LogoutUseCase, CheckLoginStatusUseCase
+│   │   │   │   │   └── sync/              # SyncManager, DeviceSyncManager interfaces
+│   │   │   │   ├── service/               # HealthCheckService
+│   │   │   │   ├── ui/                    # Presentation layer
+│   │   │   │   │   ├── budget/            # BudgetCard, BudgetSettingsDialog, BudgetViewModel
+│   │   │   │   │   ├── charts/            # ChartsScreen, ChartsViewModel, WeekdayDetailScreen, WeekdayDetailViewModel, WeekdayRadarChart
+│   │   │   │   │   ├── components/        # CircularIconButton, ColorPickerBottomSheet, ColorPickerData, ExpressiveLinearProgressIndicator, ExpressiveLoadingIndicator, ExpressiveSwitch, LanguageSelectorBottomSheet
+│   │   │   │   │   ├── expense/           # ExpenseListScreen, AddExpenseScreen, AIExpenseScreen, ExpenseFilterDialog, DateFormatter, ExpenseTypeLocalizer + ViewModels
+│   │   │   │   │   ├── main/              # MainScreen, MainViewModel, BottomNavigationBar
+│   │   │   │   │   ├── membership/        # MembershipScreen, MembershipViewModel
+│   │   │   │   │   ├── settings/          # SettingsScreen, SettingsViewModel, OpenSourceLicensesScreen
+│   │   │   │   │   ├── sync/              # LanSyncScreen
+│   │   │   │   │   ├── test/              # DatabaseTestScreen, DatabaseTestViewModel
+│   │   │   │   │   ├── theme/             # Theme.kt, Type.kt
+│   │   │   │   │   └── welcome/           # WelcomeScreen, WelcomeViewModel
+│   │   │   │   ├── worker/                # SyncWorker (HiltWorker via WorkManager)
+│   │   │   │   ├── HomeMoneyApplication.kt # Application class with Hilt, WorkManager, Coil, ErrorReporter
+│   │   │   │   └── MainActivity.kt        # Single Activity with Compose navigation
+│   │   │   ├── proto/                     # Protobuf definitions
+│   │   │   │   └── sync.proto             # SyncService, SyncRequest/Response, PingRequest/Response, DeviceSyncData, SyncEntity
+│   │   │   ├── res/                       # Resources
+│   │   │   │   ├── values/                # English strings
+│   │   │   │   ├── values-in/             # Indonesian
+│   │   │   │   ├── values-ja/             # Japanese
+│   │   │   │   ├── values-ko/             # Korean
+│   │   │   │   ├── values-ms/             # Malay
+│   │   │   │   ├── values-th/             # Thai
+│   │   │   │   ├── values-vi/             # Vietnamese
+│   │   │   │   ├── values-zh/             # Simplified Chinese (Mainland)
+│   │   │   │   ├── values-zh-rHK/         # Traditional Chinese (Hong Kong)
+│   │   │   │   ├── values-zh-rMO/         # Traditional Chinese (Macau)
+│   │   │   │   ├── values-zh-rSG/         # Simplified Chinese (Singapore)
+│   │   │   │   ├── values-zh-rTW/         # Traditional Chinese (Taiwan)
+│   │   │   │   ├── xml/                   # file_paths.xml, locale_config.xml
+│   │   │   │   └── drawable/              # App icons
 │   │   │   └── AndroidManifest.xml
-│   │   └── androidTest/               # Instrumented tests
-│   └── build.gradle                   # App build config
-├── gradle/                            # Gradle wrapper
-├── build.gradle                       # Project build config
-├── settings.gradle                    # Project settings
-├── variables.gradle                   # Version variables
-└── README.md                          # This file
+│   │   ├── androidTest/                   # Instrumented tests (AppDatabaseTest)
+│   │   └── test/                          # Unit tests
+│   ├── build.gradle                       # App build config with Protobuf, CMake, signing configs
+│   └── proguard-rules.pro
+├── gradle/                                # Gradle wrapper
+├── build.gradle                           # Project build config (plugins, repositories)
+├── settings.gradle                        # Project settings
+├── variables.gradle                       # Version variables (minSdk, compileSdk, targetSdk, AndroidX)
+└── README.md                              # This file
 ```
 
 ## Getting Started
@@ -166,8 +209,9 @@ android/
 ### Prerequisites
 - Android Studio Hedgehog (2023.1.1) or later
 - JDK 17 or later
-- Android SDK36 (Android 16)
-- Minimum SDK 26 (Android 8.0)
+- Android SDK 37 (compileSdkVersion)
+- Minimum SDK 33 (Android 13.0)
+- NDK for native C++ compilation (CMake 3.22.1+, C++17)
 
 ### Building the Project
 
@@ -188,7 +232,7 @@ cd android
 # Build debug APK
 ./gradlew assembleDebug
 
-# Build release APK
+# Build release APK (requires signing config in local.properties)
 ./gradlew assembleRelease
 
 # Install on connected device
@@ -213,26 +257,38 @@ After building, the APK can be found at:
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### Signing (Release Builds)
+Configure signing in `local.properties`:
+```properties
+RELEASE_STORE_FILE=release.keystore
+RELEASE_STORE_PASSWORD=your_password
+RELEASE_KEY_ALIAS=your_alias
+RELEASE_KEY_PASSWORD=your_key_password
+```
+
 ## Configuration
 
 ### Server Connection
-Update the base URL in `NetworkModule.kt`:
+Update the base URL in `app/src/main/java/com/chronie/homemoney/di/NetworkModule.kt`:
 ```kotlin
 private const val BASE_URL = "http://YOUR_SERVER_IP:3010/"
 ```
 
 ### API Keys
 Configure API keys in the Settings screen:
-- **SiliconFlow API Key**: Required for AI expense recognition feature
+- **SiliconFlow API Key**: Required for AI expense recognition feature (calls `v1/chat/completions`)
 
 ### Versioning
 The app uses dynamic versioning based on build date and time:
-- `versionCode`: Timestamp-based unique identifier
+- `versionCode`: Unix timestamp-based unique identifier
 - `versionName`: Format `1.YYYYMMDD.HHMM`
 
 ## Features Guide
 
 ### 1. Expense Management
+
+#### Expense Categories (26 types)
+Daily Goods, Luxury, Communication, Food, Snacks, Cold Drinks, Convenience Food, Textiles, Beverages, Condiments, Transportation, Dining, Medical, Fruits, Other, Seafood, Dairy, Gifts, Travel, Government, Utilities, Beauty, Bean Products, Cosmetics, Electronics, Household Appliances, Hardware, Clothing
 
 #### Adding Expenses
 - Tap the "+" button on the expense list screen
@@ -241,15 +297,16 @@ The app uses dynamic versioning based on build date and time:
 
 #### AI Recognition
 - Tap the AI icon in the add expense screen
-- Select images or enter text description
-- Crop images if needed
+- Select images from gallery or camera, or enter text description
+- Crop images using uCrop if needed
+- Images are sent as base64-encoded data URIs to SiliconFlow API
 - Review and edit recognized expenses
 - Save all records at once
 
 #### Viewing Expenses
-- Scroll through the expense list
+- Scroll through the expense list with LazyColumn
 - View statistics card showing total, average, and median
-- Pull to refresh for latest data
+- Pull to refresh for latest data from server
 - Automatic pagination for large datasets
 
 #### Filtering & Search
@@ -268,7 +325,7 @@ The app uses dynamic versioning based on build date and time:
 
 #### Monitoring Budget
 - View budget card on expense list screen
-- See current spending, remaining amount, and percentage
+- See current spending, remaining amount, percentage, daily average, and recommended daily spending
 - Color-coded status indicators:
   - Green: Normal (below warning threshold)
   - Yellow: Warning (above threshold)
@@ -277,25 +334,28 @@ The app uses dynamic versioning based on build date and time:
 ### 3. Data Visualization
 
 #### Charts Screen
-- View weekly spending trends
-- Weekday radar chart for spending pattern analysis
-- Tap on weekdays to see detailed breakdown
-- Filter by date range for specific periods
+- View weekly spending bar chart with customizable time range
+- Weekday radar chart for spending pattern analysis across days of the week
+- Tap on weekdays to see detailed breakdown with expense type distribution
+- Filter by time range (1 week, 1 month, 3 months, 6 months, 1 year)
+- Animated ExpressiveLinearProgressIndicator for loading states
 
 ### 4. Data Synchronization
 
 #### Server Sync
-- Background sync runs every hour
-- Syncs when network becomes available
-- Uploads local changes to server
-- Downloads server updates
+- Background sync runs every hour via WorkManager with network connectivity constraint
+- NetworkMonitor triggers sync when connectivity becomes available
+- SyncScheduler manages periodic and network-triggered syncs
+- Full sync: uploads local changes, downloads server updates, resolves conflicts
+- Sync queue tracks pending operations for offline resilience
 
-#### LAN Device Sync
-- Go to Settings → LAN Sync
-- Enable Bluetooth and location permissions
-- Discover nearby devices
-- Pair and sync data directly without server
-- Conflict resolution based on timestamps
+#### LAN Device Sync (gRPC + UDP)
+- Uses Protocol Buffers for efficient serialization
+- UDP multicast discovery on port 12345 (group 239.255.255.250)
+- gRPC sync server on port 50051
+- Native C++ JNI engine handles socket-level communication
+- Conflict resolution based on timestamps (newer version wins)
+- Singleton DeviceSyncManagerFactory ensures server remains running
 
 #### Manual Sync
 - Go to Settings → Data Sync
@@ -304,7 +364,7 @@ The app uses dynamic versioning based on build date and time:
 - See pending items count
 
 #### Conflict Resolution
-- Automatic resolution based on timestamps
+- Automatic resolution based on timestamps (updatedAt)
 - Newer version always wins
 - Conflicts are logged for review
 
@@ -326,57 +386,61 @@ The app uses dynamic versioning based on build date and time:
 ### 6. Membership Management
 
 #### User Profile
-- View and edit user profile
-- Upload avatar image
-- Update personal information
+- View and edit user profile with avatar
+- Avatar upload via server API (`PUT /api/members/members/{username}/avatar`)
+- Offline membership status caching in PreferencesManager
 
 #### Login/Logout
-- Secure login with server
-- Automatic token refresh
-- Persistent login state
+- Server-based login with username
+- Persistent login state in SharedPreferences
+- Skip login option available
 
 ### 7. Language & Theme
 
 #### Language Settings
 - Go to Settings → Language
-- Choose from English, Simplified Chinese, Traditional Chinese, Hong Kong, Macau, or Singapore variants
+- 12 supported languages: English, Indonesian, Japanese, Korean, Malay, Simplified Chinese (Mainland & Singapore), Thai, Traditional Chinese (Hong Kong, Macau, Taiwan), Vietnamese
 - UI updates immediately without restart
-- Preference is saved and persists across app restarts
+- Preference persisted via LocaleConfig
 
 #### Theme Customization
 - Go to Settings → Theme
-- Use color picker to select custom accent colors
+- Dynamic Color: Use colors from your wallpaper (Android 12+)
+- Manual Color Selection: Use color picker to select custom accent colors
 - Preview theme changes in real-time
 - Save custom theme preferences
 
 ### 8. Developer Mode
 - Go to Settings → Developer Options
 - Enable Developer Mode
-- Access database testing screen from main menu
-- Add test data, view records, and clear database
+- Access Database Test screen from bottom navigation
+- Add test data, view all records with sync status, and clear database
 - View error logs and crash reports
 
 ## Database Schema
 
-### Expenses Table
+The database uses Room with SQLCipher encryption. All primary keys are TEXT (UUID strings).
+
+### Expenses Table (version 6)
 ```sql
 CREATE TABLE expenses (
-    id INTEGER PRIMARY KEY,
+    id TEXT NOT NULL PRIMARY KEY,
     type TEXT NOT NULL,
     remark TEXT,
     amount REAL NOT NULL,
-    time INTEGER NOT NULL,
-    created_at INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    version INTEGER NOT NULL DEFAULT 1,
     updated_at INTEGER NOT NULL,
-    is_synced INTEGER NOT NULL DEFAULT 0,
-    server_id TEXT
+    deleted_at INTEGER,
+    is_synced INTEGER NOT NULL DEFAULT 0
 )
+-- Indexes: date, type, is_synced, updated_at
 ```
 
 ### Budgets Table
 ```sql
 CREATE TABLE budgets (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
     monthly_limit REAL NOT NULL,
     warning_threshold REAL NOT NULL DEFAULT 0.8,
     is_enabled INTEGER NOT NULL DEFAULT 0,
@@ -387,23 +451,21 @@ CREATE TABLE budgets (
 ### Members Table
 ```sql
 CREATE TABLE members (
-    id INTEGER PRIMARY KEY,
-    name TEXT,
-    email TEXT,
+    id TEXT NOT NULL PRIMARY KEY,
+    username TEXT,
     avatar TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
-    is_synced INTEGER NOT NULL DEFAULT 0,
-    server_id TEXT
+    is_synced INTEGER NOT NULL DEFAULT 0
 )
 ```
 
 ### Sync Queue Table
 ```sql
 CREATE TABLE sync_queue (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
     entity_type TEXT NOT NULL,
-    entity_id INTEGER NOT NULL,
+    entity_id TEXT NOT NULL,
     operation TEXT NOT NULL,
     data TEXT NOT NULL,
     retry_count INTEGER NOT NULL DEFAULT 0,
@@ -411,34 +473,59 @@ CREATE TABLE sync_queue (
 )
 ```
 
+### Database Migrations
+- **1→2**: Added budgets table
+- **2→3**: Added date column to expenses, migrated from time field
+- **3→4**: Added unique index on server_id
+- **4→5**: Added version, updated_at, deleted_at columns; removed server_id index
+- **5→6**: Recreated expenses table with TEXT id primary key, rebuilt indexes
+
 ## API Integration
 
 ### Expense API
-- `GET /api/expenses` - List expenses with pagination and filters
+- `GET /api/expenses` - List expenses with pagination, keyword, type, month, amount range, and sort filters
 - `POST /api/expenses` - Create new expense
-- `PUT /api/expenses/:id` - Update expense
-- `DELETE /api/expenses/:id` - Delete expense
-- `GET /api/expenses/statistics` - Get expense statistics
-- `POST /api/expenses/export` - Export expenses to Excel
-- `POST /api/expenses/import` - Import expenses from Excel
+- `PUT /api/expenses/{id}` - Update expense
+- `POST /api/expenses/batch` - Batch create expenses
+- `DELETE /api/expenses/{id}` - Soft delete expense
+- `DELETE /api/expenses/{id}/hard` - Hard delete expense
+- `GET /api/expenses/statistics` - Get expense statistics with filters
+- `POST /api/expenses/sync` - Bidirectional sync with local changes and server updates
 
-### AI Recognition API
-- `POST /api/ai/parse` - Parse text or images to extract expense records
-- Uses SiliconFlow API with Qwen models
-- Supports multiple images in a single request
+### AI Recognition API (SiliconFlow)
+- `POST v1/chat/completions` - Parse text or images to extract expense records
+- Uses Qwen vision models via SiliconFlow API
+- Supports multiple images as base64 data URIs in a single request
+- Separate OkHttp/Retrofit instance with dedicated timeouts and logging
 
 ### Member API
-- `GET /api/members/current` - Get current user info
-- `POST /api/members` - Create or update member
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
+- `GET /api/health/lite` - Health check (also used by HealthCheckService)
+- `POST /api/members/members` - Get or create member by username
+- `GET /api/members/members/{username}` - Get member info
+- `PUT /api/members/members/{username}/avatar` - Update member avatar
 
-### Health Check API
-- `GET /api/health` - Check server health status
+### API Response Format
+```json
+{
+  "data": { ... },
+  "message": "success",
+  "success": true
+}
+```
 
-### Error Report API
-- `POST /api/error-report` - Submit error reports
-- `GET /api/error-report/logs` - Get error logs
+## Protobuf & gRPC (LAN Sync)
+
+### Protocol Definition (`sync.proto`)
+- **SyncEntity**: entity_type, entity_id, operation, data, timestamp
+- **DeviceSyncData**: device_id, device_name, sync_timestamp, entities[]
+- **SyncService**: Sync RPC (request/response), Ping RPC (device discovery)
+- **SyncRequest/Response**: Wraps DeviceSyncData with accepted/error status
+
+### Native C++ Engine (`native-lib.cpp`)
+- JNI bridge between Kotlin and native socket server
+- Handles TCP socket communication with read_all/write_all helpers
+- Calls back to Kotlin `NativeSyncEngine.handleIncomingSyncRequest()` for data processing
+- Server lifecycle managed by `LanDeviceSyncManager`
 
 ## Testing
 
@@ -459,7 +546,7 @@ CREATE TABLE sync_queue (
 4. Check sync functionality (server and LAN)
 5. Test offline mode by disabling network
 6. Test Excel import/export
-7. Test LAN device sync between multiple devices
+7. Test LAN device sync between multiple devices on same WiFi network
 
 ## Troubleshooting
 
@@ -476,75 +563,91 @@ CREATE TABLE sync_queue (
 - Delete `app/build` directory
 - Restart and rebuild
 
+#### Native Library Build Failed
+- Ensure NDK is installed via SDK Manager
+- Verify CMake 3.22.1+ is available
+- Check `app/src/main/cpp/CMakeLists.txt` configuration
+
 ### Runtime Issues
 
 #### App Crashes on Startup
 - Check Logcat for error messages
-- Verify database migrations are correct
+- Verify database migrations are correct (version 6 with all 5 migrations)
 - Clear app data and reinstall
 - Check error reports in Developer Mode
 
 #### Sync Not Working
 - Check network connection
-- Verify server is running and accessible
-- Check API key configuration
+- Verify server is running and accessible at the configured BASE_URL
 - Review sync logs in Settings
-- For LAN sync: Ensure Bluetooth is enabled and devices are paired
+- For LAN sync: Ensure devices are on the same WiFi network and multicast is not blocked
 
 #### Language Not Changing
 - Ensure language is saved in Settings
-- Check that string resources exist for all languages
+- Check that string resources exist for all 12 languages
 
 #### Import/Export Issues
 - Verify storage permissions are granted
-- Check Excel file format is correct
+- Check Excel file format is correct (.xlsx)
 - Ensure file path is accessible
 
 ## Performance Optimization
 
 ### Database
-- Indexes on frequently queried columns (time, type, is_synced)
-- Pagination for large datasets
+- Indexes on frequently queried columns (date, type, is_synced, updated_at)
+- Pagination for large datasets via Paging 3
 - Efficient queries using Room's compile-time verification
+- Upsert pattern for conflict-free sync merges
 
 ### Network
-- Request/response caching with OkHttp
+- Connection pooling with OkHttp
 - Automatic retry with exponential backoff
-- Connection pooling for better performance
+- 5-second connect/read/write timeouts
+- NetworkMonitor for connectivity-aware sync scheduling
 
 ### UI
 - LazyColumn for efficient list rendering
 - Image loading with Coil's memory and disk caching
 - Debounced search input to reduce queries
+- Expressive loading indicators for perceived performance
+
+### Native
+- C++ socket server for low-latency device sync
+- Protobuf binary serialization for minimal data transfer
+- JNI calls offloaded from main thread
 
 ## Security Considerations
 
 ### Data Protection
-- SQLCipher encryption for local database
-- Encrypted SharedPreferences for sensitive data
-- HTTPS for all network communication
-- No sensitive data in logs (production builds)
-- Secure error reporting with anonymized data
+- SQLCipher 4.16.0 encryption for local database with 32-character random passphrase
+- Passphrase stored in EncryptedSharedPreferences with AES256_GCM
+- Master Key backed by Android Keystore (AES256_GCM)
+- Cleartext traffic enabled for local development; use HTTPS in production
+- `minifyEnabled` and `shrinkResources` for release builds
 
 ### Authentication
-- JWT token-based authentication
-- Automatic token refresh
-- Secure token storage in EncryptedSharedPreferences
+- Username-based login with persistent SharedPreferences
+- AuthInterceptor for automatic token injection
+
+### Error Reporting
+- MockErrorReportApi for development (no data sent to server)
+- ErrorInfo captures device info, stack trace, and thread information
+- LogFileManager for local log persistence
+- Rate-limited error queue (max 10, 3 retries)
 
 ### Permissions
-- Camera: For AI expense recognition
-- Bluetooth: For LAN device sync
-- Location: For Bluetooth scanning (Android 6.0+)
-- Storage: For Excel import/export
-- Images: For reading media files (Android 13+)
+- `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`: Network operations and sync
+- `CHANGE_WIFI_MULTICAST_STATE`: LAN device discovery
+- `CAMERA`: AI expense recognition (not required)
+- `READ_EXTERNAL_STORAGE` (max SDK 32), `WRITE_EXTERNAL_STORAGE` (max SDK 32): Excel import/export
+- `READ_MEDIA_IMAGES` (Android 13+): Gallery image selection
 
 ## Contributing
 
 ### Code Style
 - Follow Kotlin coding conventions
-- Use ktlint for code formatting
-- Write meaningful commit messages
-- Add comments for complex logic (in English)
+- Write meaningful commit messages in English (Conventional Commits format)
+- Add comments for complex logic
 
 ### Pull Request Process
 1. Create a feature branch
@@ -553,12 +656,9 @@ CREATE TABLE sync_queue (
 4. Update documentation
 5. Submit pull request with description
 
-#### Known Issues
-- None currently reported
-
 ## License
 
-This project is part of the Home Money application. See the main project README for license information.
+This project is part of the Home Finance Tracker application. See the main project README for license information.
 
 ## Contact & Support
 
@@ -566,8 +666,9 @@ For issues, questions, or contributions, please refer to the main project reposi
 
 ## Acknowledgments
 
-- Built with Jetpack Compose and Material Design 3 Expressive
-- Uses SiliconFlow API for AI features
-- Inspired by modern Android development best practices
-- Uses fastExcel for Excel handling
+- Built with Jetpack Compose and Material Design 3
+- Uses SiliconFlow API for AI expense recognition
+- Uses fastExcel for Excel file handling
 - Uses uCrop for image cropping
+- Uses gRPC and Protocol Buffers for LAN device sync
+- Native C++ sync engine via JNI
