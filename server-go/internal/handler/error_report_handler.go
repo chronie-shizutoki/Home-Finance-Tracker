@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ErrorReportHandler 错误报告处理器
+// ErrorReportHandler error report handler
 type ErrorReportHandler struct {
 	errorReportRepo *repository.ErrorReportRepository
 }
 
-// NewErrorReportHandler 创建新的错误报告处理器
+// NewErrorReportHandler creates a new error report handler
 func NewErrorReportHandler(errorReportRepo *repository.ErrorReportRepository) *ErrorReportHandler {
 	return &ErrorReportHandler{errorReportRepo: errorReportRepo}
 }
 
-// ReportError 提交错误报告 - 对应JS版本的 POST /api/error/report
+// ReportError submits an error report - corresponds to JS version POST /api/error/report
 func (h *ErrorReportHandler) ReportError(c *gin.Context) {
 	var request struct {
 		ErrorType      string                 `json:"errorType" binding:"required"`
@@ -36,12 +36,12 @@ func (h *ErrorReportHandler) ReportError(c *gin.Context) {
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "错误类型和错误消息是必填项",
+			"message": "Error type and error message are required",
 		})
 		return
 	}
 
-	// 处理设备信息 - 与JS版本一致：合并additionalInfo到deviceInfo
+	// Process device info - consistent with JS version: merge additionalInfo into deviceInfo
 	var deviceInfo models.JSONMap
 	if request.DeviceInfo != nil || request.AdditionalInfo != nil {
 		deviceInfo = make(models.JSONMap)
@@ -70,25 +70,25 @@ func (h *ErrorReportHandler) ReportError(c *gin.Context) {
 	if err := h.errorReportRepo.Create(report); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "服务器处理错误报告时出现问题",
+			"message": "Server error while processing error report",
 		})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"success":  true,
-		"message":  "错误报告已成功提交",
+		"message":  "Error report submitted successfully",
 		"reportId": report.ID,
 	})
 }
 
-// GetErrorReports 获取错误报告列表 - 对应JS版本的 GET /api/errors
+// GetErrorReports retrieves the error report list - corresponds to JS version GET /api/errors
 func (h *ErrorReportHandler) GetErrorReports(c *gin.Context) {
 	var params repository.ErrorReportQueryParams
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "查询参数错误",
+			"message": "Invalid query parameters",
 		})
 		return
 	}
@@ -104,7 +104,7 @@ func (h *ErrorReportHandler) GetErrorReports(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "获取错误报告列表时发生错误",
+			"message": "Error retrieving error report list",
 		})
 		return
 	}
@@ -128,13 +128,13 @@ func (h *ErrorReportHandler) GetErrorReports(c *gin.Context) {
 	})
 }
 
-// ProcessErrorReport 标记错误报告为已处理 - 对应JS版本的 PUT /api/errors/:reportId/process
+// ProcessErrorReport marks an error report as processed - corresponds to JS version PUT /api/errors/:reportId/process
 func (h *ErrorReportHandler) ProcessErrorReport(c *gin.Context) {
 	reportID := c.Param("reportId")
 	if reportID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "报告ID不能为空",
+			"message": "Report ID cannot be empty",
 		})
 		return
 	}
@@ -143,7 +143,7 @@ func (h *ErrorReportHandler) ProcessErrorReport(c *gin.Context) {
 	if err != nil || report == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
-			"message": "未找到指定的错误报告",
+			"message": "Error report not found",
 		})
 		return
 	}
@@ -151,24 +151,24 @@ func (h *ErrorReportHandler) ProcessErrorReport(c *gin.Context) {
 	if err := h.errorReportRepo.MarkAsProcessed(reportID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "更新错误报告状态时发生错误",
+			"message": "Error updating error report status",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "错误报告已标记为处理",
+		"message": "Error report has been marked as processed",
 	})
 }
 
-// GetErrorStats 获取错误统计信息 - 对应JS版本的 GET /api/errors/stats
+// GetErrorStats retrieves error statistics - corresponds to JS version GET /api/errors/stats
 func (h *ErrorReportHandler) GetErrorStats(c *gin.Context) {
 	stats, err := h.errorReportRepo.GetErrorStats()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "获取错误统计信息时发生错误",
+			"message": "Error retrieving error statistics",
 		})
 		return
 	}

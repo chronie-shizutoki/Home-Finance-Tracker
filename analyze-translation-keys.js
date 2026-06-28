@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// 翻译文件路径
+// translation file paths
 const localesDir = path.join(__dirname, 'client', 'src', 'locales');
 const translationFiles = [
   'en-US.json',
@@ -9,10 +9,10 @@ const translationFiles = [
   'zh-TW.json'
 ];
 
-// 源代码目录
+// source code directory
 const srcDir = path.join(__dirname, 'client', 'src');
 
-// 提取翻译键的函数
+// function to extract translation keys from a JSON file
 function extractKeysFromTranslationFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
@@ -40,14 +40,14 @@ function extractKeysFromTranslationFile(filePath) {
   }
 }
 
-// 搜索源代码中的翻译键使用
+// search translation key usage in source code
 function searchKeysInSourceCode(keys) {
   const usedKeys = new Set();
   
   function searchInFile(filePath) {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
-      // 匹配 $t('key') 或 t('key') 模式
+      // match $t('key') or t('key') patterns
       const regex = /\$t\(['"]([^'"]+)['"]\)|t\(['"]([^'"]+)['"]\)/g;
       let match;
       while ((match = regex.exec(content)) !== null) {
@@ -55,7 +55,7 @@ function searchKeysInSourceCode(keys) {
         usedKeys.add(key);
       }
     } catch (error) {
-      // 忽略读取错误
+      // ignore read errors
     }
   }
   
@@ -78,11 +78,11 @@ function searchKeysInSourceCode(keys) {
   return usedKeys;
 }
 
-// 主函数
+// main function to analyze translation key usage in source code
 function main() {
-  console.log('开始分析翻译键使用情况...');
+  console.log('Analyzing translation key usage...');
   
-  // 提取所有翻译键
+  // extract all translation keys
   const allKeys = new Set();
   const keysByFile = {};
   
@@ -93,13 +93,13 @@ function main() {
     keys.forEach(key => allKeys.add(key));
   }
   
-  console.log(`共提取到 ${allKeys.size} 个翻译键`);
+  console.log(`Total ${allKeys.size} translation keys extracted`);
   
-  // 搜索使用情况
+  // search for key usage in source code
   const usedKeys = searchKeysInSourceCode(allKeys);
-  console.log(`在源代码中找到 ${usedKeys.size} 个使用的翻译键`);
+  console.log(`Found ${usedKeys.size} used translation keys in source code`);
   
-  // 找出未使用的键
+  // find unused keys
   const unusedKeys = [];
   allKeys.forEach(key => {
     if (!usedKeys.has(key)) {
@@ -107,33 +107,33 @@ function main() {
     }
   });
   
-  console.log(`发现 ${unusedKeys.length} 个未使用的翻译键`);
+  console.log(`Found ${unusedKeys.length} unused translation keys`);
   
-  // 生成报告
+  // generate analysis report
   const reportPath = path.join(__dirname, 'translation-keys-analysis.txt');
-  let reportContent = `翻译键使用情况分析报告\n`;
-  reportContent += `生成时间: ${new Date().toLocaleString()}\n`;
+  let reportContent = `Translation key usage analysis report\n`;
+  reportContent += `Generated at: ${new Date().toLocaleString()}\n`;
   reportContent += `=====================================\n\n`;
   
-  reportContent += `1. 总体统计\n`;
+  reportContent += `1. Overall statistics\n`;
   reportContent += `-----------------\n`;
-  reportContent += `总翻译键数量: ${allKeys.size}\n`;
-  reportContent += `已使用翻译键: ${usedKeys.size}\n`;
-  reportContent += `未使用翻译键: ${unusedKeys.length}\n`;
-  reportContent += `使用率: ${((usedKeys.size / allKeys.size) * 100).toFixed(2)}%\n\n`;
+  reportContent += `Total translation keys extracted: ${allKeys.size}\n`;
+  reportContent += `Used translation keys: ${usedKeys.size}\n`;
+  reportContent += `Unused translation keys: ${unusedKeys.length}\n`;
+  reportContent += `Usage rate: ${((usedKeys.size / allKeys.size) * 100).toFixed(2)}%\n\n`;
   
-  reportContent += `2. 未使用的翻译键\n`;
+  reportContent += `2. Unused translation keys\n`;
   reportContent += `-----------------\n`;
   if (unusedKeys.length > 0) {
     unusedKeys.sort().forEach(key => {
       reportContent += `- ${key}\n`;
     });
   } else {
-    reportContent += `所有翻译键都在使用中\n`;
+    reportContent += `All translation keys are in use\n`;
   }
   reportContent += `\n`;
   
-  reportContent += `3. 各文件翻译键统计\n`;
+  reportContent += `3. Translation key statistics by file type\n`;
   reportContent += `-----------------\n`;
   for (const file in keysByFile) {
     const keys = keysByFile[file];
@@ -141,15 +141,15 @@ function main() {
     const fileUnusedKeys = keys.filter(key => !usedKeys.has(key));
     
     reportContent += `${file}:\n`;
-    reportContent += `  总键数: ${keys.length}\n`;
-    reportContent += `  已使用: ${fileUsedKeys.length}\n`;
-    reportContent += `  未使用: ${fileUnusedKeys.length}\n`;
-    reportContent += `  使用率: ${((fileUsedKeys.length / keys.length) * 100).toFixed(2)}%\n\n`;
+    reportContent += `  Total keys extracted: ${keys.length}\n`;
+    reportContent += `  Used keys: ${fileUsedKeys.length}\n`;
+    reportContent += `  Unused keys: ${fileUnusedKeys.length}\n`;
+    reportContent += `  Usage rate: ${((fileUsedKeys.length / keys.length) * 100).toFixed(2)}%\n\n`;
   }
   
   fs.writeFileSync(reportPath, reportContent, 'utf8');
-  console.log(`分析报告已生成: ${reportPath}`);
+  console.log(`Analysis report generated: ${reportPath}`);
 }
 
-// 运行分析
+// run analysis
 main();

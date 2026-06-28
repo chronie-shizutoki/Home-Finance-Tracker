@@ -7,15 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupHelpRoutes 设置API帮助文档相关的路由
+// SetupHelpRoutes sets up API help documentation related routes
 func SetupHelpRoutes(router *gin.Engine) {
-	// 项目API帮助文档端点
+	// Project API help documentation endpoint
 	router.GET("/api", func(c *gin.Context) {
 		apiHelp := gin.H{
 			"apiVersion": "2026.6",
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 			"projectName": "Home Finance Tracker API (Go Version)",
-			"description": "家庭财务管理系统后端API文档 - Go语言实现",
+			"description": "Home Finance Management System Backend API Documentation - Go Language Implementation",
 			"availableAPIs": gin.H{
 				"base": []gin.H{
 					{

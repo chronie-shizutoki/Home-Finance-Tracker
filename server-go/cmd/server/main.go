@@ -20,53 +20,53 @@ import (
 )
 
 func main() {
-	// 记录服务器启动时间
+	// Record server start time
 	startTime := time.Now()
 
-	// 初始化日志
+	// Initialize logging
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	// 加载配置
+	// Load configuration
 	config := routes.GetDefaultConfig()
 	if port := os.Getenv("PORT"); port != "" {
 		config.Port = port
 	}
 
-	// 初始化数据库
+	// Initialize database
 	db, err := database.InitDB("./database.sqlite")
 	if err != nil {
-		log.Fatalf("数据库初始化失败: %v", err)
+		log.Fatalf("Database initialization failed: %v", err)
 	}
 	defer func() { _ = db.Close() }()
 
-	// 创建Repository实例
+	// Create Repository instances
 	expenseRepo := repository.NewExpenseRepository(db.GetDB())
 
-	// 创建会员相关的Repository实例
+	// Create member-related Repository instance
 	memberRepo := repository.NewMemberRepository(db.GetDB())
 
-	// 设置Gin模式
+	// Set Gin mode
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// 创建路由引擎
+	// Create router engine
 	router := gin.New()
 
-	// 添加中间件
+	// Add middleware
 	router.Use(
-		// 恢复Panic
+		// Recover from panic
 		gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 			log.Printf("Panic recovered: %v", recovered)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"error":   "内部服务器错误",
+				"error":   "Internal server error",
 				"code":    "INTERNAL_ERROR",
 			})
 		}),
-		// 请求日志
+		// Request logging
 		gin.Logger(),
-		// CORS 中间件 - 与JS版本一致
+		// CORS middleware - consistent with JS version
 		func(c *gin.Context) {
 			origin := c.Request.Header.Get("Origin")
 			allowedOrigins := map[string]bool{
@@ -89,10 +89,10 @@ func main() {
 		},
 	)
 
-	// 增加JSON解析的大小限制，与JS版本一致（10MB）
+	// Increase JSON parsing size limit, consistent with JS version (10MB)
 	router.MaxMultipartMemory = 10 << 20 // 10MB
 
-	// 设置系统相关的路由（健康检查和API文档）
+	// Set up system-related routes (health check and API docs)
 	sqlDB, err := db.GetDB().DB()
 	if err != nil {
 		log.Fatalf("Failed to get underlying SQL DB: %v", err)
@@ -100,30 +100,30 @@ func main() {
 	routes.SetupHealthRoutes(router, startTime, sqlDB)
 	routes.SetupHelpRoutes(router)
 
-	// 设置API路由
+	// Set up API routes
 	routes.SetupExpenseRoutes(router, expenseRepo)
 
-	// 设置会员相关的API路由 - 对应JS版本的memberRoutes
+	// Set up member-related API routes - corresponding to JS version memberRoutes
 	routes.SetupMemberRoutes(router, memberRepo)
 
-	// 设置错误报告路由
+	// Set up error report routes
 	errorReportRepo := repository.NewErrorReportRepository(db.GetDB())
 	routes.SetupErrorReportRoutes(router, errorReportRepo)
 
-	// 设置导出/导入路由
+	// Set up export/import routes
 	routes.SetupExportRoutes(router, expenseRepo)
 
-	// 初始化服务实例
-	// 创建JSON文件服务实例
+	// Initialize service instances
+	// Create JSON file service instance
 	jsonFileService := service.NewJsonFileService()
-	// 创建日志服务实例
+	// Create log service instance
 	logService := service.NewLogService(db.GetDB())
 
-	// 注册路由
+	// Register routes
 	routes.SetupJsonFileRoutes(router.Group("/api"), jsonFileService)
 	routes.SetupLogRoutes(router.Group("/api"), logService)
 
-	// 提供前端静态文件服务（当client/dist存在时自动启用）
+	// Serve frontend static files (auto-enabled when client/dist exists)
 	distPath := filepath.Join(".", "client", "dist")
 	if _, err := os.Stat(filepath.Join(distPath, "index.html")); err == nil {
 		log.Printf("Serving static files from: %s", distPath)
@@ -133,22 +133,22 @@ func main() {
 		router.GET("/", func(c *gin.Context) {
 			c.File(filepath.Join(distPath, "index.html"))
 		})
-		// SPA fallback - 只对页面路由返回index.html，静态资源请求返回404
-		// 避免JS/CSS等静态资源请求被错误返回index.html导致MIME类型错误
+		// SPA fallback - return index.html for page routes only, 404 for static asset requests
+		// Avoid returning index.html for JS/CSS static asset requests which causes MIME type errors
 		router.NoRoute(func(c *gin.Context) {
 			path := c.Request.URL.Path
-			// API路径返回404（API路由应已注册）
-			// 带扩展名的静态资源请求（.js/.css/.png等）返回404而非index.html
+			// API paths return 404 (API routes should already be registered)
+			// Static asset requests with extensions (.js/.css/.png etc.) return 404 instead of index.html
 			if strings.HasPrefix(path, "/api/") || isStaticAsset(path) {
 				c.Status(http.StatusNotFound)
 				return
 			}
-			// 页面路由返回index.html实现SPA
+			// Page routes return index.html for SPA
 			c.File(filepath.Join(distPath, "index.html"))
 		})
 	}
 
-	// 创建HTTP服务器
+	// Create HTTP server
 	srv := &http.Server{
 		Addr:         config.Host + ":" + config.Port,
 		Handler:      router,
@@ -157,35 +157,35 @@ func main() {
 		IdleTimeout:  config.IdleTimeout,
 	}
 
-	// 启动服务器
+	// Start server
 	go func() {
-		log.Printf("服务器启动在端口 %s", config.Port)
-		log.Printf("API文档: http://localhost:%s/api", config.Port)
+		log.Printf("Server started on port %s", config.Port)
+		log.Printf("API docs: http://localhost:%s/api", config.Port)
 
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("服务器启动失败: %v", err)
+			log.Fatalf("Server failed to start: %v", err)
 		}
 	}()
 
-	// 等待中断信号优雅关闭服务器
+	// Wait for interrupt signal to gracefully shutdown server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("正在关闭服务器...")
+	log.Println("Shutting down server...")
 
-	// 优雅关闭服务器
+	// Gracefully shutdown server
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("服务器强制关闭: %v", err)
+		log.Fatalf("Server forced shutdown: %v", err)
 	}
 
-	log.Println("服务器已退出")
+	log.Println("Server exited")
 }
 
-// SetupLogLevel 设置日志级别
+// SetupLogLevel sets the log level
 func SetupLogLevel(level string) {
 	switch level {
 	case "debug":
@@ -197,10 +197,10 @@ func SetupLogLevel(level string) {
 	}
 }
 
-// isStaticAsset 判断请求路径是否为静态资源请求
-// 静态资源通常带有文件扩展名（.js/.css/.png/.woff2等）
+// isStaticAsset checks if the request path is a static asset request
+// Static assets typically have file extensions (.js/.css/.png/.woff2 etc.)
 func isStaticAsset(path string) bool {
-	// 已知的静态资源扩展名
+	// Known static asset extensions
 	staticExtensions := []string{
 		".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg",
 		".ico", ".woff", ".woff2", ".ttf", ".eot",

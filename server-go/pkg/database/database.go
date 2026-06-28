@@ -14,30 +14,30 @@ import (
 	"github.com/glebarez/sqlite"
 )
 
-// Database 数据库连接配置
+// Database database connection configuration
 type Database struct {
 	DB *gorm.DB
 }
 
-// InitDB 初始化数据库连接
+// InitDB initializes database connection
 func InitDB(dbPath string) (*Database, error) {
-	// 确保数据库目录存在
+	// Ensure database directory exists
 	dbDir := filepath.Dir(dbPath)
 	if err := os.MkdirAll(dbDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create database directory: %w", err)
 	}
 
-	// 连接数据库
+	// Connect to database
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
-		// 禁用软删除功能，以兼容JS版本的表结构
+		// Disable soft delete to be compatible with JS version table structure
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	// 自动迁移数据库结构
+	// Auto migrate database structure
 	if err := AutoMigrate(db); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
@@ -46,19 +46,19 @@ func InitDB(dbPath string) (*Database, error) {
 	return &Database{DB: db}, nil
 }
 
-// AutoMigrate 自动迁移数据库结构
+// AutoMigrate auto migrates database structure
 func AutoMigrate(db *gorm.DB) error {
-	// 执行迁移
+	// Execute migration
 	err := db.AutoMigrate(
 		&models.Expense{},
 		&models.Member{},
 		&models.ErrorReport{},
 	)
 	
-	// 如果表已存在，通过手动ALTER TABLE添加缺失的列
+	// If table already exists, manually add missing columns via ALTER TABLE
 	if err != nil && strings.Contains(err.Error(), "already exists") {
 		log.Println("Table already exists, checking for missing columns...")
-		// 添加缺失的列（忽略已存在的列错误）
+		// Add missing columns (ignore errors for existing columns)
 		alterStatements := []string{
 			"ALTER TABLE expenses ADD COLUMN deletedAt bigint",
 			"ALTER TABLE expenses ADD COLUMN updatedAt bigint NOT NULL DEFAULT 0",
@@ -71,14 +71,14 @@ func AutoMigrate(db *gorm.DB) error {
 				}
 			}
 		}
-		// 清理之前错误添加的snake_case列
+		// Clean up previously incorrectly added snake_case columns
 		cleanupStatements := []string{
 			"ALTER TABLE expenses DROP COLUMN deleted_at",
 			"ALTER TABLE expenses DROP COLUMN updated_at",
 		}
 		for _, stmt := range cleanupStatements {
 			if execErr := db.Exec(stmt).Error; execErr != nil {
-				// 忽略列不存在的错误
+				// Ignore column not found errors
 				if !strings.Contains(execErr.Error(), "no such column") {
 					log.Printf("Cleanup warning: %v", execErr)
 				}
@@ -91,7 +91,7 @@ func AutoMigrate(db *gorm.DB) error {
 	return err
 }
 
-// Close 关闭数据库连接
+// Close database connection
 func (d *Database) Close() error {
 	sqlDB, err := d.DB.DB()
 	if err != nil {
@@ -100,7 +100,7 @@ func (d *Database) Close() error {
 	return sqlDB.Close()
 }
 
-// GetDB 获取数据库实例
+// Get database instance
 func (d *Database) GetDB() *gorm.DB {
 	return d.DB
 }

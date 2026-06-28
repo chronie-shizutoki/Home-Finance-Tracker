@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// JSONMap 自定义JSON类型，用于存储和读取JSON数据 - 与JS版本Sequelize JSON类型兼容
+// JSONMap custom JSON type for storing and reading JSON data - compatible with JS version Sequelize JSON type
 type JSONMap map[string]interface{}
 
-// Scan 实现 sql.Scanner 接口
+// Scan implements sql.Scanner interface
 func (j *JSONMap) Scan(value interface{}) error {
 	if value == nil {
 		*j = nil
@@ -21,12 +21,12 @@ func (j *JSONMap) Scan(value interface{}) error {
 	}
 	bytes, ok := value.([]byte)
 	if !ok {
-		return errors.New("类型断言失败，期望 []byte")
+		return errors.New("type assertion failed, expected []byte")
 	}
 	return json.Unmarshal(bytes, j)
 }
 
-// Value 实现 driver.Valuer 接口
+// Value implements driver.Valuer interface
 func (j JSONMap) Value() (driver.Value, error) {
 	if j == nil {
 		return nil, nil
@@ -34,30 +34,30 @@ func (j JSONMap) Value() (driver.Value, error) {
 	return json.Marshal(j)
 }
 
-// ErrorReport 错误报告模型 - 与JS版本完全一致
+// ErrorReport model - fully consistent with JS version
 type ErrorReport struct {
 	ID          string         `json:"id" gorm:"type:uuid;primaryKey"`
-	MemberID    *string        `json:"memberId,omitempty" gorm:"type:uuid;index;comment:'会员ID'"`
-	ErrorType   string         `json:"errorType" gorm:"type:varchar(255);not null;index;comment:'错误类型'"`
-	Message     string         `json:"message" gorm:"type:text;not null;comment:'错误消息'"`
-	StackTrace  *string        `json:"stackTrace,omitempty" gorm:"type:text;comment:'堆栈跟踪'"`
-	DeviceInfo  JSONMap        `json:"deviceInfo,omitempty" gorm:"type:text;comment:'设备信息JSON'"`
-	AppVersion  *string        `json:"appVersion,omitempty" gorm:"type:varchar(50);comment:'应用版本'"`
-	AppBuild    *string        `json:"appBuild,omitempty" gorm:"type:varchar(50);comment:'构建版本'"`
-	Environment *string        `json:"environment,omitempty" gorm:"type:varchar(50);comment:'环境'"`
-	IsProcessed bool           `json:"isProcessed" gorm:"default:false;index;comment:'是否已处理'"`
-	ProcessedAt *time.Time     `json:"processedAt,omitempty" gorm:"comment:'处理时间'"`
+	MemberID    *string        `json:"memberId,omitempty" gorm:"type:uuid;index;comment:'Member ID'"`
+	ErrorType   string         `json:"errorType" gorm:"type:varchar(255);not null;index;comment:'Error type'"`
+	Message     string         `json:"message" gorm:"type:text;not null;comment:'Error message'"`
+	StackTrace  *string        `json:"stackTrace,omitempty" gorm:"type:text;comment:'Stack trace'"`
+	DeviceInfo  JSONMap        `json:"deviceInfo,omitempty" gorm:"type:text;comment:'Device info JSON'"`
+	AppVersion  *string        `json:"appVersion,omitempty" gorm:"type:varchar(50);comment:'App version'"`
+	AppBuild    *string        `json:"appBuild,omitempty" gorm:"type:varchar(50);comment:'Build version'"`
+	Environment *string        `json:"environment,omitempty" gorm:"type:varchar(50);comment:'Environment'"`
+	IsProcessed bool           `json:"isProcessed" gorm:"default:false;index;comment:'Is processed'"`
+	ProcessedAt *time.Time     `json:"processedAt,omitempty" gorm:"comment:'Processed time'"`
 	CreatedAt   time.Time      `json:"createdAt"`
 	UpdatedAt   time.Time      `json:"updatedAt"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-// TableName 指定表名
+// TableName specifies the table name
 func (ErrorReport) TableName() string {
 	return "error_reports"
 }
 
-// BeforeCreate 创建前钩子
+// BeforeCreate pre-create hook
 func (e *ErrorReport) BeforeCreate(tx *gorm.DB) error {
 	if e.ID == "" {
 		e.ID = uuid.New().String()
@@ -71,7 +71,7 @@ func (e *ErrorReport) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// BeforeUpdate 更新前钩子
+// BeforeUpdate pre-update hook
 func (e *ErrorReport) BeforeUpdate(tx *gorm.DB) error {
 	e.UpdatedAt = time.Now()
 	return nil

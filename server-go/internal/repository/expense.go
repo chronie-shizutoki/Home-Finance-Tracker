@@ -10,27 +10,27 @@ import (
 	"gorm.io/gorm"
 )
 
-// ExpenseRepository 消费记录数据仓库
+// ExpenseRepository expense record data repository
 type ExpenseRepository struct {
 	db *gorm.DB
 }
 
-// NewExpenseRepository 创建新的消费记录仓库
+// NewExpenseRepository creates a new expense repository
 func NewExpenseRepository(db *gorm.DB) *ExpenseRepository {
 	return &ExpenseRepository{
 		db: db,
 	}
 }
 
-// Create 创建消费记录
+// Create creates an expense record
 func (r *ExpenseRepository) Create(expense *models.Expense) error {
 	if err := expense.Validate(); err != nil {
-		return fmt.Errorf("验证失败: %w", err)
+		return fmt.Errorf("validation failed: %w", err)
 	}
 	return r.db.Create(expense).Error
 }
 
-// FindByID 根据ID查找消费记录
+// FindByID finds an expense record by ID
 func (r *ExpenseRepository) FindByID(id string) (*models.Expense, error) {
 	var expense models.Expense
 	if err := r.db.First(&expense, "id = ?", id).Error; err != nil {
@@ -42,32 +42,32 @@ func (r *ExpenseRepository) FindByID(id string) (*models.Expense, error) {
 	return &expense, nil
 }
 
-// FindWithPagination 分页查找消费记录
+// FindWithPagination finds expense records with pagination
 func (r *ExpenseRepository) FindWithPagination(query *models.ExpenseQuery) ([]models.Expense, int64, error) {
 	var expenses []models.Expense
 	var total int64
 
-	// 验证查询参数
+	// Validate query parameters
 	if err := query.Validate(); err != nil {
-		return nil, 0, fmt.Errorf("查询参数验证失败: %w", err)
+		return nil, 0, fmt.Errorf("query parameter validation failed: %w", err)
 	}
 
-	// 构建基础查询
+	// Build base query
 	baseQuery := r.db.Model(&models.Expense{})
 
-	// 应用查询条件
+	// Apply query conditions
 	query.ApplyToQuery(baseQuery)
 
-	// 计算总数
+	// Calculate total count
 	if err := baseQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// 应用排序和分页
+	// Apply sort and pagination
 	query.ApplySort(baseQuery)
 	baseQuery = baseQuery.Offset(query.Offset).Limit(query.Limit)
 
-	// 执行查询
+	// Execute query
 	if err := baseQuery.Find(&expenses).Error; err != nil {
 		return nil, 0, err
 	}
@@ -75,7 +75,7 @@ func (r *ExpenseRepository) FindWithPagination(query *models.ExpenseQuery) ([]mo
 	return expenses, total, nil
 }
 
-// Delete 软删除消费记录（设置deletedAt）
+// Delete soft-deletes an expense record (sets deletedAt)
 func (r *ExpenseRepository) Delete(id string) error {
 	now := time.Now().UnixMilli()
 	result := r.db.Model(&models.Expense{}).Where("id = ? AND deletedAt IS NULL", id).Update("deletedAt", now)
@@ -83,58 +83,58 @@ func (r *ExpenseRepository) Delete(id string) error {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("记录不存在")
+		return fmt.Errorf("record not found")
 	}
 	return nil
 }
 
-// HardDelete 硬删除消费记录
+// HardDelete hard-deletes an expense record
 func (r *ExpenseRepository) HardDelete(id string) error {
 	result := r.db.Where("id = ?", id).Delete(&models.Expense{})
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("记录不存在")
+		return fmt.Errorf("record not found")
 	}
 	return nil
 }
 
-// GetStatistics 获取统计数据
+// GetStatistics retrieves statistics data
 func (r *ExpenseRepository) GetStatistics(query *models.ExpenseQuery) (*models.ExpenseStats, error) {
 	if query != nil {
 		if err := query.Validate(); err != nil {
-			return nil, fmt.Errorf("查询参数验证失败: %w", err)
+			return nil, fmt.Errorf("query parameter validation failed: %w", err)
 		}
 	}
 	return models.GetStatsWithSQL(r.db, query)
 }
 
-// GetMeta 获取元数据
+// GetMeta retrieves metadata
 func (r *ExpenseRepository) GetMeta() (*models.ExpenseMeta, error) {
 	var meta models.ExpenseMeta
 
-	// 获取唯一类型
+	// Get unique types
 	var uniqueTypes []string
 	if err := r.db.Model(&models.Expense{}).Distinct().Pluck("type", &uniqueTypes).Error; err != nil {
 		return nil, err
 	}
 	meta.UniqueTypes = uniqueTypes
 
-	// 获取可用月份 - 由于date现在是字符串类型，使用字符串截取方式获取年月
+	// Get available months - since date is now string type, use substring to get year-month
 	var availableMonths []string
 	if err := r.db.Model(&models.Expense{}).
 		Order("date DESC").
 		Distinct().
 		Pluck("SUBSTRING(date, 1, 7)", &availableMonths).Error; err != nil {
-		return nil, fmt.Errorf("获取月份数据失败: %w", err)
+		return nil, fmt.Errorf("failed to get month data: %w", err)
 	}
 	meta.AvailableMonths = availableMonths
 
 	return &meta, nil
 }
 
-// Exists 检查记录是否存在（未删除的）
+// Exists checks if a record exists (not deleted)
 func (r *ExpenseRepository) Exists(id string) (bool, error) {
 	var count int64
 	if err := r.db.Model(&models.Expense{}).Where("id = ? AND deletedAt IS NULL", id).Count(&count).Error; err != nil {
@@ -143,20 +143,20 @@ func (r *ExpenseRepository) Exists(id string) (bool, error) {
 	return count > 0, nil
 }
 
-// BatchCreate 批量创建消费记录
+// BatchCreate batch creates expense records
 func (r *ExpenseRepository) BatchCreate(expenses []models.Expense) error {
 	if len(expenses) == 0 {
 		return nil
 	}
 
-	// 验证所有记录
+	// Validate all records
 	for i, expense := range expenses {
 		if err := expense.Validate(); err != nil {
-			return fmt.Errorf("第%d条记录验证失败: %w", i+1, err)
+			return fmt.Errorf("record %d validation failed: %w", i+1, err)
 		}
 	}
 
-	// 分批处理，每批50条记录
+	// Process in batches, 50 records per batch
 	batchSize := 50
 	for i := 0; i < len(expenses); i += batchSize {
 		end := i + batchSize
@@ -166,13 +166,13 @@ func (r *ExpenseRepository) BatchCreate(expenses []models.Expense) error {
 
 		batch := expenses[i:end]
 		if err := r.db.CreateInBatches(batch, batchSize).Error; err != nil {
-			return fmt.Errorf("第%d批数据创建失败: %w", i/batchSize+1, err)
+			return fmt.Errorf("batch %d creation failed: %w", i/batchSize+1, err)
 		}
 	}
 	return nil
 }
 
-// FindByDates 根据日期列表查找记录 - 用于导入去重
+// FindByDates finds records by date list - used for import deduplication
 func (r *ExpenseRepository) FindByDates(dates []string) ([]models.Expense, error) {
 	if len(dates) == 0 {
 		return nil, nil
@@ -184,25 +184,25 @@ func (r *ExpenseRepository) FindByDates(dates []string) ([]models.Expense, error
 	return expenses, nil
 }
 
-// Update 更新消费记录
+// Update updates an expense record
 func (r *ExpenseRepository) Update(expense *models.Expense) error {
 	if err := expense.Validate(); err != nil {
-		return fmt.Errorf("验证失败: %w", err)
+		return fmt.Errorf("validation failed: %w", err)
 	}
 	return r.db.Save(expense).Error
 }
 
-// SyncExpenses 同步消费记录 - 与JS版本完全一致
+// SyncExpenses syncs expense records - fully consistent with JS version
 func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.Expense, localIDs []string) ([]models.Expense, []gin.H, error) {
 	serverChanges := make([]models.Expense, 0)
 	conflicts := make([]gin.H, 0)
 
-	// 如果客户端提供了localIDs，返回客户端缺失的记录
+	// If client provided localIDs, return records missing from client
 	if len(localIDs) > 0 {
-		// 获取所有服务器记录ID
+		// Get all server record IDs
 		var allServerRecords []models.Expense
 		if err := r.db.Model(&models.Expense{}).Select("id").Find(&allServerRecords).Error; err != nil {
-			return nil, nil, fmt.Errorf("获取服务器记录失败: %w", err)
+			return nil, nil, fmt.Errorf("failed to get server records: %w", err)
 		}
 
 		allServerIDs := make(map[string]bool)
@@ -214,7 +214,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 			localIDSet[id] = true
 		}
 
-		// 找出服务器有但客户端没有的记录
+		// Find records that exist on server but not on client
 		var missingIDs []string
 		for id := range allServerIDs {
 			if !localIDSet[id] {
@@ -224,20 +224,20 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 
 		if len(missingIDs) > 0 {
 			if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
-				return nil, nil, fmt.Errorf("获取缺失记录失败: %w", err)
+				return nil, nil, fmt.Errorf("failed to get missing records: %w", err)
 			}
 		}
 	} else if lastSyncTime != nil && *lastSyncTime > 0 {
-		// 旧行为：返回lastSyncTime之后更新的记录
+		// Old behavior: return records updated after lastSyncTime
 		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
-			return nil, nil, fmt.Errorf("获取更新记录失败: %w", err)
+			return nil, nil, fmt.Errorf("failed to get updated records: %w", err)
 		}
 	}
 
-	// 处理客户端提交的变更
+	// Process changes submitted by client
 	for _, change := range changes {
 		if change.DeletedAt != nil {
-			// 删除操作
+			// Delete operation
 			var serverRecord models.Expense
 			err := r.db.Where("id = ?", change.ID).First(&serverRecord).Error
 			if err == nil {
@@ -252,7 +252,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 		var serverRecord models.Expense
 		err := r.db.Where("id = ?", change.ID).First(&serverRecord).Error
 		if err == gorm.ErrRecordNotFound {
-			// 创建新记录
+			// Create new record
 			if createErr := r.Create(&change); createErr != nil {
 				fmt.Printf("Error processing change: %s, %v\n", change.ID, createErr)
 			}
@@ -260,7 +260,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 			fmt.Printf("Error processing change: %s, %v\n", change.ID, err)
 		} else {
 			if change.UpdatedAt > serverRecord.UpdatedAt {
-				// 客户端版本更新，更新服务器
+				// Client version is newer, update server
 				r.db.Model(&serverRecord).Updates(map[string]interface{}{
 					"type":      change.Type,
 					"remark":    change.Remark,
@@ -270,7 +270,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 					"updatedAt": change.UpdatedAt,
 				})
 			} else if change.UpdatedAt < serverRecord.UpdatedAt {
-				// 冲突
+				// Conflict
 				conflicts = append(conflicts, gin.H{
 					"id":              change.ID,
 					"clientVersion":   change.Version,
@@ -286,9 +286,9 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 	return serverChanges, conflicts, nil
 }
 
-// GetExpensesByDate 按日期分组获取消费记录 - 与JS版本getExpensesByDate完全一致
-// 返回格式: [{date, count, totalAmount, expenses}, ...]
-// 实现智能分页：确保同一个日期组的记录不会被拆分到不同页
+// GetExpensesByDate groups expenses by date - fully consistent with JS version getExpensesByDate
+// Returns format: [{date, count, totalAmount, expenses}, ...]
+// Implements smart pagination: ensures records from the same date group are not split across pages
 func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]models.DateGroup, int64, *models.ExpenseMeta, error) {
 	var allExpenses []models.Expense
 	var total int64
@@ -296,18 +296,18 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 	baseQuery := r.db.Model(&models.Expense{})
 	query.ApplyToQuery(baseQuery)
 
-	// 计算总数
+	// Calculate total count
 	if err := baseQuery.Count(&total).Error; err != nil {
 		return nil, 0, nil, err
 	}
 
-	// 应用排序获取所有符合条件的数据
+	// Apply sort and get all matching data
 	query.ApplySort(baseQuery)
 	if err := baseQuery.Find(&allExpenses).Error; err != nil {
 		return nil, 0, nil, err
 	}
 
-	// 按日期分组
+	// Group by date
 	groupedMap := make(map[string][]models.Expense)
 	var dateOrder []string
 	for _, e := range allExpenses {
@@ -317,7 +317,7 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 		groupedMap[e.Date] = append(groupedMap[e.Date], e)
 	}
 
-	// 为每个日期组添加统计信息，与JS版本格式一致
+	// Add statistics for each date group, consistent with JS version format
 	dateGroups := make([]models.DateGroup, 0, len(groupedMap))
 	for _, date := range dateOrder {
 		expenses := groupedMap[date]
@@ -333,10 +333,10 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 		})
 	}
 
-	// 根据排序类型对日期组进行排序 - 与JS版本一致
+	// Sort date groups by sort type - consistent with JS version
 	isAmountSort := query.Sort == "amountAsc" || query.Sort == "amountDesc"
 	if isAmountSort {
-		// 按金额排序时，日期组按组内第一条记录的金额排序
+		// When sorting by amount, date groups are sorted by the first record's amount in the group
 		for i := 0; i < len(dateGroups); i++ {
 			for j := i + 1; j < len(dateGroups); j++ {
 				amountA := dateGroups[i].Expenses[0].Amount
@@ -353,7 +353,7 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 			}
 		}
 	} else {
-		// 按日期排序
+		// Sort by date
 		for i := 0; i < len(dateGroups); i++ {
 			for j := i + 1; j < len(dateGroups); j++ {
 				if query.Sort == "dateDesc" {
@@ -369,8 +369,8 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 		}
 	}
 
-	// 智能分页：确保同一个日期组的记录不会被拆分到不同页
-	// 按日期组进行分页
+	// Smart pagination: ensures records from the same date group are not split across pages
+	// Paginate by date groups
 	pageSize := query.Limit
 	if pageSize < 1 {
 		pageSize = 10
@@ -381,23 +381,23 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 
 	for _, group := range dateGroups {
 		groupRecordCount := group.Count
-		// 如果当前页为空，或者添加这个组不会超过太多记录限制，则添加到当前页
+		// If current page is empty, or adding this group won't exceed record limit too much, add to current page
 		if currentRecordCount == 0 || currentRecordCount+groupRecordCount <= int(float64(pageSize)*1.5) {
 			currentPageData = append(currentPageData, group)
 			currentRecordCount += groupRecordCount
 		} else {
-			// 开始新的一页
+			// Start a new page
 			pages = append(pages, currentPageData)
 			currentPageData = []models.DateGroup{group}
 			currentRecordCount = groupRecordCount
 		}
 	}
-	// 添加最后一页
+	// Add the last page
 	if len(currentPageData) > 0 {
 		pages = append(pages, currentPageData)
 	}
 
-	// 获取请求的页码数据
+	// Get the requested page data
 	pageNum := 1
 	if query.Limit > 0 {
 		pageNum = query.Offset/query.Limit + 1
@@ -407,7 +407,7 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 		pagedData = pages[pageNum-1]
 	}
 
-	// 获取元数据
+	// Get metadata
 	meta, err := r.GetMeta()
 	if err != nil {
 		meta = &models.ExpenseMeta{}
@@ -416,7 +416,7 @@ func (r *ExpenseRepository) GetExpensesByDate(query *models.ExpenseQuery) ([]mod
 	return pagedData, total, meta, nil
 }
 
-// FindAll 获取所有消费记录（用于迁移测试）
+// FindAll retrieves all expense records (used for migration testing)
 func (r *ExpenseRepository) FindAll() ([]models.Expense, error) {
 	var expenses []models.Expense
 	if err := r.db.Where("deletedAt IS NULL").Order("date DESC").Find(&expenses).Error; err != nil {

@@ -15,17 +15,17 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// ImportHandler 导入处理器
+// ImportHandler import handler
 type ImportHandler struct {
 	expenseRepo *repository.ExpenseRepository
 }
 
-// NewImportHandler 创建新的导入处理器
+// NewImportHandler creates a new import handler
 func NewImportHandler(expenseRepo *repository.ExpenseRepository) *ImportHandler {
 	return &ImportHandler{expenseRepo: expenseRepo}
 }
 
-// getRecordKey 生成记录的唯一键 - 与JS版本完全一致
+// getRecordKey generates a unique key for a record - fully consistent with JS version
 func getRecordKey(record models.Expense) string {
 	remark := ""
 	if record.Remark != nil {
@@ -34,23 +34,23 @@ func getRecordKey(record models.Expense) string {
 	return fmt.Sprintf("%s_%s_%.0f_%s", record.Date, record.Type, record.Amount, remark)
 }
 
-// ImportExcel 导入Excel文件 - 对应JS版本的 POST /api/import/excel
+// ImportExcel imports an Excel file - corresponds to JS version POST /api/import/excel
 func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "未上传文件",
+			"message": "No file uploaded",
 		})
 		return
 	}
 
-	// 保存临时文件
+	// Save temporary file
 	tmpDir := filepath.Join(".", "uploads")
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "创建临时目录失败",
+			"message": "Failed to create temporary directory",
 		})
 		return
 	}
@@ -58,18 +58,18 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	if err := c.SaveUploadedFile(file, tmpPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "保存文件失败",
+			"message": "Failed to save file",
 		})
 		return
 	}
 	defer func() { _ = os.Remove(tmpPath) }()
 
-	// 读取Excel文件
+	// Read Excel file
 	f, err := excelize.OpenFile(tmpPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "读取Excel文件失败",
+			"message": "Failed to read Excel file",
 		})
 		return
 	}
@@ -78,12 +78,12 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	if err != nil || len(rows) < 2 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"message": "没有有效数据被导入。",
+			"message": "No valid data to import.",
 		})
 		return
 	}
 
-	// 解析候选记录
+	// Parse candidate records
 	var candidateRecords []models.Expense
 	headerRow := rows[0]
 	for i := 1; i < len(rows); i++ {
@@ -125,12 +125,12 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	if len(candidateRecords) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"message": "没有有效数据被导入。",
+			"message": "No valid data to import.",
 		})
 		return
 	}
 
-	// 步骤1: 去重Excel文件内部的重复记录 - 与JS版本完全一致
+	// Step 1: Deduplicate duplicates within the Excel file - fully consistent with JS version
 	uniqueRecordsMap := make(map[string]models.Expense)
 	for _, record := range candidateRecords {
 		key := getRecordKey(record)
@@ -144,7 +144,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	}
 	fileInternalDuplicates := len(candidateRecords) - len(uniqueInFile)
 
-	// 步骤2: 查询数据库中的现有记录，检查是否重复
+	// Step 2: Query existing records in database to check for duplicates
 	existingKeys := make(map[string]bool)
 	if len(uniqueInFile) > 0 {
 		uniqueDates := make(map[string]bool)
@@ -163,7 +163,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 		}
 	}
 
-	// 步骤3: 过滤出真正要导入的新记录
+	// Step 3: Filter out truly new records to import
 	var recordsToImport []models.Expense
 	for _, record := range uniqueInFile {
 		if !existingKeys[getRecordKey(record)] {
@@ -175,7 +175,7 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 	if len(recordsToImport) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"message": "所有记录都已存在，没有新数据导入。",
+			"message": "All records already exist, no new data imported.",
 			"stats": gin.H{
 				"total":           len(candidateRecords),
 				"skippedInternal": fileInternalDuplicates,
@@ -186,25 +186,25 @@ func (h *ImportHandler) ImportExcel(c *gin.Context) {
 		return
 	}
 
-	// 批量创建
+	// Batch create
 	if err := h.expenseRepo.BatchCreate(recordsToImport); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "数据库插入失败。",
+			"message": "Database insertion failed.",
 		})
 		return
 	}
 
-	message := fmt.Sprintf("成功导入 %d 条记录。", len(recordsToImport))
+	message := fmt.Sprintf("Successfully imported %d records.", len(recordsToImport))
 	if fileInternalDuplicates > 0 || duplicatesWithDatabase > 0 {
 		var skipDetails []string
 		if fileInternalDuplicates > 0 {
-			skipDetails = append(skipDetails, fmt.Sprintf("%d 条文件内重复", fileInternalDuplicates))
+			skipDetails = append(skipDetails, fmt.Sprintf("%d duplicate(s) within file", fileInternalDuplicates))
 		}
 		if duplicatesWithDatabase > 0 {
-			skipDetails = append(skipDetails, fmt.Sprintf("%d 条已存在", duplicatesWithDatabase))
+			skipDetails = append(skipDetails, fmt.Sprintf("%d already exist(s)", duplicatesWithDatabase))
 		}
-		message += fmt.Sprintf(" (跳过: %s)", strings.Join(skipDetails, ", "))
+		message += fmt.Sprintf(" (Skipped: %s)", strings.Join(skipDetails, ", "))
 	}
 
 	c.JSON(http.StatusOK, gin.H{

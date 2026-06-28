@@ -13,42 +13,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ExpenseHandler 消费记录处理器
+// ExpenseHandler expense record handler
 type ExpenseHandler struct {
 	expenseRepo *repository.ExpenseRepository
 }
 
-// NewExpenseHandler 创建新的expense处理器
+// NewExpenseHandler creates a new expense handler
 func NewExpenseHandler(expenseRepo *repository.ExpenseRepository) *ExpenseHandler {
 	return &ExpenseHandler{
 		expenseRepo: expenseRepo,
 	}
 }
 
-// GetExpenses 获取消费记录列表
+// GetExpenses retrieves the expense record list
 func (h *ExpenseHandler) GetExpenses(c *gin.Context) {
-	// 解析查询参数
+	// Parse query parameters
 	query, err := h.parseExpenseQuery(c)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 执行查询
+	// Execute query
 	expenses, total, err := h.expenseRepo.FindWithPagination(query)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 获取元数据
+	// Get metadata
 	meta, err := h.expenseRepo.GetMeta()
 	if err != nil {
-		// 元数据获取失败不影响主要功能
+		// Metadata fetch failure doesn't affect main functionality
 		meta = &models.ExpenseMeta{}
 	}
 
-	// 返回格式与Node.js完全一致
+	// Return format fully consistent with Node.js
 	page := query.Offset/query.Limit + 1
 	c.JSON(http.StatusOK, gin.H{
 		"data":  expenses,
@@ -59,7 +59,7 @@ func (h *ExpenseHandler) GetExpenses(c *gin.Context) {
 	})
 }
 
-// CreateExpense 创建消费记录 - 与JS版本addExpense完全一致
+// CreateExpense creates an expense record - fully consistent with JS version addExpense
 func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
 	var request struct {
 		ID        string  `json:"id"`
@@ -72,17 +72,17 @@ func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
 		UpdatedAt *int64  `json:"updatedAt"`
 	}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		utils.ErrorResponseWithStatus(c, "消费类型和金额是必填项", err.Error(), http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Expense type and amount are required", err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// 后端数据验证
+	// Backend data validation
 	if request.Type == "" || request.Amount <= 0 {
-		utils.ErrorResponseWithStatus(c, "消费类型和金额是必填项", "", http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Expense type and amount are required", "", http.StatusBadRequest)
 		return
 	}
 
-	// 日期处理 - 与JS版本完全一致：date > time > 默认今天
+	// Date handling - fully consistent with JS version: date > time > default to today
 	dateStr := time.Now().Format("2006-01-02")
 	if request.Date != nil && *request.Date != "" {
 		dateStr = parseDateString(*request.Date)
@@ -104,19 +104,19 @@ func (h *ExpenseHandler) CreateExpense(c *gin.Context) {
 		expense.UpdatedAt = *request.UpdatedAt
 	}
 
-	// 保存记录
+	// Save record
 	if err := h.expenseRepo.Create(&expense); err != nil {
-		utils.ErrorResponseWithStatus(c, "无法添加记录", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Unable to add record", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 返回格式与Node.js完全一致 - 直接返回创建的对象
+	// Return format fully consistent with Node.js - directly return created object
 	c.JSON(http.StatusCreated, expense)
 }
 
-// parseDateString 解析日期字符串，提取YYYY-MM-DD格式 - 与JS dayjs().format('YYYY-MM-DD')一致
+// parseDateString parses date string, extracts YYYY-MM-DD format - consistent with JS dayjs().format('YYYY-MM-DD')
 func parseDateString(s string) string {
-	// 尝试多种日期格式解析
+	// Try multiple date format parsing
 	formats := []string{
 		"2006-01-02",
 		"2006-01-02T15:04:05Z",
@@ -128,72 +128,72 @@ func parseDateString(s string) string {
 			return t.Format("2006-01-02")
 		}
 	}
-	// 如果都解析失败，提取前10个字符作为日期
+	// If all parsing fails, extract first 10 characters as date
 	if len(s) >= 10 {
 		return s[:10]
 	}
 	return time.Now().Format("2006-01-02")
 }
 
-// GetExpenseStatistics 获取消费统计
+// GetExpenseStatistics retrieves expense statistics
 func (h *ExpenseHandler) GetExpenseStatistics(c *gin.Context) {
 	query, err := h.parseExpenseQuery(c)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "获取统计数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to get statistics", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	stats, err := h.expenseRepo.GetStatistics(query)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "获取统计数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to get statistics", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 返回格式与Node.js完全一致
+	// Return format fully consistent with Node.js
 	c.JSON(http.StatusOK, stats)
 }
 
-// DeleteExpense 删除消费记录
+// DeleteExpense deletes an expense record
 func (h *ExpenseHandler) DeleteExpense(c *gin.Context) {
 	id := c.Param("id")
 
-	// 检查记录是否存在
+	// Check if record exists
 	exists, err := h.expenseRepo.Exists(id)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		utils.ErrorResponseWithStatus(c, "记录不存在", "", http.StatusNotFound)
+		utils.ErrorResponseWithStatus(c, "Record not found", "", http.StatusNotFound)
 		return
 	}
 
-	// 删除记录
+	// Delete record
 	if err := h.expenseRepo.Delete(id); err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 返回格式与Node.js完全一致 - 仅返回状态码
+	// Return format fully consistent with Node.js - only return status code
 	c.Status(http.StatusNoContent)
 }
 
-// UpdateExpense 更新消费记录 - 与JS版本冲突检测一致
+// UpdateExpense updates an expense record - conflict detection consistent with JS version
 func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 	id := c.Param("id")
 
-	// 查找现有记录
+	// Find existing record
 	expense, err := h.expenseRepo.FindByID(id)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "查找记录失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to find record", err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if expense == nil {
-		utils.ErrorResponseWithStatus(c, "未找到要更新的记录", "", http.StatusNotFound)
+		utils.ErrorResponseWithStatus(c, "Record to update not found", "", http.StatusNotFound)
 		return
 	}
 
-	// 解析请求数据
+	// Parse request data
 	var updateData struct {
 		Type      *string  `json:"type"`
 		Remark    *string  `json:"remark"`
@@ -204,23 +204,23 @@ func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 		UpdatedAt *int64   `json:"updatedAt"`
 	}
 	if err := c.ShouldBindJSON(&updateData); err != nil {
-		utils.ErrorResponseWithStatus(c, "请求参数错误", err.Error(), http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Invalid request parameters", err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// 检查是否至少有一个字段需要更新
+	// Check if at least one field needs updating
 	if updateData.Type == nil && updateData.Amount == nil && updateData.Remark == nil && updateData.Time == nil && updateData.Date == nil {
-		utils.ErrorResponseWithStatus(c, "至少需要提供一个要更新的字段", "", http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "At least one field must be provided for update", "", http.StatusBadRequest)
 		return
 	}
 
-	// 金额验证
+	// Amount validation
 	if updateData.Amount != nil && (*updateData.Amount <= 0) {
-		utils.ErrorResponseWithStatus(c, "金额必须是有效的正数", "", http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Amount must be a valid positive number", "", http.StatusBadRequest)
 		return
 	}
 
-	// 冲突检测 - 与JS版本一致
+	// Conflict detection - consistent with JS version
 	clientVersion := expense.Version + 1
 	if updateData.Version != nil {
 		clientVersion = *updateData.Version
@@ -240,7 +240,7 @@ func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 		return
 	}
 
-	// 更新字段
+	// Update fields
 	if updateData.Type != nil {
 		expense.Type = *updateData.Type
 	}
@@ -258,38 +258,38 @@ func (h *ExpenseHandler) UpdateExpense(c *gin.Context) {
 	expense.Version = clientVersion
 	expense.UpdatedAt = clientUpdatedAt
 
-	// 保存更新
+	// Save update
 	if err := h.expenseRepo.Update(expense); err != nil {
-		utils.ErrorResponseWithStatus(c, "无法更新记录", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Unable to update record", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusOK, expense)
 }
 
-// HardDeleteExpense 硬删除消费记录
+// HardDeleteExpense hard deletes an expense record
 func (h *ExpenseHandler) HardDeleteExpense(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.expenseRepo.HardDelete(id); err != nil {
-		utils.ErrorResponseWithStatus(c, "无法删除记录", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Unable to delete record", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	c.Status(http.StatusNoContent)
 }
 
-// GetExpensesByDate 按日期分组获取消费记录 - 与JS版本完全一致
+// GetExpensesByDate groups expenses by date - fully consistent with JS version
 func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 	query, err := h.parseExpenseQuery(c)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	grouped, total, meta, err := h.expenseRepo.GetExpensesByDate(query)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "读取数据失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to read data", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -303,7 +303,7 @@ func (h *ExpenseHandler) GetExpensesByDate(c *gin.Context) {
 	})
 }
 
-// SyncExpenses 同步消费记录 - 与JS版本完全一致
+// SyncExpenses syncs expense records - fully consistent with JS version
 func (h *ExpenseHandler) SyncExpenses(c *gin.Context) {
 	var syncRequest struct {
 		LastSyncTime *int64            `json:"lastSyncTime"`
@@ -311,7 +311,7 @@ func (h *ExpenseHandler) SyncExpenses(c *gin.Context) {
 		LocalIDs     []string          `json:"localIds"`
 	}
 	if err := c.ShouldBindJSON(&syncRequest); err != nil {
-		// 接受空请求体，返回空结果
+		// Accept empty request body, return empty result
 		c.JSON(http.StatusOK, gin.H{
 			"serverChanges": []models.Expense{},
 			"conflicts":     []gin.H{},
@@ -322,11 +322,11 @@ func (h *ExpenseHandler) SyncExpenses(c *gin.Context) {
 
 	serverChanges, conflicts, err := h.expenseRepo.SyncExpenses(syncRequest.LastSyncTime, syncRequest.Changes, syncRequest.LocalIDs)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "同步失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Sync failed", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 确保返回空数组而非null
+	// Ensure empty arrays are returned instead of null
 	if serverChanges == nil {
 		serverChanges = []models.Expense{}
 	}
@@ -341,25 +341,25 @@ func (h *ExpenseHandler) SyncExpenses(c *gin.Context) {
 	})
 }
 
-// parseExpenseQuery 解析expense查询参数
+// parseExpenseQuery parses expense query parameters
 func (h *ExpenseHandler) parseExpenseQuery(c *gin.Context) (*models.ExpenseQuery, error) {
 	query := &models.ExpenseQuery{}
 
-	// 解析基础参数
+	// Parse basic parameters
 	query.Keyword = c.Query("keyword")
 	query.Type = c.Query("type")
 	query.Month = c.Query("month")
 
-	// 解析分页参数
+	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	query.Limit = limit
 	query.Offset = (page - 1) * limit
 
-	// 解析排序参数
+	// Parse sort parameters
 	query.Sort = c.DefaultQuery("sort", "dateDesc")
 
-	// 解析金额参数
+	// Parse amount parameters
 	if minAmountStr := c.Query("minAmount"); minAmountStr != "" {
 		if minAmount, err := strconv.ParseFloat(minAmountStr, 64); err == nil {
 			query.MinAmount = &minAmount
@@ -371,73 +371,73 @@ func (h *ExpenseHandler) parseExpenseQuery(c *gin.Context) (*models.ExpenseQuery
 		}
 	}
 
-	// 解析日期参数（直接使用字符串）
+	// Parse date parameters (use strings directly)
 	query.StartDate = c.Query("startDate")
 	query.EndDate = c.Query("endDate")
 
-	// 如果提供了month，将其转换为日期范围
+	// If month is provided, convert it to a date range
 	if query.Month != "" && (query.StartDate == "" || query.EndDate == "") {
 		startDate, endDate, err := query.ToMonthRange()
 		if err != nil {
-			return nil, fmt.Errorf("月份解析失败: %w", err)
+			return nil, fmt.Errorf("failed to parse month: %w", err)
 		}
 		query.StartDate = startDate
 		query.EndDate = endDate
 	}
 
-	// 验证查询参数
+	// Validate query parameters
 	if err := query.Validate(); err != nil {
-		return nil, fmt.Errorf("查询参数验证失败: %w", err)
+		return nil, fmt.Errorf("query parameter validation failed: %w", err)
 	}
 
 	return query, nil
 }
 
-// TestHandler 测试端点，用于验证API行为
+// TestHandler test endpoint, used to verify API behavior
 func (h *ExpenseHandler) TestHandler(c *gin.Context) {
-	// 简单的健康检查端点
+	// Simple health check endpoint
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Expense API is working",
 		"time":    time.Now(),
 	})
 }
 
-// BatchCreateExpense 批量创建消费记录
+// BatchCreateExpense batch creates expense records
 func (h *ExpenseHandler) BatchCreateExpense(c *gin.Context) {
 	var expenses []models.Expense
 	if err := c.ShouldBindJSON(&expenses); err != nil {
-		utils.ErrorResponseWithStatus(c, "请求参数错误", err.Error(), http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Invalid request parameters", err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if len(expenses) == 0 {
-		utils.ErrorResponseWithStatus(c, "消费记录列表不能为空", "", http.StatusBadRequest)
+		utils.ErrorResponseWithStatus(c, "Expense record list cannot be empty", "", http.StatusBadRequest)
 		return
 	}
 
-	// 批量创建
+	// Batch create
 	if err := h.expenseRepo.BatchCreate(expenses); err != nil {
-		utils.ErrorResponseWithStatus(c, "批量创建失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Batch creation failed", err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	c.JSON(http.StatusCreated, utils.SuccessResponse(gin.H{
-		"message": fmt.Sprintf("成功创建 %d 条消费记录", len(expenses)),
+		"message": fmt.Sprintf("Successfully created %d expense records", len(expenses)),
 		"count":   len(expenses),
 	}))
 }
 
-// GetExpenseByID 根据ID获取消费记录
+// GetExpenseByID gets expense record by ID
 func (h *ExpenseHandler) GetExpenseByID(c *gin.Context) {
 	id := c.Param("id")
 
 	expense, err := h.expenseRepo.FindByID(id)
 	if err != nil {
-		utils.ErrorResponseWithStatus(c, "查找记录失败", err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponseWithStatus(c, "Failed to find record", err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if expense == nil {
-		utils.ErrorResponseWithStatus(c, "记录不存在", "", http.StatusNotFound)
+		utils.ErrorResponseWithStatus(c, "Record not found", "", http.StatusNotFound)
 		return
 	}
 

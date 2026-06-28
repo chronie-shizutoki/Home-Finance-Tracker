@@ -7,22 +7,22 @@ import (
 	"gorm.io/gorm"
 )
 
-// Member 会员模型 - 与JS版本完全一致
-// 注意: createdAt/updatedAt 使用 string 类型，因为JS版本(Sequelize)在SQLite中以DATETIME字符串存储
+// Member model - fully consistent with JS version
+// Note: createdAt/updatedAt use string type because JS version (Sequelize) stores as DATETIME string in SQLite
 type Member struct {
 	ID        string  `json:"id" gorm:"type:varchar(36);primaryKey"`
-	Username  string  `json:"username" gorm:"type:varchar(255);not null;uniqueIndex;comment:'用户名'"`
-	Avatar    *string `json:"avatar,omitempty" gorm:"type:text;comment:'头像数据'"`
+	Username  string  `json:"username" gorm:"type:varchar(255);not null;uniqueIndex;comment:'Username'"`
+	Avatar    *string `json:"avatar,omitempty" gorm:"type:text;comment:'Avatar data'"`
 	CreatedAt string  `json:"createdAt" gorm:"column:createdAt;type:text"`
 	UpdatedAt string  `json:"updatedAt" gorm:"column:updatedAt;type:text"`
 }
 
-// TableName 指定表名
+// TableName specifies the table name
 func (Member) TableName() string {
 	return "Members"
 }
 
-// BeforeCreate 创建前钩子 - 生成UUID和时间戳
+// BeforeCreate pre-create hook - generates UUID and timestamps
 func (m *Member) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == "" {
 		m.ID = uuid.New().String()
@@ -37,13 +37,13 @@ func (m *Member) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// BeforeUpdate 更新前钩子
+// BeforeUpdate pre-update hook
 func (m *Member) BeforeUpdate(tx *gorm.DB) error {
 	m.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	return nil
 }
 
-// ToJSON 转换为JSON格式 - 保持与JS版本一致
+// ToJSON converts to JSON format - consistent with JS version
 func (m *Member) ToJSON() map[string]interface{} {
 	result := map[string]interface{}{
 		"id":        m.ID,

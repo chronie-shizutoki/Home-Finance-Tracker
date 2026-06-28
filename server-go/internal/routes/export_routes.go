@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupExportRoutes 设置导出/导入相关路由 - 与JS版本完全一致
+// SetupExportRoutes sets up export/import related routes - fully consistent with JS version
 func SetupExportRoutes(router *gin.Engine, expenseRepo *repository.ExpenseRepository) {
 	exportHandler := handler.NewExportHandler(expenseRepo)
 	importHandler := handler.NewImportHandler(expenseRepo)
 
-	// 导出Excel
+	// Export Excel
 	router.GET("/api/export/excel", exportHandler.ExportExcel)
 
-	// 导入Excel
+	// Import Excel
 	router.POST("/api/import/excel", importHandler.ImportExcel)
 }
