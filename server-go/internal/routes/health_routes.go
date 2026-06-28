@@ -63,7 +63,7 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 		dbStatus := "connected"
 		dbError := ""
 		if db == nil {
-			dbStatus := "disconnected"
+			dbStatus = "disconnected"
 			dbError = "database instance not provided"
 		} else if err := db.Ping(); err != nil {
 			dbStatus = "disconnected"
