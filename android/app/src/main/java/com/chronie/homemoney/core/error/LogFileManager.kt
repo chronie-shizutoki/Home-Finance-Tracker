@@ -12,8 +12,8 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * 日志文件管理器
- * 负责管理错误日志文件的创建和写入
+ * Log File Manager
+ * Responsible for managing error log files creation
  */
 class LogFileManager(private val context: Context) {
 
@@ -26,7 +26,7 @@ class LogFileManager(private val context: Context) {
     private val timestampFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
 
     /**
-     * 获取日志目录
+     * Get the log directory for saving crash logs
      */
     fun getLogDir(): File {
         return if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
@@ -37,7 +37,7 @@ class LogFileManager(private val context: Context) {
     }
 
     /**
-     * 保存崩溃日志到文件
+     * Save a crash log to a file
      */
     fun saveCrashLog(thread: Thread, throwable: Throwable): File? {
         return try {
@@ -79,7 +79,7 @@ class LogFileManager(private val context: Context) {
     }
 
     /**
-     * 保存错误信息到日志文件
+     * Save error information to a log file
      */
     fun saveErrorLog(errorInfo: ErrorInfo): File? {
         return try {
@@ -104,7 +104,7 @@ class LogFileManager(private val context: Context) {
     }
 
     /**
-     * 将错误信息转换为文本格式
+     * Convert error information to text format
      */
     private fun convertErrorInfoToText(errorInfo: ErrorInfo): String {
         val timestampStr = timestampFormat.format(Date(errorInfo.timestamp))
@@ -119,7 +119,7 @@ class LogFileManager(private val context: Context) {
     }
 
     /**
-     * 获取所有日志文件
+     * Get all log files in the log directory
      */
     fun getLogFiles(): List<File> {
         val logDir = getLogDir()
@@ -130,7 +130,7 @@ class LogFileManager(private val context: Context) {
     }
 
     /**
-     * 清除所有日志文件
+     * Clear all log files
      */
     fun clearLogFiles(): Boolean {
         return try {

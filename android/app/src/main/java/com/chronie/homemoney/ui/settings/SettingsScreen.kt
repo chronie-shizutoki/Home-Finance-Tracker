@@ -55,13 +55,13 @@ fun SettingsScreen(
 ) {
     var currentPage by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
 
-    // 处理系统返回键
+    // Handle back button click
     BackHandler(enabled = currentPage != SettingsPage.MAIN) {
         currentPage = SettingsPage.MAIN
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // 顶部标题栏
+        // Top title bar with back button and page title
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.background,
@@ -105,11 +105,11 @@ fun SettingsScreen(
             targetState = currentPage,
             transitionSpec = {
                 if (targetState != SettingsPage.MAIN) {
-                    // 进入二级页面：从右往左进，带有渐变
+                    // Enter secondary page: slide in from right with fade in
                     (slideInHorizontally { it } + fadeIn()) togetherWith 
                     (slideOutHorizontally { -it / 2 } + fadeOut())
                 } else {
-                    // 返回主页面：从左往右回，带有渐变
+                    // Return to main page: slide out to left with fade out
                     (slideInHorizontally { -it / 2 } + fadeIn()) togetherWith 
                     (slideOutHorizontally { it } + fadeOut())
                 }
@@ -168,7 +168,7 @@ fun MainSettingsMenu(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        // 用户简要信息入口
+        // User account summary entry
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -180,7 +180,7 @@ fun MainSettingsMenu(
                 modifier = Modifier.padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 小头像
+                // Small avatar image
                 Box(modifier = Modifier.size(60.dp)) {
                     if (avatar != null) {
                         AsyncImage(
@@ -225,7 +225,7 @@ fun MainSettingsMenu(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 设置分类列表
+        // Appearance settings category
         SettingsCategoryItem(
             title = context.getString(R.string.theme_settings),
             description = context.getString(R.string.language_settings),
@@ -234,7 +234,7 @@ fun MainSettingsMenu(
         )
         
         SettingsCategoryItem(
-            title = "Features", // 或者使用 R.string.budget_settings
+            title = "Features", // Alternatively use: R.string.budget_settings
             description = context.getString(R.string.settings_ai_title) + ", " + context.getString(R.string.budget_settings),
             icon = Icons.Default.AutoAwesome,
             onClick = { onNavigate(SettingsPage.FEATURES) }
@@ -308,7 +308,7 @@ fun SettingsCategoryItem(
     }
 }
 
-// --- 子页面组件 ---
+// --- Sub-page components ---
 
 @Composable
 fun AccountSettingsPage(
@@ -539,7 +539,7 @@ fun AboutSettingsPage(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // 开发者选项
+        // Developer options section
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -568,7 +568,7 @@ fun AboutSettingsPage(
         
         AppVersionInfo(context = context)
         
-        // 预留底部空间，避免被悬浮底栏遮挡
+        // Reserve bottom space to avoid being blocked by floating bottom bar
         Spacer(modifier = Modifier.height(100.dp))
     }
 }
@@ -618,7 +618,7 @@ fun SettingsDetailItem(
     }
 }
 
-// --- 原始 UI 组件保持或微调 ---
+// --- Original UI components or minor adjustments ---
 
 @Composable
 fun AppVersionInfo(context: Context) {

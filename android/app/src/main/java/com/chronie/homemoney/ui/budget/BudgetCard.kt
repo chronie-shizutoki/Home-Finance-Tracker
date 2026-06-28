@@ -23,8 +23,8 @@ import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
 import java.util.Locale
 
 /**
- * 预算管理卡片
- * 显示在支出列表界面的标题栏下方
+ * Budget Management Card
+ * Displays budget usage and settings in the expense list screen
  */
 @Composable
 fun BudgetCard(
@@ -36,12 +36,12 @@ fun BudgetCard(
     val uiState by viewModel.uiState.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     
-    // 监听刷新触发器
+    // Listen for refresh trigger
     LaunchedEffect(refreshTrigger) {
         viewModel.refresh()
     }
     
-    // 如果预算功能未启用，显示启用提示
+    // If budget feature is not enabled, show enable prompt
     if (uiState.budget?.isEnabled != true) {
         BudgetEnablePrompt(
             context = context,
@@ -51,7 +51,7 @@ fun BudgetCard(
             modifier = modifier
         )
     } else {
-        // 显示预算使用情况
+        // Display budget usage
         val usage = uiState.budgetUsage
         if (usage != null) {
             BudgetUsageCard(
@@ -61,7 +61,7 @@ fun BudgetCard(
                 modifier = modifier
             )
         } else {
-            // 加载中状态
+            // Loading state while fetching budget usage
             Card(
                 modifier = modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -80,7 +80,7 @@ fun BudgetCard(
         }
     }
     
-    // 预算设置对话框
+    // Budget Settings Dialog
     if (showSettings) {
         BudgetSettingsDialog(
             context = context,
@@ -95,7 +95,8 @@ fun BudgetCard(
 }
 
 /**
- * 启用预算提示卡片
+ * Budget Enable Prompt Card
+ * Displays a prompt to enable budget feature
  */
 @Composable
 fun BudgetEnablePrompt(
@@ -146,7 +147,8 @@ fun BudgetEnablePrompt(
 }
 
 /**
- * 预算使用情况卡片
+ * Budget Usage Card
+ * Displays budget usage information
  */
 @Composable
 fun BudgetUsageCard(
@@ -181,13 +183,13 @@ fun BudgetUsageCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 标题行（始终显示）
+            // Title row (always displayed)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 收起状态下的简要信息
+                // Expanded state summary
                 if (!isExpanded) {
                     Row(
                         modifier = Modifier.weight(1f),
@@ -212,7 +214,7 @@ fun BudgetUsageCard(
                         )
                     }
                 } else {
-                    // 展开状态下的标题
+                    // Expanded state title
                     Column {
                         Text(
                             text = context.getString(R.string.budget_monthly_progress),
@@ -227,7 +229,7 @@ fun BudgetUsageCard(
                     }
                 }
                 
-                // 展开/收起按钮和设置按钮
+                // Expand/Collapse button and settings button
                 Row {
                     IconButton(onClick = { isExpanded = !isExpanded }) {
                         Icon(
@@ -244,12 +246,12 @@ fun BudgetUsageCard(
                 }
             }
             
-            // 详细内容（可展开/收起）
+            // Expanded state content (expandable/collapsible)
             AnimatedVisibility(visible = isExpanded) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // 金额信息
+                    // Expanded state amount info
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -274,7 +276,7 @@ fun BudgetUsageCard(
                         )
                     }
                     
-                    // 进度条
+                    // Expanded state progress bar
                     ExpressiveLinearProgressIndicator(
                         progress = (usage.spendingPercentage / 100).toFloat().coerceIn(0f, 1f),
                         modifier = Modifier
@@ -284,7 +286,7 @@ fun BudgetUsageCard(
                         trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                     
-                    // 状态提示
+                    // Status alert
                     when (status) {
                         BudgetStatus.OVER_LIMIT -> {
                             AlertCard(
@@ -326,7 +328,7 @@ fun BudgetUsageCard(
                         }
                     }
                     
-                    // 详细信息
+                    // Expanded state detailed info
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -357,7 +359,7 @@ fun BudgetUsageCard(
 }
 
 /**
- * 警告卡片
+ * Alert Card
  */
 @Composable
 fun AlertCard(
@@ -393,7 +395,7 @@ fun AlertCard(
 }
 
 /**
- * 详细信息项
+ * Detail Item
  */
 @Composable
 fun DetailItem(

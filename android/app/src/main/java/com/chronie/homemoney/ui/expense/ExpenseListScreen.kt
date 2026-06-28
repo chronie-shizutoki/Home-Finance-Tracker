@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
- * 支出列表界面
+ * Expense List Screen
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -84,7 +84,7 @@ fun ExpenseListScreen(
     val useTableLayout = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Medium ||
                          windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     
-    // 处理刷新请求
+    // Handle refresh requests from parent scope
     LaunchedEffect(shouldRefresh) {
         if (shouldRefresh) {
             viewModel.refresh()
@@ -93,14 +93,14 @@ fun ExpenseListScreen(
         }
     }
     
-    // 刷新函数
+    // Refresh function
     val onRefresh: () -> Unit = {
         isRefreshing = true
         viewModel.refresh()
         budgetRefreshTrigger++
     }
     
-    // 处理刷新状态重置
+    // Handle refresh state reset after refresh 
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             delay(1000)
@@ -109,7 +109,7 @@ fun ExpenseListScreen(
     }
     
     Box(modifier = Modifier.fillMaxSize()) {
-        // 顶部工具栏 - 固定在页面顶部，不随内容滚动
+        // Top Toolbar - Fixed at top of page, does not scroll with content
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surface,
@@ -159,10 +159,10 @@ fun ExpenseListScreen(
             }
         }
         
-        // 内容区域 - 放在工具栏下方，可以滚动
+        // Content Area - Below toolbar, can scroll
         Column(modifier = Modifier.fillMaxSize()) {
-            // 给工具栏留出空间
-            Spacer(modifier = Modifier.height(64.dp)) // 工具栏的大致高度
+            // Leave space for toolbar
+            Spacer(modifier = Modifier.height(64.dp)) // Toolbar height approximation
             
             when {
                 uiState.isLoading && uiState.expenses.isEmpty() -> {
@@ -218,7 +218,7 @@ fun ExpenseListScreen(
                     val groupedExpenses = uiState.groupedExpenses
                     var lastLoadTime by remember { mutableLongStateOf(0L) }
                     
-                    // 改进的滚动检测：仅当真正接近底部时才加载更多
+                    // Improved scroll detection: only load more when actually near bottom
                     LaunchedEffect(listState, uiState.hasMore, uiState.isLoading) {
                         snapshotFlow { 
                             val layoutInfo = listState.layoutInfo
@@ -230,10 +230,10 @@ fun ExpenseListScreen(
                             if (totalItemsCount > 0 && 
                                 lastVisibleIndex != null && 
                                 firstVisibleIndex != null &&
-                                lastVisibleIndex >= totalItemsCount - 1 && // 只在最后一项可见时才触发
+                                lastVisibleIndex >= totalItemsCount - 1 && // Only trigger when last item is visible
                                 uiState.hasMore && 
                                 !uiState.isLoading &&
-                                currentTime - lastLoadTime > 1000) { // 防抖，至少间隔1秒
+                                currentTime - lastLoadTime > 1000) { // Debounce, at least 1 second interval
                                 lastLoadTime = currentTime
                                 viewModel.loadMore()
                             }
@@ -249,10 +249,10 @@ fun ExpenseListScreen(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 80.dp), // 为浮动按钮留出空间
+                            contentPadding = PaddingValues(bottom = 80.dp), // Leave space for floating action button
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                        // 预算管理卡片
+                        // Budget Management Card
                         item(key = "budget_card") {
                             BudgetCard(
                                 context = context,
@@ -263,7 +263,7 @@ fun ExpenseListScreen(
                             )
                         }
                         
-                        // 统计信息卡片
+                        // Expense Statistics Card
                         item(key = "stats_card") {
                             ExpenseStatisticsCard(
                                 statistics = uiState.statistics,
@@ -274,9 +274,9 @@ fun ExpenseListScreen(
                             )
                         }
                         
-                        // 支出列表项
+                        // Expense List Items
                         groupedExpenses.forEach { (date, expenses) ->
-                            // 日期标题
+                            // Date Header
                             item(key = "header_$date") {
                                 if (useTableLayout) {
                                     ExpenseTableDateHeader(
@@ -299,7 +299,7 @@ fun ExpenseListScreen(
                                 }
                             }
                             
-                            // 该日期下的支出项
+                            // Expense Items for this Date
                             if (useTableLayout) {
                                 item(key = "table_$date") {
                                     ExpenseTableItems(
@@ -326,7 +326,7 @@ fun ExpenseListScreen(
                             }
                         }
                         
-                        // 加载更多指示器
+                        // Load More Indicator
                         if (uiState.hasMore) {
                             item(key = "load_more") {
                                 Box(
@@ -350,7 +350,7 @@ fun ExpenseListScreen(
             }
         }
     }   
-        // 浮动按钮
+                // Floating Action Button
         FloatingActionButton(
             onClick = onNavigateToAddExpense,
             containerColor = MaterialTheme.colorScheme.primary,
@@ -358,12 +358,12 @@ fun ExpenseListScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
-                .padding(bottom = 80.dp) // 抬高按钮，避免被底部导航栏遮挡
+                .padding(bottom = 80.dp) // Raise button to avoid overlapping with bottom navigation bar
         ) {
             Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
         }
         
-        // 筛选对话框
+        // Filter Dialog Box
         if (showFilterDialog) {
             ExpenseFilterDialog(
                 context = context,
@@ -378,7 +378,7 @@ fun ExpenseListScreen(
 }
 
 /**
- * 日期标题
+ * Date Header
  */
 @Composable
 fun ExpenseDateHeader(
@@ -421,7 +421,7 @@ fun ExpenseDateHeader(
 }
 
 /**
- * 统计信息卡片
+ * Statistics Card
  */
 @Composable
 fun ExpenseStatisticsCard(
@@ -470,7 +470,7 @@ fun ExpenseStatisticsCard(
 }
 
 /**
- * 统计项
+ * Statistics Item
  */
 @Composable
 fun StatisticItem(
@@ -494,7 +494,7 @@ fun StatisticItem(
 }
 
 /**
- * 长按触发的支出列表项
+ * Long Press Expense Item
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -505,45 +505,45 @@ fun LongPressExpenseItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 底部托盘菜单显示状态
+    // Bottom Sheet Menu Display State
     val showBottomSheetMenu = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
     
-    // 弹窗状态 - 第一次确认
+    // Dialog State - First Confirm Dialog
     val showFirstConfirmDialog = remember { mutableStateOf(false) }
-    // 弹窗状态 - 第二次确认
+    // Dialog State - Second Confirm Dialog
     val showSecondConfirmDialog = remember { mutableStateOf(false) }
     
-    // 处理第一次确认
+    // Handle First Confirmation
     fun handleFirstConfirm() {
         showFirstConfirmDialog.value = false
         showSecondConfirmDialog.value = true
     }
     
-    // 处理第二次确认
+    // Handle Second Confirmation
     fun handleSecondConfirm() {
         showSecondConfirmDialog.value = false
         showBottomSheetMenu.value = false
         onDelete()
     }
     
-    // 取消删除
+    // Cancel Delete
     fun cancelDelete() {
         showFirstConfirmDialog.value = false
         showSecondConfirmDialog.value = false
     }
     
-    // 显示删除确认
+    // Show Delete Confirmation Dialog
     fun showDeleteConfirm() {
         showBottomSheetMenu.value = false
         showFirstConfirmDialog.value = true
     }
     
-    // 使用传递的context来获取本地化字符串
+    // Localized Expense Type Name
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
     
     Box(modifier = modifier.fillMaxWidth()) {
-        // 支出列表项 - 添加长按检测
+        // Expense List Item
         ExpenseListItem(
             expense = expense,
             context = context,
@@ -557,7 +557,7 @@ fun LongPressExpenseItem(
                 }
         )
         
-        // 底部托盘菜单 - 使用ModalBottomSheet
+        // Bottom Sheet Menu
         if (showBottomSheetMenu.value) {
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheetMenu.value = false },
@@ -572,7 +572,7 @@ fun LongPressExpenseItem(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 选中记录的详细信息
+                    // Selected Record Details
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -607,12 +607,12 @@ fun LongPressExpenseItem(
                         }
                     }
                     
-                    // 操作按钮
+                    // Action Buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // 编辑按钮
+                        // Edit Button
                         Button(
                             onClick = {
                                 showBottomSheetMenu.value = false
@@ -633,7 +633,7 @@ fun LongPressExpenseItem(
                             Text(text = context.getString(R.string.edit))
                         }
                         
-                        // 删除按钮
+                        // Delete Button
                         Button(
                             onClick = {
                                 showDeleteConfirm()
@@ -657,7 +657,7 @@ fun LongPressExpenseItem(
             }
         }
         
-        // 第一次确认弹窗
+        // First Confirmation Dialog
         if (showFirstConfirmDialog.value) {
             AlertDialog(
                 onDismissRequest = { cancelDelete() },
@@ -676,7 +676,7 @@ fun LongPressExpenseItem(
             )
         }
         
-        // 第二次确认弹窗
+        // Second Confirmation Dialog
         if (showSecondConfirmDialog.value) {
             AlertDialog(
                 onDismissRequest = { cancelDelete() },
@@ -704,7 +704,7 @@ fun LongPressExpenseItem(
 }
 
 /**
- * 支出列表项
+ * Expense List Item
  */
 @Composable
 fun ExpenseListItem(
@@ -712,7 +712,7 @@ fun ExpenseListItem(
     context: android.content.Context,
     modifier: Modifier = Modifier
 ) {
-    // 使用传递的context来获取本地化字符串
+    // Localized Expense Type Name Display
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
     
     

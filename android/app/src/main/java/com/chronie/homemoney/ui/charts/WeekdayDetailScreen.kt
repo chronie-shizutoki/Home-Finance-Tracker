@@ -74,7 +74,7 @@ fun WeekdayDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // 总金额和占比
+            // Total amount and percentage
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -136,7 +136,7 @@ fun WeekdayDetailScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 类型占比
+            // Category breakdown for this weekday
             when (val state = uiState) {
                 is WeekdayDetailUiState.Loading -> {
                     Box(

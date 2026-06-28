@@ -13,8 +13,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * 圆形图标按钮组件
- * 用于顶栏和其他需要圆形背景的图标按钮
+ * Circular IconButton Component
+ * Component for circular icon buttons
+ * Used in top bars and other places where circular backgrounds are needed
  */
 @Composable
 fun CircularIconButton(

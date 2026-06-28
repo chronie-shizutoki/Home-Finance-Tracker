@@ -16,8 +16,8 @@ import javax.inject.Singleton
 private val Context.developerDataStore: DataStore<Preferences> by preferencesDataStore(name = "developer_settings")
 
 /**
- * 开发者模式管理器
- * 用于控制开发者功能的显示和隐藏
+ * Developer Mode Manager
+ * Manages developer mode settings and actions
  */
 @Singleton
 class DeveloperMode @Inject constructor(
@@ -27,7 +27,7 @@ class DeveloperMode @Inject constructor(
     private val developerModeKey = booleanPreferencesKey("developer_mode_enabled")
     
     /**
-     * 开发者模式是否启用
+     * Is developer mode enabled
      */
     val isDeveloperModeEnabled: Flow<Boolean> = context.developerDataStore.data
         .map { preferences ->
@@ -35,7 +35,7 @@ class DeveloperMode @Inject constructor(
         }
     
     /**
-     * 启用开发者模式
+     * Enable developer mode
      */
     suspend fun enableDeveloperMode() {
         context.developerDataStore.edit { preferences ->
@@ -44,7 +44,7 @@ class DeveloperMode @Inject constructor(
     }
     
     /**
-     * 禁用开发者模式
+     * Disable developer mode
      */
     suspend fun disableDeveloperMode() {
         context.developerDataStore.edit { preferences ->
@@ -53,7 +53,7 @@ class DeveloperMode @Inject constructor(
     }
     
     /**
-     * 切换开发者模式
+     * Toggle developer mode
      */
     suspend fun toggleDeveloperMode() {
         context.developerDataStore.edit { preferences ->
@@ -63,22 +63,22 @@ class DeveloperMode @Inject constructor(
     }
     
     /**
-     * 测试错误收集：记录普通错误
+     * Test error logging: Record a normal error
      */
     fun testErrorLogging() {
         errorReporterTest.testLogError()
     }
     
     /**
-     * 测试错误收集：记录网络错误
+     * Test error logging: Record a network error
      */
     fun testNetworkErrorLogging() {
         errorReporterTest.testNetworkError()
     }
     
     /**
-     * 测试错误收集：触发未捕获异常
-     * 警告：此方法会导致应用崩溃，请谨慎使用
+     * Test error logging: Trigger an uncaught exception
+     * Warning: This method will crash the app, use with caution!
      */
     fun testUncaughtException() {
         errorReporterTest.testUncaughtException()

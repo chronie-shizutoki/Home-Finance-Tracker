@@ -8,7 +8,8 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 /**
- * 错误处理拦截器 - 统一处理HTTP错误
+ * Error Handling Interceptor
+ * Handles HTTP errors uniformly
  */
 class ErrorHandlingInterceptor : Interceptor {
     
@@ -22,10 +23,10 @@ class ErrorHandlingInterceptor : Interceptor {
         try {
             val response = chain.proceed(request)
 
-            // 处理HTTP错误状态码
+            // Handle HTTP error status codes
             when (response.code) {
                 in 200..299 -> {
-                    // 成功响应，直接返回
+                    // Successful response, return as is
                     return response
                 }
                 400 -> {
@@ -35,8 +36,8 @@ class ErrorHandlingInterceptor : Interceptor {
                 401 -> {
                     val errorBody = response.peekBody(Long.MAX_VALUE).string()
                     Log.e(TAG, "Unauthorized (401): ${request.url}, Response: $errorBody")
-                    // 可以在这里触发token刷新或跳转到登录页面
-                    // 这里只记录日志，具体处理由Repository层完成
+                    // Trigger token refresh or redirect to login page here
+                    // Logging only, actual handling is done by Repository layer
                 }
                 403 -> {
                     val errorBody = response.peekBody(Long.MAX_VALUE).string()

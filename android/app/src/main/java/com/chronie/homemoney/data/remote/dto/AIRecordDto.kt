@@ -3,7 +3,7 @@ package com.chronie.homemoney.data.remote.dto
 import com.google.gson.annotations.SerializedName
 
 /**
- * AI 记录请求 DTO
+ * AI Record Request DTO
  */
 data class AIRecordRequest(
     @SerializedName("model")
@@ -17,21 +17,21 @@ data class AIRecordRequest(
 )
 
 /**
- * AI 消息
+ * AI Message
  */
 data class AIMessage(
     @SerializedName("role")
     val role: String,
     @SerializedName("content")
-    val content: Any // 可以是 String 或 List<AIMessageContent>
+    val content: Any // Can be a String or List<AIMessageContent>
 )
 
 /**
- * AI 消息内容（用于多模态）
+ * AI Message Content (for multimodal input)
  */
 data class AIMessageContent(
     @SerializedName("type")
-    val type: String, // "text" 或 "image_url"
+    val type: String, // "text" or "image_url"
     @SerializedName("text")
     val text: String? = null,
     @SerializedName("image_url")
@@ -39,7 +39,7 @@ data class AIMessageContent(
 )
 
 /**
- * AI 图片 URL
+ * AI Image URL
  */
 data class AIImageUrl(
     @SerializedName("url")
@@ -47,7 +47,7 @@ data class AIImageUrl(
 )
 
 /**
- * AI 记录响应 DTO
+ * AI Record Response DTO
  */
 data class AIRecordResponse(
     @SerializedName("choices")
@@ -55,7 +55,7 @@ data class AIRecordResponse(
 )
 
 /**
- * AI 选择
+ * AI Choice
  */
 data class AIChoice(
     @SerializedName("message")
@@ -63,7 +63,7 @@ data class AIChoice(
 )
 
 /**
- * AI 响应消息
+ * AI Response Message
  */
 data class AIResponseMessage(
     @SerializedName("content")
@@ -71,7 +71,7 @@ data class AIResponseMessage(
 )
 
 /**
- * AI 识别的支出记录 DTO
+ * AI recognized Expense Record DTO
  */
 data class AIExpenseRecordDto(
     @SerializedName("type")

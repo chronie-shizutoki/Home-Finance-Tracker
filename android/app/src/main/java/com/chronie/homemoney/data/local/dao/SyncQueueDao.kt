@@ -5,7 +5,7 @@ import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 同步队列数据访问对象
+ * Sync Queue Data Access Object
  */
 @Dao
 interface SyncQueueDao {

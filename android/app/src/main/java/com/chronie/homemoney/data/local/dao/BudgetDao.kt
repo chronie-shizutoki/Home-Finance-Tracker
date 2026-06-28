@@ -5,7 +5,7 @@ import com.chronie.homemoney.data.local.entity.BudgetEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 预算数据访问对象
+ * Budget Data Access Object
  */
 @Dao
 interface BudgetDao {

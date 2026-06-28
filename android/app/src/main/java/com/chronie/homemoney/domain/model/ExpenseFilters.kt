@@ -3,12 +3,12 @@ package com.chronie.homemoney.domain.model
 import java.time.LocalDate
 
 /**
- * 支出筛选条件
+ * Expense Filters Domain Model
  */
 data class ExpenseFilters(
     val keyword: String? = null,
     val type: ExpenseType? = null,
-    val month: String? = null,  // 格式: YYYY-MM
+    val month: String? = null,  // Format: YYYY-MM
     val minAmount: Double? = null,
     val maxAmount: Double? = null,
     val startDate: LocalDate? = null,
@@ -17,7 +17,7 @@ data class ExpenseFilters(
 )
 
 /**
- * 排序选项
+ * Sort Option
  */
 enum class SortOption {
     DATE_ASC,

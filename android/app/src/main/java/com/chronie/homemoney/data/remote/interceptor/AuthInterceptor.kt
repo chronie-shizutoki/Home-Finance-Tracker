@@ -6,7 +6,8 @@ import okhttp3.Response
 import javax.inject.Inject
 
 /**
- * 认证拦截器 - 自动添加JWT令牌到请求头
+ * Authentication Interceptor
+ * Automatically adds JWT token to request headers if available
  */
 class AuthInterceptor @Inject constructor(
     private val sharedPreferences: SharedPreferences
@@ -21,20 +22,20 @@ class AuthInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         
-        // 如果请求头中已经有Authorization，不覆盖
+        // If request already has Authorization header, skip adding it
         if (originalRequest.header(HEADER_AUTHORIZATION) != null) {
             return chain.proceed(originalRequest)
         }
         
-        // 从SharedPreferences获取token
+        // Get token from SharedPreferences
         val token = sharedPreferences.getString(KEY_TOKEN, null)
         
-        // 如果没有token，直接发送原始请求
+        // If no token, return original request as is
         if (token.isNullOrEmpty()) {
             return chain.proceed(originalRequest)
         }
         
-        // 添加Authorization头
+        // Add Authorization header
         val newRequest = originalRequest.newBuilder()
             .header(HEADER_AUTHORIZATION, "$TOKEN_PREFIX$token")
             .build()

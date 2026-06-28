@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * AI 记录仓库实现
+ * AI Record Repository Implementation
  */
 @Singleton
 class AIRecordRepositoryImpl @Inject constructor(
@@ -105,7 +105,7 @@ class AIRecordRepositoryImpl @Inject constructor(
             val prompt = buildImagePrompt()
             val messageContent = mutableListOf<AIMessageContent>()
             
-            // 添加文本提示
+            // Add text prompt
             messageContent.add(
                 AIMessageContent(
                     type = "text",
@@ -113,7 +113,7 @@ class AIRecordRepositoryImpl @Inject constructor(
                 )
             )
             
-            // 添加所有图片
+            // Add all images
             base64Images.forEach { base64 ->
                 messageContent.add(
                     AIMessageContent(
@@ -202,7 +202,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     }
     
     /**
-     * 构建文本解析提示
+     * Build text prompt for parsing text records
      */
     private fun buildTextPrompt(text: String): String {
         val today = java.time.LocalDate.now()
@@ -236,7 +236,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     }
     
     /**
-     * 构建图片解析提示
+     * Build image prompt for parsing image records
      */
     private fun buildImagePrompt(): String {
         val today = java.time.LocalDate.now()
@@ -268,22 +268,24 @@ class AIRecordRepositoryImpl @Inject constructor(
     }
     
     /**
-     * 解析 AI 响应
+     * Parse AI response to extract expense records
+     * @param content The response content from AI model
+     * @return A list of AIExpenseRecord objects
      */
     private fun parseAIResponse(content: String): List<AIExpenseRecord> {
         return try {
-            // 清理响应内容，移除可能的 markdown 代码块标记
+            // Clean response content by removing markdown code block markers
             val cleanContent = content
                 .replace("```json", "")
                 .replace("```", "")
                 .trim()
             
-            // 尝试解析为数组
+            // Try to parse as array
             val listType = object : TypeToken<List<AIExpenseRecordDto>>() {}.type
             val dtoList: List<AIExpenseRecordDto> = try {
                 gson.fromJson(cleanContent, listType)
             } catch (e: Exception) {
-                // 如果解析数组失败，尝试解析单个对象
+                // If array parsing fails, try parsing single object
                 val singleDto = gson.fromJson(cleanContent, AIExpenseRecordDto::class.java)
                 listOf(singleDto)
             }
@@ -296,7 +298,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     }
     
     /**
-     * 将 URI 转换为 Base64
+     * Convert URI to Base64 string
      */
     private suspend fun uriToBase64(uri: Uri): String = withContext(Dispatchers.IO) {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -315,7 +317,7 @@ class AIRecordRepositoryImpl @Inject constructor(
     }
     
     /**
-     * 添加到同步队列
+     * Add to sync queue for later processing
      */
     private suspend fun addToSyncQueue(
         entityType: String,

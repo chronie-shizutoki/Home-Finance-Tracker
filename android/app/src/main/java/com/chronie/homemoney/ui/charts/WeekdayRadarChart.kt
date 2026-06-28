@@ -29,7 +29,7 @@ import kotlin.math.sqrt
 import kotlin.math.PI
 
 /**
- * 按星期几统计的雷达图卡片
+ * Weekday Radar Chart Card
  */
 @Composable
 fun WeekdayRadarChartCard(
@@ -58,7 +58,7 @@ fun WeekdayRadarChartCard(
                     modifier = Modifier.padding(vertical = 32.dp)
                 )
             } else {
-                // 雷达图
+                // Weekday Radar Chart
                 WeekdayRadarChart(
                     context = context,
                     weekdayData = weekdayData,
@@ -80,7 +80,7 @@ fun WeekdayRadarChartCard(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // 详细数据列表
+                // Weekday data list
                 weekdayData.forEach { data ->
                     if (data.amount > 0) {
                         WeekdayDataItem(context, data, currencyFormat)
@@ -93,7 +93,7 @@ fun WeekdayRadarChartCard(
 }
 
 /**
- * 雷达图组件
+ * Weekday Radar Chart
  */
 @Composable
 private fun WeekdayRadarChart(
@@ -107,12 +107,12 @@ private fun WeekdayRadarChart(
     val textColor = MaterialTheme.colorScheme.onSurface
     val gridColor = MaterialTheme.colorScheme.outlineVariant
     
-    // 存储标签位置用于点击检测
+    // Store label positions for click detection
     val labelPositions = remember { mutableStateMapOf<Int, Pair<Offset, Float>>() }
     
     Canvas(modifier = modifier.pointerInput(Unit) {
         detectTapGestures { offset ->
-            // 检测点击的是哪个星期标签
+            // Detect which weekday label was clicked
             labelPositions.forEach { (dayOfWeek, posAndRadius) ->
                 val (labelPos, radius) = posAndRadius
                 val distance = sqrt(
@@ -133,17 +133,17 @@ private fun WeekdayRadarChart(
         val centerY = height / 2
         val radius = minOf(width, height) / 2 - 120f
         
-        // 获取最大值用于归一化
+        // Get maximum amount for normalization
         val maxAmount = weekdayData.maxOfOrNull { it.amount } ?: 1.0
         if (maxAmount == 0.0) return@Canvas
         
-        // 绘制同心圆网格（5层）并添加金额标注
+        // Draw concentric circles (5 levels) and add amount labels
         val levels = 5
         for (i in 1..levels) {
             val levelRadius = radius * i / levels
             val levelAmount = maxAmount * i / levels
             
-            // 绘制圆圈
+            // Draw circle
             drawCircle(
                 color = gridColor,
                 radius = levelRadius,
@@ -151,7 +151,7 @@ private fun WeekdayRadarChart(
                 style = Stroke(width = 1f)
             )
             
-            // 在右侧添加金额标注
+            // Add amount label on the right side
             val amountText = String.format("%.0f", levelAmount)
             val amountPaint = android.graphics.Paint().apply {
                 textAlign = android.graphics.Paint.Align.LEFT
@@ -167,14 +167,14 @@ private fun WeekdayRadarChart(
             )
         }
         
-        // 7个顶点（星期日到星期六）
+        // 7 vertices (Sunday to Saturday)
         val vertices = 7
         val angleStep = 2 * PI / vertices
         
-        // 从顶部开始（星期日），顺时针排列
-        val startAngle = -PI / 2 // 从正上方开始
+        // Start from top (Sunday), clockwise
+        val startAngle = -PI / 2 // Start from above
         
-        // 绘制从中心到各顶点的线
+        // Draw lines from center to each vertex
         for (i in 0 until vertices) {
             val angle = startAngle + angleStep * i
             val endX = centerX + radius * cos(angle).toFloat()
@@ -188,7 +188,7 @@ private fun WeekdayRadarChart(
             )
         }
         
-        // 绘制数据多边形
+        // Draw data polygon
         val dataPath = Path()
         val points = mutableListOf<Offset>()
         
@@ -215,20 +215,20 @@ private fun WeekdayRadarChart(
         }
         dataPath.close()
         
-        // 填充数据区域
+        // Fill data area
         drawPath(
             path = dataPath,
             color = primaryColor.copy(alpha = 0.3f)
         )
         
-        // 绘制数据边界线
+        // Draw data boundary line
         drawPath(
             path = dataPath,
             color = primaryColor,
             style = Stroke(width = 3f)
         )
         
-        // 绘制数据点
+        // Draw data points
         points.forEach { point ->
             drawCircle(
                 color = primaryColor,
@@ -242,7 +242,7 @@ private fun WeekdayRadarChart(
             )
         }
         
-        // 绘制星期标签（可点击）
+        // Draw weekday labels (clickable)
         val weekdayLabels = listOf(
             context.getString(R.string.sunday_short),
             context.getString(R.string.monday_short),
@@ -261,17 +261,17 @@ private fun WeekdayRadarChart(
             val x = centerX + labelRadius * cos(angle).toFloat()
             val y = centerY + labelRadius * sin(angle).toFloat()
             
-            // 存储标签位置用于点击检测
+            // Store label position for click detection
             labelPositions[i] = Pair(Offset(x, y), 40f)
             
-            // 绘制标签背景圆圈（提示可点击）
+            // Draw label background circle (indicate clickable)
             drawCircle(
                 color = primaryColor.copy(alpha = 0.1f),
                 radius = 35f,
                 center = Offset(x, y)
             )
             
-            // 调整文本对齐方式
+            // Adjust text alignment
             val textPaint = android.graphics.Paint().apply {
                 textSize = 36f
                 color = textColor.toArgb()
@@ -282,7 +282,7 @@ private fun WeekdayRadarChart(
             drawContext.canvas.nativeCanvas.drawText(
                 weekdayLabels[i],
                 x,
-                y + 12f, // 垂直居中调整
+                y + 12f, // Center vertically
                 textPaint
             )
         }
@@ -290,7 +290,7 @@ private fun WeekdayRadarChart(
 }
 
 /**
- * 星期数据项
+ * Weekday Data Item
  */
 @Composable
 private fun WeekdayDataItem(
@@ -325,7 +325,7 @@ private fun WeekdayDataItem(
 }
 
 /**
- * 类型详细信息项
+ * Category Detail Item
  */
 @Composable
 private fun CategoryDetailItem(
@@ -385,7 +385,7 @@ private fun CategoryDetailItem(
 }
 
 /**
- * 获取星期名称
+ * Get weekday name
  */
 private fun getWeekdayName(context: Context, dayOfWeek: Int): String {
     return when (dayOfWeek) {

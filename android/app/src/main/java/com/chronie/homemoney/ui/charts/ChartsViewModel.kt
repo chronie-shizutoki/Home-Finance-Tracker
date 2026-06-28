@@ -19,7 +19,7 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 /**
- * 图表界面 ViewModel
+ * Charts Screen ViewModel
  */
 @HiltViewModel
 class ChartsViewModel @Inject constructor(
@@ -80,29 +80,29 @@ class ChartsViewModel @Inject constructor(
                     endDate = endDate
                 )
                 
-                // 获取统计数据
+                // Load statistics data
                 val statisticsResult = getStatisticsUseCase(filters)
                 
                 if (statisticsResult.isSuccess) {
                     val statistics = statisticsResult.getOrNull()!!
                     
-                    // 获取详细的支出列表用于生成图表数据
+                    // Load detailed expense list for chart data
                     val expensesResult = expenseRepository.getExpensesList(
                         page = 1,
-                        limit = 10000, // 获取所有数据
+                        limit = 10000, // Load all data
                         filters = filters
                     )
                     
                     if (expensesResult.isSuccess) {
                         val expenses = expensesResult.getOrNull()!!
                         
-                        // 生成每日数据
+                        // Generate daily data
                         val dailyData = generateDailyData(expenses, startDate, endDate)
                         
-                        // 生成分类数据
+                        // Generate category data
                         val categoryData = generateCategoryData(expenses)
                         
-                        // 生成星期数据
+                        // Generate weekday data
                         val weekdayData = generateWeekdayData(expenses)
                         
                         android.util.Log.d("ChartsViewModel", "Loaded data: expenses=${expenses.size}, dailyData=${dailyData.size}, categoryData=${categoryData.size}, weekdayData=${weekdayData.size}, stats=${statistics.totalAmount}")
@@ -179,10 +179,10 @@ class ChartsViewModel @Inject constructor(
         startDate: LocalDate,
         endDate: LocalDate
     ): List<DailyChartData> {
-        // 按日期分组
+        // Group expenses by date
         val expensesByDate = expenses.groupBy { LocalDate.parse(it.date) }
         
-        // 生成日期范围内的所有日期
+        // Generate all dates in the range range
         val dailyData = mutableListOf<DailyChartData>()
         var currentDate = startDate
         
@@ -207,7 +207,7 @@ class ChartsViewModel @Inject constructor(
     private fun generateCategoryData(expenses: List<Expense>): List<CategoryChartData> {
         if (expenses.isEmpty()) return emptyList()
         
-        // 按类型分组
+        // Group expenses by type
         val expensesByType = expenses.groupBy { it.type }
         val totalAmount = expenses.sumOf { it.amount }
         
@@ -224,7 +224,7 @@ class ChartsViewModel @Inject constructor(
     
     private fun generateWeekdayData(expenses: List<Expense>): List<WeekdayChartData> {
         if (expenses.isEmpty()) {
-            // 返回7天的空数据（周日到周六）
+            // Return empty data for each weekday (Sunday to Saturday)
             return (0..6).map { dayOfWeek ->
                 WeekdayChartData(
                     dayOfWeek = dayOfWeek,
@@ -236,20 +236,20 @@ class ChartsViewModel @Inject constructor(
             }
         }
         
-        // 按星期几分组（0=周日, 1=周一, ..., 6=周六）
+        // Group expenses by weekday (0=Sunday, 1=Monday, ..., 6=Saturday)
         val expensesByWeekday = expenses.groupBy { expense ->
-            val dayOfWeek = LocalDate.parse(expense.date).dayOfWeek.value % 7 // 转换为0-6，周日为0
+            val dayOfWeek = LocalDate.parse(expense.date).dayOfWeek.value % 7 // Convert to 0-6, Sunday is 0
             dayOfWeek
         }
         
         val totalAmount = expenses.sumOf { it.amount }
         
-        // 生成7天的数据（周日到周六）
+        // Generate data for each weekday (Sunday to Saturday)
         return (0..6).map { dayOfWeek ->
             val dayExpenses = expensesByWeekday[dayOfWeek] ?: emptyList()
             val dayAmount = dayExpenses.sumOf { it.amount }
             
-            // 生成该星期的类型占比
+            // Generate category breakdown for this weekday
             val categoryBreakdown = if (dayExpenses.isNotEmpty()) {
                 val expensesByType = dayExpenses.groupBy { it.type }
                 expensesByType.map { (type, typeExpenses) ->
@@ -277,7 +277,7 @@ class ChartsViewModel @Inject constructor(
 }
 
 /**
- * 图表界面状态
+ * Charts UI State
  */
 sealed class ChartsUiState {
     object Loading : ChartsUiState()
@@ -293,7 +293,7 @@ sealed class ChartsUiState {
 }
 
 /**
- * 每日图表数据
+ * Daily Chart Data
  */
 data class DailyChartData(
     val date: LocalDate,
@@ -302,7 +302,7 @@ data class DailyChartData(
 )
 
 /**
- * 分类图表数据
+ * Category Chart Data
  */
 data class CategoryChartData(
     val type: String,
@@ -312,12 +312,12 @@ data class CategoryChartData(
 )
 
 /**
- * 星期图表数据
+ * Weekday Chart Data
  */
 data class WeekdayChartData(
-    val dayOfWeek: Int, // 0=周日, 1=周一, ..., 6=周六
+    val dayOfWeek: Int, // 0=Sunday, 1=Monday, ..., 6=Saturday
     val amount: Double,
     val count: Int,
     val percentage: Float,
-    val categoryBreakdown: List<CategoryChartData> // 该星期的类型占比
+    val categoryBreakdown: List<CategoryChartData> // Category breakdown for this weekday
 )

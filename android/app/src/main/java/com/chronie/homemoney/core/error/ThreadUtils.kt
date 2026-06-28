@@ -4,14 +4,14 @@ import android.os.Build
 import android.os.Looper
 
 /**
- * 线程工具类
- * 提供线程相关的工具方法，处理不同Android版本的兼容性问题
+ * Thread Utils class
+ * Provides thread-related utility methods, handling compatibility issues across different Android versions
  */
 object ThreadUtils {
 
     /**
-     * 获取线程ID
-     * 兼容Android 14以下版本
+     * Get thread ID
+     * Compatible with Android versions below 14
      */
     fun getThreadId(thread: Thread): Long {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -23,14 +23,14 @@ object ThreadUtils {
     }
 
     /**
-     * 检查当前线程是否是主线程
+     * Check if the current thread is the main thread
      */
     fun isMainThread(): Boolean {
         return Looper.myLooper() == Looper.getMainLooper()
     }
 
     /**
-     * 获取主线程ID
+     * Get the main thread ID
      */
     fun getMainThreadId(): Long {
         return getThreadId(Looper.getMainLooper().thread)

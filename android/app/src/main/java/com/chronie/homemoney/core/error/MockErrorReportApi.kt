@@ -3,8 +3,8 @@ package com.chronie.homemoney.core.error
 import retrofit2.Response
 
 /**
- * ErrorReportApi的模拟实现类
- * 用于在开发和测试环境中模拟错误上报功能
+ * Mock ErrorReportApi class
+ * Used in development and testing environments to simulate error reporting functionality
  */
 class MockErrorReportApi : ErrorReportApi {
     

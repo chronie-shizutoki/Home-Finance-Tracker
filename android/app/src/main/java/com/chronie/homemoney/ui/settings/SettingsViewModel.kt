@@ -38,15 +38,15 @@ class SettingsViewModel @Inject constructor(
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel(), com.chronie.homemoney.domain.sync.SyncRequestCallback {
 
-    // 动态颜色开关状态
+    // Dynamic color switch state
     private val _useDynamicColor = MutableStateFlow(true)
     val useDynamicColor: StateFlow<Boolean> = _useDynamicColor.asStateFlow()
 
-    // 手动选择的主色调
-    private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // 默认紫色
+    // Manual primary color selection
+    private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // Default purple
     val primaryColor: StateFlow<Int> = _primaryColor.asStateFlow()
 
-    // 调色板样式
+    // Palette style selection
     private val _paletteStyle = MutableStateFlow(PaletteStyle.Expressive)
     val paletteStyle: StateFlow<PaletteStyle> = _paletteStyle.asStateFlow()
 
@@ -85,18 +85,18 @@ class SettingsViewModel @Inject constructor(
     private val _logoutEvent = MutableSharedFlow<Unit>()
     val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
 
-    // 头像状态
+    // Avatar status
     private val _avatar = MutableStateFlow<String?>(null)
     val avatar: StateFlow<String?> = _avatar.asStateFlow()
 
     private val _avatarLoading = MutableStateFlow(false)
     val avatarLoading: StateFlow<Boolean> = _avatarLoading.asStateFlow()
 
-    // 设备名称
+    // Device name status
     private val _deviceName = MutableStateFlow("")
     val deviceName: StateFlow<String> = _deviceName.asStateFlow()
 
-    // 同步进度状态
+    // Sync progress status
     private val _syncProgress = MutableStateFlow(0f)
     val syncProgress: StateFlow<Float> = _syncProgress.asStateFlow()
 
@@ -106,22 +106,22 @@ class SettingsViewModel @Inject constructor(
     private val _showSyncProgress = MutableStateFlow(false)
     val showSyncProgress: StateFlow<Boolean> = _showSyncProgress.asStateFlow()
 
-    // 同步请求确认状态
+    // Sync request confirmation status
     private val _pendingSyncRequest = MutableStateFlow<DeviceInfo?>(null)
     val pendingSyncRequest: StateFlow<DeviceInfo?> = _pendingSyncRequest.asStateFlow()
 
     private val _showSyncRequestDialog = MutableStateFlow(false)
     val showSyncRequestDialog: StateFlow<Boolean> = _showSyncRequestDialog.asStateFlow()
 
-    // 服务器端被动同步进度（被搜索方）
+    // Server-side passive sync progress (searcher)
     val serverSyncProgress: StateFlow<com.chronie.homemoney.domain.sync.SyncProgressInfo> =
         syncManager.getDeviceSyncManager().syncProgress
 
-    // 收到的同步请求（被搜索方）
+    // Incoming sync request (searcher)
     private val _incomingSyncRequest = MutableStateFlow<com.chronie.homemoney.domain.sync.SyncRequestInfo?>(null)
     val incomingSyncRequest: StateFlow<com.chronie.homemoney.domain.sync.SyncRequestInfo?> = _incomingSyncRequest.asStateFlow()
 
-    // 同步请求回调的continuation
+    // Sync request callback continuation
     private var syncRequestContinuation: kotlin.coroutines.Continuation<Boolean>? = null
 
     init {
@@ -132,19 +132,19 @@ class SettingsViewModel @Inject constructor(
         loadAvatar()
         loadDeviceName()
 
-        // 设置同步请求回调
+        // Set sync request callback
         syncManager.getDeviceSyncManager().setSyncRequestCallback(this)
     }
 
     override fun onCleared() {
         super.onCleared()
-        // 清除同步请求回调，防止内存泄漏
+        // Clear sync request callback to prevent memory leak
         android.util.Log.d("SettingsViewModel", "Clearing syncRequestCallback")
         syncManager.getDeviceSyncManager().setSyncRequestCallback(null)
     }
 
     /**
-     * 同步请求回调实现
+     * Sync request callback implementation
      */
     override suspend fun onSyncRequest(requestInfo: com.chronie.homemoney.domain.sync.SyncRequestInfo): Boolean {
         android.util.Log.d("SettingsViewModel", "Received onSyncRequest from ${requestInfo.deviceName}")
@@ -155,7 +155,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 接受 incoming 同步请求
+     * Accept incoming sync request
      */
     fun acceptIncomingSyncRequest() {
         syncRequestContinuation?.resume(true)
@@ -164,7 +164,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 拒绝 incoming 同步请求
+     * Reject incoming sync request
      */
     fun rejectIncomingSyncRequest() {
         syncRequestContinuation?.resume(false)
@@ -180,11 +180,11 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadAvatar() {
         viewModelScope.launch {
-            // 首先从本地加载头像
+            // First load avatar from local preferences
             val localAvatar = preferencesManager.getAvatar()
             _avatar.value = localAvatar
 
-            // 然后尝试从后端获取最新头像
+            // Then try to fetch latest avatar from backend
             fetchAvatarFromBackend()
         }
     }
@@ -195,12 +195,12 @@ class SettingsViewModel @Inject constructor(
 
         _avatarLoading.value = true
         try {
-            // 使用memberRepository获取会员信息，包括头像
+            // Use memberRepository to fetch member info, including avatar
             val result = memberRepository.getMemberInfo(username)
             if (result.isSuccess) {
                 val member = result.getOrNull()
                 if (member != null && member.avatar != null) {
-                    // 日志记录头像数据的前50个字符，以检查格式
+                    // Log avatar data prefix to check format, up to 50 characters
                     android.util.Log.d("SettingsViewModel", "Fetched avatar data: ${member.avatar.take(50)}...")
                     _avatar.value = member.avatar
                     preferencesManager.saveAvatar(member.avatar)
@@ -209,7 +209,7 @@ class SettingsViewModel @Inject constructor(
                 android.util.Log.e("SettingsViewModel", "Failed to fetch avatar from backend: ${result.exceptionOrNull()?.message}")
             }
         } catch (e: Exception) {
-            // 网络请求失败，使用本地头像
+            // Network request failed, use local avatar
             android.util.Log.e("SettingsViewModel", "Failed to fetch avatar from backend", e)
         } finally {
             _avatarLoading.value = false
@@ -220,12 +220,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _avatarLoading.value = true
             try {
-                // 更新本地头像
+                // Update local avatar
                 _avatar.value = avatarData
                 preferencesManager.saveAvatar(avatarData)
                 android.util.Log.d("SettingsViewModel", "Avatar saved locally")
 
-                // 更新后端头像
+                // Update avatar on backend
                 val username = checkLoginStatusUseCase.getUsername()
                 if (username.isNullOrEmpty()) {
                     android.util.Log.w("SettingsViewModel", "Username is null or empty, cannot update avatar on backend")
@@ -237,12 +237,12 @@ class SettingsViewModel @Inject constructor(
                     } else {
                         val errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
                         android.util.Log.e("SettingsViewModel", "Failed to update avatar on backend: $errorMessage")
-                        throw Exception("更新头像失败: $errorMessage")
+                        throw Exception("Update avatar failed: $errorMessage")
                     }
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SettingsViewModel", "Failed to update avatar", e)
-                // 添加错误处理逻辑，显示错误消息
+                // Add error handling logic, show error message
                 _syncMessage.value = context.getString(R.string.update_avatar_failed) + ": ${e.message}"
             } finally {
                 _avatarLoading.value = false
@@ -302,14 +302,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 搜索局域网设备
+     * Search for devices on the local network
      */
     fun searchDevices(): Flow<DeviceInfo> {
         return syncManager.getDeviceSyncManager().searchDevices()
     }
 
     /**
-     * 与设备同步
+     * Sync with a device
      */
     fun deviceSync(deviceInfo: DeviceInfo) {
         viewModelScope.launch {
@@ -320,11 +320,11 @@ class SettingsViewModel @Inject constructor(
                 _syncProgress.value = 0f
                 _syncProgressMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
 
-                // 获取设备同步管理器
+                // Get device sync manager
                 val deviceSyncManager = syncManager.getDeviceSyncManager()
                 android.util.Log.d("SettingsViewModel", "Got device sync manager")
 
-                // 更新进度 - 连接中
+                // Update progress - Connecting
                 _syncProgress.value = 0.1f
                 _syncProgressMessage.value = context.getString(R.string.device_sync_connecting, deviceInfo.deviceName)
 
@@ -332,7 +332,7 @@ class SettingsViewModel @Inject constructor(
                 val syncResult = deviceSyncManager.syncWithDevice(deviceInfo)
                 android.util.Log.d("SettingsViewModel", "syncWithDevice returned: success=${syncResult.success}, error=${syncResult.error}")
 
-                // 更新进度 - 完成或失败
+                // Update progress - completed or failed
                 _syncProgress.value = 1f
                 if (syncResult.success) {
                     _syncProgressMessage.value = context.getString(R.string.device_sync_success)
@@ -343,7 +343,7 @@ class SettingsViewModel @Inject constructor(
                     _syncMessage.value = context.getString(R.string.device_sync_failed, syncResult.error)
                 }
 
-                // 延迟关闭进度对话框
+                // Delay closing the progress dialog
                 kotlinx.coroutines.delay(1500)
                 _showSyncProgress.value = false
 
@@ -359,7 +359,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 显示同步进度
+     * Show sync progress dialog
      */
     fun showSyncProgress() {
         _showSyncProgress.value = true
@@ -367,14 +367,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 隐藏同步进度
+     * Hide sync progress dialog
      */
     fun hideSyncProgress() {
         _showSyncProgress.value = false
     }
 
     /**
-     * 更新同步进度
+     * Update sync progress
      */
     fun updateSyncProgress(progress: Float, message: String) {
         _syncProgress.value = progress
@@ -382,7 +382,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 显示同步请求确认对话框
+     * Show a dialog to confirm sync request with a device
      */
     fun showSyncRequestDialog(deviceInfo: DeviceInfo) {
         _pendingSyncRequest.value = deviceInfo
@@ -390,7 +390,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 隐藏同步请求确认对话框
+     * Hide sync request dialog
      */
     fun hideSyncRequestDialog() {
         _showSyncRequestDialog.value = false
@@ -398,7 +398,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 接受同步请求
+     * Accept sync request
      */
     fun acceptSyncRequest() {
         val deviceInfo = _pendingSyncRequest.value
@@ -409,14 +409,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * 拒绝同步请求
+     * Reject sync request
      */
     fun rejectSyncRequest() {
         hideSyncRequestDialog()
     }
 
     /**
-     * 清除服务器端同步进度
+     * Clear server sync progress dialog
      */
     fun clearServerSyncProgress() {
         syncManager.getDeviceSyncManager().clearSyncProgress()
@@ -440,7 +440,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadSyncInfo() {
         viewModelScope.launch {
-            // 加载最后同步时间
+            // Load last sync time
             val lastSync = syncManager.getLastSyncTime()
             _lastSyncTime.value = if (lastSync != null) {
                 formatTimestamp(lastSync)
@@ -448,12 +448,12 @@ class SettingsViewModel @Inject constructor(
                 null
             }
 
-            // 加载待同步项数量
+            // Load pending sync count
             _pendingSyncCount.value = syncManager.getPendingSyncCount()
         }
     }
 
-    // 加载动态颜色设置
+    // Load dynamic color settings
     private fun loadDynamicColorSettings() {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
@@ -465,7 +465,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // 切换动态颜色开关
+    // Toggle dynamic color switch
     fun toggleDynamicColor(enabled: Boolean) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
@@ -475,7 +475,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // 设置手动颜色
+    // Set manual primary color
     fun setPrimaryColor(color: Int) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
@@ -485,7 +485,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // 加载设备名称
+    // Load device name from preferences
     private fun loadDeviceName() {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
@@ -493,7 +493,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // 设置设备名称
+    // Set device name
     fun setDeviceName(name: String) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
@@ -548,7 +548,7 @@ class SettingsViewModel @Inject constructor(
                         importResult.successCount
                     )
 
-                    // 如果有失败的记录，显示错误信息
+                    // If any records failed to import, log the errors
                     if (importResult.failedCount > 0) {
                         android.util.Log.w("ImportExpenses", "Failed to import ${importResult.failedCount} records")
                         importResult.errors.forEach { error ->

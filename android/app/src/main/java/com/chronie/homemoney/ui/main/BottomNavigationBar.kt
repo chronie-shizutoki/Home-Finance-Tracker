@@ -51,7 +51,7 @@ import com.chronie.homemoney.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// 数据类 for 导航项
+// Data class for Navigation Item Data
 data class TabItemData(
     val icon: @Composable () -> Unit,
     val label: String,
@@ -64,22 +64,22 @@ fun BottomNavigationBar(
     selectedTab: Int,
     onTabChange: (Int) -> Unit
 ) {
-    // 获取当前主题模式
+    // Get current theme mode
     val isDarkTheme = isSystemInDarkTheme()
-
-    // 导航栏背景色：根据主题模式设置半透明效果，使用更透明的背景
+    
+    // Navigation bar background color: semi-transparent effect for dark theme, opaque background for light theme
     val backgroundColor = if (isDarkTheme) Color(0x991E1E1E) else Color(0x99F5F5F5)
     
-    // 未选中项颜色：浅色模式为黑色，深色模式为白色
+    // Unselected item color: black for light theme, white for dark theme
     val unselectedColor = if (isDarkTheme) Color(0xFFAAAAAA) else Color(0xFF666666)
     
-    // 选中项颜色：从主题中获取primary颜色
+    // Selected item color: primary color from theme colors
     val selectedColor = MaterialTheme.colorScheme.primary
     
-    // 选中项背景色：使用 MaterialTheme 的 primaryContainer 并设置半透明
+    // Selected item background color: primaryContainer color from theme colors, semi-transparent effect
     val selectedBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     
-    // 定义导航项
+    // Define navigation items
     val navigationItems = listOf(
         TabItemData(
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
@@ -122,23 +122,23 @@ private fun BottomNavigationBarImpl(
     val animationScope = rememberCoroutineScope()
     var currentIndex by remember { mutableIntStateOf(selectedTabIndex) }
     
-    // 用于动画的背景位置，初始化为当前选中的 tab 索引
+    // Animation for background position
     val backgroundPosition = remember {
         Animatable(selectedTabIndex.toFloat())
     }
     
-    // 监听选中索引变化
+    // Listen for selected tab index changes
     LaunchedEffect(selectedTabIndex) {
         if (selectedTabIndex != currentIndex) {
             currentIndex = selectedTabIndex
             backgroundPosition.snapTo(selectedTabIndex.toFloat())
         } else if (backgroundPosition.value != selectedTabIndex.toFloat()) {
-            // 确保动画位置与选中索引一致（处理组件重建的情况）
+            // Ensure animation position matches selected index (handle component recreation)
             backgroundPosition.snapTo(selectedTabIndex.toFloat())
         }
     }
     
-    // 自定义悬浮导航栏，使用圆角长矩形设计
+    // Custom bottom navigation bar
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -151,7 +151,7 @@ private fun BottomNavigationBarImpl(
         ) {
             val density = LocalDensity.current
             
-            // 计算每个tab项的宽度（基于内容）
+            // Calculate tab item width (based on content)
             val tabWidth = 80.dp
             val totalWidth = tabWidth * items.size + 16.dp
             val tabWidthPx = with(density) { tabWidth.toPx() }
@@ -165,7 +165,7 @@ private fun BottomNavigationBarImpl(
                         shape = RoundedCornerShape(24.dp)
                     )
             ) {
-                // 选中项背景，在整个 Row 范围内移动
+                // Selected item background, moves across the entire Row
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,7 +190,7 @@ private fun BottomNavigationBarImpl(
                     )
                 }
                 
-                // 选项内容层
+                // Option content layer
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

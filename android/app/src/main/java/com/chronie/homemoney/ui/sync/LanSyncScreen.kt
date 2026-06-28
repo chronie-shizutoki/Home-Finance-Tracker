@@ -37,8 +37,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * 局域网同步界面
- * 重新设计的同步界面，具有现代设计质感
+ * Local Sync Screen
+ * A redesigned sync interface with modern design aesthetics
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +53,7 @@ fun LanSyncScreen(
     var showDeviceSearchDialog by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
     
-    // 显示同步消息
+    // Show sync message
     syncMessage?.let { message ->
         LaunchedEffect(message) {
             kotlinx.coroutines.delay(3000)
@@ -88,7 +88,7 @@ fun LanSyncScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 本机信息卡片
+            // Local Device Info Card
             LocalDeviceCard(
                 context = context,
                 deviceName = deviceName,
@@ -97,14 +97,14 @@ fun LanSyncScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // 同步选项
+            // Sync Options Title
             Text(
                 text = context.getString(R.string.sync_options),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             
-            // 搜索设备按钮
+            // Search Nearby Devices Button
             SyncActionCard(
                 context = context,
                 icon = Icons.Outlined.WifiTethering,
@@ -116,24 +116,24 @@ fun LanSyncScreen(
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            // 等待连接提示
+            // Wait for Connection Prompt
             SyncActionCard(
                 context = context,
                 icon = Icons.Outlined.Router,
                 title = context.getString(R.string.wait_for_connection),
                 subtitle = context.getString(R.string.wait_for_connection_desc),
-                onClick = { /* 自动处理 */ },
+                onClick = { /* Auto handle */ },
                 enabled = false
             )
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // 同步说明
+            // Sync Info Card
             SyncInfoCard(context = context)
         }
     }
     
-    // 设备名称编辑对话框
+    // Local Device Name Edit Dialog
     if (showDeviceNameDialog) {
         DeviceNameEditDialog(
             context = context,
@@ -146,21 +146,21 @@ fun LanSyncScreen(
         )
     }
     
-    // 设备搜索对话框
+    // Device Search Dialog
     if (showDeviceSearchDialog) {
         DeviceSearchDialog(
             context = context,
             viewModel = viewModel,
             onDismiss = { showDeviceSearchDialog = false },
             onDeviceSelected = { device ->
-                // 显示同步请求确认对话框
+                // Show sync request dialog for selected device
                 viewModel.showSyncRequestDialog(device)
                 showDeviceSearchDialog = false
             }
         )
     }
 
-    // 同步进度 BottomSheet（客户端主动同步的进度）
+    // Sync Progress BottomSheet (client-side sync progress)
     val showSyncProgress by viewModel.showSyncProgress.collectAsState()
     val syncProgress by viewModel.syncProgress.collectAsState()
     val syncProgressMessage by viewModel.syncProgressMessage.collectAsState()
@@ -174,7 +174,7 @@ fun LanSyncScreen(
         )
     }
 
-    // 服务器端被动同步的进度（被搜索方）
+    // Server-side Passive Sync Progress (searched-side device)
     val serverSyncProgress by viewModel.serverSyncProgress.collectAsState()
 
     if (serverSyncProgress.isActive) {
@@ -186,7 +186,7 @@ fun LanSyncScreen(
         )
     }
 
-    // 同步请求确认对话框（发起端）
+    // Sync Request Dialog (client-side)
     val showSyncRequestDialog by viewModel.showSyncRequestDialog.collectAsState()
     val pendingSyncRequest by viewModel.pendingSyncRequest.collectAsState()
 
@@ -199,7 +199,7 @@ fun LanSyncScreen(
         )
     }
 
-    // 收到的同步请求对话框（被搜索方）
+    // Incoming Sync Request Dialog (searched-side)
     val incomingSyncRequest by viewModel.incomingSyncRequest.collectAsState()
 
     if (incomingSyncRequest != null) {
@@ -213,7 +213,7 @@ fun LanSyncScreen(
 }
 
 /**
- * 本机设备信息卡片
+ * Local Device Information Card
  */
 @Composable
 fun LocalDeviceCard(
@@ -246,7 +246,7 @@ fun LocalDeviceCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 设备图标
+                    // Device Icon
                     Box(
                         modifier = Modifier
                             .size(56.dp)
@@ -280,7 +280,7 @@ fun LocalDeviceCard(
                         )
                     }
                     
-                    // 编辑按钮
+                    // Edit Button
                     IconButton(onClick = onEditName) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -292,7 +292,7 @@ fun LocalDeviceCard(
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                // 状态指示器
+                // Status Indicator Indicator
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -317,7 +317,7 @@ fun LocalDeviceCard(
 }
 
 /**
- * 同步操作卡片
+ * Sync Action Card
  */
 @Composable
 fun SyncActionCard(
@@ -356,7 +356,7 @@ fun SyncActionCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 图标
+            // Icon
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -414,7 +414,7 @@ fun SyncActionCard(
 }
 
 /**
- * 同步信息卡片
+ * Sync Info Card
  */
 @Composable
 fun SyncInfoCard(context: Context) {
@@ -456,7 +456,7 @@ fun SyncInfoCard(context: Context) {
 }
 
 /**
- * 设备名称编辑对话框
+ * Device Name Edit Dialog
  */
 @Composable
 fun DeviceNameEditDialog(
@@ -496,7 +496,7 @@ fun DeviceNameEditDialog(
 }
 
 /**
- * 设备搜索对话框
+ * Device Search Dialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -510,13 +510,13 @@ fun DeviceSearchDialog(
     var isSearching by remember { mutableStateOf(true) }
     var searchProgress by remember { mutableStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
-    val searchDuration = 30000L // 30秒搜索超时
+    val searchDuration = 30000L // 30s search timeout
     
-    // 开始搜索
+    // Start device search
     LaunchedEffect(Unit) {
         val startTime = System.currentTimeMillis()
         
-        // 进度更新协程
+        // Progress update coroutine
         val progressJob = coroutineScope.launch {
             while (isSearching && searchProgress < 0.95f) {
                 val elapsed = System.currentTimeMillis() - startTime
@@ -526,7 +526,7 @@ fun DeviceSearchDialog(
             }
         }
         
-        // 设备搜索
+        // Device search
         viewModel.searchDevices().collect { device ->
             if (!discoveredDevices.any { it.deviceId == device.deviceId }) {
                 discoveredDevices = discoveredDevices + device
@@ -538,7 +538,7 @@ fun DeviceSearchDialog(
         searchProgress = 1f
     }
     
-    // 30秒后自动停止搜索动画（安全机制）
+    // 30s search timeout
     LaunchedEffect(Unit) {
         delay(searchDuration)
         isSearching = false
@@ -563,7 +563,7 @@ fun DeviceSearchDialog(
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
-                // 标题
+                // Title
                 Text(
                     text = context.getString(R.string.searching_devices),
                     style = MaterialTheme.typography.headlineSmall,
@@ -580,7 +580,7 @@ fun DeviceSearchDialog(
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // 搜索进度
+                // Search progress indicator
                 if (isSearching) {
                     ExpressiveLinearProgressIndicator(
                         progress = { searchProgress },
@@ -589,7 +589,7 @@ fun DeviceSearchDialog(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 
-                // 设备列表
+                // Device list
                 if (discoveredDevices.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -643,7 +643,7 @@ fun DeviceSearchDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // 按钮
+                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -658,7 +658,7 @@ fun DeviceSearchDialog(
 }
 
 /**
- * 设备列表项
+ * Device list item
  */
 @Composable
 fun DeviceListItem(
@@ -687,7 +687,7 @@ fun DeviceListItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 设备图标
+            // Device icon
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -720,7 +720,7 @@ fun DeviceListItem(
                 )
             }
             
-            // 信号强度指示
+            // Signal strength indicator
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -740,7 +740,7 @@ fun DeviceListItem(
 }
 
 /**
- * 同步进度 BottomSheet
+ * Sync progress BottomSheet
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -765,7 +765,7 @@ fun SyncProgressBottomSheet(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 图标
+            // Icon
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -785,7 +785,7 @@ fun SyncProgressBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 标题
+            // Title
             Text(
                 text = context.getString(R.string.sync_in_progress),
                 style = MaterialTheme.typography.headlineSmall,
@@ -794,7 +794,7 @@ fun SyncProgressBottomSheet(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 进度消息
+            // Progress message
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -803,7 +803,7 @@ fun SyncProgressBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 进度条
+            // Progress bar
             ExpressiveLinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
@@ -811,7 +811,7 @@ fun SyncProgressBottomSheet(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 进度百分比
+            // Progress percentage
             Text(
                 text = "${(progress * 100).toInt()}%",
                 style = MaterialTheme.typography.bodySmall,
@@ -824,7 +824,7 @@ fun SyncProgressBottomSheet(
 }
 
 /**
- * 同步请求确认对话框
+ * Sync request dialog box
  */
 @Composable
 fun SyncRequestDialog(
@@ -852,7 +852,7 @@ fun SyncRequestDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 图标
+                // Icon
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -872,7 +872,7 @@ fun SyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 标题
+                // Title
                 Text(
                     text = context.getString(R.string.sync_request_title),
                     style = MaterialTheme.typography.headlineSmall,
@@ -881,7 +881,7 @@ fun SyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 设备名称
+                // Device name
                 Text(
                     text = deviceInfo.deviceName,
                     style = MaterialTheme.typography.titleMedium,
@@ -890,7 +890,7 @@ fun SyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 说明文字
+                // Message
                 Text(
                     text = context.getString(R.string.sync_request_message),
                     style = MaterialTheme.typography.bodyMedium,
@@ -899,7 +899,7 @@ fun SyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 按钮
+                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -924,7 +924,7 @@ fun SyncRequestDialog(
 }
 
 /**
- * 收到的同步请求对话框（被搜索方）
+ * Incoming sync request dialog box (searched device)
  */
 @Composable
 fun IncomingSyncRequestDialog(
@@ -936,8 +936,8 @@ fun IncomingSyncRequestDialog(
     Dialog(
         onDismissRequest = onReject,
         properties = DialogProperties(
-            dismissOnBackPress = false, // 禁止通过返回键关闭
-            dismissOnClickOutside = false, // 禁止点击外部关闭
+            dismissOnBackPress = false, // Prevent closing by back press
+            dismissOnClickOutside = false, // Prevent closing by clicking outside
             usePlatformDefaultWidth = false
         )
     ) {
@@ -952,7 +952,7 @@ fun IncomingSyncRequestDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 图标
+                // Icon
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -972,7 +972,7 @@ fun IncomingSyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 标题
+                // Title
                 Text(
                     text = context.getString(R.string.incoming_sync_request_title),
                     style = MaterialTheme.typography.headlineSmall,
@@ -981,7 +981,7 @@ fun IncomingSyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 设备名称
+                // Device name
                 Text(
                     text = requestInfo.deviceName,
                     style = MaterialTheme.typography.titleMedium,
@@ -990,7 +990,7 @@ fun IncomingSyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 说明文字
+                // Message
                 Text(
                     text = context.getString(R.string.incoming_sync_request_message),
                     style = MaterialTheme.typography.bodyMedium,
@@ -999,7 +999,7 @@ fun IncomingSyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 按钮
+                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)

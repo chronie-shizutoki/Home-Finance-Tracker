@@ -5,9 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * 会员信息实体
- * 对应后端的 Member 表
- * 注意: 仅存储当前登录用户的信息
+ * Member Entity Class
+ * Corresponds to the Member table
+ * Note: Only stores the current logged-in user's information
  */
 @Entity(tableName = "members")
 data class MemberEntity(

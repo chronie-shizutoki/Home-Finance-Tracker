@@ -4,22 +4,22 @@ import android.net.Uri
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 
 /**
- * AI 记录仓库接口
+ * AI Record Repository Interface
  */
 interface AIRecordRepository {
     
     /**
-     * 解析文本为支出记录
+     * Parse text to AI expense records
      */
     suspend fun parseTextToRecords(text: String): Result<List<AIExpenseRecord>>
     
     /**
-     * 解析图片为支出记录
+     * Parse Images to Expense Records
      */
     suspend fun parseImagesToRecords(imageUris: List<Uri>): Result<List<AIExpenseRecord>>
     
     /**
-     * 批量保存 AI 识别的记录
+     * Batch Save AI Recognized Records
      */
     suspend fun saveRecords(records: List<AIExpenseRecord>): Result<Unit>
 }

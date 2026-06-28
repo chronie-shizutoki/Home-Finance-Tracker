@@ -7,52 +7,52 @@ import com.chronie.homemoney.domain.model.DownloadResult
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 数据同步管理器接口
+ * Sync Manager Interface
  */
 interface SyncManager {
     
     /**
-     * 执行完整同步
+     * Perform Full Sync
      */
     suspend fun performFullSync(): Result<SyncResult>
     
     /**
-     * 上传本地更改
+     * Upload Local Changes
      */
     suspend fun uploadLocalChanges(): Result<UploadResult>
     
     /**
-     * 下载服务器更新
+     * Download Server Updates
      */
     suspend fun downloadServerUpdates(): Result<DownloadResult>
     
     /**
-     * 解决同步冲突
+     * Resolve Sync Conflicts
      */
     suspend fun resolveConflicts(conflicts: List<SyncConflict>): Result<Unit>
     
     /**
-     * 获取最后同步时间
+     * Get Last Sync Time
      */
     fun getLastSyncTime(): Long?
     
     /**
-     * 设置最后同步时间
+     * Set Last Sync Time
      */
     suspend fun setLastSyncTime(timestamp: Long)
     
     /**
-     * 获取待同步项数量
+     * Get Pending Sync Count
      */
     suspend fun getPendingSyncCount(): Int
     
     /**
-     * 观察同步状态
+     * Observe Sync Status
      */
     fun observeSyncStatus(): Flow<com.chronie.homemoney.domain.model.SyncStatus>
     
     /**
-     * 获取设备同步管理器（仅支持局域网同步）
+     * Get Device Sync Manager (Only Local Sync Supported)
      */
     fun getDeviceSyncManager(): DeviceSyncManager
 }

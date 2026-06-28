@@ -7,13 +7,13 @@ import java.util.Locale
 import java.util.TimeZone
 
 /**
- * 设备信息工具类
- * 提供获取设备信息的方法
+ * Device Information Utils
+ * Provides methods to get device information and app version
  */
 object DeviceInfoUtils {
 
     /**
-     * 获取设备信息
+     * Get device information
      */
     fun getDeviceInfo(): Map<String, String> {
         return mapOf(
@@ -27,7 +27,7 @@ object DeviceInfoUtils {
     }
 
     /**
-     * 获取应用版本信息
+     * Get App Version Information
      */
     fun getAppVersion(context: Context): AppVersionInfo {
         return try {
@@ -50,7 +50,7 @@ object DeviceInfoUtils {
     }
 
     /**
-     * 应用版本信息数据类
+     * Application Version Info Data Class
      */
     data class AppVersionInfo(
         val versionName: String,

@@ -57,14 +57,14 @@ class WelcomeViewModel @Inject constructor(
 
     fun login() {
         if (_username.value.isBlank()) {
-            _uiState.value = WelcomeUiState.Error("用户名不能为空")
+            _uiState.value = WelcomeUiState.Error("Username cannot be empty")
             return
         }
 
         viewModelScope.launch {
             _uiState.value = WelcomeUiState.Loading
 
-            // 执行登录
+            // Execute login use case
             loginUseCase(_username.value.trim())
                 .onSuccess { member ->
                     _uiState.value = WelcomeUiState.LoggedIn(
@@ -73,7 +73,7 @@ class WelcomeViewModel @Inject constructor(
                 }
                 .onFailure { error ->
                     _uiState.value = WelcomeUiState.Error(
-                        error.message ?: "登录失败"
+                        error.message ?: "Login failed"
                     )
                 }
         }

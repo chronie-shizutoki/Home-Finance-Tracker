@@ -13,16 +13,16 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 
 /**
- * 错误收集模块
- * 提供错误收集相关的依赖注入
+ * Error Report Module
+ * Provides error reporting related dependency injection
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object ErrorReportModule {
 
     /**
-     * 提供ErrorReportApi实例
-     * 复用应用中已有的Retrofit实例
+     * Provides ErrorReportApi instance
+     * Reuses existing Retrofit instance
      */
     @Provides
     fun provideErrorReportApi(retrofit: Retrofit): ErrorReportApi {
@@ -30,7 +30,7 @@ object ErrorReportModule {
     }
 
     /**
-     * 提供LogFileManager实例
+     * Provides LogFileManager instance
      */
     @Provides
     @Singleton

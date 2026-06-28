@@ -6,7 +6,7 @@ import com.chronie.homemoney.domain.repository.ExpenseRepository
 import javax.inject.Inject
 
 /**
- * 获取支出统计数据用例
+ * Get Statistics Use Case
  */
 class GetStatisticsUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository

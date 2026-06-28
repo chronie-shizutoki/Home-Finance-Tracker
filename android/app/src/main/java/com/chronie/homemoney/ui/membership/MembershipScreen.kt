@@ -56,7 +56,7 @@ fun MembershipScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // 用户信息卡片
+                        // User information card
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -83,7 +83,7 @@ fun MembershipScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // 退出登录按钮
+                        // Logout button outline
                         OutlinedButton(
                             onClick = { viewModel.logout(onLogout) },
                             modifier = Modifier.fillMaxWidth(),

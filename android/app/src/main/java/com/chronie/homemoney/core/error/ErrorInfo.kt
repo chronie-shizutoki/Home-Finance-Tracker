@@ -1,8 +1,8 @@
 package com.chronie.homemoney.core.error
 
 /**
- * 错误信息数据类
- * 包含错误的所有相关信息
+ * Error Information Data Class
+ * Contains all relevant information about an error
  */
 data class ErrorInfo(
     val errorType: String,

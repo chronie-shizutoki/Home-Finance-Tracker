@@ -7,12 +7,12 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 /**
- * AI 记录识别 API
+ * AI Record Recognition API
  */
 interface AIRecordApi {
     
     /**
-     * 调用 AI 模型进行记录识别
+     * Call AI model to perform record recognition
      */
     @POST("v1/chat/completions")
     suspend fun parseRecord(

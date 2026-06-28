@@ -19,8 +19,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 同步调度器
- * 负责调度后台同步任务和监听网络状态
+ * Sync Scheduler
+ * Schedules background sync tasks and monitors network status
  */
 @Singleton
 class SyncScheduler @Inject constructor(
@@ -38,20 +38,20 @@ class SyncScheduler @Inject constructor(
     }
     
     /**
-     * 初始化同步调度器
+     * Initialize sync scheduler
      */
     fun initialize() {
         Log.d(TAG, "Initializing sync scheduler")
         
-        // 调度定期同步任务
+        // Schedule periodic sync tasks
         schedulePeriodicSync()
         
-        // 监听网络状态变化
+        // Monitor network status changes
         observeNetworkChanges()
     }
     
     /**
-     * 调度定期同步任务
+     * Schedule periodic sync tasks
      */
     private fun schedulePeriodicSync() {
         val constraints = Constraints.Builder()
@@ -80,7 +80,7 @@ class SyncScheduler @Inject constructor(
     }
     
     /**
-     * 监听网络状态变化
+     * Observe network status changes
      */
     private fun observeNetworkChanges() {
         var wasOffline = !networkMonitor.isNetworkAvailable()
@@ -105,7 +105,7 @@ class SyncScheduler @Inject constructor(
     }
     
     /**
-     * 立即触发同步
+     * Trigger immediate sync
      */
     fun triggerImmediateSync() {
         Log.d(TAG, "Triggering immediate sync")
@@ -126,7 +126,7 @@ class SyncScheduler @Inject constructor(
     }
     
     /**
-     * 取消所有同步任务
+     * Cancel all sync tasks
      */
     fun cancelAllSync() {
         Log.d(TAG, "Cancelling all sync tasks")
@@ -135,7 +135,7 @@ class SyncScheduler @Inject constructor(
     }
     
     /**
-     * 手动触发同步（在协程中）
+     * Manually trigger sync (in coroutine)
      */
     suspend fun manualSync(): Result<com.chronie.homemoney.domain.model.SyncResult> {
         Log.d(TAG, "Manual sync triggered")

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * 同步进度信息
+ * Sync Progress Information
  */
 data class SyncProgressInfo(
     @SerializedName("progress")
@@ -22,7 +22,7 @@ data class SyncProgressInfo(
 )
 
 /**
- * 同步请求信息
+ * Sync Request Information
  */
 data class SyncRequestInfo(
     @SerializedName("deviceId")
@@ -36,80 +36,79 @@ data class SyncRequestInfo(
 )
 
 /**
- * 同步请求回调接口
+ * Sync Request Callback Interface
  */
 interface SyncRequestCallback {
     /**
-     * 当收到同步请求时调用
-     * @return true 表示接受同步，false 表示拒绝
+     * Called when a sync request is received
+     * @return Return true to accept sync, false to reject
      */
     suspend fun onSyncRequest(requestInfo: SyncRequestInfo): Boolean
 }
 
 /**
- * 设备间同步管理器接口
- * 用于实现不同设备之间的数据同步
+ * Device Sync Manager Interface
  */
 interface DeviceSyncManager {
 
     /**
-     * 同步进度状态流
+     * Sync Progress State Flow
      */
     val syncProgress: StateFlow<SyncProgressInfo>
 
     /**
-     * 搜索附近可用的设备
+     * Search for nearby devices
      */
     fun searchDevices(): Flow<DeviceInfo>
 
     /**
-     * 与指定设备建立连接
+     * Connect to a specified device
      */
     suspend fun connect(device: DeviceInfo): Boolean
 
     /**
-     * 断开与当前设备的连接
+     * Disconnect from the current device
      */
     suspend fun disconnect(): Boolean
 
     /**
-     * 向连接的设备发送数据
+     * Send data to the connected device
      */
     suspend fun sendData(data: DeviceSyncData): Boolean
 
     /**
-     * 从连接的设备接收数据
+     * Receive data from the connected device
      */
     suspend fun receiveData(): DeviceSyncData?
 
     /**
-     * 执行与设备的双向同步
+     * Execute bidirectional sync with a device
      */
     suspend fun syncWithDevice(device: DeviceInfo): SyncResult
 
     /**
-     * 更新同步进度（用于服务器端通知UI）
+     * Update sync progress (for server-side notification to UI)
      */
     fun updateSyncProgress(progress: Float, message: String, isActive: Boolean = true)
 
     /**
-     * 清除同步进度
+     * Clear sync progress
      */
     fun clearSyncProgress()
 
     /**
-     * 设置同步请求回调（用于服务器端接收同步请求时通知UI）
+     * Set sync request callback (for server-side notification to UI)
      */
     fun setSyncRequestCallback(callback: SyncRequestCallback?)
 
     /**
-     * 响应同步请求（接受或拒绝）
+     * Respond to sync request (accept or reject)
      */
     fun respondToSyncRequest(accepted: Boolean)
 }
 
 /**
- * 设备间同步数据模型
+ * Device Sync Data Model
  */
 data class DeviceSyncData(
     @SerializedName("deviceId")
@@ -123,7 +122,7 @@ data class DeviceSyncData(
 )
 
 /**
- * 同步实体
+ * Sync Entity
  */
 data class SyncEntity(
     @SerializedName("entityType")
@@ -133,13 +132,13 @@ data class SyncEntity(
     @SerializedName("operation")
     val operation: String, // "CREATE", "UPDATE", "DELETE"
     @SerializedName("data")
-    val data: String, // JSON格式的数据
+    val data: String, // JSON-formatted data string
     @SerializedName("timestamp")
     val timestamp: Long
 )
 
 /**
- * 设备信息
+ * Device Information
  */
 data class DeviceInfo(
     @SerializedName("deviceId")
@@ -151,7 +150,7 @@ data class DeviceInfo(
     @SerializedName("connectionType")
     val connectionType: String, // "LAN", "BLUETOOTH", "NFC"
     @SerializedName("address")
-    val address: String, // 设备地址
+    val address: String, // Device address
     @SerializedName("signalStrength")
-    val signalStrength: Int // 信号强度 (0-100)
+    val signalStrength: Int // Signal strength (0-100)
 )

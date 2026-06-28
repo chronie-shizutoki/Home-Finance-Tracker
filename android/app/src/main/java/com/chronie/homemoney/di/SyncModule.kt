@@ -19,8 +19,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * 同步模块
- * 提供数据同步相关的依赖（仅支持局域网同步）
+ * Sync Module Dependency Injection
+ * Provides data synchronization related dependencies (only supports local network sync)
  */
 @Module
 @InstallIn(SingletonComponent::class)

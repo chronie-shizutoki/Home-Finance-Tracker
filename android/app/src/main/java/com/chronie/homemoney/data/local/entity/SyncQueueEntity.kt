@@ -6,8 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * 同步队列实体
- * 用于存储待同步到服务器的操作
+ * Sync Queue Entity Class
+ * Used to store operations to be synchronized to the server
  */
 @Entity(
     tableName = "sync_queue",
@@ -31,7 +31,7 @@ data class SyncQueueEntity(
     val operation: String, // "CREATE", "UPDATE", "DELETE"
     
     @ColumnInfo(name = "data")
-    val data: String, // JSON格式的数据
+    val data: String, // JSON-formatted data
     
     @ColumnInfo(name = "retry_count")
     val retryCount: Int = 0,

@@ -20,13 +20,14 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * 网络模块 - 提供Retrofit和API接口实例
+ * Network Module Dependency Injection
+ * Provides Retrofit and API interface instances
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
-    // 注意：BASE_URL不包含/api/，因为各个API接口会自己添加路径前缀
+    // Note: BASE_URL does not include /api/ prefix, as each API interface will add it automatically
     private const val BASE_URL = "http://192.168.10.9:3010/"
     private const val CONNECT_TIMEOUT = 5L
     private const val READ_TIMEOUT = 5L
@@ -72,10 +73,10 @@ object NetworkModule {
             .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(errorHandlingInterceptor) // 错误处理放在最前面
-            .addInterceptor(authInterceptor) // 认证拦截器
-            .addInterceptor(loggingInterceptor) // 日志拦截器放在最后
-            .retryOnConnectionFailure(true) // 连接失败时重试
+            .addInterceptor(errorHandlingInterceptor) // Error handling interceptor first to catch any errors
+            .addInterceptor(authInterceptor) // Authentication interceptor
+            .addInterceptor(loggingInterceptor) // Logging interceptor last to log all requests and responses
+            .retryOnConnectionFailure(true) // Retry on connection failure
             .build()
     }
     
@@ -113,13 +114,13 @@ object NetworkModule {
         errorHandlingInterceptor: ErrorHandlingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(2, TimeUnit.SECONDS) // 健康检查使用更短的超时
+            .connectTimeout(2, TimeUnit.SECONDS) // Health check uses shorter timeouts
             .readTimeout(2, TimeUnit.SECONDS)
             .writeTimeout(2, TimeUnit.SECONDS)
             .addInterceptor(errorHandlingInterceptor)
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .retryOnConnectionFailure(false) // 健康检查不重试
+            .retryOnConnectionFailure(false) // Health check does not retry on connection failure
             .build()
     }
     

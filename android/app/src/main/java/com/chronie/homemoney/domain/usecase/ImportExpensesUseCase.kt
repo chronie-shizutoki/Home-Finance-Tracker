@@ -16,7 +16,7 @@ import java.util.*
 import javax.inject.Inject
 
 /**
- * 从 Excel 文件导入支出记录
+ * Import Expenses Use Case
  */
 class ImportExpensesUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository,
@@ -37,7 +37,7 @@ class ImportExpensesUseCase @Inject constructor(
                 return Result.failure(Exception("No valid records found in file"))
             }
             
-            // 导入数据
+            // Import data
             var successCount = 0
             var failedCount = 0
             val errors = mutableListOf<String>()
@@ -156,7 +156,7 @@ class ImportExpensesUseCase @Inject constructor(
     }
     
     private fun findColumnIndex(headers: Map<String, Int>, columnKey: String): Int {
-        // 尝试匹配多语言标题
+        // Try to match multiple language headers
         val possibleHeaders = when (columnKey) {
             "date" -> listOf(
                 context.getString(R.string.excel_header_date),
@@ -186,7 +186,7 @@ class ImportExpensesUseCase @Inject constructor(
     }
     
     private fun parseExpenseType(typeStr: String): ExpenseType {
-        // 尝试匹配所有语言的类型名称
+        // Try to match multiple language type names
         return ExpenseType.values().find { type ->
             val resourceId = context.resources.getIdentifier(
                 type.displayNameKey,

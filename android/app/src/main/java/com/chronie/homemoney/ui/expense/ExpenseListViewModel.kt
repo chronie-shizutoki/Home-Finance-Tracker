@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * 支出列表 ViewModel
+ * Expense List ViewModel
  */
 @HiltViewModel
 class ExpenseListViewModel @Inject constructor(
@@ -36,10 +36,10 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     /**
-     * 将支出列表按日期分组，先进行全局排序再分组
+     * Group expenses by date, first globally sort then group
      */
     private fun groupExpensesByDate(expenses: List<Expense>, sortBy: SortOption): Map<String, List<Expense>> {
-        // 先对所有支出进行全局排序
+        // Globally sort expenses by date
         val globallySortedExpenses = when (sortBy) {
             SortOption.DATE_ASC -> expenses.sortedBy { it.date }
             SortOption.DATE_DESC -> expenses.sortedByDescending { it.date }
@@ -47,7 +47,7 @@ class ExpenseListViewModel @Inject constructor(
             SortOption.AMOUNT_DESC -> expenses.sortedByDescending { it.amount }
         }
         
-        // 使用LinkedHashMap按排序后的顺序分组
+        // Use LinkedHashMap to group by date while maintaining order
         val grouped = LinkedHashMap<String, MutableList<Expense>>()
         
         for (expense in globallySortedExpenses) {
@@ -55,7 +55,7 @@ class ExpenseListViewModel @Inject constructor(
             grouped.computeIfAbsent(date) { mutableListOf() }.add(expense)
         }
         
-        // 对每个日期组内的支出再次排序（确保组内顺序正确）
+        // Sort each group by date (ensure order is correct)
         val sortedGroups = grouped.mapValues { (_, dateExpenses) ->
             when (sortBy) {
                 SortOption.DATE_ASC -> dateExpenses.sortedBy { it.date }
@@ -65,7 +65,7 @@ class ExpenseListViewModel @Inject constructor(
             }
         }
         
-        // 如果是按日期排序，则按日期降序排列分组
+        // If sorted by date, return sorted map by date
         return if (sortBy == SortOption.DATE_ASC || sortBy == SortOption.DATE_DESC) {
             sortedGroups.toSortedMap(compareByDescending { it })
         } else {
@@ -182,8 +182,8 @@ class ExpenseListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 filters = filters,
-                currentPage = 1,  // 重置到第一页
-                expenses = emptyList()  // 清空现有数据
+                currentPage = 1,  // Reset to first page after filters change
+                expenses = emptyList()  // Clear existing data
             )
         }
         loadExpenses(refresh = true)
@@ -248,13 +248,13 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     /**
-     * 删除支出记录
+     * Delete expense record
      */
     fun deleteExpense(expense: Expense) {
         viewModelScope.launch {
             expenseRepository.deleteExpense(expense.id).fold(
                 onSuccess = {
-                    // 从当前列表中移除删除的支出
+                    // Remove deleted expense from current list and grouped data
                     val updatedExpenses = _uiState.value.expenses.filter { it.id != expense.id }
                     val grouped = groupExpensesByDate(updatedExpenses, _uiState.value.filters.sortBy)
                     
@@ -265,7 +265,7 @@ class ExpenseListViewModel @Inject constructor(
                         )
                     }
                     
-                    // 重新加载统计信息
+                    // Reload statistics after delete
                     loadStatistics()
                 },
                 onFailure = { error ->
@@ -281,7 +281,7 @@ class ExpenseListViewModel @Inject constructor(
 }
 
 /**
- * 支出列表 UI 状态
+ * Expense List UI State
  */
 data class ExpenseListUiState(
     val expenses: List<Expense> = emptyList(),
@@ -296,7 +296,7 @@ data class ExpenseListUiState(
     ),
     val filters: ExpenseFilters = ExpenseFilters(),
     val currentPage: Int = 1,
-    val pageSize: Int = 20,  // 增加每页数量
+    val pageSize: Int = 20,  // Increase page size
     val totalItems: Int = 0,
     val hasMore: Boolean = false,
     val isLoading: Boolean = false,
@@ -304,7 +304,7 @@ data class ExpenseListUiState(
 )
 
 /**
- * 日期分组数据
+ * Expense Date Group Data
  */
 data class ExpenseDateGroup(
     val date: String,

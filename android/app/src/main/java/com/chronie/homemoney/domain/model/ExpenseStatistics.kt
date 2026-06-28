@@ -1,7 +1,7 @@
 package com.chronie.homemoney.domain.model
 
 /**
- * 支出统计数据模型
+ * Expense Statistics Domain Model
  */
 data class ExpenseStatistics(
     val count: Int,
@@ -13,7 +13,7 @@ data class ExpenseStatistics(
 )
 
 /**
- * 时间范围类型
+ * Time Range Type
  */
 enum class TimeRange {
     THIS_WEEK,

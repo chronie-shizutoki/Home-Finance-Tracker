@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 /**
- * 主界面 ViewModel
+ * Main Screen ViewModel
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -20,7 +20,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     /**
-     * 开发者模式状态
+     * Developer mode status
      */
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
 

@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
 import javax.inject.Singleton
 
 /**
- * 数据库依赖注入模块
+ * Database Module Dependency Injection
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -34,8 +34,8 @@ object DatabaseModule {
     private const val ENCRYPTED_PREFS_FILE = "secure_prefs"
     
     /**
-     * 提供数据库密码
-     * 使用 EncryptedSharedPreferences 安全存储
+     * Provides database passphrase instance
+     * Uses EncryptedSharedPreferences for secure storage
      */
     @Provides
     @Singleton
@@ -52,10 +52,10 @@ object DatabaseModule {
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
         
-        // 获取或生成密码
+        // Get or generate passphrase
         var passphrase = sharedPreferences.getString(DB_PASSPHRASE_KEY, null)
         if (passphrase == null) {
-            // 生成随机密码
+            // Generate random passphrase
             passphrase = generateRandomPassphrase()
             sharedPreferences.edit().putString(DB_PASSPHRASE_KEY, passphrase).apply()
         }
@@ -64,7 +64,7 @@ object DatabaseModule {
     }
     
     /**
-     * 生成随机密码
+     * Generates random passphrase
      */
     private fun generateRandomPassphrase(): String {
         val charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()"
@@ -74,7 +74,7 @@ object DatabaseModule {
     }
     
     /**
-     * 提供 AppDatabase 实例
+     * Provides AppDatabase instance
      */
     @Provides
     @Singleton
@@ -96,7 +96,7 @@ object DatabaseModule {
     }
     
     /**
-     * 提供 ExpenseDao
+     * Provides ExpenseDao instance
      */
     @Provides
     fun provideExpenseDao(database: AppDatabase): ExpenseDao {
@@ -104,7 +104,7 @@ object DatabaseModule {
     }
     
     /**
-     * 提供 MemberDao
+     * Provides MemberDao instance
      */
     @Provides
     fun provideMemberDao(database: AppDatabase): MemberDao {
@@ -112,7 +112,7 @@ object DatabaseModule {
     }
     
     /**
-     * 提供 SyncQueueDao
+     * Provides SyncQueueDao instance
      */
     @Provides
     fun provideSyncQueueDao(database: AppDatabase): SyncQueueDao {
@@ -120,7 +120,7 @@ object DatabaseModule {
     }
     
     /**
-     * 提供 BudgetDao
+     * Provides BudgetDao instance
      */
     @Provides
     fun provideBudgetDao(database: AppDatabase): com.chronie.homemoney.data.local.dao.BudgetDao {

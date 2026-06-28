@@ -9,7 +9,7 @@ plugins {
     id 'com.google.protobuf'
 }
 
-// 使用更兼容的日期格式化方式
+// Use more compatible date format
 def getBuildDate() {
     def calendar = Calendar.getInstance()
     def year = calendar.get(Calendar.YEAR)

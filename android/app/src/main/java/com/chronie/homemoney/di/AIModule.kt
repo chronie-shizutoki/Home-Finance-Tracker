@@ -20,14 +20,14 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 /**
- * AI 模块依赖注入
+ * AI Module Dependency Injection
  */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AIModule {
     
     /**
-     * 绑定 AIRecordRepository
+     * Bind AIRecordRepository
      */
     @Binds
     @Singleton
@@ -45,7 +45,7 @@ abstract class AIModule {
         annotation class AIOkHttpClient
         
         /**
-         * 提供 AI API 的 OkHttpClient
+         * Provides AI API OkHttpClient instance
          */
         @Provides
         @Singleton
@@ -61,7 +61,7 @@ abstract class AIModule {
                 .addInterceptor { chain ->
                     val original = chain.request()
                     
-                    // 从 SharedPreferences 获取 API Key
+                    // Get API Key from SharedPreferences
                     val prefs = context.getSharedPreferences("ai_settings", Context.MODE_PRIVATE)
                     val apiKey = prefs.getString("siliconflow_api_key", "") ?: ""
                     
@@ -85,7 +85,7 @@ abstract class AIModule {
         }
         
         /**
-         * 提供 AI API 的 Retrofit
+         * Provides AI API Retrofit instance
          */
         @Provides
         @Singleton
@@ -102,7 +102,7 @@ abstract class AIModule {
         }
         
         /**
-         * 提供 AIRecordApi
+         * Provides AIRecordApi instance
          */
         @Provides
         @Singleton

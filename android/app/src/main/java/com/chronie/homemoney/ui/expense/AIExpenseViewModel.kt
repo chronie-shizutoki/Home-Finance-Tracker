@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 /**
- * AI 支出记录视图模型
+ * AI Expense Record View Model
  */
 @HiltViewModel
 class AIExpenseViewModel @Inject constructor(
@@ -32,7 +32,7 @@ class AIExpenseViewModel @Inject constructor(
     val uiState: StateFlow<AIExpenseUiState> = _uiState.asStateFlow()
     
     /**
-     * 添加图片
+     * Add images to the UI state
      */
     fun addImages(uris: List<Uri>) {
         _uiState.update { state ->
@@ -43,7 +43,7 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 移除图片
+     * Remove image from the UI state
      */
     fun removeImage(uri: Uri) {
         _uiState.update { state ->
@@ -54,14 +54,14 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 更新文本输入
+     * Update text input in the UI state
      */
     fun updateTextInput(text: String) {
         _uiState.update { it.copy(textInput = text) }
     }
     
     /**
-     * 开始识别
+     * Start recognition process
      */
     fun startRecognition() {
         val state = _uiState.value
@@ -77,14 +77,14 @@ class AIExpenseViewModel @Inject constructor(
             try {
                 val records = mutableListOf<AIExpenseRecord>()
                 
-                // 处理图片
+                // Process images if any
                 if (state.selectedImages.isNotEmpty()) {
                     val imageResult = aiRecordRepository.parseImagesToRecords(state.selectedImages)
                     imageResult.onSuccess { records.addAll(it) }
                         .onFailure { throw it }
                 }
                 
-                // 处理文本
+                // Process text if any input
                 if (state.textInput.isNotBlank()) {
                     val textResult = aiRecordRepository.parseTextToRecords(state.textInput)
                     textResult.onSuccess { records.addAll(it) }
@@ -99,7 +99,7 @@ class AIExpenseViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                val errorMessage = e.message ?: "未知错误"
+                val errorMessage = e.message ?: "Unknown error"
                 android.util.Log.e("AIExpenseViewModel", "Recognition failed: $errorMessage", e)
                 _uiState.update {
                     it.copy(
@@ -112,7 +112,7 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 更新记录
+     * Update recognized record at specified index
      */
     fun updateRecord(index: Int, updatedRecord: AIExpenseRecord) {
         _uiState.update { state ->
@@ -125,7 +125,7 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 删除记录
+     * Delete record from the UI state
      */
     fun deleteRecord(index: Int) {
         _uiState.update { state ->
@@ -138,7 +138,7 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 保存所有记录
+     * Save all valid records
      */
     fun saveAllRecords(onSuccess: () -> Unit) {
         viewModelScope.launch {
@@ -169,11 +169,11 @@ class AIExpenseViewModel @Inject constructor(
                         )
                     }
                     
-                    // 触发云同步尝试（允许失败）
+                    // Trigger immediate sync after saving records
                     try {
                         syncScheduler.triggerImmediateSync()
                     } catch (e: Exception) {
-                        // 同步失败不影响保存记录的成功
+                        // Sync failure does not affect record saving success
                         android.util.Log.w("AIExpenseViewModel", "Failed to trigger sync after saving AI records", e)
                     }
                     
@@ -198,14 +198,14 @@ class AIExpenseViewModel @Inject constructor(
     }
     
     /**
-     * 清除错误消息
+     * Clear error message
      */
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
     }
     
     /**
-     * 重置状态
+     * Reset state
      */
     fun reset() {
         _uiState.value = AIExpenseUiState()
@@ -213,7 +213,7 @@ class AIExpenseViewModel @Inject constructor(
 }
 
 /**
- * AI 支出记录 UI 状态
+ * AI Expense Record UI State
  */
 data class AIExpenseUiState(
     val selectedImages: List<Uri> = emptyList(),

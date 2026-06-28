@@ -6,7 +6,8 @@ import com.chronie.homemoney.domain.sync.DeviceSyncData as DomainSyncData
 import com.chronie.homemoney.domain.sync.SyncEntity as DomainSyncEntity
 
 /**
- * 转换器：负责 Domain 模型与 Protobuf 模型之间的转换
+ * Sync Proto Converter
+ * Converts between Domain model and Protobuf model
  */
 object SyncProtoConverter {
     fun toProto(data: DomainSyncData): DeviceSyncData {

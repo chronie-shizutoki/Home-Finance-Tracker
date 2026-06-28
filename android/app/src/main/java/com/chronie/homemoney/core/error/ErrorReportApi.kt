@@ -5,70 +5,70 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 /**
- * 错误上报API接口
- * 定义向后端服务器上报错误信息的端点
+ * Error Report API Interface
+ * Defines the endpoint for reporting error information to the backend server
  */
 interface ErrorReportApi {
 
     /**
-     * 上报错误信息到服务器
+     * Report error information to the server
      */
     @POST("api/error/report")
     suspend fun reportError(@Body request: ErrorReportRequest): Response<Unit>
 }
 
 /**
- * 错误上报请求数据类
- * 包含所有需要上报到服务器的错误信息
+ * Error Report Request Data Class
+ * Contains all error information to be reported to the server
  */
 data class ErrorReportRequest(
     /**
-     * 错误类型
+     * Error type
      */
     val errorType: String,
 
     /**
-     * 错误消息
+     * Error message
      */
     val message: String,
 
     /**
-     * 堆栈跟踪
+     * Stack trace information
      */
     val stackTrace: String? = null,
 
     /**
-     * 错误发生的时间戳
+     * Timestamp of the error occurrence
      */
     val timestamp: Long,
 
     /**
-     * 设备信息
+     * Device information
      */
     val deviceInfo: Map<String, String>? = null,
 
     /**
-     * 应用版本名称
+     * Application version name
      */
     val appVersion: String? = null,
 
     /**
-     * 应用构建版本号
+     * Application build version number
      */
     val appBuild: String? = null,
 
     /**
-     * 环境（如：production、development）
+     * Environment (e.g., production, development)
      */
     val environment: String? = null,
 
     /**
-     * 会员ID（可选）
+     * Member ID (optional)
      */
     val memberId: String? = null,
 
     /**
-     * 额外信息（可选）
+     * Additional information (optional)
      */
     val additionalInfo: Map<String, String>? = null
 )

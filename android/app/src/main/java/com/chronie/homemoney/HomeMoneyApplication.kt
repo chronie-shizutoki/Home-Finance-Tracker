@@ -27,12 +27,12 @@ class HomeMoneyApplication : Application(), Configuration.Provider, ImageLoaderF
     override fun onCreate() {
         super.onCreate()
 
-        // 初始化错误收集系统
+        // Initialize error reporting system
         try {
             errorReporter.initialize()
             Log.d("HomeMoneyApplication", "Error reporting system initialized")
         } catch (e: Exception) {
-            // 即使错误收集系统初始化失败，也要确保应用能正常运行
+            // Even if error reporting system initialization fails, ensure app can run
             Log.e("HomeMoneyApplication", "Failed to initialize error reporting system", e)
         }
     }

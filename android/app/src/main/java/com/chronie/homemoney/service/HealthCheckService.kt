@@ -31,8 +31,8 @@ class HealthCheckService @Inject constructor(
     private val maxConsecutiveFailures = 3
 
     companion object {
-        private const val CHECK_INTERVAL = 5000L // 5秒
-        private const val HEALTH_CHECK_TIMEOUT = 2000L // 2秒超时
+        private const val CHECK_INTERVAL = 5000L // 5 seconds
+        private const val HEALTH_CHECK_TIMEOUT = 2000L // 2 seconds timeout
     }
 
     fun start() {
@@ -70,7 +70,7 @@ class HealthCheckService @Inject constructor(
         try {
             android.util.Log.d("HealthCheckService", "Checking server health...")
             
-            // 使用超时机制，避免长时间阻塞
+            // Use timeout mechanism to avoid long blocking
             val response = withTimeout(HEALTH_CHECK_TIMEOUT) {
                 memberApi.checkHealth()
             }

@@ -29,7 +29,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * 添加支出界面
+ * Add Expense Screen
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,15 +44,15 @@ fun AddExpenseScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 编辑模式初始化（不再强制要求登录）
-    LaunchedEffect(expenseId) {
+    // Edit mode initialization (no longer forces login)
+       LaunchedEffect(expenseId) {
         if (expenseId != null) {
-            // 如果有expenseId，加载支出记录进行编辑
+            // If expenseId is available, load expense record for editing
             viewModel.loadExpenseForEdit(expenseId)
         }
     }
 
-    // 显示日期选择器的状态
+    // Date picker state management
     var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -79,7 +79,7 @@ fun AddExpenseScreen(
                                     onNavigateBack()
                                 },
                                 onError = {
-                                    // 错误会通过 snackbar 显示
+                                    // Show error message in snackbar
                                 }
                             )
                         },
@@ -108,7 +108,7 @@ fun AddExpenseScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // AI 智能识别入口
+            // AI Expense Entry
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +155,7 @@ fun AddExpenseScreen(
 
             HorizontalDivider()
 
-            // 类型选择
+            // Expense Type Dropdown Menu
             ExpenseTypeDropdown(
                 selectedType = uiState.selectedType,
                 error = uiState.typeError,
@@ -163,7 +163,7 @@ fun AddExpenseScreen(
                 onTypeSelected = { viewModel.setType(it) }
             )
 
-            // 金额输入
+            // Expense Amount Input
             ExpenseAmountField(
                 amount = uiState.amount,
                 error = uiState.amountError,
@@ -171,7 +171,7 @@ fun AddExpenseScreen(
                 onAmountChange = { viewModel.setAmount(it) }
             )
 
-            // 日期选择
+            // Expense Date Input
             ExpenseDateField(
                 selectedDate = uiState.selectedDate,
                 error = uiState.dateError,
@@ -179,7 +179,7 @@ fun AddExpenseScreen(
                 onClick = { showDatePicker = true }
             )
 
-            // 备注输入
+            // Expense Remark Input Field
             ExpenseRemarkField(
                 remark = uiState.remark,
                 context = context,
@@ -188,7 +188,7 @@ fun AddExpenseScreen(
         }
     }
 
-    // 日期选择器
+    // Date Picker Dialog
     if (showDatePicker) {
         ExpenseDatePickerDialog(
             context = context,
@@ -201,7 +201,7 @@ fun AddExpenseScreen(
         )
     }
 
-    // 显示保存错误
+    // Show save error in snackbar
     LaunchedEffect(uiState.saveError) {
         uiState.saveError?.let { error ->
             snackbarHostState.showSnackbar(
@@ -213,7 +213,7 @@ fun AddExpenseScreen(
 }
 
 /**
- * 类型选择下拉菜单 - 支持搜索功能
+ * Expense Type Dropdown Menu - Supports search feature
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -341,7 +341,7 @@ fun ExpenseTypeDropdown(
 }
 
 /**
- * 金额输入字段
+ * Expense Amount Input Field
  */
 @Composable
 fun ExpenseAmountField(
@@ -382,7 +382,7 @@ fun ExpenseAmountField(
 }
 
 /**
- * 日期选择字段
+ * Expense Date Input Field
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -430,7 +430,7 @@ fun ExpenseDateField(
 }
 
 /**
- * 备注输入字段
+ * Expense Remark Input Field
  */
 @Composable
 fun ExpenseRemarkField(
@@ -457,7 +457,7 @@ fun ExpenseRemarkField(
 }
 
 /**
- * 日期选择器对话框
+ * Expense Date Picker Dialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

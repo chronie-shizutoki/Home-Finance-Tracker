@@ -43,7 +43,7 @@ class PreferencesManager @Inject constructor(
         return isLoggedIn() || hasSkippedLogin()
     }
     
-    // 会员订阅信息缓存（用于离线模式）
+    // Membership subscription information cache (for offline mode)
     fun saveMembershipStatus(isActive: Boolean, planName: String?, endDate: Long?) {
         prefs.edit().apply {
             putBoolean(KEY_MEMBERSHIP_ACTIVE, isActive)
@@ -58,7 +58,7 @@ class PreferencesManager @Inject constructor(
         val isActive = prefs.getBoolean(KEY_MEMBERSHIP_ACTIVE, false)
         val endDate = prefs.getLong(KEY_MEMBERSHIP_END_DATE, 0L)
         
-        // 如果有结束日期，检查是否过期
+        // Check if the membership is active
         if (endDate > 0) {
             return isActive && System.currentTimeMillis() < endDate
         }
@@ -89,7 +89,7 @@ class PreferencesManager @Inject constructor(
         }
     }
 
-    // 头像相关功能
+    // Avatar-related features
     fun saveAvatar(avatar: String) {
         prefs.edit().putString(KEY_AVATAR, avatar).apply()
     }
