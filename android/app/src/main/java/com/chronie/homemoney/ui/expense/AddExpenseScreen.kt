@@ -6,7 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -17,14 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -68,7 +68,7 @@ fun AddExpenseScreen(
                 },
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
                 },
                 actions = {
@@ -153,7 +153,7 @@ fun AddExpenseScreen(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             // 类型选择
             ExpenseTypeDropdown(
@@ -273,20 +273,26 @@ fun ExpenseTypeDropdown(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor(),
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                 placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
                 leadingIcon = { 
                     Icon(Icons.Default.Search, contentDescription = null) 
                 },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded,
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
+                    )
+                },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                 isError = error != null,
                 singleLine = true
             )
             
             ExposedDropdownMenu(
+                modifier = Modifier.heightIn(max = 280.dp),
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
             ) {
                 if (filteredTypes.isEmpty()) {
                     DropdownMenuItem(
