@@ -93,7 +93,11 @@ func main() {
 	router.MaxMultipartMemory = 10 << 20 // 10MB
 
 	// 设置系统相关的路由（健康检查和API文档）
-	routes.SetupHealthRoutes(router, startTime, db.GetDB().DB())
+	sqlDB, err := db.GetDB().DB()
+	if err != nil {
+		log.Fatalf("Failed to get underlying SQL DB: %v", err)
+	}
+	routes.SetupHealthRoutes(router, startTime, sqlDB)
 	routes.SetupHelpRoutes(router)
 
 	// 设置API路由
