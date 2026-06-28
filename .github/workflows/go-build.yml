@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ========== 前端构建 ==========
+  # ========== Frontend Build ==========
   build-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
           path: client/dist/
           retention-days: 1
 
-  # ========== Go 多平台构建 ==========
+  # ========== Go Build ==========
   build-go:
     needs: build-frontend
     runs-on: ubuntu-latest
@@ -111,13 +111,13 @@ jobs:
           PKG="home-finance-tracker-${{ matrix.goos }}-${{ matrix.goarch }}"
           PKG_DIR="build/${PKG}"
           mkdir -p "${PKG_DIR}/client/dist"
-          # 复制二进制文件
+          # Copy binary to package dir
           BIN_NAME="server"
           if [ "${{ matrix.goos }}" = "windows" ]; then
             BIN_NAME="server.exe"
           fi
           cp "build/${BIN_NAME}" "${PKG_DIR}/"
-          # 复制前端dist
+          # Copy frontend dist to package dir
           cp -r ../client/dist/* "${PKG_DIR}/client/dist/"
         working-directory: server-go
 
@@ -140,7 +140,7 @@ jobs:
           path: server-go/build/${{ env.ASSET }}
           retention-days: 7
 
-  # ========== Go 测试 ==========
+  # ========== Go Test ==========
   test:
     runs-on: ubuntu-latest
     steps:
@@ -156,7 +156,7 @@ jobs:
         run: go test ./... -v -cover
         working-directory: server-go
 
-  # ========== Go 代码检查 ==========
+  # ========== Go Lint ==========
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -175,7 +175,7 @@ jobs:
           working-directory: server-go
           args: --timeout=5m
 
-  # ========== 发布（仅push到main时触发）==========
+  # ========== Go Release ==========
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [build-go, test, lint]
@@ -202,19 +202,19 @@ jobs:
           name: "Go Server Build ${{ github.run_number }}"
           tag_name: "go-build-${{ github.run_number }}"
           body: |
-            ## Go Server 自动构建
+            ## Go Server Automatic Build
 
             - **Commit**: ${{ github.sha }}
             - **Branch**: ${{ github.ref_name }}
 
-            ### 构建产物
-            | 平台 | 架构 |
+            ### Build Artifacts
+            | Platform | Architecture |
             |------|------|
             | Linux | amd64, arm64 |
             | Windows | amd64, arm64 |
             | macOS | amd64, arm64 |
 
-            每个包内包含 Go 服务器二进制文件 + 前端 `client/dist/` 静态文件。
+            Each package contains the Go server binary + frontend `client/dist/` static files.
           files: |
             artifacts/home-finance-tracker-*/*
             checksums.txt
