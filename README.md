@@ -22,21 +22,22 @@ The Home Finance Tracker is a modern multilingual financial management applicati
 ### Requirements
 - Node.js ≥ 18.0.0
 - npm ≥ 9.0.0
+- Go ≥ 1.26
+
 
 ### Quick Start
 ```bash
-git clone https://github.com/quiettimejsg/homemoney.git
-cd homemoney
-# Install dependencies for root, client and server
-npm install
-cd client && npm install && cd ..
-cd server && npm install && cd ..
-# Start development server
-npm run dev  # Starts backend server
-# Alternatively, start services separately
-npm run dev:client  # Starts frontend development server (port 5173)
-npm run dev:server  # Starts backend development server (port 3010)
+cd server-go
+# Install dependencies
+go mod download
+# Run the server (port 3010)
+go run cmd/server/main.go
+# Or build and run
+go build -o server.exe cmd/server/main.go
+./server.exe
 ```
+
+The Go server automatically serves the frontend static files from `client/dist` when available, and uses `database.sqlite` in the project root directory.
 
 ## Project Structure
 - `client/`: Vue.js frontend application
@@ -53,15 +54,19 @@ npm run dev:server  # Starts backend development server (port 3010)
     - `styles/`: CSS stylesheets
     - `locales/`: Internationalization files (en-US, zh-CN, zh-TW)
   - `vite.config.js`: Vite build configuration with PWA support
-- `server/`: Node.js/Express backend server
-  - `src/`: Source code
-    - `controllers/`: Request handlers
-    - `models/`: Database models (Sequelize)
-    - `routes/`: API routes
-    - `utils/`: Server utilities
-    - `migrations/`: Database migration scripts
-  - `config/`: Server configuration
   - `data/`: Database files
+- `server-go/`: Go/Gin backend server (alternative implementation)
+  - `cmd/server/`: Application entry point
+  - `internal/`: Core application code
+    - `handler/`: HTTP request handlers
+    - `handlers/`: Expense-specific handlers
+    - `models/`: Data models and query structures
+    - `repository/`: Database access layer (GORM)
+    - `routes/`: API route definitions
+    - `service/`: Business logic services
+  - `pkg/`: Shared packages
+    - `database/`: Database connection and migration
+    - `utils/`: Utility functions and response helpers
 - `android/`: Android native application (Kotlin)
   - `app/`: Main Android app module
   - `gradle/`: Gradle wrapper configuration
@@ -83,13 +88,12 @@ npm run dev:server  # Starts backend development server (port 3010)
 - `npm run build`: Build the frontend for production
 - `npm run lint`: Run ESLint on the client codebase
 
-### Server Directory
-- `npm run dev`: Start backend with nodemon for development
-- `npm run start`: Start backend in production mode
-- `npm run server`: Start backend with memory optimization
-- `npm run test`: Run backend tests (Jest)
-- `npm run lint`: Run ESLint on the server codebase
-- `npm run migrate`: Run database migrations
+
+### Server-Go Directory
+- `go run cmd/server/main.go`: Start Go server in development mode (port 3010)
+- `go build -o server.exe cmd/server/main.go`: Build Go server binary
+- `go mod download`: Download Go module dependencies
+- `go mod tidy`: Clean up Go module dependencies
 
 ## Tech Stack
 - **Frontend**:
@@ -107,13 +111,13 @@ npm run dev:server  # Starts backend development server (port 3010)
   - Lunar JavaScript (Chinese lunar calendar)
   - vite-plugin-pwa (PWA support)
 - **Backend**:
-  - Express.js 5 (web server framework)
-  - SQLite3 (database)
-  - Sequelize ORM (database abstraction)
-  - bcrypt (encryption)
-  - JWT (authentication)
-  - Multer (file upload)
-  - node-schedule (scheduled tasks)
+  - Go 1.26
+  - Gin (web framework)
+  - GORM (ORM)
+  - SQLite (database, via glebarez driver)
+  - excelize (Excel export/import)
+  - gopsutil (system monitoring)
+  - uuid (unique ID generation)
 - **Android**:
   - Kotlin
   - Capacitor
