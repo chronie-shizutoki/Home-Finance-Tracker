@@ -311,6 +311,48 @@ val libraries = listOf(
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"
+    ),
+    LibraryInfo(
+        name = "Material Icons Extended",
+        version = "BOM",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material"
+    ),
+    LibraryInfo(
+        name = "gRPC OkHttp",
+        version = "1.82.1",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/grpc/grpc-java"
+    ),
+    LibraryInfo(
+        name = "gRPC Protobuf Lite",
+        version = "1.82.1",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/grpc/grpc-java"
+    ),
+    LibraryInfo(
+        name = "gRPC Stub",
+        version = "1.82.1",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/grpc/grpc-java"
+    ),
+    LibraryInfo(
+        name = "Protobuf JavaLite",
+        version = "4.35.1",
+        license = "BSD 3-Clause",
+        licenseUrl = "https://github.com/protocolbuffers/protobuf/blob/main/LICENSE",
+        projectUrl = "https://github.com/protocolbuffers/protobuf"
+    ),
+    LibraryInfo(
+        name = "Javax Annotation API",
+        version = "1.3.2",
+        license = "CDDL 1.0 / GPL 2.0 with Classpath Exception",
+        licenseUrl = "https://github.com/javaee/javax.annotation/blob/master/LICENSE",
+        projectUrl = "https://github.com/javaee/javax.annotation"
     )
 )
 
