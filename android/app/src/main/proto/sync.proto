@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package com.chronie.homemoney.data.sync.generated;
+
+option java_package = "com.chronie.homemoney.data.sync.generated";
+option java_multiple_files = true;
+
+message SyncEntity {
+    string entity_type = 1;
+    string entity_id = 2;
+    string operation = 3;
+    string data = 4;
+    int64 timestamp = 5;
+}
+
+message DeviceSyncData {
+    string device_id = 1;
+    string device_name = 2;
+    int64 sync_timestamp = 3;
+    repeated SyncEntity entities = 4;
+}
+
+message SyncRequest {
+    DeviceSyncData data = 1;
+}
+
+message SyncResponse {
+    bool accepted = 1;
+    DeviceSyncData data = 2;
+    string error = 3;
+}
+
+message PingRequest {
+    string device_id = 1;
+    string device_name = 2;
+}
+
+message PingResponse {
+    string device_id = 1;
+    string device_name = 2;
+}
+
+service SyncService {
+    rpc Sync(SyncRequest) returns (SyncResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
+}

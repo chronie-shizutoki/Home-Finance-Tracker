@@ -111,7 +111,7 @@ abstract class BaseDeviceSyncManager(
     /**
      * 准备本地数据用于同步
      */
-    protected suspend fun prepareLocalData(): DeviceSyncData {
+    protected open suspend fun prepareLocalData(): DeviceSyncData {
         val allExpenses = expenseDao.getAllExpenses().first()
         val entities = mutableListOf<SyncEntity>()
         
@@ -210,7 +210,7 @@ abstract class BaseDeviceSyncManager(
     /**
      * 创建失败的同步结果
      */
-    private fun createFailedSyncResult(error: String): com.chronie.homemoney.domain.model.SyncResult {
+    protected fun createFailedSyncResult(error: String): com.chronie.homemoney.domain.model.SyncResult {
         return com.chronie.homemoney.domain.model.SyncResult(
             success = false,
             uploadResult = UploadResult(0, 0, 0),

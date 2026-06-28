@@ -136,10 +136,18 @@ class SettingsViewModel @Inject constructor(
         syncManager.getDeviceSyncManager().setSyncRequestCallback(this)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        // 清除同步请求回调，防止内存泄漏
+        android.util.Log.d("SettingsViewModel", "Clearing syncRequestCallback")
+        syncManager.getDeviceSyncManager().setSyncRequestCallback(null)
+    }
+
     /**
      * 同步请求回调实现
      */
     override suspend fun onSyncRequest(requestInfo: com.chronie.homemoney.domain.sync.SyncRequestInfo): Boolean {
+        android.util.Log.d("SettingsViewModel", "Received onSyncRequest from ${requestInfo.deviceName}")
         return kotlin.coroutines.suspendCoroutine { continuation ->
             syncRequestContinuation = continuation
             _incomingSyncRequest.value = requestInfo
