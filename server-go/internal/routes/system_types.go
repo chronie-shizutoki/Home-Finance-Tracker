@@ -83,15 +83,11 @@ type DatabaseInfo struct {
 }
 
 type FileSystemInfo struct {
-	ServerDirExists  bool `json:"serverDirExists"`
 	ClientDistExists bool `json:"clientDistExists"`
-	ConfigExists     bool `json:"configExists"`
 }
 
 type PathInfo struct {
-	ServerDir        string `json:"serverDir"`
-	ClientDistPath   string `json:"clientDistPath"`
-	ServerConfigPath string `json:"serverConfigPath"`
+	ClientDistPath string `json:"clientDistPath"`
 }
 
 // 获取CPU使用率和信息

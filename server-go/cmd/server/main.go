@@ -93,7 +93,7 @@ func main() {
 	router.MaxMultipartMemory = 10 << 20 // 10MB
 
 	// 设置系统相关的路由（健康检查和API文档）
-	routes.SetupHealthRoutes(router, startTime)
+	routes.SetupHealthRoutes(router, startTime, db.GetDB())
 	routes.SetupHelpRoutes(router)
 
 	// 设置API路由

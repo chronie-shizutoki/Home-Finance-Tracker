@@ -12,7 +12,7 @@ import (
 )
 
 // SetupHealthRoutes 设置健康检查相关的路由
-func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
+func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 	// 健康检查端点 - 使用gopsutil获取专业监控数据
 	router.GET("/api/health", func(c *gin.Context) {
 		// 使用gopsutil获取系统信息
@@ -62,34 +62,23 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 		// 检查数据库连接
 		dbStatus := "connected"
 		dbError := ""
-		sqlDB := getDB()
-		if sqlDB == nil {
+		if db == nil {
 			dbStatus = "disconnected"
 			dbError = "数据库实例未提供"
-		} else if err := sqlDB.Ping(); err != nil {
+		} else if err := db.Ping(); err != nil {
 			dbStatus = "disconnected"
 			dbError = err.Error()
 		}
 
 		// 检查文件系统路径
-		serverDir := "D:\\chronie-app\\homemoney\\server\\src"
-		clientDistPath := "D:\\chronie-app\\homemoney\\client\\dist"
-		serverConfigPath := "D:\\chronie-app\\homemoney\\server\\config\\config.js"
+		clientDistPath := "client/dist"
 
 		// 检查文件/目录是否存在
-		serverDirExists := true
 		clientDistExists := true
-		configExists := true
 
 		// 使用Go的os包检查路径
-		if _, err := os.Stat(serverDir); os.IsNotExist(err) {
-			serverDirExists = false
-		}
 		if _, err := os.Stat(clientDistPath); os.IsNotExist(err) {
 			clientDistExists = false
-		}
-		if _, err := os.Stat(serverConfigPath); os.IsNotExist(err) {
-			configExists = false
 		}
 
 		// 构建CPU信息 - 使用gopsutil获取的数据
@@ -125,9 +114,7 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 
 		// 构建文件系统信息
 		fileSystemInfo := FileSystemInfo{
-			ServerDirExists:  serverDirExists,
 			ClientDistExists: clientDistExists,
-			ConfigExists:     configExists,
 		}
 
 		// 构建服务信息
@@ -138,9 +125,7 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 
 		// 构建路径信息
 		pathInfo := PathInfo{
-			ServerDir:        serverDir,
-			ClientDistPath:   clientDistPath,
-			ServerConfigPath: serverConfigPath,
+			ClientDistPath: clientDistPath,
 		}
 
 		// 构建健康状态数据 - 使用结构体确保顺序
@@ -162,10 +147,9 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 	router.GET("/api/health/lite", func(c *gin.Context) {
 		// 检查数据库连接
 		dbStatus := "connected"
-		sqlDB := getDB()
-		if sqlDB == nil {
+		if db == nil {
 			dbStatus = "disconnected"
-		} else if err := sqlDB.Ping(); err != nil {
+		} else if err := db.Ping(); err != nil {
 			dbStatus = "disconnected"
 		}
 
@@ -178,12 +162,4 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time) {
 
 		c.JSON(http.StatusOK, healthData)
 	})
-}
-
-// 辅助函数：获取数据库实例 - 这个函数需要在调用者中提供
-func getDB() *sql.DB {
-	// 这个函数需要从外部注入数据库实例
-	// 暂时返回nil，实际使用时需要通过参数传递
-	log.Println("Warning: getDB() called but no database instance provided")
-	return nil
 }
