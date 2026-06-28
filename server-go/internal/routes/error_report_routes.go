@@ -7,22 +7,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupErrorReportRoutes 设置错误报告相关路由 - 与JS版本完全一致
+// SetupErrorReportRoutes sets up error report related routes - fully consistent with JS version
 func SetupErrorReportRoutes(router *gin.Engine, errorReportRepo *repository.ErrorReportRepository) {
 	errorReportHandler := handler.NewErrorReportHandler(errorReportRepo)
 
 	api := router.Group("/api")
 	{
-		// 提交错误报告（无需认证）
+		// Submit error report (no authentication required)
 		api.POST("/error/report", errorReportHandler.ReportError)
 
-		// 获取错误报告列表
+		// Get error report list
 		api.GET("/errors", errorReportHandler.GetErrorReports)
 
-		// 获取错误统计信息
+		// Get error statistics
 		api.GET("/errors/stats", errorReportHandler.GetErrorStats)
 
-		// 标记错误报告为已处理
+		// Mark error report as processed
 		api.PUT("/errors/:reportId/process", errorReportHandler.ProcessErrorReport)
 	}
 }

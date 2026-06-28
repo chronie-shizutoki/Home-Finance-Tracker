@@ -11,77 +11,77 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupHealthRoutes 设置健康检查相关的路由
+// SetupHealthRoutes sets up health check related routes
 func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
-	// 健康检查端点 - 使用gopsutil获取专业监控数据
+	// Health check endpoint - uses gopsutil for professional monitoring data
 	router.GET("/api/health", func(c *gin.Context) {
-		// 使用gopsutil获取系统信息
+		// Use gopsutil to get system info
 		systemInfo, err := getSystemInfo()
 		if err != nil {
-			log.Printf("获取系统信息失败: %v", err)
+			log.Printf("Failed to get system info: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"error":   "获取系统信息失败: " + err.Error(),
+				"error":   "Failed to get system info: " + err.Error(),
 			})
 			return
 		}
 
-		// 使用gopsutil获取内存信息
+		// Use gopsutil to get memory info
 		memoryInfo, err := getMemoryInfo()
 		if err != nil {
-			log.Printf("获取内存信息失败: %v", err)
+			log.Printf("Failed to get memory info: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"error":   "获取内存信息失败: " + err.Error(),
+				"error":   "Failed to get memory info: " + err.Error(),
 			})
 			return
 		}
 
-		// 使用gopsutil获取当前进程CPU使用率
+		// Use gopsutil to get current process CPU usage
 		processCPUUsage, err := getProcessCPUUsage()
 		if err != nil {
-			log.Printf("获取进程CPU使用率失败: %v", err)
+			log.Printf("Failed to get process CPU usage: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"error":   "获取进程CPU使用率失败: " + err.Error(),
+				"error":   "Failed to get process CPU usage: " + err.Error(),
 			})
 			return
 		}
 
-		// 使用gopsutil获取CPU信息
+		// Use gopsutil to get CPU info
 		_, cpuInfo, err := getCPUInfo()
 		if err != nil {
-			log.Printf("获取CPU信息失败: %v", err)
+			log.Printf("Failed to get CPU info: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"error":   "获取CPU信息失败: " + err.Error(),
+				"error":   "Failed to get CPU info: " + err.Error(),
 			})
 			return
 		}
 
-		// 检查数据库连接
+		// Check database connection
 		dbStatus := "connected"
 		dbError := ""
 		if db == nil {
-			dbStatus = "disconnected"
-			dbError = "数据库实例未提供"
+			dbStatus := "disconnected"
+			dbError = "database instance not provided"
 		} else if err := db.Ping(); err != nil {
 			dbStatus = "disconnected"
 			dbError = err.Error()
 		}
 
-		// 检查文件系统路径
+		// Check file system paths
 		clientDistPath := "client/dist"
 
-		// 检查文件/目录是否存在
+		// Check if file/directory exists
 		clientDistExists := true
 
-		// 使用Go的os包检查路径
+		// Use Go os package to check path
 		if _, err := os.Stat(clientDistPath); os.IsNotExist(err) {
 			clientDistExists = false
 		}
 
-		// 构建CPU信息 - 使用gopsutil获取的数据
+		// Build CPU info - use gopsutil data
 		var cpuModel string
 		var cpuCount int
 		if len(cpuInfo) > 0 {
@@ -100,35 +100,35 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 		cpuInfoStruct.SystemLoad.Message = "Windows does not support load average as unix"
 		cpuInfoStruct.SystemLoad.RawValue = [3]string{"0.00", "0.00", "0.00"}
 
-		// 构建资源信息
+		// Build resource info
 		resourceInfo := ResourceInfo{
 			Memory: *memoryInfo,
 			CPU:    cpuInfoStruct,
 		}
 
-		// 构建数据库信息
+		// Build database info
 		databaseInfo := DatabaseInfo{
 			Status: dbStatus,
 			Error:  dbError,
 		}
 
-		// 构建文件系统信息
+		// Build file system info
 		fileSystemInfo := FileSystemInfo{
 			ClientDistExists: clientDistExists,
 		}
 
-		// 构建服务信息
+		// Build service info
 		serviceInfo := ServiceInfo{
 			Database:   databaseInfo,
 			FileSystem: fileSystemInfo,
 		}
 
-		// 构建路径信息
+		// Build path info
 		pathInfo := PathInfo{
 			ClientDistPath: clientDistPath,
 		}
 
-		// 构建健康状态数据 - 使用结构体确保顺序
+		// Build health status data - use struct to ensure field order
 		healthData := HealthCheckResponse{
 			Status:      "OK",
 			Timestamp:   time.Now().UTC().Format(time.RFC3339),
@@ -143,9 +143,9 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 		c.JSON(http.StatusOK, healthData)
 	})
 
-	// 轻量级健康检查端点 - 与Node.js版本完全一致
+	// Lightweight health check endpoint - fully consistent with Node.js version
 	router.GET("/api/health/lite", func(c *gin.Context) {
-		// 检查数据库连接
+		// Check database connection
 		dbStatus := "connected"
 		if db == nil {
 			dbStatus = "disconnected"
@@ -153,7 +153,7 @@ func SetupHealthRoutes(router *gin.Engine, startTime time.Time, db *sql.DB) {
 			dbStatus = "disconnected"
 		}
 
-		// 轻量级健康状态数据 - 与Node.js版本完全一致
+		// Lightweight health status data - fully consistent with Node.js version
 		healthData := HealthCheckLiteResponse{
 			Status:     "OK",
 			Timestamp:  time.Now().UTC().Format(time.RFC3339),

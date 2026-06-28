@@ -6,42 +6,42 @@ import (
 	"homemoney/internal/repository"
 )
 
-// SetupExpenseRoutes 设置消费记录相关路由 - 与Node.js版本完全一致
+// SetupExpenseRoutes sets up expense record related routes - fully consistent with Node.js version
 func SetupExpenseRoutes(router *gin.Engine, expenseRepo *repository.ExpenseRepository) {
 	expenseHandler := handlers.NewExpenseHandler(expenseRepo)
 
-	// 创建路由组
+	// Create route group
 	api := router.Group("/api")
 	{
-		// 消费记录路由组
+		// Expense record route group
 		expenses := api.Group("/expenses")
 		{
-			// 获取消费记录列表（支持分页、筛选、排序）
+			// Get expense record list (supports pagination, filtering, sorting)
 			expenses.GET("/", expenseHandler.GetExpenses)
 
-			// 按日期分组获取消费记录
+			// Get expense records grouped by date
 			expenses.GET("/by-date", expenseHandler.GetExpensesByDate)
 
-			// 创建新的消费记录
+			// Create new expense record
 			expenses.POST("/", expenseHandler.CreateExpense)
 
-			// 同步消费记录
+			// Sync expense records
 			expenses.POST("/sync", expenseHandler.SyncExpenses)
 
-			// 更新消费记录
+			// Update expense record
 			expenses.PUT("/:id", expenseHandler.UpdateExpense)
 
-			// 软删除消费记录
+			// Soft delete expense record
 			expenses.DELETE("/:id", expenseHandler.DeleteExpense)
 
-			// 硬删除消费记录
+			// Hard delete expense record
 			expenses.DELETE("/:id/hard", expenseHandler.HardDeleteExpense)
 		}
 
-		// 消费统计路由组
+		// Expense statistics route group
 		expenseStats := api.Group("/expenses")
 		{
-			// 获取消费统计数据
+			// Get expense statistics
 			expenseStats.GET("/statistics", expenseHandler.GetExpenseStatistics)
 		}
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/shirou/gopsutil/v4/process"
 )
 
-// 服务器配置
+// Server configuration
 type ServerConfig struct {
 	Host         string
 	Port         string
@@ -20,7 +20,7 @@ type ServerConfig struct {
 	IdleTimeout  time.Duration
 }
 
-// 健康检查API响应结构体 - 确保字段顺序
+// Health check API response struct - ensures field order
 type HealthCheckResponse struct {
 	Status     string         `json:"status"`
 	Timestamp  string         `json:"timestamp"`
@@ -32,7 +32,7 @@ type HealthCheckResponse struct {
 	Paths      PathInfo       `json:"paths"`
 }
 
-// 轻量级健康检查API响应结构体 - 确保字段顺序
+// Lightweight health check API response struct - ensures field order
 type HealthCheckLiteResponse struct {
 	Status     string `json:"status"`
 	Timestamp  string `json:"timestamp"`
@@ -90,12 +90,12 @@ type PathInfo struct {
 	ClientDistPath string `json:"clientDistPath"`
 }
 
-// 获取CPU使用率和信息
+// Get CPU usage and info
 func getCPUInfo() (float64, []cpu.InfoStat, error) {
-	// 获取CPU使用率
+	// Get CPU usage
 	cpuPercent, err := cpu.Percent(0, false)
 	if err != nil {
-		return 0, nil, fmt.Errorf("获取CPU使用率失败: %v", err)
+		return 0, nil, fmt.Errorf("failed to get CPU usage: %v", err)
 	}
 	
 	usage := 0.0
@@ -103,16 +103,16 @@ func getCPUInfo() (float64, []cpu.InfoStat, error) {
 		usage = cpuPercent[0]
 	}
 	
-	// 获取CPU详细信息
+	// Get CPU details
 	cpuInfo, err := cpu.Info()
 	if err != nil {
-		return usage, nil, fmt.Errorf("获取CPU信息失败: %v", err)
+		return usage, nil, fmt.Errorf("failed to get CPU info: %v", err)
 	}
 	
 	return usage, cpuInfo, nil
 }
 
-// 获取当前进程CPU使用率
+// Get the current process CPU usage
 func getProcessCPUUsage() (float64, error) {
 	p, err := process.NewProcess(int32(os.Getpid()))
 	if err != nil {
@@ -122,7 +122,7 @@ func getProcessCPUUsage() (float64, error) {
 	return p.Percent(0)
 }
 
-// 获取系统详细信息
+// Get system details
 func getSystemInfo() (*SystemInfo, error) {
 	info := &SystemInfo{
 		GoVersion: runtime.Version(),
@@ -130,10 +130,10 @@ func getSystemInfo() (*SystemInfo, error) {
 		Arch:      runtime.GOARCH,
 	}
 	
-	// 使用gopsutil获取主机信息
+	// Use gopsutil to get host info
 	hostInfo, err := host.Info()
 	if err != nil {
-		return info, fmt.Errorf("获取主机信息失败: %v", err)
+		return info, fmt.Errorf("failed to get host info: %v", err)
 	}
 	
 	info.Hostname = hostInfo.Hostname
@@ -141,7 +141,7 @@ func getSystemInfo() (*SystemInfo, error) {
 	info.OS = hostInfo.OS
 	info.Kernel = hostInfo.KernelVersion
 	
-	// 计算系统运行时间
+	// Calculate system uptime
 	if hostInfo.BootTime > 0 {
 		uptime := time.Since(time.Unix(int64(hostInfo.BootTime), 0))
 		info.SystemUptime = uptime.String()
@@ -150,23 +150,23 @@ func getSystemInfo() (*SystemInfo, error) {
 	return info, nil
 }
 
-// 获取内存使用情况（当前进程）
+// Get memory usage (current process)
 func getMemoryInfo() (*MemoryInfo, error) {
 	p, err := process.NewProcess(int32(os.Getpid()))
 	if err != nil {
-		return nil, fmt.Errorf("获取进程信息失败: %v", err)
+		return nil, fmt.Errorf("failed to get process info: %v", err)
 	}
 	
-	// 获取进程内存使用情况
+	// Get process memory usage
 	memInfo, err := p.MemoryInfo()
 	if err != nil {
-		return nil, fmt.Errorf("获取进程内存信息失败: %v", err)
+		return nil, fmt.Errorf("failed to get process memory info: %v", err)
 	}
 	
-	// 获取进程内存使用百分比
+	// Get process memory usage percentage
 	memPercent, err := p.MemoryPercent()
 	if err != nil {
-		return nil, fmt.Errorf("获取进程内存使用百分比失败: %v", err)
+		return nil, fmt.Errorf("failed to get process memory percentage: %v", err)
 	}
 	
 	return &MemoryInfo{
@@ -177,7 +177,7 @@ func getMemoryInfo() (*MemoryInfo, error) {
 	}, nil
 }
 
-// 格式化字节大小
+// Format byte size
 func formatBytes(bytes uint64) string {
 	const (
 		KB = 1024
@@ -200,7 +200,7 @@ func formatBytes(bytes uint64) string {
 	}
 }
 
-// 默认服务器配置
+// Default server configuration
 func GetDefaultConfig() *ServerConfig {
 	return &ServerConfig{
 		Host:         "0.0.0.0",

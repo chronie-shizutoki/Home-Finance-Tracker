@@ -9,88 +9,88 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// LogHandler 日志处理器
+// LogHandler log handler
 type LogHandler struct {
 	logService *service.LogService
 }
 
-// NewLogHandler 创建日志处理器实例
+// NewLogHandler creates a log handler instance
 func NewLogHandler(logService *service.LogService) *LogHandler {
 	return &LogHandler{logService: logService}
 }
 
-// ReceiveLog 接收前端发送的日志
-// @Summary 接收操作日志
-// @Description 接收并异步保存前端发送的操作日志
+// ReceiveLog receives logs sent from frontend
+// @Summary Receive operation logs
+// @Description Receive and asynchronously save operation logs sent from frontend
 // @Tags logs
 // @Accept json
 // @Produce json
-// @Param log body service.LogData true "日志数据"
+// @Param log body service.LogData true "Log data"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/logs [post]
 func (h *LogHandler) ReceiveLog(c *gin.Context) {
 	var logData service.LogData
 
-	// 绑定请求体
+	// Bind request body
 	if err := c.ShouldBindJSON(&logData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "请求体不能为空",
+			"message": "Request body cannot be empty",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 验证必要字段
+	// Validate required fields
 	if logData.Timestamp == "" || logData.Type == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "参数错误",
+			"message": "Invalid parameters",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 异步处理日志，不阻塞响应
+	// Handle logs asynchronously, don't block response
 	h.logService.HandleLog(c, logData)
 
-	// 立即返回成功响应 - 与JS apiResponse.success格式一致
+	// Return success response immediately - consistent with JS apiResponse.success format
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "操作成功",
+		"message": "Operation successful",
 		"data": gin.H{
-			"message": "日志接收成功",
+			"message": "Log received successfully",
 		},
 	})
 }
 
-// GetLogsList 获取日志列表
-// @Summary 获取日志列表
-// @Description 获取日志列表，支持分页和筛选
+// GetLogsList gets log list
+// @Summary Get log list
+// @Description Get log list, supports pagination and filtering
 // @Tags logs
 // @Produce json
-// @Param limit query int false "每页数量" default(100)
-// @Param offset query int false "偏移量" default(0)
-// @Param type query string false "日志类型"
-// @Param startDate query string false "开始日期"
-// @Param endDate query string false "结束日期"
-// @Param username query string false "用户名"
+// @Param limit query int false "Limit per page" default(100)
+// @Param offset query int false "Offset" default(0)
+// @Param type query string false "Log type"
+// @Param startDate query string false "Start date"
+// @Param endDate query string false "End date"
+// @Param username query string false "Username"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/logs [get]
 func (h *LogHandler) GetLogsList(c *gin.Context) {
 	var params service.QueryLogParams
 
-	// 绑定查询参数
+	// Bind query parameters
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "查询参数错误",
+			"message": "Invalid query parameters",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 设置默认值
+	// Set default values
 	if params.Limit <= 0 || params.Limit > 1000 {
 		params.Limit = 100
 	}
@@ -98,25 +98,25 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 		params.Offset = 0
 	}
 
-	// 查询日志
+	// Query logs
 	logs, total, err := h.logService.GetLogs(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "服务器内部错误",
+			"message": "Internal server error",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 计算分页信息
+	// Calculate pagination info
 	page := params.Offset/params.Limit + 1
 	totalPages := (total + params.Limit - 1) / params.Limit
 
-	// 返回结果 - 与JS apiResponse.success格式一致
+	// Return result - consistent with JS apiResponse.success format
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "获取日志列表成功",
+		"message": "Log list retrieved successfully",
 		"data": gin.H{
 			"logs":       logs,
 			"total":      total,
@@ -127,43 +127,43 @@ func (h *LogHandler) GetLogsList(c *gin.Context) {
 	})
 }
 
-// GetLogStats 获取日志统计信息
-// @Summary 获取日志统计信息
-// @Description 获取日志统计信息，包括不同类型的日志数量
+// GetLogStats gets log statistics
+// @Summary Get log statistics
+// @Description Get log statistics, including counts of different log types
 // @Tags logs
 // @Produce json
-// @Param startDate query string false "开始日期"
-// @Param endDate query string false "结束日期"
+// @Param startDate query string false "Start date"
+// @Param endDate query string false "End date"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/logs/stats [get]
 func (h *LogHandler) GetLogStats(c *gin.Context) {
 	var params service.QueryLogParams
 
-	// 绑定查询参数
+	// Bind query parameters
 	if err := c.ShouldBindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "查询参数错误",
+			"message": "Invalid query parameters",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 获取统计信息
+	// Get statistics
 	stats, err := h.logService.GetLogStats(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "获取日志统计失败",
+			"message": "Failed to get log statistics",
 			"errors":  err,
 		})
 		return
 	}
 
-	// 返回结果 - 与JS apiResponse.success格式一致
+	// Return result - consistent with JS apiResponse.success format
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "获取日志统计成功",
+		"message": "Log statistics retrieved successfully",
 		"data": gin.H{
 			"total":     stats.Total,
 			"typeStats": stats.TypeStats,
@@ -172,46 +172,46 @@ func (h *LogHandler) GetLogStats(c *gin.Context) {
 	})
 }
 
-// CleanLogs 清理过期日志
-// @Summary 清理过期日志
-// @Description 清理指定天数之前的日志
+// CleanLogs cleans expired logs
+// @Summary Clean expired logs
+// @Description Clean logs older than the specified number of days
 // @Tags logs
 // @Produce json
-// @Param days query int false "保留天数" default(45)
+// @Param days query int false "Days to keep" default(45)
 // @Success 200 {object} map[string]interface{}
 // @Router /api/logs/clean [delete]
 func (h *LogHandler) CleanLogs(c *gin.Context) {
-	// 获取保留天数参数
+	// Get days parameter
 	daysStr := c.DefaultQuery("days", "45")
 	days, err := strconv.Atoi(daysStr)
 	if err != nil || days < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "清理日志参数错误",
+			"message": "Invalid log cleanup parameters",
 			"errors":  nil,
 		})
 		return
 	}
 
-	// 清理日志
+	// Clean logs
 	deletedCount, err := h.logService.CleanLogs(days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "清理日志失败",
+			"message": "Failed to clean logs",
 			"errors":  err,
 		})
 		return
 	}
 
-	// 返回结果 - 与JS apiResponse.success格式一致
+	// Return result - consistent with JS apiResponse.success format
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": gin.H{
-			"message":      "成功清理" + strconv.FormatInt(deletedCount, 10) + "条过期日志",
+			"message":      "Successfully cleaned " + strconv.FormatInt(deletedCount, 10) + " expired logs",
 			"deletedCount": deletedCount,
 			"keptDays":     days,
 		},
-		"data": "清理日志成功",
+		"data": "Logs cleaned successfully",
 	})
 }

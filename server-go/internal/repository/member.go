@@ -7,27 +7,27 @@ import (
 	"homemoney/internal/models"
 )
 
-// MemberRepository 会员数据仓库
+// MemberRepository member data repository
 type MemberRepository struct {
 	db *gorm.DB
 }
 
-// NewMemberRepository 创建新的会员仓库
+// NewMemberRepository creates a new member repository
 func NewMemberRepository(db *gorm.DB) *MemberRepository {
 	return &MemberRepository{
 		db: db,
 	}
 }
 
-// Create 创建会员
+// Create creates a member
 func (r *MemberRepository) Create(member *models.Member) error {
 	if member.Username == "" {
-		return fmt.Errorf("用户名不能为空")
+		return fmt.Errorf("username cannot be empty")
 	}
 	return r.db.Create(member).Error
 }
 
-// FindByUsername 根据用户名查找会员
+// FindByUsername finds a member by username
 func (r *MemberRepository) FindByUsername(username string) (*models.Member, error) {
 	var member models.Member
 	if err := r.db.First(&member, "username = ?", username).Error; err != nil {
@@ -39,7 +39,7 @@ func (r *MemberRepository) FindByUsername(username string) (*models.Member, erro
 	return &member, nil
 }
 
-// FindByID 根据ID查找会员
+// FindByID finds a member by ID
 func (r *MemberRepository) FindByID(id string) (*models.Member, error) {
 	var member models.Member
 	if err := r.db.First(&member, "id = ?", id).Error; err != nil {
@@ -51,13 +51,13 @@ func (r *MemberRepository) FindByID(id string) (*models.Member, error) {
 	return &member, nil
 }
 
-// GetOrCreate 获取或创建会员
+// GetOrCreate gets or creates a member
 func (r *MemberRepository) GetOrCreate(username string) (*models.Member, error) {
 	if username == "" {
-		return nil, fmt.Errorf("用户名不能为空")
+		return nil, fmt.Errorf("username cannot be empty")
 	}
 
-	// 先尝试查找现有会员
+	// Try to find existing member first
 	member, err := r.FindByUsername(username)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (r *MemberRepository) GetOrCreate(username string) (*models.Member, error) 
 		return member, nil
 	}
 
-	// 如果不存在，创建新会员
+	// If not exists, create a new member
 	member = &models.Member{
 		Username: username,
 	}
@@ -76,7 +76,7 @@ func (r *MemberRepository) GetOrCreate(username string) (*models.Member, error) 
 	return member, nil
 }
 
-// GetMemberInfo 获取会员信息
+// GetMemberInfo gets member info
 func (r *MemberRepository) GetMemberInfo(username string) (*models.Member, error) {
 	var member models.Member
 	if err := r.db.First(&member, "username = ?", username).Error; err != nil {
@@ -88,15 +88,15 @@ func (r *MemberRepository) GetMemberInfo(username string) (*models.Member, error
 	return &member, nil
 }
 
-// Update 更新会员
+// Update updates a member
 func (r *MemberRepository) Update(member *models.Member) error {
 	if member.ID == "" {
-		return fmt.Errorf("会员ID不能为空")
+		return fmt.Errorf("member ID cannot be empty")
 	}
 	return r.db.Save(member).Error
 }
 
-// Exists 检查会员是否存在
+// Exists checks if a member exists
 func (r *MemberRepository) Exists(username string) (bool, error) {
 	var count int64
 	if err := r.db.Model(&models.Member{}).Where("username = ?", username).Count(&count).Error; err != nil {
@@ -105,7 +105,7 @@ func (r *MemberRepository) Exists(username string) (bool, error) {
 	return count > 0, nil
 }
 
-// FindAll 获取所有会员（用于管理界面）
+// FindAll gets all members (for admin interface)
 func (r *MemberRepository) FindAll() ([]models.Member, error) {
 	var members []models.Member
 	if err := r.db.Order("created_at DESC").Find(&members).Error; err != nil {

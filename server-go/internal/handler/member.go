@@ -8,19 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// MemberHandler 会员处理程序
+// MemberHandler member handler
 type MemberHandler struct {
 	memberService *service.MemberService
 }
 
-// NewMemberHandler 创建新的会员处理程序
+// NewMemberHandler creates a new member handler
 func NewMemberHandler(memberService *service.MemberService) *MemberHandler {
 	return &MemberHandler{
 		memberService: memberService,
 	}
 }
 
-// GetOrCreateMember 获取或创建会员 - 对应JS版本的 POST /members
+// GetOrCreateMember gets or creates a member - corresponds to JS version POST /members
 func (h *MemberHandler) GetOrCreateMember(c *gin.Context) {
 	var request struct {
 		Username string `json:"username" binding:"required"`
@@ -28,7 +28,7 @@ func (h *MemberHandler) GetOrCreateMember(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "用户名不能为空",
+			"error": "Username cannot be empty",
 		})
 		return
 	}
@@ -36,24 +36,24 @@ func (h *MemberHandler) GetOrCreateMember(c *gin.Context) {
 	member, err := h.memberService.GetOrCreateMember(request.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "服务器错误",
+			"error": "Server error",
 		})
 		return
 	}
 
-	// 返回与JS版本一致的格式
+	// Return format consistent with JS version
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    member,
 	})
 }
 
-// GetMemberInfo 获取会员信息 - 对应JS版本的 GET /members/:username
+// GetMemberInfo gets member info - corresponds to JS version GET /members/:username
 func (h *MemberHandler) GetMemberInfo(c *gin.Context) {
 	username := c.Param("username")
 	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "用户名不能为空",
+			"error": "Username cannot be empty",
 		})
 		return
 	}
@@ -66,19 +66,19 @@ func (h *MemberHandler) GetMemberInfo(c *gin.Context) {
 		return
 	}
 
-	// 返回与JS版本一致的格式
+	// Return format consistent with JS version
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    member,
 	})
 }
 
-// UpdateAvatar 更新会员头像 - 对应JS版本的 PUT /members/:username/avatar
+// UpdateAvatar updates member avatar - corresponds to JS version PUT /members/:username/avatar
 func (h *MemberHandler) UpdateAvatar(c *gin.Context) {
 	username := c.Param("username")
 	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "用户名不能为空",
+			"error": "Username cannot be empty",
 		})
 		return
 	}
@@ -88,7 +88,7 @@ func (h *MemberHandler) UpdateAvatar(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "用户名和头像数据不能为空",
+			"error": "Username and avatar data cannot be empty",
 		})
 		return
 	}
@@ -101,7 +101,7 @@ func (h *MemberHandler) UpdateAvatar(c *gin.Context) {
 		return
 	}
 
-	// 返回与JS版本一致的格式
+	// Return format consistent with JS version
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    member,

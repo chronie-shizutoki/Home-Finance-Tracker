@@ -7,47 +7,47 @@ import (
 	"homemoney/internal/repository"
 )
 
-// MemberService 会员服务
+// MemberService member service
 type MemberService struct {
 	memberRepo *repository.MemberRepository
 }
 
-// NewMemberService 创建新的会员服务
+// NewMemberService creates a new member service
 func NewMemberService(memberRepo *repository.MemberRepository) *MemberService {
 	return &MemberService{
 		memberRepo: memberRepo,
 	}
 }
 
-// GetOrCreateMember 获取或创建会员
+// GetOrCreateMember gets or creates a member
 func (s *MemberService) GetOrCreateMember(username string) (*models.Member, error) {
 	if username == "" {
-		return nil, fmt.Errorf("用户名不能为空")
+		return nil, fmt.Errorf("username cannot be empty")
 	}
 	return s.memberRepo.GetOrCreate(username)
 }
 
-// GetMemberInfo 获取会员信息 - 与JS版本完全一致（不包含订阅信息）
+// GetMemberInfo gets member info - fully consistent with JS version (no subscription info)
 func (s *MemberService) GetMemberInfo(username string) (*models.Member, error) {
 	member, err := s.memberRepo.GetMemberInfo(username)
 	if err != nil {
 		return nil, err
 	}
 	if member == nil {
-		return nil, fmt.Errorf("会员不存在")
+		return nil, fmt.Errorf("member not found")
 	}
 
 	return member, nil
 }
 
-// UpdateAvatar 更新会员头像
+// UpdateAvatar updates member avatar
 func (s *MemberService) UpdateAvatar(username string, avatar string) (*models.Member, error) {
 	member, err := s.memberRepo.FindByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 	if member == nil {
-		return nil, fmt.Errorf("会员不存在")
+		return nil, fmt.Errorf("member not found")
 	}
 
 	member.Avatar = &avatar

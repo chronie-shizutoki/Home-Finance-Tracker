@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SuccessResponse 成功响应
+// SuccessResponse success response
 func SuccessResponse(data interface{}) gin.H {
 	return gin.H{
 		"success": true,
@@ -15,7 +15,7 @@ func SuccessResponse(data interface{}) gin.H {
 	}
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse error response
 func ErrorResponse(message, error string) gin.H {
 	return gin.H{
 		"success": false,
@@ -24,7 +24,7 @@ func ErrorResponse(message, error string) gin.H {
 	}
 }
 
-// PaginatedResponse 分页响应
+// PaginatedResponse paginated response
 func PaginatedResponse(data interface{}, total int64, page, limit int) gin.H {
 	totalPages := int((total + int64(limit) - 1) / int64(limit))
 	return gin.H{
@@ -37,12 +37,12 @@ func PaginatedResponse(data interface{}, total int64, page, limit int) gin.H {
 	}
 }
 
-// ErrorResponseWithStatus 带状态码的错误响应
+// ErrorResponseWithStatus error response with status code
 func ErrorResponseWithStatus(c *gin.Context, message, error string, statusCode int) {
 	c.JSON(statusCode, ErrorResponse(message, error))
 }
 
-// ParseMonth 解析月份参数 "YYYY-MM"
+// ParseMonth parses month parameter "YYYY-MM"
 func ParseMonth(month string) (time.Time, time.Time, error) {
 	if month == "" {
 		return time.Time{}, time.Time{}, nil
@@ -60,7 +60,7 @@ func ParseMonth(month string) (time.Time, time.Time, error) {
 	return startDate, endDate, nil
 }
 
-// ParseAmount 解析金额参数
+// ParseAmount parses amount parameter
 func ParseAmount(amountStr string) (*float64, error) {
 	if amountStr == "" {
 		return nil, nil
@@ -73,7 +73,7 @@ func ParseAmount(amountStr string) (*float64, error) {
 	return &amount, nil
 }
 
-// ParseFloat 解析字符串为浮点数
+// ParseFloat parses string to float64
 func ParseFloat(s string) (float64, error) {
 	if s == "" {
 		return 0, nil
@@ -87,7 +87,7 @@ func ParseFloat(s string) (float64, error) {
 	return result, nil
 }
 
-// ParseInt 解析字符串为整数
+// ParseInt parses string to int
 func ParseInt(s string) (int, error) {
 	if s == "" {
 		return 0, nil
@@ -101,7 +101,7 @@ func ParseInt(s string) (int, error) {
 	return result, nil
 }
 
-// ValidateSort 验证排序参数
+// ValidateSort validates sort parameters
 func ValidateSort(sort string) bool {
 	validSorts := map[string]bool{
 		"dateAsc":    true,
@@ -112,7 +112,7 @@ func ValidateSort(sort string) bool {
 	return validSorts[sort]
 }
 
-// ValidatePagination 验证分页参数
+// ValidatePagination validates pagination parameters
 func ValidatePagination(page, limit int) (int, int) {
 	if page < 1 {
 		page = 1

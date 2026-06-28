@@ -1,15 +1,15 @@
-翻译键使用情况分析报告
-生成时间: 2026/6/27 15:03:48
+Translation key usage analysis report
+Generated at: 2026/6/29 06:13:04
 =====================================
 
-1. 总体统计
+1. Overall statistics
 -----------------
-总翻译键数量: 237
-已使用翻译键: 177
-未使用翻译键: 85
-使用率: 74.68%
+Total translation keys extracted: 237
+Used translation keys: 177
+Unused translation keys: 85
+Usage rate: 74.68%
 
-2. 未使用的翻译键
+2. Unused translation keys
 -----------------
 - app.page
 - app.record
@@ -97,23 +97,23 @@
 - spending.status.overLimit
 - spending.title
 
-3. 各文件翻译键统计
+3. Translation key statistics by file type
 -----------------
 en-US.json:
-  总键数: 239
-  已使用: 161
-  未使用: 78
-  使用率: 67.36%
+  Total keys extracted: 239
+  Used keys: 161
+  Unused keys: 78
+  Usage rate: 67.36%
 
 zh-CN.json:
-  总键数: 239
-  已使用: 161
-  未使用: 78
-  使用率: 67.36%
+  Total keys extracted: 239
+  Used keys: 161
+  Unused keys: 78
+  Usage rate: 67.36%
 
 zh-TW.json:
-  总键数: 239
-  已使用: 160
-  未使用: 79
-  使用率: 66.95%
+  Total keys extracted: 239
+  Used keys: 160
+  Unused keys: 79
+  Usage rate: 66.95%
 

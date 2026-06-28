@@ -7,27 +7,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupLogRoutes 设置日志相关路由
-// @Summary 设置日志路由
-// @Description 配置日志相关的API端点
-// @Tags 路由配置
+// SetupLogRoutes sets up log related routes
+// @Summary Setup log routes
+// @Description Configure log related API endpoints
+// @Tags Route configuration
 func SetupLogRoutes(router *gin.RouterGroup, logService *service.LogService) {
-	// 创建日志处理器
+	// Create log handler
 	logHandler := handler.NewLogHandler(logService)
 	
-	// 日志相关路由组
+	// Log related route group
 	logs := router.Group("/logs")
 	{
-		// 接收操作日志
+		// Receive operation logs
 		logs.POST("", logHandler.ReceiveLog)
 		
-		// 获取日志列表
+		// Get log list
 		logs.GET("", logHandler.GetLogsList)
 		
-		// 获取日志统计信息
+		// Get log statistics
 		logs.GET("/stats", logHandler.GetLogStats)
 		
-		// 清理过期日志
+		// Clean expired logs
 		logs.DELETE("/clean", logHandler.CleanLogs)
 	}
 }
