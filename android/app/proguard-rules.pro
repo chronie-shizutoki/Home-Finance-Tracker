@@ -75,6 +75,31 @@
 -dontwarn org.osgi.framework.wiring.BundleRevision
 -dontwarn org.tukaani.xz.**
 
+# Protobuf & gRPC
+-keep class com.chronie.homemoney.data.sync.generated.** { *; }
+-keepclassmembers class com.chronie.homemoney.data.sync.generated.** { *; }
+-keep class com.google.protobuf.** { *; }
+-keepclassmembers class com.google.protobuf.** { *; }
+-keep class io.grpc.** { *; }
+-keepclassmembers class io.grpc.** { *; }
+-dontwarn com.google.protobuf.**
+-dontwarn io.grpc.**
+-keepattributes Signature,Annotation*,EnclosingMethod,InnerClasses,SourceFile,LineNumberTable
+
+# Native Sync Engine (JNI callbacks)
+-keep class com.chronie.homemoney.data.sync.NativeSyncEngine {
+    public <methods>;
+    private <methods>;
+}
+-keepclassmembers class com.chronie.homemoney.data.sync.NativeSyncEngine {
+    *** handleIncomingSyncRequest(...);
+}
+
+# 数据库实体类 (禁止混淆，修复 Gson 解析失败)
+-keep class com.chronie.homemoney.data.local.entity.** { *; }
+-keep class com.chronie.homemoney.domain.model.** { *; }
+-keep class com.chronie.homemoney.domain.sync.** { *; }
+
 # Retrofit and DTO classes
 -keep class com.chronie.homemoney.data.remote.dto.** { *; }
 -keep class com.chronie.homemoney.data.remote.api.** { *; }
