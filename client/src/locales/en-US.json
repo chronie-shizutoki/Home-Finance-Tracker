@@ -18,11 +18,9 @@
   "expense.deleteMessage": "Are you sure you want to delete this expense?",
   "expense.deleteSuccess": "Expense deleted successfully",
   "expense.deleteFailed": "Failed to delete expense, please try again later",
-  "common.back": "Back",
   "error.dataInitializationFailed": "Failed to initialize data, please try again",
   "chart.title": "Spending Analysis",
   "chart.bar": "Bar Chart",
-  "chart.pie": "Pie Chart",
   "chart.line": "Line Chart",
   "chart.doughnut": "Doughnut Chart",
   "chart.radar": "Radar Chart",
@@ -30,7 +28,6 @@
   "chart.categoryPercentage": "Category Breakdown",
   "chart.trendAnalysis": "Spending Trend",
   "chart.weekdayAnalysis": "Spending by Day of Week",
-  "chart.mockData": "Sample Data",
   "common.to": "to",
   "common.currency": "USD",
   "common.currencySymbol": "$",
@@ -51,40 +48,21 @@
   "import.failed": "Failed to import data",
   "import.refreshNotice": "(Auto-refresh in 3 seconds)",
   "common.cancel": "Cancel",
-  "common.save": "Save",
   "expense.addDialogTitle": "Add Expense",
   "expense.addRecord": "Add New Record",
   "expense.columns.time": "Time",
   "expense.columns.name": "Category",
-  "expense.type.food": "Food & Dining",
   "expense.amountRequired": "Amount is required",
-  "network.error": "Network error",
   "app.loading": "Loading...",
-  "expense.record.title": "Expense Records",
   "app": {
     "title": "Home Finance Tracker",
-    "statistics": "Spending Insights",
     "export": "Export Data",
-    "recordList": "All Records",
-    "record": "Expense Records",
     "notFound": "Page Not Found",
     "pageNotFound": "The page you're looking for doesn't exist",
     "backToHome": "Back to Home"
   },
   "home": {
-    "closeButton": "× Close",
-    "expenseAnalysisReportTitle": "Spending Report",
-    "goToAddExpenseRecord": "Add New Expense",
-    "viewExpenseAnalysisReport": "View Report",
-    "prevMonth": "Previous Month",
-    "nextMonth": "Next Month",
-    "dailyTrend": "Daily Spending",
-    "dailyDescending": "Highest Spending Days",
-    "noData": "No expenses recorded",
     "noDataForExport": "No data available for export"
-  },
-  "feedback": {
-    "title": "Feedback"
   },
   "expense.noRecords": "No expenses found",
   "expense.record": "Expense Record",
@@ -100,7 +78,6 @@
   "expense.empty.description": "Add new expenses or adjust your filters",
   "expense.empty.reset": "Reset Filters",
   "expense.search.title": "Search Expenses",
-  "expense.search.monthPlaceholder": "Month",
   "expense.search.minAmountPlaceholder": "Min amount",
   "expense.search.maxAmountPlaceholder": "Max amount",
   "expense.search.keywordPlaceholder": "Search notes...",
@@ -110,7 +87,6 @@
   "expense.search.sort": "Sort By",
   "expense.search.amountRange": "Amount Range",
   "expense.search.keyword": "Search",
-  "expense.search.searchButton": "Search",
   "expense.noDataTitle": "No Results",
   "expense.noDataMessage": "Try adjusting your filters or add new expenses",
   "expense.search.reset": "Reset",
@@ -126,7 +102,6 @@
   "expense": {
     "search": {
       "month": "Month",
-      "monthPlaceholder": "Select month",
       "allMonth": "All",
       "type": "Category",
       "allType": "All",
@@ -135,65 +110,29 @@
       "minAmountPlaceholder": "Min",
       "maxAmountPlaceholder": "Max",
       "keyword": "Search",
-      "keywordPlaceholder": "Search in notes...",
-      "button": "Apply"
+      "keywordPlaceholder": "Search in notes..."
     },
     "type": "Category",
-    "pasteSuccess": "Data imported successfully",
     "amount": "Amount",
     "date": "Date",
     "remark": "Notes",
-    "note": "Notes",
-    "addFailed": "Failed to add expense: {error}",
     "addSuccess": "Successfully added {count} expenses",
-    "columns": {
-      "type": "Category",
-      "amount": "Amount",
-      "date": "Date",
-      "remark": "Notes"
-    },
     "largeExpense": {
       "warning": "Large expense detected. Please confirm this is correct.",
       "confirm": "I Understand"
     },
-    "emptyText": "No expenses yet. Add your first expense to get started!",
     "common": {
       "requestCanceled": "Request cancelled",
-      "networkError": "Network error. Please check your connection",
-      "requestTimeout": "Request timeout. Please try again"
+      "networkError": "Network error. Please check your connection"
     }
   },
-  "pagination": {
-    "firstPage": "First",
-    "prevPage": "Previous",
-    "pageInfo": "Page {current} of {total}",
-    "nextPage": "Next",
-    "lastPage": "Last",
-    "perPage": "per page"
-  },
   "common": {
-    "index": "#",
     "action": "Actions",
     "cancel": "Cancel",
-    "submit": "Submit",
-    "requestCanceled": "Request cancelled",
-    "networkError": "Network error. Please try again",
-    "requestTimeout": "Request timeout"
+    "submit": "Submit"
   },
-  "common.total": "Total",
-  "common.perPage": "per page",
-  "common.prev": "Previous",
-  "common.next": "Next",
-    "feeNoticeTitle": "Payment Fee Notice",
-    "feeNoticeContent": "Payment processor may charge up to 10% fee. Amount shown is before fees.",
-
   "spending": {
-    "title": "Monthly Budget",
     "monthlyProgress": "Monthly Spending Progress",
-    "currentMonth": "Current Month",
-    "currentSpending": "Current Spending",
-    "monthlyLimit": "Monthly Budget",
-    "remaining": "Remaining",
     "exceeded": "Over Budget",
     "dailyAverage": "Daily Average",
     "recommendedDaily": "Recommended Daily",
@@ -206,12 +145,8 @@
       "enterLimit": "Enter monthly budget",
       "warningThreshold": "Warning Threshold",
       "enterThreshold": "Enter warning threshold",
-      "thresholdDescription": "Get notified when you reach this percentage of your budget",
-      "quickSet": "Quick Set",
-      "preview": "Current Status",
       "disabledNotice": "Enable budget to track your monthly spending",
-      "pleaseSetLimit": "Please set your monthly budget",
-      "limitUpdated": "Monthly budget updated to ${amount}"
+      "pleaseSetLimit": "Please set your monthly budget"
     },
     "status": {
       "disabled": "Budget disabled",
@@ -242,8 +177,7 @@
   },
   "function": {
     "primary": "Main Features",
-    "aiFeatures": "AI Features",
-    "other": "Other"
+    "aiFeatures": "AI Features"
   },
   "ai": {
     "report": {
@@ -279,15 +213,11 @@
       "requiredUsername": "Please enter username",
       "usernameFormat": "Username can only contain uppercase and lowercase letters",
       "usernameLength": "Username length should be between 1-20 characters",
-      "loginFailed": "Login failed, please try again later",
-      "loginFirst": "Please login first",
-      "createUserFailed": "Failed to create user",
-      "fetchUserInfoFailed": "Failed to fetch user information, please try again later"
+      "loginFailed": "Login failed, please try again later"
     },
     "success": {
       "login": "Login successful",
       "logout": "Logged out",
-      "cancelSubscription": "Subscription canceled",
       "avatarUploaded": "Avatar uploaded successfully"
     }
   }
