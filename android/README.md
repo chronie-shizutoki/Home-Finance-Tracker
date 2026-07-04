@@ -1,5 +1,7 @@
 # Home Finance Tracker - Android Native Application
 
+[![Crowdin](https://badges.crowdin.net/home-finance-tracker/localized.svg)](https://crowdin.com/project/home-finance-tracker)
+
 ## Overview
 
 This is the native Android implementation of the Home Money financial tracking application. The app is built using modern Android development practices with Kotlin, Jetpack Compose, and follows Clean Architecture principles. It provides a comprehensive set of features for expense tracking, budget management, data synchronization, and more.
@@ -179,13 +181,13 @@ android/
 │   │   │   │   └── sync.proto             # SyncService, SyncRequest/Response, PingRequest/Response, DeviceSyncData, SyncEntity
 │   │   │   ├── res/                       # Resources
 │   │   │   │   ├── values/                # English strings
-│   │   │   │   ├── values-in/             # Indonesian
-│   │   │   │   ├── values-ja/             # Japanese
-│   │   │   │   ├── values-ko/             # Korean
-│   │   │   │   ├── values-ms/             # Malay
-│   │   │   │   ├── values-th/             # Thai
-│   │   │   │   ├── values-vi/             # Vietnamese
-│   │   │   │   ├── values-zh/             # Simplified Chinese (Mainland)
+│   │   │   │   ├── values-in-rID/             # Indonesian
+│   │   │   │   ├── values-ja-rJP/             # Japanese
+│   │   │   │   ├── values-ko-rKR/             # Korean
+│   │   │   │   ├── values-ms-rMY/             # Malay
+│   │   │   │   ├── values-th-rTH/             # Thai
+│   │   │   │   ├── values-vi-rVN/             # Vietnamese
+│   │   │   │   ├── values-zh-rCN/         # Simplified Chinese (Mainland)
 │   │   │   │   ├── values-zh-rHK/         # Traditional Chinese (Hong Kong)
 │   │   │   │   ├── values-zh-rMO/         # Traditional Chinese (Macau)
 │   │   │   │   ├── values-zh-rSG/         # Simplified Chinese (Singapore)
