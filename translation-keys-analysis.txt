@@ -1,13 +1,13 @@
 Translation key usage analysis report
-Generated at: 2026/6/29 06:13:04
+Generated at: 2026/7/4 10:56:57
 =====================================
 
 1. Overall statistics
 -----------------
-Total translation keys extracted: 237
+Total translation keys extracted: 232
 Used translation keys: 177
-Unused translation keys: 85
-Usage rate: 74.68%
+Unused translation keys: 80
+Usage rate: 76.29%
 
 2. Unused translation keys
 -----------------
@@ -28,7 +28,6 @@ Usage rate: 74.68%
 - common.prev
 - common.requestCanceled
 - common.requestTimeout
-- common.save
 - common.total
 - expense.addFailed
 - expense.addNewEntry
@@ -45,15 +44,12 @@ Usage rate: 74.68%
 - expense.exportFilename
 - expense.inputValidContent
 - expense.note
-- expense.pasteSuccess
-- expense.record.title
 - expense.search.button
 - expense.search.monthPlaceholder
 - expense.search.searchButton
 - expense.serverError
 - expense.totalAmount
 - expense.totalRecords
-- expense.type.food
 - expense.unknownError
 - feeNoticeContent
 - feeNoticeTitle
@@ -73,7 +69,6 @@ Usage rate: 74.68%
 - membership.error.loginFirst
 - membership.success.cancelSubscription
 - membership.userInfo
-- network.error
 - pagination.firstPage
 - pagination.lastPage
 - pagination.nextPage
@@ -100,10 +95,10 @@ Usage rate: 74.68%
 3. Translation key statistics by file type
 -----------------
 en-US.json:
-  Total keys extracted: 239
+  Total keys extracted: 176
   Used keys: 161
-  Unused keys: 78
-  Usage rate: 67.36%
+  Unused keys: 15
+  Usage rate: 91.48%
 
 zh-CN.json:
   Total keys extracted: 239
