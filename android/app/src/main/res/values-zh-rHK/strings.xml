@@ -1,10 +1,9 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">家庭記帳簿</string>
     <string name="title_activity_main">家庭記帳簿</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
-    
     <!-- Settings -->
     <string name="settings">設定</string>
     <string name="language_settings">語言設定</string>
@@ -20,7 +19,6 @@
     <string name="dynamic_color_enabled">動態色彩已啟用</string>
     <string name="dynamic_color_disabled">動態色彩已停用</string>
     <string name="primary_color_updated">主色已更新</string>
-    
     <!-- Common -->
     <string name="back">返回</string>
     <string name="cancel">取消</string>
@@ -31,21 +29,17 @@
     <string name="loading">載入中…</string>
     <string name="error">錯誤</string>
     <string name="success">成功</string>
-    
     <!-- Currency -->
     <string name="currency_symbol">HK$</string>
     <string name="currency_format" formatted="false">%s%.2f</string>
     <string name="currency_format_no_decimal" formatted="false">%s%.0f</string>
-    
     <!-- Welcome -->
     <string name="welcome_message">歡迎使用家庭記帳簿</string>
     <string name="getting_started">開始使用</string>
-    
     <!-- Developer Options -->
     <string name="developer_options">開發人員選項</string>
     <string name="developer_mode">開發人員模式</string>
     <string name="developer_mode_description">啟用後可存取本機資料庫等開發功能</string>
-    
     <!-- Database Test -->
     <string name="database_test">本機資料庫</string>
     <string name="add_test_data">新增一筆本機測試資料</string>
@@ -58,7 +52,6 @@
     <string name="no_data">暫無資料</string>
     <string name="synced">已同步</string>
     <string name="not_synced">未同步</string>
-    
     <!-- Sync -->
     <string name="sync_title">資料同步</string>
     <string name="sync_status">同步狀態</string>
@@ -70,10 +63,6 @@
     <string name="sync_lan">區域網絡</string>
     <string name="sync_bluetooth">藍牙</string>
     <string name="sync_nfc">NFC</string>
-    <string name="device_sync_title">%s 裝置同步</string>
-    <string name="device_sync_searching">正在搜尋 %s 裝置…</string>
-    <string name="device_sync_searching_devices">正在搜尋裝置…</string>
-    <string name="device_sync_found_devices">找到 %d 個裝置：</string>
     <string name="sync_status_success">成功</string>
     <string name="sync_status_failed">失敗</string>
     <string name="sync_status_conflict">衝突</string>
@@ -88,19 +77,21 @@
     <string name="clear_failed">清空失敗：%s</string>
     <string name="load_success">資料載入成功</string>
     <string name="load_failed">載入資料失敗：%s</string>
+    <string name="device_sync_title">%s 裝置同步</string>
+    <string name="device_sync_searching">正在搜尋 %s 裝置…</string>
+    <string name="device_sync_searching_devices">正在搜尋裝置…</string>
+    <string name="device_sync_found_devices">找到 %d 個裝置：</string>
     <string name="device_sync_connecting">正在連線到 %s…</string>
     <string name="device_sync_connect_failed">連線失敗</string>
     <string name="device_sync_synchronizing">正在同步資料…</string>
     <string name="device_sync_success">同步完成</string>
     <string name="device_sync_failed">同步失敗：%s</string>
-    
     <!-- Delete Confirmation Dialog -->
     <string name="delete_confirm_title">確認刪除</string>
     <string name="delete_confirm_message">確定要刪除這筆支出記錄？</string>
     <string name="delete_second_confirm_title">再次確認</string>
     <string name="delete_second_confirm_message">此操作無法還原，確定要繼續刪除？</string>
-    
-    <!-- 支出類型 -->
+    <!-- Expense Types -->
     <string name="expense_type_daily_goods">日用品</string>
     <string name="expense_type_luxury">奢侈品</string>
     <string name="expense_type_communication">通訊費</string>
@@ -129,8 +120,7 @@
     <string name="expense_type_household_appliances">家用電器</string>
     <string name="expense_type_hardware">五金</string>
     <string name="expense_type_clothing">服裝</string>
-    
-    <!-- 支出列表 -->
+    <!-- Expense List -->
     <string name="expense_list_title">支出</string>
     <string name="expense_list_empty">暫無支出記錄</string>
     <string name="expense_list_empty_description">請新增記錄或調整篩選條件</string>
@@ -159,28 +149,24 @@
     <string name="expense_list_filtered_count">篩選結果：%d 項</string>
     <string name="common_search">搜尋</string>
     <string name="common_filter">篩選</string>
-    
-    <!-- 支出統計 -->
+    <!-- Expense Statistics -->
     <string name="expense_stats_count">總記錄數</string>
     <string name="expense_stats_total">總金額</string>
     <string name="expense_stats_average">平均</string>
     <string name="expense_stats_median">中位數</string>
     <string name="expense_stats_range">金額範圍</string>
-    
-    <!-- 支出表格 -->
+    <!-- Expense Table -->
     <string name="expense_type">分類</string>
     <string name="expense_remark">備註</string>
     <string name="expense_amount">金額</string>
-    
-    <!-- 通用 -->
+    <!-- Common -->
     <string name="common_loading">載入中…</string>
     <string name="common_error">錯誤</string>
     <string name="common_retry">重試</string>
     <string name="common_refresh">重新整理</string>
     <string name="common_more_functions">更多功能</string>
     <string name="common_actions">操作</string>
-    
-    <!-- 新增支出 -->
+    <!-- Add Expense -->
     <string name="add_expense_title">新增支出</string>
     <string name="add_expense_type_label">分類 *</string>
     <string name="add_expense_type_hint">選擇支出分類</string>
@@ -196,8 +182,7 @@
     <string name="add_expense_validation_amount_invalid">金額必須大於 0</string>
     <string name="add_expense_validation_date_required">請選擇日期</string>
     <string name="edit_expense_title">編輯支出</string>
-    
-    <!-- AI 智能辨識 -->
+    <!-- AI Expense Recognition -->
     <string name="ai_expense_title">AI 智能記帳</string>
     <string name="ai_expense_select_images">選擇相片</string>
     <string name="ai_expense_add_images">新增相片</string>
@@ -225,12 +210,11 @@
     <string name="no_results_found">未找到匹配項</string>
     <string name="clear">清除</string>
     <string name="ai_expense_click_to_add">點選新增相片</string>
-    <string name="ai_expense_records_count">辨識結果 (%d 項)</string>    
+    <string name="ai_expense_records_count">辨識結果 (%d 項)</string>
     <string name="ai_expense_select_image_source">選擇相片來源</string>
     <string name="ai_expense_take_photo">拍攝</string>
     <string name="ai_expense_choose_from_gallery">從相簿選擇</string>
-    
-    <!-- AI 設定 -->
+    <!-- AI Settings -->
     <string name="settings_ai_title">AI 設定</string>
     <string name="settings_ai_api_key">SiliconFlow API 金鑰</string>
     <string name="settings_ai_api_key_hint">輸入您的 API 金鑰</string>
@@ -238,8 +222,7 @@
     <string name="settings_ai_get_api_key">沒有 API 金鑰？點擊取得</string>
     <string name="settings_ai_api_key_saved">API 金鑰已儲存</string>
     <string name="ai_expense_entry_description">拍攝或輸入文字快速記帳</string>
-    
-    <!-- 預算管理 -->
+    <!-- Budget Management -->
     <string name="budget_enable_title">啟用預算管理</string>
     <string name="budget_enable_description">設定每月預算，助您控制支出</string>
     <string name="budget_enable_button">啟用預算</string>
@@ -265,8 +248,7 @@
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">請輸入有效的預算金額</string>
     <string name="budget_error_invalid_threshold">警示門檻必須在 0-100 之間</string>
-    
-    <!-- 圖表 -->
+    <!-- Charts -->
     <string name="charts_title">統計分析</string>
     <string name="statistics_summary">統計摘要</string>
     <string name="count">記錄數</string>
@@ -287,8 +269,7 @@
     <string name="custom_range">自訂時段</string>
     <string name="close">關閉</string>
     <string name="retry">重試</string>
-    
-    <!-- 星期 -->
+    <!-- Weekdays -->
     <string name="sunday">星期日</string>
     <string name="monday">星期一</string>
     <string name="tuesday">星期二</string>
@@ -303,8 +284,7 @@
     <string name="thursday_short">四</string>
     <string name="friday_short">五</string>
     <string name="saturday_short">六</string>
-
-    <!-- 資料匯入匯出 -->
+    <!-- Data Import/Export -->
     <string name="data_import_export">資料匯入匯出</string>
     <string name="data_import_export_description">將支出資料匯出或匯入為 Excel 檔案</string>
     <string name="export_data">匯出資料</string>
@@ -331,12 +311,10 @@
     <string name="excel_header_remark">備註</string>
     <string name="permission_storage_required">需要儲存空間權限以匯出/匯入檔案</string>
     <string name="no_records_to_export">無記錄可匯出</string>
-
-    <!-- 意見回饋 -->
+    <!-- Feedback -->
     <string name="feedback_title">意見回饋</string>
     <string name="feedback_description">分享您的建議，助我們改進</string>
-
-    <!-- 用戶登入 -->
+    <!-- Authentication -->
     <string name="auth_login_title">登入</string>
     <string name="auth_username_label">用戶名稱</string>
     <string name="auth_username_hint">請輸入用戶名稱</string>
@@ -359,8 +337,7 @@
     <string name="membership_title">帳戶</string>
     <string name="auth_logged_in">已登入</string>
     <string name="auth_skip_login">跳過</string>
-
-    <!-- 連線檢查 -->
+    <!-- Health Check -->
     <string name="health_check_channel_name">伺服器連線監察</string>
     <string name="health_check_channel_description">監察伺服器連線狀態</string>
     <string name="health_check_running">正在監察伺服器</string>
@@ -368,8 +345,7 @@
     <string name="server_connection_error">伺服器連線錯誤</string>
     <string name="server_connection_error_message">無法連線至伺服器，請檢查網絡連線</string>
     <string name="server_connection_restored">伺服器連線已恢復</string>
-
-    <!-- 顏色選擇器 -->
+    <!-- Color Picker -->
     <string name="color_picker_title">選擇主題顏色</string>
     <string name="color_picker_search_hint">搜尋顏色名稱…</string>
     <string name="current_theme_color">目前主題顏色</string>
@@ -387,39 +363,34 @@
     <string name="color_group_brown">啡色系</string>
     <string name="color_group_gray">灰色系</string>
     <string name="color_group_special">特別色系</string>
-
-    <!-- 顏色名稱 - 紅色 -->
+    <!-- Color Names - Red -->
     <string name="color_red_light">淺紅色</string>
     <string name="color_red_bright">鮮紅色</string>
     <string name="color_red_pure">純紅</string>
     <string name="color_red_standard">標準紅</string>
     <string name="color_red_deep">深紅色</string>
     <string name="color_red_dark">暗紅色</string>
-
-    <!-- 顏色名稱 - 橙色 -->
+    <!-- Color Names - Orange -->
     <string name="color_orange_light">淺橙色</string>
     <string name="color_orange_bright">鮮橙色</string>
     <string name="color_orange_pure">純橙</string>
     <string name="color_orange_standard">標準橙</string>
     <string name="color_orange_deep">深橙色</string>
     <string name="color_orange_dark">暗橙色</string>
-
-    <!-- 顏色名稱 - 黃色 -->
+    <!-- Color Names - Yellow -->
     <string name="color_yellow_light">淺黃色</string>
     <string name="color_yellow_bright">鮮黃色</string>
     <string name="color_yellow_pure">純黃</string>
     <string name="color_yellow_amber">琥珀黃</string>
     <string name="color_yellow_gold">金色</string>
     <string name="color_yellow_standard">標準黃</string>
-
-    <!-- 顏色名稱 - 黃綠色 -->
+    <!-- Color Names - Yellow Green -->
     <string name="color_yellow_green_light">淺黃綠</string>
     <string name="color_yellow_green_bright">鮮黃綠</string>
     <string name="color_yellow_green_pure">純黃綠</string>
     <string name="color_yellow_green_standard">標準黃綠</string>
     <string name="color_yellow_green_deep">深黃綠</string>
-
-    <!-- 顏色名稱 - 綠色 -->
+    <!-- Color Names - Green -->
     <string name="color_green_light">淺綠色</string>
     <string name="color_green_bright">鮮綠色</string>
     <string name="color_green_pure">純綠</string>
@@ -427,16 +398,14 @@
     <string name="color_green_deep">深綠色</string>
     <string name="color_green_dark">暗綠色</string>
     <string name="color_green_forest">森林綠</string>
-
-    <!-- 顏色名稱 - 青色 -->
+    <!-- Color Names - Cyan -->
     <string name="color_cyan_light">淺青色</string>
     <string name="color_cyan_bright">鮮青色</string>
     <string name="color_cyan_pure">純青</string>
     <string name="color_cyan_standard">標準青</string>
     <string name="color_cyan_deep">深青色</string>
     <string name="color_cyan_dark">暗青色</string>
-
-    <!-- 顏色名稱 - 藍色 -->
+    <!-- Color Names - Blue -->
     <string name="color_blue_light">淺藍色</string>
     <string name="color_blue_bright">鮮藍色</string>
     <string name="color_blue_pure">純藍</string>
@@ -444,39 +413,34 @@
     <string name="color_blue_standard">標準藍</string>
     <string name="color_blue_deep">深藍色</string>
     <string name="color_blue_dark">暗藍色</string>
-
-    <!-- 顏色名稱 - 靛藍色 -->
+    <!-- Color Names - Indigo -->
     <string name="color_indigo_light">淺靛藍</string>
     <string name="color_indigo_bright">鮮靛藍</string>
     <string name="color_indigo_pure">純靛藍</string>
     <string name="color_indigo_standard">標準靛藍</string>
     <string name="color_indigo_deep">深靛藍</string>
     <string name="color_indigo_dark">暗靛藍</string>
-
-    <!-- 顏色名稱 - 紫色 -->
+    <!-- Color Names - Purple -->
     <string name="color_purple_light">淺紫色</string>
     <string name="color_purple_bright">鮮紫色</string>
     <string name="color_purple_pure">純紫</string>
     <string name="color_purple_standard">標準紫</string>
     <string name="color_purple_deep">深紫色</string>
     <string name="color_purple_dark">暗紫色</string>
-
-    <!-- 顏色名稱 - 粉色 -->
+    <!-- Color Names - Pink -->
     <string name="color_pink_light">淺粉紅</string>
     <string name="color_pink_bright">鮮粉紅</string>
     <string name="color_pink_pure">純粉紅</string>
     <string name="color_pink_standard">標準粉紅</string>
     <string name="color_pink_deep">深粉紅</string>
-
-    <!-- 顏色名稱 - 棕色 -->
+    <!-- Color Names - Brown -->
     <string name="color_brown_light">淺啡色</string>
     <string name="color_brown_bright">鮮啡色</string>
     <string name="color_brown_pure">純啡</string>
     <string name="color_brown_standard">標準啡</string>
     <string name="color_brown_deep">深啡色</string>
     <string name="color_brown_dark">暗啡色</string>
-
-    <!-- 顏色名稱 - 灰色 -->
+    <!-- Color Names - Gray -->
     <string name="color_gray_very_light">極淺灰</string>
     <string name="color_gray_light">淺灰色</string>
     <string name="color_gray_bright">亮灰色</string>
@@ -485,8 +449,7 @@
     <string name="color_gray_standard">灰色</string>
     <string name="color_gray_deep">深灰色</string>
     <string name="color_gray_dark">暗灰色</string>
-
-    <!-- 顏色名稱 - 特別色 -->
+    <!-- Color Names - Special -->
     <string name="color_special_coral_light">淺珊瑚色</string>
     <string name="color_special_coral">珊瑚紅</string>
     <string name="color_special_coral_bright">鮮珊瑚色</string>
@@ -504,13 +467,11 @@
     <string name="color_special_neon_blue">霓虹藍</string>
     <string name="color_special_neon_pink">霓虹粉紅</string>
     <string name="color_special_neon_orange">霓虹橙</string>
-    
-    <!-- 日期格式化 -->
+    <!-- Date Formatting -->
     <string name="date_today">今日</string>
     <string name="date_yesterday">昨日</string>
     <string name="date_days_ago">%d 日前</string>
-    
-    <!-- 區域網路同步 -->
+    <!-- LAN Sync -->
     <string name="lan_sync_title">區域網路同步</string>
     <string name="sync_options">同步選項</string>
     <string name="search_nearby_devices">搜尋附近裝置</string>
@@ -535,8 +496,7 @@
     <string name="reject">拒絕</string>
     <string name="incoming_sync_request_title">收到同步請求</string>
     <string name="incoming_sync_request_message">想要與您的裝置同步資料</string>
-    
-    <!-- 開源許可證 -->
+    <!-- Open Source Licenses -->
     <string name="open_source_licenses">開源許可證</string>
     <string name="open_source_licenses_description">查看第三方組件許可證</string>
 </resources>

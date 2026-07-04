@@ -1,11 +1,10 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sổ thu chi gia đình</string>
     <string name="title_activity_main">Sổ thu chi gia đình</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
-    
-    <!-- Cài đặt -->
+    <!-- Settings -->
     <string name="settings">Cài đặt</string>
     <string name="language_settings">Cài đặt ngôn ngữ</string>
     <string name="update_avatar_failed">Cập nhật ảnh đại diện thất bại</string>
@@ -20,8 +19,7 @@
     <string name="dynamic_color_enabled">Màu động đã bật</string>
     <string name="dynamic_color_disabled">Màu động đã tắt</string>
     <string name="primary_color_updated">Đã cập nhật màu chính</string>
-    
-    <!-- Chung -->
+    <!-- Common -->
     <string name="back">Quay lại</string>
     <string name="cancel">Hủy</string>
     <string name="confirm">Xác nhận</string>
@@ -31,22 +29,18 @@
     <string name="loading">Đang tải…</string>
     <string name="error">Lỗi</string>
     <string name="success">Thành công</string>
-    
-    <!-- Tiền tệ -->
+    <!-- Currency -->
     <string name="currency_symbol">₫</string>
     <string name="currency_format" formatted="false">%s%.2f</string>
     <string name="currency_format_no_decimal" formatted="false">%s%.0f</string>
-    
-    <!-- Màn hình chào -->
+    <!-- Welcome -->
     <string name="welcome_message">Chào mừng đến với Sổ thu chi gia đình</string>
     <string name="getting_started">Bắt đầu sử dụng</string>
-    
-    <!-- Tùy chọn nhà phát triển -->
+    <!-- Developer Options -->
     <string name="developer_options">Tùy chọn nhà phát triển</string>
     <string name="developer_mode">Chế độ nhà phát triển</string>
     <string name="developer_mode_description">Bật để truy cập các tính năng nâng cao như cơ sở dữ liệu cục bộ</string>
-    
-    <!-- Kiểm tra cơ sở dữ liệu -->
+    <!-- Database Test -->
     <string name="database_test">Cơ sở dữ liệu cục bộ</string>
     <string name="add_test_data">Thêm dữ liệu thử nghiệm</string>
     <string name="clear_data">Xóa toàn bộ dữ liệu</string>
@@ -58,8 +52,7 @@
     <string name="no_data">Không có dữ liệu</string>
     <string name="synced">Đã đồng bộ</string>
     <string name="not_synced">Chưa đồng bộ</string>
-    
-    <!-- Đồng bộ -->
+    <!-- Sync -->
     <string name="sync_title">Đồng bộ dữ liệu</string>
     <string name="sync_status">Trạng thái đồng bộ</string>
     <string name="sync_status_idle">Đang rảnh</string>
@@ -70,10 +63,6 @@
     <string name="sync_lan">Mạng LAN</string>
     <string name="sync_bluetooth">Bluetooth</string>
     <string name="sync_nfc">NFC</string>
-    <string name="device_sync_title">Đồng bộ %s</string>
-    <string name="device_sync_searching">Đang tìm kiếm thiết bị %s…</string>
-    <string name="device_sync_searching_devices">Đang tìm kiếm thiết bị…</string>
-    <string name="device_sync_found_devices">Đã tìm thấy %d thiết bị:</string>
     <string name="sync_status_success">Thành công</string>
     <string name="sync_status_failed">Thất bại</string>
     <string name="sync_status_conflict">Xung đột</string>
@@ -88,19 +77,21 @@
     <string name="clear_failed">Xóa thất bại: %s</string>
     <string name="load_success">Tải dữ liệu thành công</string>
     <string name="load_failed">Tải thất bại: %s</string>
+    <string name="device_sync_title">Đồng bộ %s</string>
+    <string name="device_sync_searching">Đang tìm kiếm thiết bị %s…</string>
+    <string name="device_sync_searching_devices">Đang tìm kiếm thiết bị…</string>
+    <string name="device_sync_found_devices">Đã tìm thấy %d thiết bị:</string>
     <string name="device_sync_connecting">Đang kết nối với %s…</string>
     <string name="device_sync_connect_failed">Kết nối thất bại</string>
     <string name="device_sync_synchronizing">Đang đồng bộ dữ liệu…</string>
     <string name="device_sync_success">Đồng bộ hoàn tất</string>
     <string name="device_sync_failed">Đồng bộ thất bại: %s</string>
-    
-    <!-- Hộp thoại xác nhận xóa -->
+    <!-- Delete Confirmation Dialog -->
     <string name="delete_confirm_title">Xác nhận xóa</string>
     <string name="delete_confirm_message">Bạn có chắc chắn muốn xóa bản ghi chi tiêu này không?</string>
     <string name="delete_second_confirm_title">Xác nhận xóa</string>
     <string name="delete_second_confirm_message">Hành động này không thể hoàn tác, bạn có chắc chắn muốn xóa không?</string>
-    
-    <!-- Danh mục chi tiêu -->
+    <!-- Expense Types -->
     <string name="expense_type_daily_goods">Đồ dùng hàng ngày</string>
     <string name="expense_type_luxury">Hàng xa xỉ</string>
     <string name="expense_type_communication">Viễn thông</string>
@@ -129,8 +120,7 @@
     <string name="expense_type_household_appliances">Điện gia dụng</string>
     <string name="expense_type_hardware">Đồ kim loại</string>
     <string name="expense_type_clothing">Quần áo</string>
-    
-    <!-- Danh sách chi tiêu -->
+    <!-- Expense List -->
     <string name="expense_list_title">Chi tiêu</string>
     <string name="expense_list_empty">Chưa có lịch sử chi tiêu</string>
     <string name="expense_list_empty_description">Thêm bản ghi hoặc điều chỉnh điều kiện lọc</string>
@@ -159,28 +149,24 @@
     <string name="expense_list_filtered_count">Kết quả lọc: %d bản ghi</string>
     <string name="common_search">Tìm kiếm</string>
     <string name="common_filter">Lọc</string>
-    
-    <!-- Thống kê chi tiêu -->
+    <!-- Expense Statistics -->
     <string name="expense_stats_count">Tổng số bản ghi</string>
     <string name="expense_stats_total">Tổng số tiền</string>
     <string name="expense_stats_average">Trung bình</string>
     <string name="expense_stats_median">Trung vị</string>
     <string name="expense_stats_range">Khoảng tiền</string>
-    
-    <!-- Bảng chi tiêu -->
+    <!-- Expense Table -->
     <string name="expense_type">Danh mục</string>
     <string name="expense_remark">Ghi chú</string>
     <string name="expense_amount">Số tiền</string>
-    
-    <!-- Chung -->
+    <!-- Common -->
     <string name="common_loading">Đang tải…</string>
     <string name="common_error">Lỗi</string>
     <string name="common_retry">Thử lại</string>
     <string name="common_refresh">Làm mới</string>
     <string name="common_more_functions">Chức năng khác</string>
     <string name="common_actions">Thao tác</string>
-    
-    <!-- Thêm chi tiêu -->
+    <!-- Add Expense -->
     <string name="add_expense_title">Ghi chép</string>
     <string name="add_expense_type_label">Danh mục *</string>
     <string name="add_expense_type_hint">Chọn danh mục</string>
@@ -196,8 +182,7 @@
     <string name="add_expense_validation_amount_invalid">Số tiền phải lớn hơn 0</string>
     <string name="add_expense_validation_date_required">Vui lòng chọn ngày</string>
     <string name="edit_expense_title">Chỉnh sửa chi tiêu</string>
-    
-    <!-- Nhận diện thông minh AI -->
+    <!-- AI Expense Recognition -->
     <string name="ai_expense_title">Ghi chép thông minh</string>
     <string name="ai_expense_select_images">Chọn hình ảnh</string>
     <string name="ai_expense_add_images">Thêm hình ảnh</string>
@@ -229,8 +214,7 @@
     <string name="ai_expense_select_image_source">Chọn nguồn hình ảnh</string>
     <string name="ai_expense_take_photo">Chụp ảnh</string>
     <string name="ai_expense_choose_from_gallery">Chọn từ thư viện</string>
-    
-    <!-- Cài đặt AI -->
+    <!-- AI Settings -->
     <string name="settings_ai_title">Cài đặt AI</string>
     <string name="settings_ai_api_key">Khóa API SiliconFlow</string>
     <string name="settings_ai_api_key_hint">Nhập khóa API</string>
@@ -238,8 +222,7 @@
     <string name="settings_ai_get_api_key">Chưa có khóa? Lấy ngay một khóa</string>
     <string name="settings_ai_api_key_saved">Đã lưu khóa API</string>
     <string name="ai_expense_entry_description">Chụp ảnh hoặc nhập văn bản để ghi chép nhanh</string>
-    
-    <!-- Quản lý ngân sách -->
+    <!-- Budget Management -->
     <string name="budget_enable_title">Bật quản lý ngân sách</string>
     <string name="budget_enable_description">Thiết lập ngân sách hàng tháng để lập kế hoạch chi tiêu hợp lý</string>
     <string name="budget_enable_button">Bật ngân sách</string>
@@ -259,14 +242,13 @@
     <string name="budget_alert_normal_message">Còn lại %1$s, hạn mức khả dụng %2$.0f%%</string>
     <string name="budget_alert_warning_title">Cảnh báo ngân sách</string>
     <string name="budget_alert_warning_message">Còn lại %1$s (%2$.0f%%), hãy chú ý kiểm soát chi tiêu</string>
-    <string name="common_save">Lưu</string>
-    <string name="common_cancel">Hủy</string>
     <string name="budget_alert_over_title">Vượt quá ngân sách</string>
     <string name="budget_alert_over_message">Đã chi vượt mức %1$s, vui lòng lập kế hoạch hợp lý</string>
+    <string name="common_save">Lưu</string>
+    <string name="common_cancel">Hủy</string>
     <string name="budget_error_invalid_limit">Vui lòng nhập số tiền ngân sách hợp lệ</string>
     <string name="budget_error_invalid_threshold">Tỷ lệ cảnh báo phải nằm trong khoảng từ 0-100</string>
-    
-    <!-- Biểu đồ -->
+    <!-- Charts -->
     <string name="charts_title">Phân tích thống kê</string>
     <string name="statistics_summary">Tổng quan thống kê</string>
     <string name="count">Số bản ghi</string>
@@ -287,8 +269,7 @@
     <string name="custom_range">Tùy chỉnh</string>
     <string name="close">Đóng</string>
     <string name="retry">Thử lại</string>
-    
-    <!-- Thứ trong tuần -->
+    <!-- Weekdays -->
     <string name="sunday">Chủ Nhật</string>
     <string name="monday">Thứ Hai</string>
     <string name="tuesday">Thứ Ba</string>
@@ -303,8 +284,7 @@
     <string name="thursday_short">T5</string>
     <string name="friday_short">T6</string>
     <string name="saturday_short">T7</string>
-
-    <!-- Nhập/Xuất dữ liệu -->
+    <!-- Data Import/Export -->
     <string name="data_import_export">Nhập/Xuất</string>
     <string name="data_import_export_description">Xuất hoặc nhập dữ liệu hóa đơn định dạng Excel</string>
     <string name="export_data">Xuất dữ liệu</string>
@@ -331,12 +311,10 @@
     <string name="excel_header_remark">Ghi chú</string>
     <string name="permission_storage_required">Cần quyền lưu trữ</string>
     <string name="no_records_to_export">Không có bản ghi nào để xuất</string>
-
-    <!-- Phản hồi -->
+    <!-- Feedback -->
     <string name="feedback_title">Phản hồi ý kiến</string>
     <string name="feedback_description">Chia sẻ gợi ý của bạn để giúp chúng tôi cải thiện</string>
-
-    <!-- Xác thực người dùng -->
+    <!-- Authentication -->
     <string name="auth_login_title">Đăng nhập</string>
     <string name="auth_username_label">Tên đăng nhập</string>
     <string name="auth_username_hint">Vui lòng nhập tên đăng nhập</string>
@@ -359,8 +337,7 @@
     <string name="membership_title">Tài khoản</string>
     <string name="auth_logged_in">Đã đăng nhập</string>
     <string name="auth_skip_login">Bỏ qua</string>
-
-    <!-- Kiểm tra sức khỏe hệ thống -->
+    <!-- Health Check -->
     <string name="health_check_channel_name">Trạng thái kết nối máy chủ</string>
     <string name="health_check_channel_description">Giám sát kết nối máy chủ</string>
     <string name="health_check_running">Đang giám sát máy chủ</string>
@@ -368,8 +345,7 @@
     <string name="server_connection_error">Kết nối thất bại</string>
     <string name="server_connection_error_message">Không thể kết nối với máy chủ, vui lòng kiểm tra mạng</string>
     <string name="server_connection_restored">Đã khôi phục kết nối</string>
-
-    <!-- Bộ chọn màu -->
+    <!-- Color Picker -->
     <string name="color_picker_title">Chọn màu chủ đề</string>
     <string name="color_picker_search_hint">Tìm kiếm màu…</string>
     <string name="current_theme_color">Màu chủ đề hiện tại</string>
@@ -387,39 +363,34 @@
     <string name="color_group_brown">Hệ Nâu</string>
     <string name="color_group_gray">Hệ Xám</string>
     <string name="color_group_special">Hệ Màu đặc biệt</string>
-
-    <!-- Tên màu - Đỏ -->
+    <!-- Color Names - Red -->
     <string name="color_red_light">Đỏ nhạt</string>
     <string name="color_red_bright">Đỏ tươi</string>
     <string name="color_red_pure">Đỏ thuần</string>
     <string name="color_red_standard">Đỏ tiêu chuẩn</string>
     <string name="color_red_deep">Đỏ thẫm</string>
     <string name="color_red_dark">Đỏ sẫm</string>
-
-    <!-- Tên màu - Cam -->
+    <!-- Color Names - Orange -->
     <string name="color_orange_light">Cam nhạt</string>
     <string name="color_orange_bright">Cam tươi</string>
     <string name="color_orange_pure">Cam thuần</string>
     <string name="color_orange_standard">Cam tiêu chuẩn</string>
     <string name="color_orange_deep">Cam đậm</string>
     <string name="color_orange_dark">Cam sẫm</string>
-
-    <!-- Tên màu - Vàng -->
+    <!-- Color Names - Yellow -->
     <string name="color_yellow_light">Vàng nhạt</string>
     <string name="color_yellow_bright">Vàng tươi</string>
     <string name="color_yellow_pure">Vàng thuần</string>
     <string name="color_yellow_amber">Vàng hổ phách</string>
     <string name="color_yellow_gold">Màu vàng kim</string>
     <string name="color_yellow_standard">Vàng tiêu chuẩn</string>
-
-    <!-- Tên màu - Vàng xanh -->
+    <!-- Color Names - Yellow Green -->
     <string name="color_yellow_green_light">Vàng xanh nhạt</string>
     <string name="color_yellow_green_bright">Vàng xanh tươi</string>
     <string name="color_yellow_green_pure">Vàng xanh thuần</string>
     <string name="color_yellow_green_standard">Vàng xanh tiêu chuẩn</string>
     <string name="color_yellow_green_deep">Vàng xanh đậm</string>
-
-    <!-- Tên màu - Xanh lá -->
+    <!-- Color Names - Green -->
     <string name="color_green_light">Xanh lá nhạt</string>
     <string name="color_green_bright">Xanh lá tươi</string>
     <string name="color_green_pure">Xanh lá thuần</string>
@@ -427,16 +398,14 @@
     <string name="color_green_deep">Xanh lá đậm</string>
     <string name="color_green_dark">Xanh lá sẫm</string>
     <string name="color_green_forest">Xanh rừng</string>
-
-    <!-- Tên màu - Lục lam -->
+    <!-- Color Names - Cyan -->
     <string name="color_cyan_light">Lục lam nhạt</string>
     <string name="color_cyan_bright">Lục lam tươi</string>
     <string name="color_cyan_pure">Lục lam thuần</string>
     <string name="color_cyan_standard">Lục lam tiêu chuẩn</string>
     <string name="color_cyan_deep">Lục lam đậm</string>
     <string name="color_cyan_dark">Lục lam sẫm</string>
-
-    <!-- Tên màu - Xanh lam -->
+    <!-- Color Names - Blue -->
     <string name="color_blue_light">Xanh lam nhạt</string>
     <string name="color_blue_bright">Xanh lam tươi</string>
     <string name="color_blue_pure">Xanh lam thuần</string>
@@ -444,39 +413,34 @@
     <string name="color_blue_standard">Xanh lam tiêu chuẩn</string>
     <string name="color_blue_deep">Xanh lam đậm</string>
     <string name="color_blue_dark">Xanh lam sẫm</string>
-
-    <!-- Tên màu - Chàm -->
+    <!-- Color Names - Indigo -->
     <string name="color_indigo_light">Chàm nhạt</string>
     <string name="color_indigo_bright">Chàm tươi</string>
     <string name="color_indigo_pure">Chàm thuần</string>
     <string name="color_indigo_standard">Chàm tiêu chuẩn</string>
     <string name="color_indigo_deep">Chàm đậm</string>
     <string name="color_indigo_dark">Chàm sẫm</string>
-
-    <!-- Tên màu - Tím -->
+    <!-- Color Names - Purple -->
     <string name="color_purple_light">Tím nhạt</string>
     <string name="color_purple_bright">Tím tươi</string>
     <string name="color_purple_pure">Tím thuần</string>
     <string name="color_purple_standard">Tím tiêu chuẩn</string>
     <string name="color_purple_deep">Tím đậm</string>
     <string name="color_purple_dark">Tím sẫm</string>
-
-    <!-- Tên màu - Hồng -->
+    <!-- Color Names - Pink -->
     <string name="color_pink_light">Hồng nhạt</string>
     <string name="color_pink_bright">Hồng tươi</string>
     <string name="color_pink_pure">Hồng thuần</string>
     <string name="color_pink_standard">Hồng tiêu chuẩn</string>
     <string name="color_pink_deep">Hồng đậm</string>
-
-    <!-- Tên màu - Nâu -->
+    <!-- Color Names - Brown -->
     <string name="color_brown_light">Nâu nhạt</string>
     <string name="color_brown_bright">Nâu tươi</string>
     <string name="color_brown_pure">Nâu thuần</string>
     <string name="color_brown_standard">Nâu tiêu chuẩn</string>
     <string name="color_brown_deep">Nâu đậm</string>
     <string name="color_brown_dark">Nâu sẫm</string>
-
-    <!-- Tên màu - Xám -->
+    <!-- Color Names - Gray -->
     <string name="color_gray_very_light">Xám rất nhạt</string>
     <string name="color_gray_light">Xám nhạt</string>
     <string name="color_gray_bright">Xám sáng</string>
@@ -485,8 +449,7 @@
     <string name="color_gray_standard">Xám</string>
     <string name="color_gray_deep">Xám đậm</string>
     <string name="color_gray_dark">Xám sẫm</string>
-
-    <!-- Tên màu - Đặc biệt -->
+    <!-- Color Names - Special -->
     <string name="color_special_coral_light">San hô nhạt</string>
     <string name="color_special_coral">Đỏ san hô</string>
     <string name="color_special_coral_bright">San hô tươi</string>
@@ -504,13 +467,11 @@
     <string name="color_special_neon_blue">Xanh lam neon</string>
     <string name="color_special_neon_pink">Hồng neon</string>
     <string name="color_special_neon_orange">Cam neon</string>
-    
-    <!-- Định dạng ngày tháng -->
+    <!-- Date Formatting -->
     <string name="date_today">Hôm nay</string>
     <string name="date_yesterday">Hôm qua</string>
     <string name="date_days_ago">%d ngày trước</string>
-    
-    <!-- Đồng bộ LAN -->
+    <!-- LAN Sync -->
     <string name="lan_sync_title">Đồng bộ mạng LAN</string>
     <string name="sync_options">Tùy chọn đồng bộ</string>
     <string name="search_nearby_devices">Tìm kiếm thiết bị gần đây</string>
@@ -535,8 +496,7 @@
     <string name="reject">Từ chối</string>
     <string name="incoming_sync_request_title">Nhận yêu cầu đồng bộ</string>
     <string name="incoming_sync_request_message">Đang muốn đồng bộ dữ liệu với thiết bị của bạn</string>
-    
-    <!-- Giấy phép mã nguồn mở -->
+    <!-- Open Source Licenses -->
     <string name="open_source_licenses">Giấy phép mã nguồn mở</string>
     <string name="open_source_licenses_description">Xem giấy phép của các thành phần bên thứ ba</string>
 </resources>
