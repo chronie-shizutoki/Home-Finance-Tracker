@@ -1,228 +1,228 @@
 {
   "app": {
-    "title": "Home Finance Tracker",
-    "export": "Export Data",
-    "notFound": "Page Not Found",
-    "pageNotFound": "The page you're looking for doesn't exist",
-    "backToHome": "Back to Home",
-    "firstPage": "First Page",
-    "previousPage": "Previous Page",
-    "page": "Page {page}",
-    "nextPage": "Next Page",
-    "lastPage": "Last Page",
-    "loading": "Loading..."
+    "title": "家計簿",
+    "export": "データをエクスポート",
+    "notFound": "ページが見つかりません",
+    "pageNotFound": "お探しのページは存在しません",
+    "backToHome": "ホームに戻る",
+    "firstPage": "最初のページ",
+    "previousPage": "前のページ",
+    "page": "ページ {page}",
+    "nextPage": "次のページ",
+    "lastPage": "最後のページ",
+    "loading": "読み込み中…"
   },
   "home": {
-    "noDataForExport": "No data available for export"
+    "noDataForExport": "エクスポートするデータがありません"
   },
   "expense": {
-    "noRecords": "No expenses found",
-    "record": "Expense Record",
-    "unknownError": "An error occurred",
-    "selectType": "Select Category",
-    "inputAmount": "Enter Amount",
-    "selectDate": "Select Date",
-    "enterRemark": "Add a note (optional)",
-    "confirm": "Confirm",
-    "serverError": "Server error",
-    "type": "Category",
-    "amount": "Amount",
-    "date": "Date",
-    "remark": "Notes",
-    "addSuccess": "Successfully added {count} expenses",
-    "aiAddRecord": "AI Record",
-    "aiReport": "AI Q&A",
-    "edit": "Edit Expense",
-    "updateFailed": "Failed to update expense, please try again later",
-    "updateSuccess": "Expense updated successfully",
-    "deleteConfirm": "Delete Expense",
-    "deleteMessage": "Are you sure you want to delete this expense?",
-    "deleteSuccess": "Expense deleted successfully",
-    "deleteFailed": "Failed to delete expense, please try again later",
-    "dailyExpense": "Daily Spending",
-    "addDialogTitle": "Add Expense",
-    "addRecord": "Add New Record",
-    "amountRequired": "Amount is required",
+    "noRecords": "支出記録がありません",
+    "record": "支出記録",
+    "unknownError": "不明なエラーが発生しました",
+    "selectType": "カテゴリを選択",
+    "inputAmount": "金額を入力",
+    "selectDate": "日付を選択",
+    "enterRemark": "メモを追加（オプション）",
+    "confirm": "確認",
+    "serverError": "サーバーエラー",
+    "type": "カテゴリ",
+    "amount": "金額",
+    "date": "日付",
+    "remark": "メモ",
+    "addSuccess": "{count}件の支出を追加しました",
+    "aiAddRecord": "AIスマート記帳",
+    "aiReport": "AI質問",
+    "edit": "支出を編集",
+    "updateFailed": "更新に失敗しました。再試行してください。",
+    "updateSuccess": "支出が更新されました",
+    "deleteConfirm": "削除の確認",
+    "deleteMessage": "この支出記録を削除してもよろしいですか？",
+    "deleteSuccess": "支出が削除されました",
+    "deleteFailed": "削除に失敗しました。再試行してください。",
+    "dailyExpense": "日別支出",
+    "addDialogTitle": "記録を追加",
+    "addRecord": "新規記録",
+    "amountRequired": "金額を入力してください",
     "empty": {
-      "title": "No Expenses",
-      "description": "Add new expenses or adjust your filters",
-      "reset": "Reset Filters"
+      "title": "支出記録がありません",
+      "description": "記録を追加するか、フィルター条件を調整してください",
+      "reset": "フィルターをリセット"
     },
     "search": {
-      "title": "Search Expenses",
-      "minAmountPlaceholder": "Min amount",
-      "maxAmountPlaceholder": "Max amount",
-      "keywordPlaceholder": "Search notes...",
-      "month": "Month",
-      "type": "Category",
-      "allType": "All Categories",
-      "sort": "Sort By",
-      "amountRange": "Amount Range",
-      "keyword": "Search",
-      "reset": "Reset"
+      "title": "支出を検索",
+      "minAmountPlaceholder": "最小金額",
+      "maxAmountPlaceholder": "最大金額",
+      "keywordPlaceholder": "メモを検索…",
+      "month": "月",
+      "type": "カテゴリ",
+      "allType": "すべてのカテゴリ",
+      "sort": "並べ替え",
+      "amountRange": "金額範囲",
+      "keyword": "検索",
+      "reset": "リセット"
     },
-    "noDataTitle": "No Results",
-    "noDataMessage": "Try adjusting your filters or add new expenses",
+    "noDataTitle": "結果がありません",
+    "noDataMessage": "フィルターを調整するか、新しい記録を追加してください",
     "sort": {
-      "dateAsc": "Date ↑",
-      "dateDesc": "Date ↓",
-      "amountAsc": "Amount ↑",
-      "amountDesc": "Amount ↓"
+      "dateAsc": "日付 古い順",
+      "dateDesc": "日付 新しい順",
+      "amountAsc": "金額 低い順",
+      "amountDesc": "金額 高い順"
     },
     "stats": {
-      "rowCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "amountRange": "Amount Range"
+      "rowCount": "記録件数",
+      "totalAmount": "合計金額",
+      "averageAmount": "平均額",
+      "medianAmount": "中央値",
+      "amountRange": "金額範囲"
     },
     "largeExpense": {
-      "warning": "Large expense detected. Please confirm this is correct.",
-      "confirm": "I Understand"
+      "warning": "大額の支出が検出されました。正しいか確認してください。",
+      "confirm": "確認"
     },
     "common": {
-      "requestCanceled": "Request cancelled",
-      "networkError": "Network error. Please check your connection"
+      "requestCanceled": "リクエストがキャンセルされました",
+      "networkError": "ネットワークエラー。接続を確認してください。"
     },
     "columns": {
-      "time": "Time",
-      "name": "Category"
+      "time": "日付",
+      "name": "カテゴリ"
     }
   },
   "common": {
-    "action": "Actions",
-    "cancel": "Cancel",
-    "submit": "Submit",
-    "loadFailed": "Failed to load data, please try again later",
-    "edit": "Edit",
-    "delete": "Delete",
-    "to": "to",
-    "currency": "USD",
-    "currencySymbol": "$",
-    "sunday": "Sunday",
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "date": "Date",
-    "date_today": "Today",
-    "date_yesterday": "Yesterday",
-    "date_days_ago": "{days} days ago"
+    "action": "アクション",
+    "cancel": "キャンセル",
+    "submit": "送信",
+    "loadFailed": "データの読み込みに失敗しました。再試行してください。",
+    "edit": "編集",
+    "delete": "削除",
+    "to": "～",
+    "currency": "JPY",
+    "currencySymbol": "¥",
+    "sunday": "日曜日",
+    "monday": "月曜日",
+    "tuesday": "火曜日",
+    "wednesday": "水曜日",
+    "thursday": "木曜日",
+    "friday": "金曜日",
+    "saturday": "土曜日",
+    "date": "日付",
+    "date_today": "今日",
+    "date_yesterday": "昨日",
+    "date_days_ago": "{days}日前"
   },
   "spending": {
-    "monthlyProgress": "Monthly Spending Progress",
-    "exceeded": "Over Budget",
-    "dailyAverage": "Daily Average",
-    "recommendedDaily": "Recommended Daily",
+    "monthlyProgress": "月間支出の進捗",
+    "exceeded": "予算超過",
+    "dailyAverage": "1日あたりの平均支出",
+    "recommendedDaily": "推奨される1日あたりの支出",
     "settings": {
-      "title": "Budget Settings",
-      "on": "Enable Budget",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "monthlyLimit": "Monthly Budget",
-      "enterLimit": "Enter monthly budget",
-      "warningThreshold": "Warning Threshold",
-      "enterThreshold": "Enter warning threshold",
-      "disabledNotice": "Enable budget to track your monthly spending",
-      "pleaseSetLimit": "Please set your monthly budget"
+      "title": "予算設定",
+      "on": "予算を有効にする",
+      "enabled": "有効",
+      "disabled": "無効",
+      "monthlyLimit": "月間予算",
+      "enterLimit": "月額予算を入力",
+      "warningThreshold": "警告しきい値",
+      "enterThreshold": "警告のしきい値を入力",
+      "disabledNotice": "予算を有効にして月間支出を追跡",
+      "pleaseSetLimit": "月間予算を設定してください"
     },
     "status": {
-      "disabled": "Budget disabled",
-      "normal": "On track",
-      "nearLimit": "Approaching budget",
-      "overLimit": "Over budget"
+      "disabled": "予算は無効です",
+      "normal": "順調",
+      "nearLimit": "予算に接近",
+      "overLimit": "予算超過"
     },
     "alert": {
       "normal": {
-        "title": "On Track",
-        "description": "Remaining: {remaining} ({percentage}% used)"
+        "title": "予算は正常です",
+        "description": "残り：{remaining}（{percentage}%使用）"
       },
       "nearLimit": {
-        "title": "Approaching Budget",
-        "description": "Remaining: {remaining} ({percentage}% used). Consider slowing down."
+        "title": "予算に接近",
+        "description": "残り：{remaining}（{percentage}%使用）。支出を抑えるように注意してください。"
       },
       "overLimit": {
-        "title": "Over Budget",
-        "description": "Over budget by {amount}. Please review your spending."
+        "title": "予算超過",
+        "description": "予算を{amount}超過しています。支出を見直してください。"
       }
     },
     "enablePrompt": {
-      "title": "Track Monthly Spending",
-      "description": "Set a monthly budget to track your spending and get alerts when you're close to your limit.",
-      "button": "Enable Budget",
-      "enabled": "Budget enabled successfully"
+      "title": "月間支出を追跡",
+      "description": "月間予算を設定して支出を追跡し、限度に近づいたら警告を受け取ります。",
+      "button": "予算を有効にする",
+      "enabled": "予算が有効になりました"
     }
   },
   "function": {
-    "primary": "Main Features",
-    "aiFeatures": "AI Features"
+    "primary": "主要機能",
+    "aiFeatures": "AI機能"
   },
   "ai": {
     "report": {
-      "filterTitle": "Data Filter",
-      "statsPreview": "Data Statistics Preview",
-      "totalCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "minAmount": "Min Amount",
-      "maxAmount": "Max Amount",
-      "loading": "Loading..."
+      "filterTitle": "データフィルター",
+      "statsPreview": "データ統計プレビュー",
+      "totalCount": "総記録数",
+      "totalAmount": "総金額",
+      "averageAmount": "平均額",
+      "medianAmount": "中央値",
+      "minAmount": "最小金額",
+      "maxAmount": "最大金額",
+      "loading": "読み込み中…"
     }
   },
   "avatar": {
-    "cropTitle": "Crop Avatar",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "placeholder": "Click to upload avatar",
+    "cropTitle": "アバターをトリミング",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "placeholder": "クリックしてアバターをアップロード",
     "error": {
-      "sizeLimit": "Avatar size cannot exceed {maxSize}MB",
-      "invalidType": "Please select a valid image file",
-      "uploadFailed": "Avatar upload failed, please try again later"
+      "sizeLimit": "アバターサイズは{maxSize}MBを超えることはできません",
+      "invalidType": "有効な画像ファイルを選択してください",
+      "uploadFailed": "アバターのアップロードに失敗しました。再試行してください。"
     }
   },
   "membership": {
-    "title": "User Management",
-    "username": "Username",
-    "loginOrRegister": "Login / Register",
-    "logout": "Logout",
-    "usernamePlaceholder": "Enter your username",
+    "title": "アカウント",
+    "username": "ユーザー名",
+    "loginOrRegister": "ログイン/登録",
+    "logout": "ログアウト",
+    "usernamePlaceholder": "ユーザー名を入力",
     "error": {
-      "requiredUsername": "Please enter username",
-      "usernameFormat": "Username can only contain uppercase and lowercase letters",
-      "usernameLength": "Username length should be between 1-20 characters",
-      "loginFailed": "Login failed, please try again later"
+      "requiredUsername": "ユーザー名を入力してください",
+      "usernameFormat": "ユーザー名は英字のみ使用できます",
+      "usernameLength": "ユーザー名は1～20文字でなければなりません",
+      "loginFailed": "ログインに失敗しました。再試行してください。"
     },
     "success": {
-      "login": "Login successful",
-      "logout": "Logged out",
-      "avatarUploaded": "Avatar uploaded successfully"
+      "login": "ログイン成功",
+      "logout": "ログアウトしました",
+      "avatarUploaded": "アバターをアップロードしました"
     }
   },
   "export": {
-    "monthData": "Export This Month's Data",
-    "failed": "Export failed, please try again later"
+    "monthData": "今月のデータをエクスポート",
+    "failed": "エクスポートに失敗しました。再試行してください。"
   },
   "error": {
-    "dataInitializationFailed": "Failed to initialize data, please try again"
+    "dataInitializationFailed": "データの初期化に失敗しました。再試行してください。"
   },
   "chart": {
-    "title": "Spending Analysis",
-    "bar": "Bar Chart",
-    "line": "Line Chart",
-    "doughnut": "Doughnut Chart",
-    "radar": "Radar Chart",
-    "categoryAnalysis": "Spending by Category",
-    "categoryPercentage": "Category Breakdown",
-    "trendAnalysis": "Spending Trend",
-    "weekdayAnalysis": "Spending by Day of Week"
+    "title": "支出分析",
+    "bar": "棒グラフ",
+    "line": "折れ線グラフ",
+    "doughnut": "ドーナツグラフ",
+    "radar": "レーダーチャート",
+    "categoryAnalysis": "カテゴリ別支出分析",
+    "categoryPercentage": "カテゴリ別内訳",
+    "trendAnalysis": "支出トレンド",
+    "weekdayAnalysis": "曜日別支出分析"
   },
   "import": {
-    "title": "Import Data",
-    "success": "Data imported successfully",
-    "failed": "Failed to import data",
-    "refreshNotice": "(Auto-refresh in 3 seconds)"
+    "title": "データのインポート",
+    "success": "データのインポートに成功しました",
+    "failed": "データのインポートに失敗しました",
+    "refreshNotice": "（3秒後に自動更新）"
   }
 }
