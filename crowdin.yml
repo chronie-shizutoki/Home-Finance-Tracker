@@ -1,4 +1,4 @@
 files:
   - source: /android/app/src/main/res/values/strings.xml
     translation: /android/app/src/main/res/values-%android_code%/strings.xml
-    multilingual: 1
+    type: android
