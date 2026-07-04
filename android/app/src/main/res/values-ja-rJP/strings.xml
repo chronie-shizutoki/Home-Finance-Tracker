@@ -1,11 +1,10 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">家計簿</string>
     <string name="title_activity_main">家計簿</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
-    
-    <!-- 設定 -->
+    <!-- Settings -->
     <string name="settings">設定</string>
     <string name="language_settings">言語設定</string>
     <string name="update_avatar_failed">アバターの更新に失敗しました</string>
@@ -20,8 +19,7 @@
     <string name="dynamic_color_enabled">ダイナミックカラーがオンです</string>
     <string name="dynamic_color_disabled">ダイナミックカラーがオフです</string>
     <string name="primary_color_updated">プライマリーカラーを更新しました</string>
-    
-    <!-- 共通 -->
+    <!-- Common -->
     <string name="back">戻る</string>
     <string name="cancel">キャンセル</string>
     <string name="confirm">確認</string>
@@ -31,22 +29,18 @@
     <string name="loading">読み込み中…</string>
     <string name="error">エラー</string>
     <string name="success">成功</string>
-    
-    <!-- 通貨 -->
+    <!-- Currency -->
     <string name="currency_symbol">¥</string>
     <string name="currency_format" formatted="false">%s%.2f</string>
     <string name="currency_format_no_decimal" formatted="false">%s%.0f</string>
-    
-    <!-- ウェルカムページ -->
+    <!-- Welcome -->
     <string name="welcome_message">家計簿へようこそ</string>
     <string name="getting_started">はじめる</string>
-    
-    <!-- 開発者向けオプション -->
+    <!-- Developer Options -->
     <string name="developer_options">開発者向けオプション</string>
     <string name="developer_mode">開発者モード</string>
     <string name="developer_mode_description">有効にすると、ローカルデータベースなどの高度な機能にアクセスできます</string>
-    
-    <!-- データベーステスト -->
+    <!-- Database Test -->
     <string name="database_test">ローカルデータベース</string>
     <string name="add_test_data">テストデータを追加</string>
     <string name="clear_data">すべてのデータを消去</string>
@@ -58,8 +52,7 @@
     <string name="no_data">データなし</string>
     <string name="synced">同期済み</string>
     <string name="not_synced">未同期</string>
-    
-    <!-- 同期 -->
+    <!-- Sync -->
     <string name="sync_title">データ同期</string>
     <string name="sync_status">同期ステータス</string>
     <string name="sync_status_idle">待機中</string>
@@ -70,10 +63,6 @@
     <string name="sync_lan">ローカルネットワーク</string>
     <string name="sync_bluetooth">Bluetooth</string>
     <string name="sync_nfc">NFC</string>
-    <string name="device_sync_title">%s同期</string>
-    <string name="device_sync_searching">%sデバイスを検索中…</string>
-    <string name="device_sync_searching_devices">デバイスを検索中…</string>
-    <string name="device_sync_found_devices">%d台のデバイスが見つかりました：</string>
     <string name="sync_status_success">成功</string>
     <string name="sync_status_failed">失敗</string>
     <string name="sync_status_conflict">競合</string>
@@ -88,19 +77,21 @@
     <string name="clear_failed">消去に失敗しました：%s</string>
     <string name="load_success">データの読み込みに成功しました</string>
     <string name="load_failed">読み込みに失敗しました：%s</string>
+    <string name="device_sync_title">%s同期</string>
+    <string name="device_sync_searching">%sデバイスを検索中…</string>
+    <string name="device_sync_searching_devices">デバイスを検索中…</string>
+    <string name="device_sync_found_devices">%d台のデバイスが見つかりました：</string>
     <string name="device_sync_connecting">%sに接続中…</string>
     <string name="device_sync_connect_failed">接続に失敗しました</string>
     <string name="device_sync_synchronizing">データを同期中…</string>
     <string name="device_sync_success">同期が完了しました</string>
     <string name="device_sync_failed">同期に失敗しました：%s</string>
-    
-    <!-- 削除確認ダイアログ -->
+    <!-- Delete Confirmation Dialog -->
     <string name="delete_confirm_title">削除の確認</string>
     <string name="delete_confirm_message">この支出記録を削除してもよろしいですか？</string>
     <string name="delete_second_confirm_title">削除の確認</string>
     <string name="delete_second_confirm_message">この操作は元に戻せません。本当に削除しますか？</string>
-    
-    <!-- 支出カテゴリ -->
+    <!-- Expense Types -->
     <string name="expense_type_daily_goods">日用品</string>
     <string name="expense_type_luxury">ぜいたく品</string>
     <string name="expense_type_communication">通信費</string>
@@ -129,8 +120,7 @@
     <string name="expense_type_household_appliances">家電製品</string>
     <string name="expense_type_hardware">五金</string>
     <string name="expense_type_clothing">衣類</string>
-    
-    <!-- 支出リスト -->
+    <!-- Expense List -->
     <string name="expense_list_title">支出</string>
     <string name="expense_list_empty">支出記録がありません</string>
     <string name="expense_list_empty_description">記録を追加するか、フィルター条件を調整してください</string>
@@ -159,28 +149,24 @@
     <string name="expense_list_filtered_count">絞り込み結果：%d 件</string>
     <string name="common_search">検索</string>
     <string name="common_filter">フィルター</string>
-    
-    <!-- 支出統計 -->
+    <!-- Expense Statistics -->
     <string name="expense_stats_count">記録件数</string>
     <string name="expense_stats_total">合計金額</string>
     <string name="expense_stats_average">平均額</string>
     <string name="expense_stats_median">金額の中央値</string>
     <string name="expense_stats_range">金額範囲</string>
-    
-    <!-- 支出表 -->
+    <!-- Expense Table -->
     <string name="expense_type">カテゴリ</string>
     <string name="expense_remark">メモ</string>
     <string name="expense_amount">金額</string>
-    
-    <!-- 共通 -->
+    <!-- Common -->
     <string name="common_loading">読み込み中…</string>
     <string name="common_error">エラー</string>
     <string name="common_retry">再試行</string>
     <string name="common_refresh">更新</string>
     <string name="common_more_functions">その他の機能</string>
     <string name="common_actions">アクション</string>
-    
-    <!-- 支出を追加 -->
+    <!-- Add Expense -->
     <string name="add_expense_title">記録する</string>
     <string name="add_expense_type_label">カテゴリ *</string>
     <string name="add_expense_type_hint">カテゴリを選択</string>
@@ -196,8 +182,7 @@
     <string name="add_expense_validation_amount_invalid">金額は0より大きい必要があります</string>
     <string name="add_expense_validation_date_required">日付を選択してください</string>
     <string name="edit_expense_title">支出を編集</string>
-    
-    <!-- AI スマート認識 -->
+    <!-- AI Expense Recognition -->
     <string name="ai_expense_title">スマート記帳</string>
     <string name="ai_expense_select_images">画像を選択</string>
     <string name="ai_expense_add_images">画像を追加</string>
@@ -229,8 +214,7 @@
     <string name="ai_expense_select_image_source">画像の選択元</string>
     <string name="ai_expense_take_photo">写真を撮る</string>
     <string name="ai_expense_choose_from_gallery">アルバムから選択</string>
-    
-    <!-- AI 設定 -->
+    <!-- AI Settings -->
     <string name="settings_ai_title">AI設定</string>
     <string name="settings_ai_api_key">SiliconFlow APIキー</string>
     <string name="settings_ai_api_key_hint">APIキーを入力</string>
@@ -238,8 +222,7 @@
     <string name="settings_ai_get_api_key">キーをお持ちでない場合は、こちらから取得</string>
     <string name="settings_ai_api_key_saved">APIキーを保存しました</string>
     <string name="ai_expense_entry_description">写真を撮るかテキストを入力してすばやく記帳</string>
-    
-    <!-- 予算管理 -->
+    <!-- Budget Management -->
     <string name="budget_enable_title">予算管理を有効にする</string>
     <string name="budget_enable_description">月間予算を設定し、支出を計画的に管理します</string>
     <string name="budget_enable_button">予算を有効にする</string>
@@ -259,14 +242,13 @@
     <string name="budget_alert_normal_message">残り %1$s、利用可能額 %2$.0f%%</string>
     <string name="budget_alert_warning_title">予算警告</string>
     <string name="budget_alert_warning_message">残り %1$s（%2$.0f%%）、支出を抑えるように注意してください</string>
-    <string name="common_save">保存</string>
-    <string name="common_cancel">キャンセル</string>
     <string name="budget_alert_over_title">予算超過</string>
     <string name="budget_alert_over_message">%1$s 超過しています。計画を見直してください</string>
+    <string name="common_save">保存</string>
+    <string name="common_cancel">キャンセル</string>
     <string name="budget_error_invalid_limit">有効な予算金額を入力してください</string>
     <string name="budget_error_invalid_threshold">警告のしきい値は0〜100の間で設定してください</string>
-    
-    <!-- グラフ -->
+    <!-- Charts -->
     <string name="charts_title">統計分析</string>
     <string name="statistics_summary">統計の概要</string>
     <string name="count">記録件数</string>
@@ -287,8 +269,7 @@
     <string name="custom_range">カスタム</string>
     <string name="close">閉じる</string>
     <string name="retry">再試行</string>
-    
-    <!-- 曜日 -->
+    <!-- Weekdays -->
     <string name="sunday">日曜日</string>
     <string name="monday">月曜日</string>
     <string name="tuesday">火曜日</string>
@@ -303,8 +284,7 @@
     <string name="thursday_short">木</string>
     <string name="friday_short">金</string>
     <string name="saturday_short">土</string>
-
-    <!-- データのインポート/エクスポート -->
+    <!-- Data Import/Export -->
     <string name="data_import_export">インポート/エクスポート</string>
     <string name="data_import_export_description">Excel形式の請求データをエクスポートまたはインポートします</string>
     <string name="export_data">データをエクスポート</string>
@@ -331,12 +311,10 @@
     <string name="excel_header_remark">メモ</string>
     <string name="permission_storage_required">ストレージ権限が必要です</string>
     <string name="no_records_to_export">エクスポートする記録がありません</string>
-
-    <!-- フィードバック -->
+    <!-- Feedback -->
     <string name="feedback_title">フィードバック</string>
     <string name="feedback_description">改善に役立てるためにご意見をお聞かせください</string>
-
-    <!-- ユーザー認証 -->
+    <!-- Authentication -->
     <string name="auth_login_title">ログイン</string>
     <string name="auth_username_label">ユーザー名</string>
     <string name="auth_username_hint">ユーザー名を入力してください</string>
@@ -359,8 +337,7 @@
     <string name="membership_title">アカウント</string>
     <string name="auth_logged_in">ログイン済み</string>
     <string name="auth_skip_login">スキップ</string>
-
-    <!-- ヘルスチェック -->
+    <!-- Health Check -->
     <string name="health_check_channel_name">サーバー接続ステータス</string>
     <string name="health_check_channel_description">サーバー接続を監視します</string>
     <string name="health_check_running">サーバーを監視中</string>
@@ -368,8 +345,7 @@
     <string name="server_connection_error">接続エラー</string>
     <string name="server_connection_error_message">サーバーに接続できません。ネットワークを確認してください</string>
     <string name="server_connection_restored">接続が回復しました</string>
-
-    <!-- カラーピッカー -->
+    <!-- Color Picker -->
     <string name="color_picker_title">テーマカラーを選択</string>
     <string name="color_picker_search_hint">色を検索…</string>
     <string name="current_theme_color">現在のテーマカラー</string>
@@ -387,39 +363,34 @@
     <string name="color_group_brown">ブラウン系</string>
     <string name="color_group_gray">グレー系</string>
     <string name="color_group_special">特殊カラー系</string>
-
-    <!-- カラーネーム - レッド -->
+    <!-- Color Names - Red -->
     <string name="color_red_light">ライトレッド</string>
     <string name="color_red_bright">ブライトレッド</string>
     <string name="color_red_pure">ピュアレッド</string>
     <string name="color_red_standard">スタンダードレッド</string>
     <string name="color_red_deep">ディープレッド</string>
     <string name="color_red_dark">ダークレッド</string>
-
-    <!-- カラーネーム - オレンジ -->
+    <!-- Color Names - Orange -->
     <string name="color_orange_light">ライトオレンジ</string>
     <string name="color_orange_bright">ブライトオレンジ</string>
     <string name="color_orange_pure">ピュアオレンジ</string>
     <string name="color_orange_standard">スタンダードオレンジ</string>
     <string name="color_orange_deep">ディープオレンジ</string>
     <string name="color_orange_dark">ダークオレンジ</string>
-
-    <!-- カラーネーム - イエロー -->
+    <!-- Color Names - Yellow -->
     <string name="color_yellow_light">ライトイエロー</string>
     <string name="color_yellow_bright">ブライトイエロー</string>
     <string name="color_yellow_pure">ピュアイエロー</string>
     <string name="color_yellow_amber">アンバーイエロー</string>
     <string name="color_yellow_gold">ゴールド</string>
     <string name="color_yellow_standard">スタンダードイエロー</string>
-
-    <!-- カラーネーム - イエローグリーン -->
+    <!-- Color Names - Yellow Green -->
     <string name="color_yellow_green_light">ライトイエローグリーン</string>
     <string name="color_yellow_green_bright">ブライトイエローグリーン</string>
     <string name="color_yellow_green_pure">ピュアイエローグリーン</string>
     <string name="color_yellow_green_standard">スタンダードイエローグリーン</string>
     <string name="color_yellow_green_deep">ディープイエローグリーン</string>
-
-    <!-- カラーネーム - グリーン -->
+    <!-- Color Names - Green -->
     <string name="color_green_light">ライトグリーン</string>
     <string name="color_green_bright">ブライトグリーン</string>
     <string name="color_green_pure">ピュアグリーン</string>
@@ -427,16 +398,14 @@
     <string name="color_green_deep">ディープグリーン</string>
     <string name="color_green_dark">ダークグリーン</string>
     <string name="color_green_forest">フォレストグリーン</string>
-
-    <!-- カラーネーム - シアン -->
+    <!-- Color Names - Cyan -->
     <string name="color_cyan_light">ライトシアン</string>
     <string name="color_cyan_bright">ブライトシアン</string>
     <string name="color_cyan_pure">ピュアシアン</string>
     <string name="color_cyan_standard">スタンダードシアン</string>
     <string name="color_cyan_deep">ディープシアン</string>
     <string name="color_cyan_dark">ダークシアン</string>
-
-    <!-- カラーネーム - ブルー -->
+    <!-- Color Names - Blue -->
     <string name="color_blue_light">ライトブルー</string>
     <string name="color_blue_bright">ブライトブルー</string>
     <string name="color_blue_pure">ピュアブルー</string>
@@ -444,39 +413,34 @@
     <string name="color_blue_standard">スタンダードブルー</string>
     <string name="color_blue_deep">ディープブルー</string>
     <string name="color_blue_dark">ダークブルー</string>
-
-    <!-- カラーネーム - インディゴ -->
+    <!-- Color Names - Indigo -->
     <string name="color_indigo_light">ライトインディゴ</string>
     <string name="color_indigo_bright">ブライトインディゴ</string>
     <string name="color_indigo_pure">ピュアインディゴ</string>
     <string name="color_indigo_standard">スタンダードインディゴ</string>
     <string name="color_indigo_deep">ディープインディゴ</string>
     <string name="color_indigo_dark">ダークインディゴ</string>
-
-    <!-- カラーネーム - パープル -->
+    <!-- Color Names - Purple -->
     <string name="color_purple_light">ライトパープル</string>
     <string name="color_purple_bright">ブライトパープル</string>
     <string name="color_purple_pure">ピュアパープル</string>
     <string name="color_purple_standard">スタンダードパープル</string>
     <string name="color_purple_deep">ディープパープル</string>
     <string name="color_purple_dark">ダークパープル</string>
-
-    <!-- カラーネーム - ピンク -->
+    <!-- Color Names - Pink -->
     <string name="color_pink_light">ライトピンク</string>
     <string name="color_pink_bright">ブライトピンク</string>
     <string name="color_pink_pure">ピュアピンク</string>
     <string name="color_pink_standard">スタンダードピンク</string>
     <string name="color_pink_deep">ディープピンク</string>
-
-    <!-- カラーネーム - ブラウン -->
+    <!-- Color Names - Brown -->
     <string name="color_brown_light">ライトブラウン</string>
     <string name="color_brown_bright">ブライトブラウン</string>
     <string name="color_brown_pure">ピュアブラウン</string>
     <string name="color_brown_standard">スタンダードブラウン</string>
     <string name="color_brown_deep">ディープブラウン</string>
     <string name="color_brown_dark">ダークブラウン</string>
-
-    <!-- カラーネーム - グレー -->
+    <!-- Color Names - Gray -->
     <string name="color_gray_very_light">ベリーライトグレー</string>
     <string name="color_gray_light">ライトグレー</string>
     <string name="color_gray_bright">ブライトグレー</string>
@@ -485,8 +449,7 @@
     <string name="color_gray_standard">グレー</string>
     <string name="color_gray_deep">ディープグレー</string>
     <string name="color_gray_dark">ダークグレー</string>
-
-    <!-- カラーネーム - 特殊カラー -->
+    <!-- Color Names - Special -->
     <string name="color_special_coral_light">ライトコーラル</string>
     <string name="color_special_coral">コーラルレッド</string>
     <string name="color_special_coral_bright">ブライトコーラル</string>
@@ -504,13 +467,11 @@
     <string name="color_special_neon_blue">ネオンブルー</string>
     <string name="color_special_neon_pink">ネオンピンク</string>
     <string name="color_special_neon_orange">ネオンオレンジ</string>
-    
-    <!-- 日付フォーマット -->
+    <!-- Date Formatting -->
     <string name="date_today">今日</string>
     <string name="date_yesterday">昨日</string>
     <string name="date_days_ago">%d日前</string>
-    
-    <!-- LAN同期 -->
+    <!-- LAN Sync -->
     <string name="lan_sync_title">LAN同期</string>
     <string name="sync_options">同期オプション</string>
     <string name="search_nearby_devices">近くのデバイスを検索</string>
@@ -535,8 +496,7 @@
     <string name="reject">拒否する</string>
     <string name="incoming_sync_request_title">同期リクエストの受信</string>
     <string name="incoming_sync_request_message">お使いのデバイスとデータを同期しようとしています</string>
-    
-    <!-- オープンソースライセンス -->
+    <!-- Open Source Licenses -->
     <string name="open_source_licenses">オープンソースライセンス</string>
     <string name="open_source_licenses_description">サードパーティコンポーネントのライセンスを表示します</string>
 </resources>

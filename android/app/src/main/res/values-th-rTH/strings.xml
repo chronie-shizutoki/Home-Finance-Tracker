@@ -1,11 +1,10 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">บัญชีครัวเรือน</string>
     <string name="title_activity_main">บัญชีครัวเรือน</string>
     <string name="package_name">com.chronie.homemoney</string>
     <string name="custom_url_scheme">com.chronie.homemoney</string>
-    
-    <!-- การตั้งค่า (Settings) -->
+    <!-- Settings -->
     <string name="settings">การตั้งค่า</string>
     <string name="language_settings">ตั้งค่าภาษา</string>
     <string name="update_avatar_failed">อัปเดตรูปโปรไฟล์ไม่สำเร็จ</string>
@@ -20,8 +19,7 @@
     <string name="dynamic_color_enabled">เปิดใช้งานสีไดนามิกแล้ว</string>
     <string name="dynamic_color_disabled">ปิดใช้งานสีไดนามิกแล้ว</string>
     <string name="primary_color_updated">อัปเดตสีหลักแล้ว</string>
-    
-    <!-- ทั่วไป (Common) -->
+    <!-- Common -->
     <string name="back">กลับ</string>
     <string name="cancel">ยกเลิก</string>
     <string name="confirm">ยืนยัน</string>
@@ -31,22 +29,18 @@
     <string name="loading">กำลังโหลด…</string>
     <string name="error">ข้อผิดพลาด</string>
     <string name="success">สำเร็จ</string>
-    
-    <!-- สกุลเงิน (Currency) -->
+    <!-- Currency -->
     <string name="currency_symbol">฿</string>
     <string name="currency_format" formatted="false">%s%.2f</string>
     <string name="currency_format_no_decimal" formatted="false">%s%.0f</string>
-    
-    <!-- หน้าต้อนรับ (Welcome Page) -->
+    <!-- Welcome -->
     <string name="welcome_message">ยินดีต้อนรับสู่บัญชีครัวเรือน</string>
     <string name="getting_started">เริ่มต้นใช้งาน</string>
-    
-    <!-- ตัวเลือกสำหรับนักพัฒนา (Developer Options) -->
+    <!-- Developer Options -->
     <string name="developer_options">ตัวเลือกสำหรับนักพัฒนา</string>
     <string name="developer_mode">โหมดนักพัฒนา</string>
     <string name="developer_mode_description">เปิดเพื่อเข้าถึงฟีเจอร์ขั้นสูง เช่น ฐานข้อมูลในเครื่อง</string>
-    
-    <!-- ทดสอบฐานข้อมูล (Database Test) -->
+    <!-- Database Test -->
     <string name="database_test">ฐานข้อมูลในเครื่อง</string>
     <string name="add_test_data">เพิ่มข้อมูลทดสอบ</string>
     <string name="clear_data">ล้างข้อมูลทั้งหมด</string>
@@ -58,8 +52,7 @@
     <string name="no_data">ไม่มีข้อมูล</string>
     <string name="synced">ซิงค์แล้ว</string>
     <string name="not_synced">ยังไม่ได้ซิงค์</string>
-    
-    <!-- การซิงค์ (Sync) -->
+    <!-- Sync -->
     <string name="sync_title">ซิงค์ข้อมูล</string>
     <string name="sync_status">สถานะการซิงค์</string>
     <string name="sync_status_idle">ว่าง</string>
@@ -70,10 +63,6 @@
     <string name="sync_lan">เครือข่าย LAN</string>
     <string name="sync_bluetooth">บลูทูธ (Bluetooth)</string>
     <string name="sync_nfc">NFC</string>
-    <string name="device_sync_title">ซิงค์กับ %s</string>
-    <string name="device_sync_searching">กำลังค้นหาอุปกรณ์ %s…</string>
-    <string name="device_sync_searching_devices">กำลังค้นหาอุปกรณ์…</string>
-    <string name="device_sync_found_devices">พบอุปกรณ์ %d เครื่อง:</string>
     <string name="sync_status_success">สำเร็จ</string>
     <string name="sync_status_failed">ล้มเหลว</string>
     <string name="sync_status_conflict">ขัดแย้งกัน</string>
@@ -88,19 +77,21 @@
     <string name="clear_failed">ล้างข้อมูลไม่สำเร็จ: %s</string>
     <string name="load_success">โหลดข้อมูลสำเร็จ</string>
     <string name="load_failed">โหลดข้อมูลไม่สำเร็จ: %s</string>
+    <string name="device_sync_title">ซิงค์กับ %s</string>
+    <string name="device_sync_searching">กำลังค้นหาอุปกรณ์ %s…</string>
+    <string name="device_sync_searching_devices">กำลังค้นหาอุปกรณ์…</string>
+    <string name="device_sync_found_devices">พบอุปกรณ์ %d เครื่อง:</string>
     <string name="device_sync_connecting">กำลังเชื่อมต่อกับ %s…</string>
     <string name="device_sync_connect_failed">การเชื่อมต่อล้มเหลว</string>
     <string name="device_sync_synchronizing">กำลังซิงค์ข้อมูล…</string>
     <string name="device_sync_success">ซิงค์เสร็จสมบูรณ์</string>
     <string name="device_sync_failed">ซิงค์ไม่สำเร็จ: %s</string>
-    
-    <!-- กล่องโต้ตอบยืนยันการลบ (Delete Confirmation Dialog) -->
+    <!-- Delete Confirmation Dialog -->
     <string name="delete_confirm_title">ยืนยันการลบ</string>
     <string name="delete_confirm_message">คุณแน่ใจหรือไม่ว่าต้องการลบรายการรายจ่ายนี้?</string>
     <string name="delete_second_confirm_title">ยืนยันการลบ</string>
     <string name="delete_second_confirm_message">การกระทำนี้ไม่สามารถยกเลิกได้ คุณแน่ใจหรือไม่ว่าต้องการลบ?</string>
-    
-    <!-- หมวดหมู่รายจ่าย (Expense Categories) -->
+    <!-- Expense Types -->
     <string name="expense_type_daily_goods">ของใช้ประจำวัน</string>
     <string name="expense_type_luxury">สินค้าฟุ่มเฟือย</string>
     <string name="expense_type_communication">ค่าโทรศัพท์/อินเทอร์เน็ต</string>
@@ -129,8 +120,7 @@
     <string name="expense_type_household_appliances">เครื่องใช้ไฟฟ้าในบ้าน</string>
     <string name="expense_type_hardware">อุปกรณ์โลหะ</string>
     <string name="expense_type_clothing">เสื้อผ้า</string>
-    
-    <!-- รายการรายจ่าย (Expense List) -->
+    <!-- Expense List -->
     <string name="expense_list_title">รายจ่าย</string>
     <string name="expense_list_empty">ไม่มีประวัติรายจ่าย</string>
     <string name="expense_list_empty_description">ลองเพิ่มรายการหรือปรับเงื่อนไขการกรอง</string>
@@ -159,28 +149,24 @@
     <string name="expense_list_filtered_count">ผลการกรอง: %d รายการ</string>
     <string name="common_search">ค้นหา</string>
     <string name="common_filter">กรอง</string>
-    
-    <!-- สถิติรายจ่าย (Expense Statistics) -->
+    <!-- Expense Statistics -->
     <string name="expense_stats_count">จำนวนรายการทั้งหมด</string>
     <string name="expense_stats_total">ยอดรวม</string>
     <string name="expense_stats_average">ค่าเฉลี่ย</string>
     <string name="expense_stats_median">ค่ามัธยฐาน</string>
     <string name="expense_stats_range">ช่วงจำนวนเงิน</string>
-    
-    <!-- ตารางรายจ่าย (Expense Table) -->
+    <!-- Expense Table -->
     <string name="expense_type">หมวดหมู่</string>
     <string name="expense_remark">หมายเหตุ</string>
     <string name="expense_amount">จำนวนเงิน</string>
-    
-    <!-- ทั่วไป (Common) -->
+    <!-- Common -->
     <string name="common_loading">กำลังโหลด…</string>
     <string name="common_error">ข้อผิดพลาด</string>
     <string name="common_retry">ลองอีกครั้ง</string>
     <string name="common_refresh">รีเฟรช</string>
     <string name="common_more_functions">ฟังก์ชันเพิ่มเติม</string>
     <string name="common_actions">การกระทำ</string>
-    
-    <!-- เพิ่มรายจ่าย (Add Expense) -->
+    <!-- Add Expense -->
     <string name="add_expense_title">บันทึกรายจ่าย</string>
     <string name="add_expense_type_label">หมวดหมู่ *</string>
     <string name="add_expense_type_hint">เลือกหมวดหมู่</string>
@@ -196,8 +182,7 @@
     <string name="add_expense_validation_amount_invalid">จำนวนเงินต้องมากกว่า 0</string>
     <string name="add_expense_validation_date_required">กรุณาเลือกวันที่</string>
     <string name="edit_expense_title">แก้ไขรายจ่าย</string>
-    
-    <!-- AI ตรวจจับอัจฉริยะ (AI Smart Recognition) -->
+    <!-- AI Expense Recognition -->
     <string name="ai_expense_title">บันทึกอัจฉริยะ</string>
     <string name="ai_expense_select_images">เลือกรูปภาพ</string>
     <string name="ai_expense_add_images">เพิ่มรูปภาพ</string>
@@ -229,8 +214,7 @@
     <string name="ai_expense_select_image_source">เลือกแหล่งที่มารูปภาพ</string>
     <string name="ai_expense_take_photo">ถ่ายรูป</string>
     <string name="ai_expense_choose_from_gallery">เลือกจากแกลเลอรี</string>
-    
-    <!-- การตั้งค่า AI (AI Settings) -->
+    <!-- AI Settings -->
     <string name="settings_ai_title">การตั้งค่า AI</string>
     <string name="settings_ai_api_key">คีย์ API ของ SiliconFlow</string>
     <string name="settings_ai_api_key_hint">ป้อนคีย์ API</string>
@@ -238,8 +222,7 @@
     <string name="settings_ai_get_api_key">ยังไม่มีคีย์? รับคีย์ได้ที่นี่</string>
     <string name="settings_ai_api_key_saved">บันทึกคีย์ API แล้ว</string>
     <string name="ai_expense_entry_description">บันทึกอย่างรวดเร็วด้วยการถ่ายรูปหรือพิมพ์ข้อความ</string>
-    
-    <!-- การจัดการงบประมาณ (Budget Management) -->
+    <!-- Budget Management -->
     <string name="budget_enable_title">เปิดใช้งานการจัดการงบประมาณ</string>
     <string name="budget_enable_description">ตั้งงบประมาณรายเดือนและวางแผนการใช้จ่ายอย่างเหมาะสม</string>
     <string name="budget_enable_button">เปิดใช้งานงบประมาณ</string>
@@ -259,14 +242,13 @@
     <string name="budget_alert_normal_message">คงเหลือ %1$s, สัดส่วนที่ใช้ได้ %2$.0f%%</string>
     <string name="budget_alert_warning_title">เตือนงบประมาณ</string>
     <string name="budget_alert_warning_message">คงเหลือ %1$s (%2$.0f%%), โปรดควบคุมการใช้จ่าย</string>
-    <string name="common_save">บันทึก</string>
-    <string name="common_cancel">ยกเลิก</string>
     <string name="budget_alert_over_title">ใช้จ่ายเกินงบประมาณ</string>
     <string name="budget_alert_over_message">คุณใช้จ่ายเกินไป %1$s, โปรดวางแผนอย่างเหมาะสม</string>
+    <string name="common_save">บันทึก</string>
+    <string name="common_cancel">ยกเลิก</string>
     <string name="budget_error_invalid_limit">กรุณาป้อนจำนวนเงินงบประมาณที่ถูกต้อง</string>
     <string name="budget_error_invalid_threshold">เปอร์เซ็นต์การแจ้งเตือนต้องอยู่ระหว่าง 0-100</string>
-    
-    <!-- กราฟ (Charts) -->
+    <!-- Charts -->
     <string name="charts_title">วิเคราะห์สถิติ</string>
     <string name="statistics_summary">สรุปสถิติ</string>
     <string name="count">จำนวนรายการ</string>
@@ -287,8 +269,7 @@
     <string name="custom_range">กำหนดเอง</string>
     <string name="close">ปิด</string>
     <string name="retry">ลองอีกครั้ง</string>
-    
-    <!-- วันในสัปดาห์ (Days of the Week) -->
+    <!-- Weekdays -->
     <string name="sunday">วันอาทิตย์</string>
     <string name="monday">วันจันทร์</string>
     <string name="tuesday">วันอังคาร</string>
@@ -303,8 +284,7 @@
     <string name="thursday_short">พฤ.</string>
     <string name="friday_short">ศ.</string>
     <string name="saturday_short">ส.</string>
-
-    <!-- นำเข้าและส่งออกข้อมูล (Data Import/Export) -->
+    <!-- Data Import/Export -->
     <string name="data_import_export">นำเข้า/ส่งออก</string>
     <string name="data_import_export_description">ส่งออกหรือนำเข้าข้อมูลบิลในรูปแบบ Excel</string>
     <string name="export_data">ส่งออกข้อมูล</string>
@@ -331,12 +311,10 @@
     <string name="excel_header_remark">หมายเหตุ</string>
     <string name="permission_storage_required">ต้องการสิทธิ์เข้าถึงพื้นที่จัดเก็บข้อมูล</string>
     <string name="no_records_to_export">ไม่มีรายการให้ส่งออก</string>
-
-    <!-- ข้อเสนอแนะ (Feedback) -->
+    <!-- Feedback -->
     <string name="feedback_title">ข้อเสนอแนะ</string>
     <string name="feedback_description">แบ่งปันคำแนะนำของคุณเพื่อช่วยเราปรับปรุงให้ดีขึ้น</string>
-
-    <!-- การยืนยันตัวตนผู้ใช้ (User Authentication) -->
+    <!-- Authentication -->
     <string name="auth_login_title">เข้าสู่ระบบ</string>
     <string name="auth_username_label">ชื่อผู้ใช้</string>
     <string name="auth_username_hint">กรุณาป้อนชื่อผู้ใช้</string>
@@ -359,8 +337,7 @@
     <string name="membership_title">บัญชี</string>
     <string name="auth_logged_in">เข้าสู่ระบบแล้ว</string>
     <string name="auth_skip_login">ข้าม</string>
-
-    <!-- ตรวจสอบสถานะระบบ (Health Check) -->
+    <!-- Health Check -->
     <string name="health_check_channel_name">สถานะการเชื่อมต่อเซิร์ฟเวอร์</string>
     <string name="health_check_channel_description">ตรวจสอบการเชื่อมต่อเซิร์ฟเวอร์</string>
     <string name="health_check_running">กำลังตรวจสอบเซิร์ฟเวอร์</string>
@@ -368,8 +345,7 @@
     <string name="server_connection_error">การเชื่อมต่อล้มเหลว</string>
     <string name="server_connection_error_message">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบเครือข่าย</string>
     <string name="server_connection_restored">กู้คืนการเชื่อมต่อแล้ว</string>
-
-    <!-- เครื่องมือเลือกสี (Color Picker) -->
+    <!-- Color Picker -->
     <string name="color_picker_title">เลือกสีธีม</string>
     <string name="color_picker_search_hint">ค้นหาสี…</string>
     <string name="current_theme_color">สีธีมปัจจุบัน</string>
@@ -387,39 +363,34 @@
     <string name="color_group_brown">โทนสีน้ำตาล</string>
     <string name="color_group_gray">โทนสีเทา</string>
     <string name="color_group_special">โทนสีพิเศษ</string>
-
-    <!-- ชื่อสี - สีแดง (Red) -->
+    <!-- Color Names - Red -->
     <string name="color_red_light">สีแดงอ่อน</string>
     <string name="color_red_bright">สีแดงสด</string>
     <string name="color_red_pure">สีแดงแท้</string>
     <string name="color_red_standard">สีแดงมาตรฐาน</string>
     <string name="color_red_deep">สีแดงเข้ม</string>
     <string name="color_red_dark">สีแดงหม่น</string>
-
-    <!-- ชื่อสี - สีส้ม (Orange) -->
+    <!-- Color Names - Orange -->
     <string name="color_orange_light">สีส้มอ่อน</string>
     <string name="color_orange_bright">สีส้มสด</string>
     <string name="color_orange_pure">สีส้มแท้</string>
     <string name="color_orange_standard">สีส้มมาตรฐาน</string>
     <string name="color_orange_deep">สีส้มเข้ม</string>
     <string name="color_orange_dark">สีส้มหม่น</string>
-
-    <!-- ชื่อสี - สีเหลือง (Yellow) -->
+    <!-- Color Names - Yellow -->
     <string name="color_yellow_light">สีเหลืองอ่อน</string>
     <string name="color_yellow_bright">สีเหลืองสด</string>
     <string name="color_yellow_pure">สีเหลืองแท้</string>
     <string name="color_yellow_amber">สีเหลืองอำพัน</string>
     <string name="color_yellow_gold">สีทอง</string>
     <string name="color_yellow_standard">สีเหลืองมาตรฐาน</string>
-
-    <!-- ชื่อสี - สีเขียวอมเหลือง (Yellow-Green) -->
+    <!-- Color Names - Yellow Green -->
     <string name="color_yellow_green_light">สีเขียวอมเหลืองอ่อน</string>
     <string name="color_yellow_green_bright">สีเขียวอมเหลืองสด</string>
     <string name="color_yellow_green_pure">สีเขียวอมเหลืองแท้</string>
     <string name="color_yellow_green_standard">สีเขียวอมเหลืองมาตรฐาน</string>
     <string name="color_yellow_green_deep">สีเขียวอมเหลืองเข้ม</string>
-
-    <!-- ชื่อสี - สีเขียว (Green) -->
+    <!-- Color Names - Green -->
     <string name="color_green_light">สีเขียวอ่อน</string>
     <string name="color_green_bright">สีเขียวสด</string>
     <string name="color_green_pure">สีเขียวแท้</string>
@@ -427,16 +398,14 @@
     <string name="color_green_deep">สีเขียวเข้ม</string>
     <string name="color_green_dark">สีเขียวหม่น</string>
     <string name="color_green_forest">สีเขียวป่า</string>
-
-    <!-- ชื่อสี - สีฟ้า/ไซแอน (Cyan) -->
+    <!-- Color Names - Cyan -->
     <string name="color_cyan_light">สีฟ้าอ่อน</string>
     <string name="color_cyan_bright">สีฟ้าสด</string>
     <string name="color_cyan_pure">สีฟ้าแท้</string>
     <string name="color_cyan_standard">สีฟ้ามาตรฐาน</string>
     <string name="color_cyan_deep">สีฟ้าเข้ม</string>
     <string name="color_cyan_dark">สีฟ้าหม่น</string>
-
-    <!-- ชื่อสี - สีน้ำเงิน (Blue) -->
+    <!-- Color Names - Blue -->
     <string name="color_blue_light">สีน้ำเงินอ่อน</string>
     <string name="color_blue_bright">สีน้ำเงินสด</string>
     <string name="color_blue_pure">สีน้ำเงินแท้</string>
@@ -444,39 +413,34 @@
     <string name="color_blue_standard">สีน้ำเงินมาตรฐาน</string>
     <string name="color_blue_deep">สีน้ำเงินเข้ม</string>
     <string name="color_blue_dark">สีน้ำเงินหม่น</string>
-
-    <!-- ชื่อสี - สีคราม (Indigo) -->
+    <!-- Color Names - Indigo -->
     <string name="color_indigo_light">สีครามอ่อน</string>
     <string name="color_indigo_bright">สีครามสด</string>
     <string name="color_indigo_pure">สีครามแท้</string>
     <string name="color_indigo_standard">สีครามมาตรฐาน</string>
     <string name="color_indigo_deep">สีครามเข้ม</string>
     <string name="color_indigo_dark">สีครามหม่น</string>
-
-    <!-- ชื่อสี - สีม่วง (Purple) -->
+    <!-- Color Names - Purple -->
     <string name="color_purple_light">สีม่วงอ่อน</string>
     <string name="color_purple_bright">สีม่วงสด</string>
     <string name="color_purple_pure">สีม่วงแท้</string>
     <string name="color_purple_standard">สีม่วงมาตรฐาน</string>
     <string name="color_purple_deep">สีม่วงเข้ม</string>
     <string name="color_purple_dark">สีม่วงหม่น</string>
-
-    <!-- ชื่อสี - สีชมพู (Pink) -->
+    <!-- Color Names - Pink -->
     <string name="color_pink_light">สีชมพูอ่อน</string>
     <string name="color_pink_bright">สีชมพูสด</string>
     <string name="color_pink_pure">สีชมพูแท้</string>
     <string name="color_pink_standard">สีชมพูมาตรฐาน</string>
     <string name="color_pink_deep">สีชมพูเข้ม</string>
-
-    <!-- ชื่อสี - สีน้ำตาล (Brown) -->
+    <!-- Color Names - Brown -->
     <string name="color_brown_light">สีน้ำตาลอ่อน</string>
     <string name="color_brown_bright">สีน้ำตาลสด</string>
     <string name="color_brown_pure">สีน้ำตาลแท้</string>
     <string name="color_brown_standard">สีน้ำตาลมาตรฐาน</string>
     <string name="color_brown_deep">สีน้ำตาลเข้ม</string>
     <string name="color_brown_dark">สีน้ำตาลหม่น</string>
-
-    <!-- ชื่อสี - สีเทา (Gray) -->
+    <!-- Color Names - Gray -->
     <string name="color_gray_very_light">สีเทาอ่อนมาก</string>
     <string name="color_gray_light">สีเทาอ่อน</string>
     <string name="color_gray_bright">สีเทาสว่าง</string>
@@ -485,8 +449,7 @@
     <string name="color_gray_standard">สีเทา</string>
     <string name="color_gray_deep">สีเทาเข้ม</string>
     <string name="color_gray_dark">สีเทาหม่น</string>
-
-    <!-- ชื่อสี - สีพิเศษ (Special) -->
+    <!-- Color Names - Special -->
     <string name="color_special_coral_light">สีคอรัลอ่อน</string>
     <string name="color_special_coral">สีแดงคอรัล</string>
     <string name="color_special_coral_bright">สีคอรัลสด</string>
@@ -504,13 +467,11 @@
     <string name="color_special_neon_blue">สีน้ำเงินนีออน</string>
     <string name="color_special_neon_pink">สีชมพูนีออน</string>
     <string name="color_special_neon_orange">สีส้มนีออน</string>
-    
-    <!-- รูปแบบวันที่ (Date Format) -->
+    <!-- Date Formatting -->
     <string name="date_today">วันนี้</string>
     <string name="date_yesterday">เมื่อวาน</string>
     <string name="date_days_ago">%d วันที่แล้ว</string>
-    
-    <!-- ซิงค์ LAN (LAN Sync) -->
+    <!-- LAN Sync -->
     <string name="lan_sync_title">ซิงค์ผ่าน LAN</string>
     <string name="sync_options">ตัวเลือกการซิงค์</string>
     <string name="search_nearby_devices">ค้นหาอุปกรณ์ใกล้เคียง</string>
@@ -535,8 +496,7 @@
     <string name="reject">ปฏิเสธ</string>
     <string name="incoming_sync_request_title">ได้รับคำขอซิงค์</string>
     <string name="incoming_sync_request_message">ต้องการซิงค์ข้อมูลกับอุปกรณ์ของคุณ</string>
-    
-    <!-- ไลเซนส์โอเพนซอร์ส (Open Source Licenses) -->
+    <!-- Open Source Licenses -->
     <string name="open_source_licenses">ไลเซนส์โอเพนซอร์ส</string>
     <string name="open_source_licenses_description">ดูไลเซนส์ของส่วนประกอบจากบุคคลที่สาม</string>
 </resources>
