@@ -11,12 +11,13 @@ import { createI18n } from 'vue-i18n';
 import enUS from './en-US.json';
 import zhCN from './zh-CN.json';
 import zhTW from './zh-TW.json';
+import jaJP from './ja-JP.json';
 
 // 获取浏览器默认语言
 const browserLanguage = navigator.language || navigator.userLanguage;
 console.log('获取到的浏览器默认语言为:', browserLanguage);
 // 定义支持的语言列表
-const supportedLanguages = ['en-US', 'zh-CN', 'zh-TW'];
+const supportedLanguages = ['en-US', 'zh-CN', 'zh-TW', 'ja-JP'];
 console.log('支持的语言列表为:', supportedLanguages);
 // 检查浏览器语言是否在支持列表中
 let defaultLocale = 'en-US'; // 默认语言
@@ -28,15 +29,20 @@ if (supportedLanguages.includes(browserLanguage)) {
   defaultLocale = browserLanguage;
   console.log('浏览器语言在支持列表中，默认语言更新为:', defaultLocale);
 } 
-// 然后检查是否是繁体中文相关
+// 检查是否是繁体中文相关
 else if (browserLanguage.startsWith('zh-TW') || browserLanguage.includes('TW') || browserLanguage.includes('HK')) {
   defaultLocale = 'zh-TW';
   console.log('浏览器语言为繁体中文相关，默认语言更新为:', defaultLocale);
 }
-// 最后检查是否是其他中文
+// 检查是否是其他中文
 else if (browserLanguage.startsWith('zh')) {
   defaultLocale = 'zh-CN';
   console.log('浏览器语言为中文，默认语言更新为:', defaultLocale);
+}
+// 检查是否是日文
+else if (browserLanguage.startsWith('ja')) {
+  defaultLocale = 'ja-JP';
+  console.log('浏览器语言为日文，默认语言更新为:', defaultLocale);
 }
 else {
   console.log('未找到匹配的语言，默认语言保持不变:', defaultLocale);
@@ -52,7 +58,8 @@ const i18n = createI18n({
   messages: {
     'en-US': enUS,
     'zh-CN': zhCN,
-    'zh-TW': zhTW
+    'zh-TW': zhTW,
+    'ja-JP': jaJP
   }
 });
 
