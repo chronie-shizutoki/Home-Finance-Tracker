@@ -54,6 +54,7 @@
       "maxAmountPlaceholder": "Max amount",
       "keywordPlaceholder": "Search notes...",
       "month": "Month",
+      "allMonth": "All Months",
       "type": "Category",
       "allType": "All Categories",
       "sort": "Sort By",
@@ -92,6 +93,7 @@
   "common": {
     "action": "Actions",
     "cancel": "Cancel",
+    "confirm": "OK",
     "submit": "Submit",
     "loadFailed": "Failed to load data, please try again later",
     "edit": "Edit",
