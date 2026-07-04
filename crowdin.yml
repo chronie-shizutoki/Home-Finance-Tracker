@@ -4,4 +4,4 @@ files:
     type: android
   - source: client/src/locales/en-US.json
     translation: /client/src/locales/%locale%.json
-    multilingual: 1
+    multilingual: json
