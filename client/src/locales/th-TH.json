@@ -1,0 +1,224 @@
+{
+  "app.firstPage": "First Page",
+  "app.previousPage": "Previous Page",
+  "app.page": "Page {page}",
+  "app.nextPage": "Next Page",
+  "app.lastPage": "Last Page",
+  "expense.aiAddRecord": "AI Record",
+  "expense.aiReport": "AI Q&A",
+  "export.monthData": "Export This Month's Data",
+  "export.failed": "Export failed, please try again later",
+  "common.loadFailed": "Failed to load data, please try again later",
+  "common.edit": "Edit",
+  "common.delete": "Delete",
+  "expense.edit": "Edit Expense",
+  "expense.updateFailed": "Failed to update expense, please try again later",
+  "expense.updateSuccess": "Expense updated successfully",
+  "expense.deleteConfirm": "Delete Expense",
+  "expense.deleteMessage": "Are you sure you want to delete this expense?",
+  "expense.deleteSuccess": "Expense deleted successfully",
+  "expense.deleteFailed": "Failed to delete expense, please try again later",
+  "error.dataInitializationFailed": "Failed to initialize data, please try again",
+  "chart.title": "Spending Analysis",
+  "chart.bar": "Bar Chart",
+  "chart.line": "Line Chart",
+  "chart.doughnut": "Doughnut Chart",
+  "chart.radar": "Radar Chart",
+  "chart.categoryAnalysis": "Spending by Category",
+  "chart.categoryPercentage": "Category Breakdown",
+  "chart.trendAnalysis": "Spending Trend",
+  "chart.weekdayAnalysis": "Spending by Day of Week",
+  "common.to": "to",
+  "common.currency": "USD",
+  "common.currencySymbol": "$",
+  "common.sunday": "Sunday",
+  "common.monday": "Monday",
+  "common.tuesday": "Tuesday",
+  "common.wednesday": "Wednesday",
+  "common.thursday": "Thursday",
+  "common.friday": "Friday",
+  "common.saturday": "Saturday",
+  "common.date": "Date",
+  "common.date_today": "Today",
+  "common.date_yesterday": "Yesterday",
+  "common.date_days_ago": "{days} days ago",
+  "expense.dailyExpense": "Daily Spending",
+  "import.title": "Import Data",
+  "import.success": "Data imported successfully",
+  "import.failed": "Failed to import data",
+  "import.refreshNotice": "(Auto-refresh in 3 seconds)",
+  "common.cancel": "Cancel",
+  "expense.addDialogTitle": "Add Expense",
+  "expense.addRecord": "Add New Record",
+  "expense.columns.time": "Time",
+  "expense.columns.name": "Category",
+  "expense.amountRequired": "Amount is required",
+  "app.loading": "Loading...",
+  "app": {
+    "title": "Home Finance Tracker",
+    "export": "Export Data",
+    "notFound": "Page Not Found",
+    "pageNotFound": "The page you're looking for doesn't exist",
+    "backToHome": "Back to Home"
+  },
+  "home": {
+    "noDataForExport": "No data available for export"
+  },
+  "expense.noRecords": "No expenses found",
+  "expense.record": "Expense Record",
+  "common.selectAll": "Select All",
+  "expense.unknownError": "An error occurred",
+  "expense.selectType": "Select Category",
+  "expense.inputAmount": "Enter Amount",
+  "expense.selectDate": "Select Date",
+  "expense.enterRemark": "Add a note (optional)",
+  "common.confirm": "Confirm",
+  "expense.serverError": "Server error",
+  "expense.empty.title": "No Expenses",
+  "expense.empty.description": "Add new expenses or adjust your filters",
+  "expense.empty.reset": "Reset Filters",
+  "expense.search.title": "Search Expenses",
+  "expense.search.minAmountPlaceholder": "Min amount",
+  "expense.search.maxAmountPlaceholder": "Max amount",
+  "expense.search.keywordPlaceholder": "Search notes...",
+  "expense.search.month": "Month",
+  "expense.search.type": "Category",
+  "expense.search.allType": "All Categories",
+  "expense.search.sort": "Sort By",
+  "expense.search.amountRange": "Amount Range",
+  "expense.search.keyword": "Search",
+  "expense.noDataTitle": "No Results",
+  "expense.noDataMessage": "Try adjusting your filters or add new expenses",
+  "expense.search.reset": "Reset",
+  "expense.sort.dateAsc": "Date ↑",
+  "expense.sort.dateDesc": "Date ↓",
+  "expense.sort.amountAsc": "Amount ↑",
+  "expense.sort.amountDesc": "Amount ↓",
+  "expense.stats.rowCount": "Total Records",
+  "expense.stats.totalAmount": "Total Amount",
+  "expense.stats.averageAmount": "Average",
+  "expense.stats.medianAmount": "Median",
+  "expense.stats.amountRange": "Amount Range",
+  "expense": {
+    "search": {
+      "month": "Month",
+      "allMonth": "All",
+      "type": "Category",
+      "allType": "All",
+      "sort": "Sort By",
+      "amountRange": "Amount Range",
+      "minAmountPlaceholder": "Min",
+      "maxAmountPlaceholder": "Max",
+      "keyword": "Search",
+      "keywordPlaceholder": "Search in notes..."
+    },
+    "type": "Category",
+    "amount": "Amount",
+    "date": "Date",
+    "remark": "Notes",
+    "addSuccess": "Successfully added {count} expenses",
+    "largeExpense": {
+      "warning": "Large expense detected. Please confirm this is correct.",
+      "confirm": "I Understand"
+    },
+    "common": {
+      "requestCanceled": "Request cancelled",
+      "networkError": "Network error. Please check your connection"
+    }
+  },
+  "common": {
+    "action": "Actions",
+    "cancel": "Cancel",
+    "submit": "Submit"
+  },
+  "spending": {
+    "monthlyProgress": "Monthly Spending Progress",
+    "exceeded": "Over Budget",
+    "dailyAverage": "Daily Average",
+    "recommendedDaily": "Recommended Daily",
+    "settings": {
+      "title": "Budget Settings",
+      "on": "Enable Budget",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "monthlyLimit": "Monthly Budget",
+      "enterLimit": "Enter monthly budget",
+      "warningThreshold": "Warning Threshold",
+      "enterThreshold": "Enter warning threshold",
+      "disabledNotice": "Enable budget to track your monthly spending",
+      "pleaseSetLimit": "Please set your monthly budget"
+    },
+    "status": {
+      "disabled": "Budget disabled",
+      "normal": "On track",
+      "nearLimit": "Approaching budget",
+      "overLimit": "Over budget"
+    },
+    "alert": {
+      "normal": {
+        "title": "On Track",
+        "description": "Remaining: {remaining} ({percentage}% used)"
+      },
+      "nearLimit": {
+        "title": "Approaching Budget",
+        "description": "Remaining: {remaining} ({percentage}% used). Consider slowing down."
+      },
+      "overLimit": {
+        "title": "Over Budget",
+        "description": "Over budget by {amount}. Please review your spending."
+      }
+    },
+    "enablePrompt": {
+      "title": "Track Monthly Spending",
+      "description": "Set a monthly budget to track your spending and get alerts when you're close to your limit.",
+      "button": "Enable Budget",
+      "enabled": "Budget enabled successfully"
+    }
+  },
+  "function": {
+    "primary": "Main Features",
+    "aiFeatures": "AI Features"
+  },
+  "ai": {
+    "report": {
+      "filterTitle": "Data Filter",
+      "statsPreview": "Data Statistics Preview",
+      "totalCount": "Total Records",
+      "totalAmount": "Total Amount",
+      "averageAmount": "Average",
+      "medianAmount": "Median",
+      "minAmount": "Min Amount",
+      "maxAmount": "Max Amount",
+      "loading": "Loading..."
+    }
+  },
+  "avatar": {
+    "cropTitle": "Crop Avatar",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "placeholder": "Click to upload avatar",
+    "error": {
+      "sizeLimit": "Avatar size cannot exceed {maxSize}MB",
+      "invalidType": "Please select a valid image file",
+      "uploadFailed": "Avatar upload failed, please try again later"
+    }
+  },
+  "membership": {
+    "title": "User Management",
+    "username": "Username",
+    "loginOrRegister": "Login / Register",
+    "logout": "Logout",
+    "usernamePlaceholder": "Enter your username",
+    "error": {
+      "requiredUsername": "Please enter username",
+      "usernameFormat": "Username can only contain uppercase and lowercase letters",
+      "usernameLength": "Username length should be between 1-20 characters",
+      "loginFailed": "Login failed, please try again later"
+    },
+    "success": {
+      "login": "Login successful",
+      "logout": "Logged out",
+      "avatarUploaded": "Avatar uploaded successfully"
+    }
+  }
+}

@@ -18,11 +18,9 @@
   "expense.deleteMessage": "確認刪除此支出嗎？",
   "expense.deleteSuccess": "刪除支出成功",
   "expense.deleteFailed": "刪除支出失敗，請稍後重試",
-  "common.back": "返回",
+  "error.dataInitializationFailed": "資料初始化失敗，請稍後重試",
   "chart.title": "支出分析",
   "chart.bar": "柱狀圖",
-  "error.dataInitializationFailed": "資料初始化失敗，請稍後重試",
-  "chart.pie": "圓形圖",
   "chart.line": "折線圖",
   "chart.doughnut": "環形圖",
   "chart.radar": "雷達圖",
@@ -30,7 +28,6 @@
   "chart.categoryPercentage": "分類支出占比",
   "chart.trendAnalysis": "支出趨勢",
   "chart.weekdayAnalysis": "每週支出分析",
-  "chart.mockData": "示例資料",
   "common.to": "至",
   "common.currency": "TWD",
   "common.currencySymbol": "$",
@@ -50,11 +47,26 @@
   "import.success": "資料導入成功",
   "import.failed": "資料導入失敗",
   "import.refreshNotice": "（3秒後自動更新）",
+  "common.cancel": "取消",
+  "expense.addDialogTitle": "添加記錄",
+  "expense.addRecord": "添加記錄",
+  "expense.columns.time": "日期",
+  "expense.columns.name": "分類",
   "expense.amountRequired": "請輸入金額",
-  "expense.categoryRequired": "請選擇分類",
-  "expense.dateRequired": "請選擇日期",
-  "expense.descriptionRequired": "請輸入描述",
   "app.loading": "載入中...",
+  "app": {
+    "title": "家庭記帳本",
+    "export": "匯出資料",
+    "notFound": "頁面不存在",
+    "pageNotFound": "您訪問的頁面不存在",
+    "backToHome": "返回首頁"
+  },
+  "home": {
+    "noDataForExport": "暫無資料可匯出"
+  },
+  "expense.noRecords": "暫無支出記錄",
+  "expense.record": "支出記錄",
+  "common.selectAll": "全選",
   "expense.unknownError": "發生未知錯誤",
   "expense.selectType": "選擇分類",
   "expense.inputAmount": "輸入金額",
@@ -62,39 +74,10 @@
   "expense.enterRemark": "添加備註（可選）",
   "common.confirm": "確認",
   "expense.serverError": "伺服器錯誤",
-  "app": {
-    "title": "家庭記帳本",
-    "statistics": "統計報表",
-    "export": "匯出資料",
-    "recordList": "所有記錄",
-    "record": "支出記錄",
-    "notFound": "頁面不存在",
-    "pageNotFound": "您訪問的頁面不存在",
-    "backToHome": "返回首頁"
-  },
-  "home": {
-    "closeButton": "× 關閉",
-    "expenseAnalysisReportTitle": "支出分析報告",
-    "goToAddExpenseRecord": "新增記錄",
-    "viewExpenseAnalysisReport": "查看報表",
-    "prevMonth": "上月",
-    "nextMonth": "下月",
-    "dailyTrend": "每日支出",
-    "dailyDescending": "高消費日期",
-    "noData": "暫無支出記錄",
-    "noDataForExport": "暫無資料可匯出"
-  },
-  "feedback": {
-    "title": "意見回饋"
-  },
-  "expense.noRecords": "暫無支出記錄",
-  "expense.record": "支出記錄",
-  "common.selectAll": "全選",
   "expense.empty.title": "暫無支出",
   "expense.empty.description": "添加新記錄或調整篩選條件",
   "expense.empty.reset": "重置篩選",
   "expense.search.title": "搜索支出",
-  "expense.search.monthPlaceholder": "月份",
   "expense.search.minAmountPlaceholder": "最小金額",
   "expense.search.maxAmountPlaceholder": "最大金額",
   "expense.search.keywordPlaceholder": "搜索備註...",
@@ -104,7 +87,6 @@
   "expense.search.sort": "排序方式",
   "expense.search.amountRange": "金額範圍",
   "expense.search.keyword": "搜索",
-  "expense.search.searchButton": "搜索",
   "expense.noDataTitle": "無結果",
   "expense.noDataMessage": "請調整篩選條件或添加新記錄",
   "expense.search.reset": "重置",
@@ -120,7 +102,6 @@
   "expense": {
     "search": {
       "month": "月份",
-      "monthPlaceholder": "選擇月份",
       "allMonth": "全部月份",
       "type": "分類",
       "allType": "全部分類",
@@ -129,70 +110,29 @@
       "minAmountPlaceholder": "最小值",
       "maxAmountPlaceholder": "最大值",
       "keyword": "搜索",
-      "keywordPlaceholder": "搜索備註...",
-      "button": "搜索"
+      "keywordPlaceholder": "搜索備註..."
     },
     "type": "分類",
     "amount": "金額",
     "date": "日期",
     "remark": "備註",
-    "note": "備註",
-    "addFailed": "添加失敗：{error}",
     "addSuccess": "成功添加{count}條記錄",
-    "inputValidContent": "請輸入有效的消費記錄",
-    "addRecord": "添加記錄",
-    "addNewEntry": "添加新記錄",
-    "totalRecords": "總記錄數",
-    "totalAmount": "總金額",
-    "addDialogTitle": "添加支出",
-    "exportFilename": "消費記錄_{date}",
-    "columns": {
-      "type": "分類",
-      "amount": "金額",
-      "date": "日期",
-      "remark": "備註"
-    },
-    "emptyText": "暫無支出記錄",
-    "common": {
-      "requestCanceled": "請求已取消",
-      "networkError": "網路錯誤，請檢查網路連接",
-      "requestTimeout": "請求超時，請重試"
-    },
     "largeExpense": {
       "warning": "檢測到大額支出，請確認是否準確",
       "confirm": "確認"
+    },
+    "common": {
+      "requestCanceled": "請求已取消",
+      "networkError": "網路錯誤，請檢查網路連接"
     }
   },
-  "pagination": {
-    "firstPage": "首頁",
-    "prevPage": "上一頁",
-    "pageInfo": "第 {current} 頁，共 {total} 頁",
-    "nextPage": "下一頁",
-    "lastPage": "末頁",
-    "perPage": "條/頁"
-  },
   "common": {
-    "index": "序號",
     "action": "操作",
     "cancel": "取消",
-    "submit": "提交",
-    "requestCanceled": "請求已取消",
-    "networkError": "網路錯誤，請稍後重試",
-    "requestTimeout": "請求超時"
+    "submit": "提交"
   },
-  "common.total": "總計",
-  "common.perPage": "條/頁",
-  "common.prev": "上一頁",
-  "common.next": "下一頁",
-    "feeNoticeTitle": "支付手續費說明",
-    "feeNoticeContent": "支付管道可能收取最高10%的手續費，此處顯示金額為稅前金額",
   "spending": {
-    "title": "月度預算",
     "monthlyProgress": "月度支出進度",
-    "currentMonth": "本月",
-    "currentSpending": "當前支出",
-    "monthlyLimit": "月度預算",
-    "remaining": "剩餘預算",
     "exceeded": "超出預算",
     "dailyAverage": "日均支出",
     "recommendedDaily": "建議日均",
@@ -205,12 +145,8 @@
       "enterLimit": "輸入月度預算",
       "warningThreshold": "預警閾值",
       "enterThreshold": "輸入預警閾值",
-      "thresholdDescription": "達到預算指定百分比時發出提醒",
-      "quickSet": "快速設置",
-      "preview": "當前狀態",
       "disabledNotice": "啟用預算功能來追蹤月度支出",
-      "pleaseSetLimit": "請設置您的月度預算",
-      "limitUpdated": "月度預算已更新為${amount}"
+      "pleaseSetLimit": "請設置您的月度預算"
     },
     "status": {
       "disabled": "預算未啟用",
@@ -241,8 +177,7 @@
   },
   "function": {
     "primary": "主要功能",
-    "aiFeatures": "AI功能",
-    "other": "其他"
+    "aiFeatures": "AI功能"
   },
   "ai": {
     "report": {
@@ -270,7 +205,6 @@
   },
   "membership": {
     "title": "用戶管理",
-    "userInfo": "帳戶信息",
     "username": "用戶名",
     "loginOrRegister": "登錄/註冊",
     "logout": "退出登錄",
@@ -279,14 +213,11 @@
       "requiredUsername": "請輸入用戶名",
       "usernameFormat": "用戶名只能包含大小寫英文字母",
       "usernameLength": "用戶名長度應在1-20個字符之間",
-      "loginFirst": "請先登錄",
-      "createUserFailed": "無法創建用戶",
-      "fetchUserInfoFailed": "獲取用戶信息失敗，請稍後重試"
+      "loginFailed": "登錄失敗，請稍後重試"
     },
     "success": {
       "login": "登錄成功",
       "logout": "已登出",
-      "cancelSubscription": "訂閱已取消",
       "avatarUploaded": "頭像上傳成功"
     }
   }
