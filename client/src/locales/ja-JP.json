@@ -54,6 +54,7 @@
       "maxAmountPlaceholder": "最大金額",
       "keywordPlaceholder": "メモを検索…",
       "month": "月",
+      "allMonth": "すべて",
       "type": "カテゴリ",
       "allType": "すべてのカテゴリ",
       "sort": "並べ替え",
@@ -92,6 +93,7 @@
   "common": {
     "action": "アクション",
     "cancel": "キャンセル",
+    "confirm": "OK",
     "submit": "送信",
     "loadFailed": "データの読み込みに失敗しました。再試行してください。",
     "edit": "編集",

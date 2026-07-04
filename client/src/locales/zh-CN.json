@@ -54,6 +54,7 @@
       "maxAmountPlaceholder": "最大金额",
       "keywordPlaceholder": "搜索备注...",
       "month": "月份",
+      "allMonth": "所有",
       "type": "分类",
       "allType": "全部分类",
       "sort": "排序方式",
@@ -92,6 +93,7 @@
   "common": {
     "action": "操作",
     "cancel": "取消",
+    "confirm": "好",
     "submit": "提交",
     "loadFailed": "数据加载失败，请稍后重试",
     "edit": "编辑",
