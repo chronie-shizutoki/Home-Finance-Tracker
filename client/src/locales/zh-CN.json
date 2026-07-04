@@ -18,11 +18,9 @@
   "expense.deleteMessage": "确认删除此支出吗？",
   "expense.deleteSuccess": "删除支出成功",
   "expense.deleteFailed": "删除支出失败，请稍后重试",
-  "common.back": "返回",
+  "error.dataInitializationFailed": "数据初始化失败，请稍后重试",
   "chart.title": "支出分析",
   "chart.bar": "柱状图",
-  "error.dataInitializationFailed": "数据初始化失败，请稍后重试",
-  "chart.pie": "饼图",
   "chart.line": "折线图",
   "chart.doughnut": "环形图",
   "chart.radar": "雷达图",
@@ -30,7 +28,6 @@
   "chart.categoryPercentage": "分类支出占比",
   "chart.trendAnalysis": "支出趋势",
   "chart.weekdayAnalysis": "每周支出分析",
-  "chart.mockData": "示例数据",
   "common.to": "至",
   "common.currency": "CNY",
   "common.currencySymbol": "¥",
@@ -50,11 +47,26 @@
   "import.success": "数据导入成功",
   "import.failed": "数据导入失败",
   "import.refreshNotice": "（3秒后自动刷新）",
+  "common.cancel": "取消",
+  "expense.addDialogTitle": "添加记录",
+  "expense.addRecord": "添加记录",
+  "expense.columns.time": "日期",
+  "expense.columns.name": "分类",
   "expense.amountRequired": "请输入金额",
-  "expense.categoryRequired": "请选择分类",
-  "expense.dateRequired": "请选择日期",
-  "expense.descriptionRequired": "请输入描述",
   "app.loading": "加载中...",
+  "app": {
+    "title": "家庭记账本",
+    "export": "导出数据",
+    "notFound": "页面不存在",
+    "pageNotFound": "您访问的页面不存在",
+    "backToHome": "返回首页"
+  },
+  "home": {
+    "noDataForExport": "暂无数据可导出"
+  },
+  "expense.noRecords": "暂无支出记录",
+  "expense.record": "支出记录",
+  "common.selectAll": "全选",
   "expense.unknownError": "发生未知错误",
   "expense.selectType": "选择分类",
   "expense.inputAmount": "输入金额",
@@ -62,36 +74,10 @@
   "expense.enterRemark": "添加备注（可选）",
   "common.confirm": "确认",
   "expense.serverError": "服务器错误",
-  "app": {
-    "title": "家庭记账本",
-    "statistics": "统计报表",
-    "export": "导出数据",
-    "recordList": "所有记录",
-    "record": "支出记录",
-    "notFound": "页面不存在",
-    "pageNotFound": "您访问的页面不存在",
-    "backToHome": "返回首页"
-  },
-  "home": {
-    "closeButton": "× 关闭",
-    "expenseAnalysisReportTitle": "支出分析报告",
-    "goToAddExpenseRecord": "记一笔",
-    "viewExpenseAnalysisReport": "查看报表",
-    "prevMonth": "上月",
-    "nextMonth": "下月",
-    "dailyTrend": "每日支出",
-    "dailyDescending": "高消费日期",
-    "noData": "暂无支出记录",
-    "noDataForExport": "暂无数据可导出"
-  },
-  "expense.noRecords": "暂无支出记录",
-  "expense.record": "支出记录",
-  "common.selectAll": "全选",
   "expense.empty.title": "暂无支出",
   "expense.empty.description": "添加新记录或调整筛选条件",
   "expense.empty.reset": "重置筛选",
   "expense.search.title": "搜索支出",
-  "expense.search.monthPlaceholder": "月份",
   "expense.search.minAmountPlaceholder": "最小金额",
   "expense.search.maxAmountPlaceholder": "最大金额",
   "expense.search.keywordPlaceholder": "搜索备注...",
@@ -101,7 +87,6 @@
   "expense.search.sort": "排序方式",
   "expense.search.amountRange": "金额范围",
   "expense.search.keyword": "搜索",
-  "expense.search.searchButton": "搜索",
   "expense.noDataTitle": "无结果",
   "expense.noDataMessage": "请调整筛选条件或添加新记录",
   "expense.search.reset": "重置",
@@ -117,7 +102,6 @@
   "expense": {
     "search": {
       "month": "月份",
-      "monthPlaceholder": "选择月份",
       "allMonth": "全部月份",
       "type": "分类",
       "allType": "全部分类",
@@ -126,70 +110,29 @@
       "minAmountPlaceholder": "最小值",
       "maxAmountPlaceholder": "最大值",
       "keyword": "搜索",
-      "keywordPlaceholder": "搜索备注...",
-      "button": "搜索"
+      "keywordPlaceholder": "搜索备注..."
     },
     "type": "分类",
     "amount": "金额",
     "date": "日期",
     "remark": "备注",
-    "note": "备注",
-    "addFailed": "添加失败：{error}",
     "addSuccess": "成功添加{count}条记录",
-    "inputValidContent": "请输入有效的消费记录",
-    "addRecord": "添加记录",
-    "addNewEntry": "添加新记录",
-    "totalRecords": "总记录数",
-    "totalAmount": "总金额",
-    "addDialogTitle": "添加支出",
-    "exportFilename": "消费记录_{date}",
-    "columns": {
-      "type": "分类",
-      "amount": "金额",
-      "date": "日期",
-      "remark": "备注"
-    },
-    "emptyText": "暂无支出记录",
-    "common": {
-      "requestCanceled": "请求已取消",
-      "networkError": "网络错误，请检查网络连接",
-      "requestTimeout": "请求超时，请重试"
-    },
     "largeExpense": {
       "warning": "检测到大额支出，请确认是否准确",
       "confirm": "确认"
+    },
+    "common": {
+      "requestCanceled": "请求已取消",
+      "networkError": "网络错误，请检查网络连接"
     }
   },
-  "pagination": {
-    "firstPage": "首页",
-    "prevPage": "上一页",
-    "pageInfo": "第 {current} 页，共 {total} 页",
-    "nextPage": "下一页",
-    "lastPage": "末页",
-    "perPage": "条/页"
-  },
   "common": {
-    "index": "序号",
     "action": "操作",
     "cancel": "取消",
-    "submit": "提交",
-    "requestCanceled": "请求已取消",
-    "networkError": "网络错误，请稍后重试",
-    "requestTimeout": "请求超时"
+    "submit": "提交"
   },
-  "common.total": "总计",
-  "common.perPage": "条/页",
-  "common.prev": "上一页",
-  "common.next": "下一页",
-    "feeNoticeTitle": "支付手续费说明",
-    "feeNoticeContent": "支付渠道可能收取最高10%的手续费，此处显示金额为税前金额",
   "spending": {
-    "title": "月度预算",
     "monthlyProgress": "月度支出进度",
-    "currentMonth": "本月",
-    "currentSpending": "当前支出",
-    "monthlyLimit": "月度预算",
-    "remaining": "剩余预算",
     "exceeded": "超出预算",
     "dailyAverage": "日均支出",
     "recommendedDaily": "建议日均",
@@ -202,12 +145,8 @@
       "enterLimit": "输入月度预算",
       "warningThreshold": "预警阈值",
       "enterThreshold": "输入预警阈值",
-      "thresholdDescription": "达到预算指定百分比时发出提醒",
-      "quickSet": "快速设置",
-      "preview": "当前状态",
       "disabledNotice": "启用预算功能来追踪月度支出",
-      "pleaseSetLimit": "请设置您的月度预算",
-      "limitUpdated": "月度预算已更新为{amount}"
+      "pleaseSetLimit": "请设置您的月度预算"
     },
     "status": {
       "disabled": "预算未启用",
@@ -238,8 +177,7 @@
   },
   "function": {
     "primary": "主要功能",
-    "aiFeatures": "AI功能",
-    "other": "其他"
+    "aiFeatures": "AI功能"
   },
   "ai": {
     "report": {
@@ -267,7 +205,6 @@
   },
   "membership": {
     "title": "用户管理",
-    "userInfo": "账户信息",
     "username": "用户名",
     "loginOrRegister": "登录/注册",
     "logout": "退出登录",
@@ -276,15 +213,11 @@
       "requiredUsername": "请输入用户名",
       "usernameFormat": "用户名只能包含大小写英文字母",
       "usernameLength": "用户名长度应在1-20个字符之间",
-      "loginFailed": "登录失败，请稍后重试",
-      "loginFirst": "请先登录",
-      "createUserFailed": "无法创建用户",
-      "fetchUserInfoFailed": "获取用户信息失败，请稍后重试"
+      "loginFailed": "登录失败，请稍后重试"
     },
     "success": {
       "login": "登录成功",
       "logout": "已登出",
-      "cancelSubscription": "订阅已取消",
       "avatarUploaded": "头像上传成功"
     }
   }
