@@ -15,57 +15,21 @@
   "home": {
     "noDataForExport": "暫無資料可匯出"
   },
-  "export": {
-    "monthData": "匯出本月資料",
-    "failed": "匯出失敗，請稍後重試"
-  },
-  "error": {
-    "dataInitializationFailed": "資料初始化失敗，請稍後重試"
-  },
-  "chart": {
-    "title": "支出分析",
-    "bar": "柱狀圖",
-    "line": "折線圖",
-    "doughnut": "環形圖",
-    "radar": "雷達圖",
-    "categoryAnalysis": "支出分類分析",
-    "categoryPercentage": "分類支出占比",
-    "trendAnalysis": "支出趨勢",
-    "weekdayAnalysis": "每週支出分析"
-  },
-  "import": {
-    "title": "導入資料",
-    "success": "資料導入成功",
-    "failed": "資料導入失敗",
-    "refreshNotice": "（3秒後自動更新）"
-  },
-  "common": {
-    "loadFailed": "資料載入失敗，請稍後重試",
-    "edit": "編輯",
-    "delete": "刪除",
-    "to": "至",
-    "currency": "TWD",
-    "currencySymbol": "$",
-    "sunday": "周日",
-    "monday": "週一",
-    "tuesday": "週二",
-    "wednesday": "週三",
-    "thursday": "週四",
-    "friday": "週五",
-    "saturday": "週六",
-    "date": "日期",
-    "date_today": "今天",
-    "date_yesterday": "昨天",
-    "date_days_ago": "{days}天前",
-    "cancel": "取消",
-    "selectAll": "全選",
-    "confirm": "確認",
-    "action": "操作",
-    "submit": "提交"
-  },
   "expense": {
     "noRecords": "暫無支出記錄",
     "record": "支出記錄",
+    "unknownError": "發生未知錯誤",
+    "selectType": "選擇分類",
+    "inputAmount": "輸入金額",
+    "selectDate": "選擇日期",
+    "enterRemark": "添加備註（可選）",
+    "confirm": "確認",
+    "serverError": "伺服器錯誤",
+    "type": "分類",
+    "amount": "金額",
+    "date": "日期",
+    "remark": "備註",
+    "addSuccess": "成功添加{count}條記錄",
     "aiAddRecord": "AI智能記錄",
     "aiReport": "AI消費問答",
     "edit": "編輯支出",
@@ -79,23 +43,6 @@
     "addDialogTitle": "添加記錄",
     "addRecord": "添加記錄",
     "amountRequired": "請輸入金額",
-    "unknownError": "發生未知錯誤",
-    "selectType": "選擇分類",
-    "inputAmount": "輸入金額",
-    "selectDate": "選擇日期",
-    "enterRemark": "添加備註（可選）",
-    "serverError": "伺服器錯誤",
-    "noDataTitle": "無結果",
-    "noDataMessage": "請調整篩選條件或添加新記錄",
-    "type": "分類",
-    "amount": "金額",
-    "date": "日期",
-    "remark": "備註",
-    "addSuccess": "成功添加{count}條記錄",
-    "columns": {
-      "time": "日期",
-      "name": "分類"
-    },
     "empty": {
       "title": "暫無支出",
       "description": "添加新記錄或調整篩選條件",
@@ -114,6 +61,8 @@
       "keyword": "搜索",
       "reset": "重置"
     },
+    "noDataTitle": "無結果",
+    "noDataMessage": "請調整篩選條件或添加新記錄",
     "sort": {
       "dateAsc": "日期（早）",
       "dateDesc": "日期（晚）",
@@ -134,7 +83,33 @@
     "common": {
       "requestCanceled": "請求已取消",
       "networkError": "網路錯誤，請檢查網路連接"
+    },
+    "columns": {
+      "time": "日期",
+      "name": "分類"
     }
+  },
+  "common": {
+    "action": "操作",
+    "cancel": "取消",
+    "submit": "提交",
+    "loadFailed": "資料載入失敗，請稍後重試",
+    "edit": "編輯",
+    "delete": "刪除",
+    "to": "至",
+    "currency": "TWD",
+    "currencySymbol": "$",
+    "sunday": "周日",
+    "monday": "週一",
+    "tuesday": "週二",
+    "wednesday": "週三",
+    "thursday": "週四",
+    "friday": "週五",
+    "saturday": "週六",
+    "date": "日期",
+    "date_today": "今天",
+    "date_yesterday": "昨天",
+    "date_days_ago": "{days}天前"
   },
   "spending": {
     "monthlyProgress": "月度支出進度",
@@ -225,5 +200,29 @@
       "logout": "已登出",
       "avatarUploaded": "頭像上傳成功"
     }
+  },
+  "export": {
+    "monthData": "匯出本月資料",
+    "failed": "匯出失敗，請稍後重試"
+  },
+  "error": {
+    "dataInitializationFailed": "資料初始化失敗，請稍後重試"
+  },
+  "chart": {
+    "title": "支出分析",
+    "bar": "柱狀圖",
+    "line": "折線圖",
+    "doughnut": "環形圖",
+    "radar": "雷達圖",
+    "categoryAnalysis": "支出分類分析",
+    "categoryPercentage": "分類支出占比",
+    "trendAnalysis": "支出趨勢",
+    "weekdayAnalysis": "每週支出分析"
+  },
+  "import": {
+    "title": "導入資料",
+    "success": "資料導入成功",
+    "failed": "資料導入失敗",
+    "refreshNotice": "（3秒後自動更新）"
   }
 }
