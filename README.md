@@ -1,5 +1,7 @@
 # Home Finance Tracker
 
+[![Crowdin](https://badges.crowdin.net/home-finance-tracker/localized.svg)](https://crowdin.com/project/home-finance-tracker)
+
 ## Project Overview
 The Home Finance Tracker is a modern multilingual financial management application designed to help users easily track income and expenses, analyze spending patterns, and improve financial transparency. The system provides a user-friendly interface with powerful data visualization and analysis capabilities. Supports Web, Android platforms.
 
