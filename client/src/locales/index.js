@@ -2,6 +2,7 @@ import { createI18n } from 'vue-i18n';
 import enUS from './en-US.json';
 import zhCN from './zh-CN.json';
 import zhTW from './zh-TW.json';
+import jaJP from './ja-JP.json';
 
 const i18n = createI18n({
   legacy: false,
@@ -10,7 +11,8 @@ const i18n = createI18n({
   messages: {
     'en-US': enUS,
     'zh-CN': zhCN,
-    'zh-TW': zhTW
+    'zh-TW': zhTW,
+    'ja-JP': jaJP
   }
 });
 

@@ -5,7 +5,7 @@
     @click="$emit('click', $event)"
   >
     <slot name="icon"></slot>
-    <span v-if="$slots.default"><slot></slot></span>
+    <slot></slot>
   </button>
 </template>
 
