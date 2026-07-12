@@ -221,7 +221,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Coil Compose",
-        version = "2.7.0",
+        version = "3.5.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/coil-kt/coil"
