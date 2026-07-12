@@ -7,8 +7,7 @@ import com.chronie.homemoney.domain.sync.DeviceSyncManager
 import com.google.gson.Gson
 
 /**
- * Device Sync Manager Factory
- * Factory class for creating device sync managers
+ * Device Sync Manager Factory *  class for creating device sync managers
  * Only LAN (Local Area Network) sync is supported
  */
 class DeviceSyncManagerFactory(

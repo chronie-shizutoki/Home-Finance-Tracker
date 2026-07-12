@@ -1,7 +1,6 @@
 package com.chronie.homemoney.data.remote.api
 
 import com.chronie.homemoney.data.remote.dto.HealthDto
-import retrofit2.Response
 import retrofit2.http.GET
 
 /**

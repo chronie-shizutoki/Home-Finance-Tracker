@@ -34,14 +34,10 @@ object DeviceInfoUtils {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             AppVersionInfo(
                 versionName = packageInfo.versionName ?: "Unknown",
-                versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                versionCode =
                     packageInfo.longVersionCode.toString()
-                } else {
-                    @Suppress("DEPRECATION")
-                    packageInfo.versionCode.toString()
-                }
             )
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             AppVersionInfo(
                 versionName = "Unknown",
                 versionCode = "Unknown"

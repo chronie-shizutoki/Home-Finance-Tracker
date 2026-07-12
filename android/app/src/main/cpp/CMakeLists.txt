@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 4.1.2)
 
 project("sync_engine")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 
 # gRPC NDK Setup Note:
 # To fully use gRPC C++ Core, you would typically use vcpkg or a pre-built gRPC for Android.

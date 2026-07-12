@@ -1,17 +1,10 @@
 package com.chronie.homemoney.ui.expense
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,31 +15,28 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.ui.budget.BudgetCard
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Expense List Screen
@@ -58,7 +48,6 @@ fun ExpenseListScreen(
     viewModel: ExpenseListViewModel = hiltViewModel(),
     shouldRefresh: Boolean = false,
     onRefreshHandled: () -> Unit = {},
-    onNavigateToMoreFunctions: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
     onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
@@ -66,7 +55,7 @@ fun ExpenseListScreen(
     var showFilterDialog by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
-    var budgetRefreshTrigger by remember { mutableStateOf(0) }
+    var budgetRefreshTrigger by remember { mutableIntStateOf(0) }
     
     val pullRefreshState = rememberPullToRefreshState()
     
@@ -103,7 +92,7 @@ fun ExpenseListScreen(
     // Handle refresh state reset after refresh 
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
-            delay(1000)
+            delay(1000.milliseconds)
             isRefreshing = false
         }
     }
@@ -387,7 +376,7 @@ fun ExpenseDateHeader(
     totalAmount: Double,
     context: android.content.Context,
     locale: String? = null,
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val displayDate = formatRelativeDate(date, context, locale)
     
@@ -507,7 +496,9 @@ fun LongPressExpenseItem(
 ) {
     // Bottom Sheet Menu Display State
     val showBottomSheetMenu = remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState()
+    val bottomSheetState = rememberBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded
+    )
     
     // Dialog State - First Confirm Dialog
     val showFirstConfirmDialog = remember { mutableStateOf(false) }
@@ -769,7 +760,7 @@ fun ExpenseTableDateHeader(
     totalAmount: Double,
     context: android.content.Context,
     locale: String? = null,
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val displayDate = formatRelativeDate(date, context, locale)
     

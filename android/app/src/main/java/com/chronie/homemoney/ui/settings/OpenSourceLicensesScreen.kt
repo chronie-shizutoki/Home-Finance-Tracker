@@ -2,19 +2,17 @@ package com.chronie.homemoney.ui.settings
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.ui.components.CircularIconButton
+import androidx.core.net.toUri
 
 data class LibraryInfo(
     val name: String,
@@ -362,7 +360,6 @@ fun OpenSourceLicensesScreen(
     context: Context,
     onNavigateBack: () -> Unit = {}
 ) {
-    val scrollState = androidx.compose.foundation.rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -370,7 +367,7 @@ fun OpenSourceLicensesScreen(
                 title = { Text(context.getString(com.chronie.homemoney.R.string.open_source_licenses)) },
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = context.getString(com.chronie.homemoney.R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(com.chronie.homemoney.R.string.back))
                     }
                 },
                 actions = {
@@ -435,7 +432,7 @@ fun LibraryCard(
                 OutlinedButton(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(library.licenseUrl))
+                            val intent = Intent(Intent.ACTION_VIEW, library.licenseUrl.toUri())
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
                         } catch (e: Exception) {
@@ -453,7 +450,7 @@ fun LibraryCard(
                 OutlinedButton(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(library.projectUrl))
+                            val intent = Intent(Intent.ACTION_VIEW, library.projectUrl.toUri())
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
                         } catch (e: Exception) {

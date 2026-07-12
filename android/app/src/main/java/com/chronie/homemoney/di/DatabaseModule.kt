@@ -14,10 +14,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import net.zetetic.database.sqlcipher.SQLiteDatabase
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import java.nio.charset.StandardCharsets
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 /**
  * Database Module Dependency Injection
@@ -57,7 +57,7 @@ object DatabaseModule {
         if (passphrase == null) {
             // Generate random passphrase
             passphrase = generateRandomPassphrase()
-            sharedPreferences.edit().putString(DB_PASSPHRASE_KEY, passphrase).apply()
+            sharedPreferences.edit { putString(DB_PASSPHRASE_KEY, passphrase) }
         }
         
         return passphrase.toByteArray(StandardCharsets.UTF_8)
@@ -85,13 +85,13 @@ object DatabaseModule {
         val factory = SupportOpenHelperFactory(passphrase)
         
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            AppDatabase.DATABASE_NAME
-        )
-            .openHelperFactory(factory)
-            .addMigrations(*DatabaseMigrations.getAllMigrations())
-            .fallbackToDestructiveMigration()
+                context,
+                AppDatabase::class.java,
+                AppDatabase.DATABASE_NAME
+            )
+                .openHelperFactory(factory)
+                .addMigrations(*DatabaseMigrations.getAllMigrations())
+            .fallbackToDestructiveMigration(false)
             .build()
     }
     

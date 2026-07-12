@@ -20,27 +20,25 @@ enum class Language(
     TRADITIONAL_CHINESE_MACAU("zh-MO", "Traditional Chinese (Macau)", "繁體中文（澳門）", Locale.Builder().setLanguage("zh").setRegion("MO").build()),
     TRADITIONAL_CHINESE_TAIWAN("zh-TW", "Traditional Chinese (Taiwan)", "繁體中文（台灣）", Locale.Builder().setLanguage("zh").setRegion("TW").build()),
     VIETNAMESE("vi-VN", "Vietnamese", "Tiếng Việt", Locale.forLanguageTag("vi-VN"));
-    val displayName: String
-        get() = "$englishName / $localName"
 
     companion object {
         fun fromCode(code: String): Language {
-            return values().find { it.code == code } ?: ENGLISH
+            return entries.find { it.code == code } ?: ENGLISH
         }
 
         fun fromLocale(locale: Locale): Language {
-            return when {
-                locale.language == "ja" -> JAPANESE
-                locale.language == "ko" -> KOREAN
-                locale.language == "vi" -> VIETNAMESE
-                locale.language == "th" -> THAI
-                locale.language == "id" -> INDONESIAN
-                locale.language == "ms" -> MALAY
-                locale.language == "zh" && locale.country == "TW" -> TRADITIONAL_CHINESE_TAIWAN
-                locale.language == "zh" && locale.country == "HK" -> TRADITIONAL_CHINESE_HONG_KONG
-                locale.language == "zh" && locale.country == "MO" -> TRADITIONAL_CHINESE_MACAU
-                locale.language == "zh" && locale.country == "SG" -> SIMPLIFIED_CHINESE_SINGAPORE
-                locale.language == "zh" -> SIMPLIFIED_CHINESE
+            return when (locale.language) {
+                "ja" -> JAPANESE
+                "ko" -> KOREAN
+                "vi" -> VIETNAMESE
+                "th" -> THAI
+                "id" -> INDONESIAN
+                "ms" -> MALAY
+                "zh" if locale.country == "TW" -> TRADITIONAL_CHINESE_TAIWAN
+                "zh" if locale.country == "HK" -> TRADITIONAL_CHINESE_HONG_KONG
+                "zh" if locale.country == "MO" -> TRADITIONAL_CHINESE_MACAU
+                "zh" if locale.country == "SG" -> SIMPLIFIED_CHINESE_SINGAPORE
+                "zh" -> SIMPLIFIED_CHINESE
                 else -> ENGLISH
             }
         }

@@ -3,7 +3,6 @@ package com.chronie.homemoney.ui.settings
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -27,7 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.*
@@ -37,6 +36,9 @@ import com.chronie.homemoney.ui.theme.ThemeSettings
 import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.time.LocalDate
+import androidx.core.net.toUri
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.core.graphics.toColorInt
 
 enum class SettingsPage {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
@@ -515,7 +517,8 @@ fun AboutSettingsPage(
             subtitle = context.getString(R.string.feedback_description),
             onClick = {
                 try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wj.qq.com/s2/24109109/3572/"))
+                    val intent = Intent(Intent.ACTION_VIEW,
+                        "https://wj.qq.com/s2/24109109/3572/".toUri())
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
                 } catch (e: Exception) {
@@ -624,13 +627,9 @@ fun SettingsDetailItem(
 fun AppVersionInfo(context: Context) {
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
-    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    val versionCode =
         packageInfo.longVersionCode
-    } else {
-        @Suppress("DEPRECATION")
-        packageInfo.versionCode.toLong()
-    }
-    
+
     Text(
         text = "Version $versionName ($versionCode)",
         style = MaterialTheme.typography.bodySmall,
@@ -643,16 +642,14 @@ fun AppVersionInfo(context: Context) {
 }
 
 fun openSystemAppLanguageSettings(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        try {
-            val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            openAppInfoSettings(context)
+    try {
+        val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        openAppInfoSettings(context)
     }
 }
 
@@ -663,7 +660,7 @@ fun openAppInfoSettings(context: Context) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         Toast.makeText(context, "Failed to open settings", Toast.LENGTH_SHORT).show()
     }
 }
@@ -716,7 +713,8 @@ fun AISettingsSection(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
                             try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://cloud.siliconflow.cn/me/account/ak"))
+                                val intent = Intent(Intent.ACTION_VIEW,
+                                    "https://cloud.siliconflow.cn/me/account/ak".toUri())
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 context.startActivity(intent)
                             } catch (e: Exception) {
@@ -804,11 +802,8 @@ fun DataImportExportSection(
     }
     
     fun checkAndRequestPermissions(onGranted: () -> Unit) {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val permissions =
             arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
-        } else {
-            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
         val allGranted = permissions.all { androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
         if (allGranted) onGranted() else permissionLauncher.launch(permissions)
     }
@@ -830,7 +825,7 @@ fun DataImportExportSection(
             enabled = !exportInProgress && !importInProgress
         ) {
             if (exportInProgress) {
-                ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
+                ExpressiveLoadingIndicator(containerVisible = false)
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(text = if (exportInProgress) context.getString(R.string.export_in_progress) else context.getString(R.string.export_data))
@@ -844,7 +839,7 @@ fun DataImportExportSection(
             enabled = !exportInProgress && !importInProgress
         ) {
             if (importInProgress) {
-                ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
+                ExpressiveLoadingIndicator(containerVisible = false)
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(text = if (importInProgress) context.getString(R.string.import_in_progress) else context.getString(R.string.import_data))
@@ -923,7 +918,7 @@ fun SyncSection(
     syncMessage?.let { message ->
         LaunchedEffect(message) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            kotlinx.coroutines.delay(3000)
+            kotlinx.coroutines.delay(3000.milliseconds)
             viewModel.clearSyncMessage()
         }
     }
@@ -965,7 +960,7 @@ fun SyncSection(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { showSyncMethodDialog = true }, modifier = Modifier.fillMaxWidth(), enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
                     if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
-                        ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
+                        ExpressiveLoadingIndicator(containerVisible = false)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                     Text(text = if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) context.getString(R.string.sync_syncing) else context.getString(R.string.sync_manual_trigger))
@@ -1032,7 +1027,7 @@ fun AccountSection(
             val outputUri = Uri.fromFile(File(context.cacheDir, "cropped_avatar_${System.currentTimeMillis()}.png"))
             val options = UCrop.Options().apply {
                 setCircleDimmedLayer(true)
-                setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                setToolbarColor("#6750A4".toColorInt())
                 setToolbarWidgetColor(android.graphics.Color.WHITE)
                 setShowCropGrid(false)
             }
@@ -1051,7 +1046,7 @@ fun AccountSection(
                 Surface(modifier = Modifier.size(140.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), shadowElevation = 4.dp) {}
                 Surface(modifier = Modifier.size(132.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), border = BorderStroke(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))) {}
                 Box(modifier = Modifier.size(120.dp).clickable { imagePickerLauncher.launch("image/*") }) {
-                    if (avatarLoading) ExpressiveLoadingIndicator(size = 120.dp, containerVisible = false)
+                    if (avatarLoading) ExpressiveLoadingIndicator(containerVisible = false)
                     else if (avatar != null) {
                         AsyncImage(model = avatar, contentDescription = null, modifier = Modifier.size(120.dp).clip(CircleShape), contentScale = ContentScale.Crop)
                     } else {

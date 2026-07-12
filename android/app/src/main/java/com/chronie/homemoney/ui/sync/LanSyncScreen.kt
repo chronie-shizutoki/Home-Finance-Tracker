@@ -1,7 +1,6 @@
 package com.chronie.homemoney.ui.sync
 
 import android.content.Context
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,13 +10,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -26,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.ui.components.CircularIconButton
@@ -35,6 +36,7 @@ import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.settings.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Local Sync Screen
@@ -56,7 +58,7 @@ fun LanSyncScreen(
     // Show sync message
     syncMessage?.let { message ->
         LaunchedEffect(message) {
-            kotlinx.coroutines.delay(3000)
+            delay(3000.milliseconds)
             viewModel.clearSyncMessage()
         }
     }
@@ -71,7 +73,7 @@ fun LanSyncScreen(
                         modifier = Modifier.padding(start = 8.dp, end = 4.dp)
                     ) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = context.getString(R.string.back)
                         )
                     }
@@ -106,7 +108,6 @@ fun LanSyncScreen(
             
             // Search Nearby Devices Button
             SyncActionCard(
-                context = context,
                 icon = Icons.Outlined.WifiTethering,
                 title = context.getString(R.string.search_nearby_devices),
                 subtitle = context.getString(R.string.search_nearby_devices_desc),
@@ -118,7 +119,6 @@ fun LanSyncScreen(
             
             // Wait for Connection Prompt
             SyncActionCard(
-                context = context,
                 icon = Icons.Outlined.Router,
                 title = context.getString(R.string.wait_for_connection),
                 subtitle = context.getString(R.string.wait_for_connection_desc),
@@ -321,7 +321,6 @@ fun LocalDeviceCard(
  */
 @Composable
 fun SyncActionCard(
-    context: Context,
     icon: ImageVector,
     title: String,
     subtitle: String,
@@ -370,7 +369,7 @@ fun SyncActionCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (isLoading) {
-                    ExpressiveLoadingIndicator(size = 24.dp, containerVisible = false)
+                    ExpressiveLoadingIndicator(containerVisible = false)
                 } else {
                     Icon(
                         imageVector = icon,
@@ -508,7 +507,7 @@ fun DeviceSearchDialog(
 ) {
     var discoveredDevices by remember { mutableStateOf<List<DeviceInfo>>(emptyList()) }
     var isSearching by remember { mutableStateOf(true) }
-    var searchProgress by remember { mutableStateOf(0f) }
+    var searchProgress by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
     val searchDuration = 30000L // 30s search timeout
     
@@ -522,7 +521,7 @@ fun DeviceSearchDialog(
                 val elapsed = System.currentTimeMillis() - startTime
                 val progress = elapsed.toFloat() / searchDuration
                 searchProgress = progress.coerceIn(0f, 0.95f)
-                delay(100)
+                delay(100.milliseconds)
             }
         }
         
@@ -540,7 +539,7 @@ fun DeviceSearchDialog(
     
     // 30s search timeout
     LaunchedEffect(Unit) {
-        delay(searchDuration)
+        delay(searchDuration.milliseconds)
         isSearching = false
         searchProgress = 1f
     }
@@ -601,7 +600,7 @@ fun DeviceSearchDialog(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                ExpressiveLoadingIndicator(size = 48.dp)
+                                ExpressiveLoadingIndicator()
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = context.getString(R.string.searching),
@@ -750,8 +749,8 @@ fun SyncProgressBottomSheet(
     message: String,
     onDismiss: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden
     )
 
     ModalBottomSheet(

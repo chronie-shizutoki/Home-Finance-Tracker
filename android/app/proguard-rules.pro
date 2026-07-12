@@ -116,7 +116,6 @@
 
 # Gson
 -keep class com.google.gson.** { *; }
--keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.stream.** { *; }
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken { *; }

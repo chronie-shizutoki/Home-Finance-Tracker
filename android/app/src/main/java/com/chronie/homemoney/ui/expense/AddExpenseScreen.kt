@@ -22,9 +22,6 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -38,8 +35,7 @@ fun AddExpenseScreen(
     expenseId: String? = null,
     viewModel: AddExpenseViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateToAI: () -> Unit = {},
-    onRequireLogin: () -> Unit = {}
+    onNavigateToAI: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,7 +83,7 @@ fun AddExpenseScreen(
                         modifier = Modifier.padding(start = 4.dp, end = 8.dp)
                     ) {
                         if (uiState.isSaving) {
-                            ExpressiveLoadingIndicator(size = 24.dp, containerVisible = false)
+                            ExpressiveLoadingIndicator(containerVisible = false)
                         } else {
                             Icon(Icons.Default.Check, contentDescription = context.getString(R.string.save))
                         }
@@ -229,9 +225,9 @@ fun ExpenseTypeDropdown(
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
-            ExpenseType.values().toList()
+            ExpenseType.entries
         } else {
-            ExpenseType.values().filter { type ->
+            ExpenseType.entries.filter { type ->
                 val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
                 displayName.contains(searchQuery, ignoreCase = true) ||
                     type.name.contains(searchQuery, ignoreCase = true)

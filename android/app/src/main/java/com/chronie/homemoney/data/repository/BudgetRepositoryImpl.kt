@@ -8,8 +8,6 @@ import com.chronie.homemoney.domain.model.BudgetUsage
 import com.chronie.homemoney.domain.repository.BudgetRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -74,8 +72,8 @@ class BudgetRepositoryImpl @Inject constructor(
             // Get current month start and end date strings
             val now = java.time.LocalDate.now()
             val yearMonth = java.time.YearMonth.from(now)
-            val startOfMonth = yearMonth.atDay(1).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            val endOfMonth = yearMonth.atEndOfMonth().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val startOfMonth = yearMonth.atDay(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val endOfMonth = yearMonth.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             
             android.util.Log.d("BudgetRepository", "Querying expenses from $startOfMonth to $endOfMonth")
             

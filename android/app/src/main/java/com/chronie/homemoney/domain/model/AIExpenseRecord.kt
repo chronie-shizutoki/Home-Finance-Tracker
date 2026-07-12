@@ -1,7 +1,5 @@
 package com.chronie.homemoney.domain.model
 
-import java.time.LocalDateTime
-
 /**
  * AI recognized Expense Record
  */

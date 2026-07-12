@@ -3,16 +3,17 @@ package com.chronie.homemoney.data.sync
 import android.util.Log
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
-import com.chronie.homemoney.data.mapper.ExpenseMapper.toEntity
+import com.chronie.homemoney.domain.model.ConflictResolution
+import com.chronie.homemoney.domain.model.ConflictType
 import com.chronie.homemoney.domain.model.DownloadResult
+import com.chronie.homemoney.domain.model.SyncConflict
+import com.chronie.homemoney.domain.model.SyncResult
 import com.chronie.homemoney.domain.model.UploadResult
 import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.domain.sync.DeviceSyncData
 import com.chronie.homemoney.domain.sync.DeviceSyncManager
 import com.chronie.homemoney.domain.sync.SyncEntity
-import com.chronie.homemoney.domain.sync.SyncManager
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -26,41 +27,41 @@ abstract class BaseDeviceSyncManager(
     protected val gson: Gson
 ) : DeviceSyncManager {
     
-    protected val TAG = this::class.java.simpleName
+    protected val tag: String = this::class.java.simpleName
     protected var isConnected = false
     protected var currentDevice: DeviceInfo? = null
     
     override fun searchDevices(): Flow<DeviceInfo> = flow {
         // Default implementation, subclass must override this
-        Log.d(TAG, "Default searchDevices implementation")
+        Log.d(tag, "Default searchDevices implementation")
     }
     
     override suspend fun connect(device: DeviceInfo): Boolean {
-        Log.d(TAG, "Connecting to device: ${device.deviceName}")
+        Log.d(tag, "Connecting to device: ${device.deviceName}")
         isConnected = true
         currentDevice = device
         return true
     }
     
     override suspend fun disconnect(): Boolean {
-        Log.d(TAG, "Disconnecting from device")
+        Log.d(tag, "Disconnecting from device")
         isConnected = false
         currentDevice = null
         return true
     }
     
     override suspend fun sendData(data: DeviceSyncData): Boolean {
-        Log.d(TAG, "Sending data to device: ${data.deviceName}")
+        Log.d(tag, "Sending data to device: ${data.deviceName}")
         return true
     }
     
     override suspend fun receiveData(): DeviceSyncData? {
-        Log.d(TAG, "Receiving data from device")
+        Log.d(tag, "Receiving data from device")
         return null
     }
     
-    override suspend fun syncWithDevice(device: DeviceInfo): com.chronie.homemoney.domain.model.SyncResult {
-        Log.d(TAG, "Starting sync with device: ${device.deviceName}")
+    override suspend fun syncWithDevice(device: DeviceInfo): SyncResult {
+        Log.d(tag, "Starting sync with device: ${device.deviceName}")
         
         return try {
             // 1. Connect to device
@@ -91,7 +92,7 @@ abstract class BaseDeviceSyncManager(
             disconnect()
             
             // 7. Return sync result
-            com.chronie.homemoney.domain.model.SyncResult(
+            SyncResult(
                 success = true,
                 uploadResult = UploadResult(
                     totalItems = localData.entities.size,
@@ -102,7 +103,7 @@ abstract class BaseDeviceSyncManager(
                 conflicts = downloadResult.conflicts
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Sync with device failed", e)
+            Log.e(tag, "Sync with device failed", e)
             disconnect()
             createFailedSyncResult(e.message ?: "Unknown error")
         }
@@ -140,11 +141,11 @@ abstract class BaseDeviceSyncManager(
      * Process data received from device
      */
     protected suspend fun processDeviceData(deviceData: DeviceSyncData): DownloadResult {
-        val conflicts = mutableListOf<com.chronie.homemoney.domain.model.SyncConflict>()
+        val conflicts = mutableListOf<SyncConflict>()
         var newItems = 0
         var updatedItems = 0
         
-        Log.d(TAG, "Processing ${deviceData.entities.size} entities from device ${deviceData.deviceName}")
+        Log.d(tag, "Processing ${deviceData.entities.size} entities from device ${deviceData.deviceName}")
         
         val totalEntities = deviceData.entities.size
         var processedCount = 0
@@ -152,17 +153,17 @@ abstract class BaseDeviceSyncManager(
         for (entity in deviceData.entities) {
             if (entity.entityType == "expense") {
                 try {
-                    Log.d(TAG, "Processing expense entity: ${entity.entityId}, data type: ${entity.data?.javaClass?.simpleName}")
-                    Log.d(TAG, "Entity data (first 200 chars): ${entity.data?.take(200)}")
+                    Log.d(tag, "Processing expense entity: ${entity.entityId}, data type: ${entity.data.javaClass.simpleName}")
+                    Log.d(tag, "Entity data (first 200 chars): ${entity.data.take(200)}")
                     val expenseEntity = gson.fromJson(entity.data, ExpenseEntity::class.java)
-                    Log.d(TAG, "Parsed expense entity: ${expenseEntity.id}, type: ${expenseEntity.type}, amount: ${expenseEntity.amount}")
+                    Log.d(tag, "Parsed expense entity: ${expenseEntity.id}, type: ${expenseEntity.type}, amount: ${expenseEntity.amount}")
                     val localExpense = expenseDao.getExpenseById(entity.entityId)
                     
                     if (localExpense == null) {
                         // New record, insert it
                         expenseDao.insertExpense(expenseEntity)
                         newItems++
-                        Log.d(TAG, "Added new expense from device: ${expenseEntity.id}")
+                        Log.d(tag, "Added new expense from device: ${expenseEntity.id}")
                     } else {
                         // Record already exists, use newer version
                         // Use current timestamp as comparison base
@@ -170,24 +171,24 @@ abstract class BaseDeviceSyncManager(
                         if (entity.timestamp > localTimestamp) {
                             expenseDao.insertExpense(expenseEntity)
                             updatedItems++
-                            Log.d(TAG, "Updated expense from device: ${expenseEntity.id}")
+                            Log.d(tag, "Updated expense from device: ${expenseEntity.id}")
                         } else {
                             // Conflict: Local version is newer, use it
                             conflicts.add(
-                                com.chronie.homemoney.domain.model.SyncConflict(
+                                SyncConflict(
                                     entityType = "expense",
                                     entityId = entity.entityId,
-                                    conflictType = com.chronie.homemoney.domain.model.ConflictType.UPDATE_CONFLICT,
+                                    conflictType = ConflictType.UPDATE_CONFLICT,
                                     localTimestamp = localTimestamp,
                                     serverTimestamp = entity.timestamp,
-                                    resolution = com.chronie.homemoney.domain.model.ConflictResolution.USE_LOCAL
+                                    resolution = ConflictResolution.USE_LOCAL
                                 )
                             )
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to process expense entity", e)
-                    Log.e(TAG, "Entity data: ${entity.data}")
+                    Log.e(tag, "Failed to process expense entity", e)
+                    Log.e(tag, "Entity data: ${entity.data}")
                 }
             }
             
@@ -210,8 +211,8 @@ abstract class BaseDeviceSyncManager(
     /**
      * Create a failed sync result
      */
-    protected fun createFailedSyncResult(error: String): com.chronie.homemoney.domain.model.SyncResult {
-        return com.chronie.homemoney.domain.model.SyncResult(
+    protected fun createFailedSyncResult(error: String): SyncResult {
+        return SyncResult(
             success = false,
             uploadResult = UploadResult(0, 0, 0),
             downloadResult = DownloadResult(0, 0, 0),

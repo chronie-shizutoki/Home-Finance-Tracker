@@ -25,7 +25,6 @@ class ErrorReporter @Inject constructor(
     private val logFileManager = LogFileManager(context)
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     private val handler = Handler(Looper.getMainLooper())
-    private val mainThreadId = ThreadUtils.getMainThreadId()
 
     companion object {
         private const val TAG = "ErrorReporter"
@@ -150,7 +149,9 @@ class ErrorReporter @Inject constructor(
             } finally {
                 retryCount++
                 if (!success && retryCount < RETRY_COUNT) {
-                    Thread.sleep(1000L * retryCount)
+                    withContext(Dispatchers.IO) {
+                        Thread.sleep(1000L * retryCount)
+                    }
                 }
             }
         }
@@ -184,7 +185,7 @@ class ErrorReporter @Inject constructor(
         return try {
             val appInfo = context.applicationInfo
             (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

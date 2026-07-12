@@ -13,8 +13,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Circular IconButton Component
- * Component for circular icon buttons
+ * Circular IconButton Component *  for circular icon buttons
  * Used in top bars and other places where circular backgrounds are needed
  */
 @Composable

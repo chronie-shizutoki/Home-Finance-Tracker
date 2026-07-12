@@ -4,8 +4,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.chronie.homemoney.data.local.dao.ExpenseDao
-import com.chronie.homemoney.data.local.dao.SyncQueueDao
-import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.mapper.ExpenseMapper
 import com.chronie.homemoney.data.remote.api.ExpenseApi
 import com.chronie.homemoney.domain.model.Expense
@@ -15,12 +13,12 @@ import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
 class ExpenseRepositoryImpl @Inject constructor(
@@ -53,7 +51,7 @@ class ExpenseRepositoryImpl @Inject constructor(
             val networkTimeoutMillis = 3000L
             
             val expenses = try {
-                withTimeout(networkTimeoutMillis) {
+                withTimeout(networkTimeoutMillis.milliseconds) {
                     val response = expenseApi.getExpenses(
                         page = page,
                         limit = limit,
@@ -92,9 +90,9 @@ class ExpenseRepositoryImpl @Inject constructor(
                         Result.failure(Exception("Server returned error: ${response.code()}"))
                     }
                 }
-            } catch (timeoutException: kotlinx.coroutines.TimeoutCancellationException) {
+            } catch (_: kotlinx.coroutines.TimeoutCancellationException) {
                 null
-            } catch (networkError: Exception) {
+            } catch (_: Exception) {
                 null
             }
             
@@ -261,7 +259,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                     try {
                         val expenseDate = LocalDate.parse(expense.date)
                         expenseDate >= filters.startDate
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         false
                     }
                 }
@@ -272,7 +270,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                     try {
                         val expenseDate = LocalDate.parse(expense.date)
                         expenseDate <= filters.endDate
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         false
                     }
                 }

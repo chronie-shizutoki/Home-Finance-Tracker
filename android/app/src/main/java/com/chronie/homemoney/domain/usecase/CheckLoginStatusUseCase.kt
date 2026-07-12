@@ -10,10 +10,6 @@ class CheckLoginStatusUseCase @Inject constructor(
         return preferencesManager.shouldSkipWelcome()
     }
 
-    fun isLoggedIn(): Boolean {
-        return preferencesManager.isLoggedIn()
-    }
-
     fun getUsername(): String? {
         return preferencesManager.getUsername()
     }

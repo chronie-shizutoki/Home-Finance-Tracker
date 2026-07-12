@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.settings
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,11 +18,14 @@ import com.chronie.homemoney.ui.theme.PaletteStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.core.content.edit
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -44,11 +48,9 @@ class SettingsViewModel @Inject constructor(
 
     // Manual primary color selection
     private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // Default purple
-    val primaryColor: StateFlow<Int> = _primaryColor.asStateFlow()
 
     // Palette style selection
     private val _paletteStyle = MutableStateFlow(PaletteStyle.Expressive)
-    val paletteStyle: StateFlow<PaletteStyle> = _paletteStyle.asStateFlow()
 
     val currentLanguage: StateFlow<Language> = languageManager.currentLanguage
 
@@ -136,6 +138,7 @@ class SettingsViewModel @Inject constructor(
         syncManager.getDeviceSyncManager().setSyncRequestCallback(this)
     }
 
+    @SuppressLint("EmptySuperCall")
     override fun onCleared() {
         super.onCleared()
         // Clear sync request callback to prevent memory leak
@@ -148,7 +151,7 @@ class SettingsViewModel @Inject constructor(
      */
     override suspend fun onSyncRequest(requestInfo: com.chronie.homemoney.domain.sync.SyncRequestInfo): Boolean {
         android.util.Log.d("SettingsViewModel", "Received onSyncRequest from ${requestInfo.deviceName}")
-        return kotlin.coroutines.suspendCoroutine { continuation ->
+        return suspendCancellableCoroutine { continuation ->
             syncRequestContinuation = continuation
             _incomingSyncRequest.value = requestInfo
         }
@@ -344,7 +347,7 @@ class SettingsViewModel @Inject constructor(
                 }
 
                 // Delay closing the progress dialog
-                kotlinx.coroutines.delay(1500)
+                kotlinx.coroutines.delay(1500.milliseconds)
                 _showSyncProgress.value = false
 
             } catch (e: Exception) {
@@ -352,7 +355,7 @@ class SettingsViewModel @Inject constructor(
                 _syncProgress.value = 1f
                 _syncProgressMessage.value = context.getString(R.string.device_sync_failed, e.message)
                 _syncMessage.value = context.getString(R.string.device_sync_failed, e.message)
-                kotlinx.coroutines.delay(1500)
+                kotlinx.coroutines.delay(1500.milliseconds)
                 _showSyncProgress.value = false
             }
         }
@@ -425,7 +428,7 @@ class SettingsViewModel @Inject constructor(
     fun setAIApiKey(apiKey: String) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putString("siliconflow_api_key", apiKey).apply()
+            prefs.edit { putString("siliconflow_api_key", apiKey) }
             _aiApiKey.value = apiKey
             _syncMessage.value = context.getString(R.string.settings_ai_api_key_saved)
         }
@@ -460,7 +463,7 @@ class SettingsViewModel @Inject constructor(
             _useDynamicColor.value = prefs.getBoolean("use_dynamic_color", true)
             _primaryColor.value = prefs.getInt("primary_color", 0xFF6750A4.toInt())
             val paletteStyleValue = prefs.getInt("palette_style", PaletteStyle.Expressive.ordinal)
-            val paletteStyle = PaletteStyle.values().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
+            val paletteStyle = PaletteStyle.entries.toTypedArray().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
             _paletteStyle.value = paletteStyle
         }
     }
@@ -469,7 +472,7 @@ class SettingsViewModel @Inject constructor(
     fun toggleDynamicColor(enabled: Boolean) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putBoolean("use_dynamic_color", enabled).apply()
+            prefs.edit { putBoolean("use_dynamic_color", enabled) }
             _useDynamicColor.value = enabled
             _syncMessage.value = context.getString(if (enabled) R.string.dynamic_color_enabled else R.string.dynamic_color_disabled)
         }
@@ -479,7 +482,7 @@ class SettingsViewModel @Inject constructor(
     fun setPrimaryColor(color: Int) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putInt("primary_color", color).apply()
+            prefs.edit { putInt("primary_color", color) }
             _primaryColor.value = color
             _syncMessage.value = context.getString(R.string.primary_color_updated)
         }
@@ -497,7 +500,7 @@ class SettingsViewModel @Inject constructor(
     fun setDeviceName(name: String) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putString("device_custom_name", name).apply()
+            prefs.edit { putString("device_custom_name", name) }
             _deviceName.value = name
             _syncMessage.value = context.getString(R.string.device_name_updated)
         }

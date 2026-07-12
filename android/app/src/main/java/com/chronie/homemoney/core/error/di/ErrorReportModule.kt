@@ -2,7 +2,6 @@ package com.chronie.homemoney.core.error.di
 
 import android.content.Context
 import com.chronie.homemoney.core.error.ErrorReportApi
-import com.chronie.homemoney.core.error.ErrorReporter
 import com.chronie.homemoney.core.error.LogFileManager
 import dagger.Module
 import dagger.Provides

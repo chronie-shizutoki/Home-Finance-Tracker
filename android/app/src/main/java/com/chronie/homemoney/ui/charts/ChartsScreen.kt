@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.charts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -20,7 +21,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
@@ -29,10 +30,8 @@ import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
@@ -40,7 +39,6 @@ import kotlinx.coroutines.launch
 fun ChartsScreen(
     context: Context,
     viewModel: ChartsViewModel = hiltViewModel(),
-    onRequireLogin: () -> Unit = {},
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -309,6 +307,7 @@ private fun TrendLineChartCard(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun HighQualityLineChart(
     data: List<DailyChartData>,
@@ -491,6 +490,7 @@ private fun CategoryBreakdownCard(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryItem(
     context: Context,
@@ -548,8 +548,10 @@ private fun TimeRangeDialog(
     val customEndDate by viewModel.customEndDate.collectAsState()
     
     var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
-    
-    val sheetState = rememberModalBottomSheetState()
+
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded
+    )
     
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -583,7 +585,10 @@ private fun TimeRangeDialog(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(
+                            type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                            enabled = true
+                        )
                 )
                 
                 ExposedDropdownMenu(
@@ -674,7 +679,9 @@ private fun CustomRangeBottomSheet(
     onDismiss: () -> Unit,
     onConfirm: (LocalDate, LocalDate) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.PartiallyExpanded
+    )
     val coroutineScope = rememberCoroutineScope()
     
     var startDate by remember { mutableStateOf(initialStartDate) }

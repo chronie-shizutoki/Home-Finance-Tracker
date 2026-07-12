@@ -46,7 +46,7 @@ object ExpenseMapper {
                 java.time.LocalDate.parse(dto.date)
                 dto.date
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         }
         

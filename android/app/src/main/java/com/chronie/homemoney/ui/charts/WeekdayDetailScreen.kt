@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.charts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.components.CircularIconButton
@@ -19,6 +20,7 @@ import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
 
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekdayDetailScreen(
@@ -144,7 +146,6 @@ fun WeekdayDetailScreen(
                         contentAlignment = androidx.compose.ui.Alignment.Center
                     ) {
                         ExpressiveLoadingIndicator(
-                            size = 40.dp,
                             containerVisible = false
                         )
                     }
@@ -196,6 +197,7 @@ fun WeekdayDetailScreen(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryDetailItem(
     context: Context,
