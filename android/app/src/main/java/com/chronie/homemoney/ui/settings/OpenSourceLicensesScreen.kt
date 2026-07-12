@@ -97,7 +97,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Jetpack Compose BOM",
-        version = "2026.06.00",
+        version = "2026.06.01",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-bom"
@@ -118,14 +118,14 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Material3",
-        version = "1.5.0-alpha22",
+        version = "1.5.0-alpha23",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
     ),
     LibraryInfo(
         name = "AndroidX Material3 Window Size Class",
-        version = "1.5.0-alpha22",
+        version = "1.5.0-alpha23",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
@@ -153,14 +153,14 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "Dagger Hilt Android",
-        version = "2.60",
+        version = "2.60.1",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://dagger.dev/hilt/"
     ),
     LibraryInfo(
         name = "AndroidX Hilt Navigation Compose",
-        version = "1.3.0",
+        version = "1.4.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/hilt"
@@ -237,14 +237,14 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "SQLCipher Android",
-        version = "4.16.0",
+        version = "4.17.0",
         license = "BSD 3-Clause License",
         licenseUrl = "https://opensource.org/licenses/BSD-3-Clause",
         projectUrl = "https://www.zetetic.net/sqlcipher/"
     ),
     LibraryInfo(
         name = "AndroidX SQLite",
-        version = "2.6.2",
+        version = "2.7.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/sqlite"
@@ -258,7 +258,7 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Hilt Work",
-        version = "1.3.0",
+        version = "1.4.0",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/hilt"
@@ -321,21 +321,21 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "gRPC OkHttp",
-        version = "1.82.1",
+        version = "1.82.2",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/grpc/grpc-java"
     ),
     LibraryInfo(
         name = "gRPC Protobuf Lite",
-        version = "1.82.1",
+        version = "1.82.2",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/grpc/grpc-java"
     ),
     LibraryInfo(
         name = "gRPC Stub",
-        version = "1.82.1",
+        version = "1.82.2",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://github.com/grpc/grpc-java"
