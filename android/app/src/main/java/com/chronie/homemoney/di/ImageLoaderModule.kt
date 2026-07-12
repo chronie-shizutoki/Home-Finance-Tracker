@@ -4,6 +4,7 @@ import android.content.Context
 import coil3.ImageLoader
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.chronie.homemoney.core.coil.DataUriFetcher
 import dagger.Module
 import dagger.Provides
@@ -23,6 +24,7 @@ object ImageLoaderModule {
         return ImageLoader.Builder(context)
             .components {
                 add(DataUriFetcher.Factory())
+                add(OkHttpNetworkFetcherFactory())
             }
             .memoryCache {
                 MemoryCache.Builder()
