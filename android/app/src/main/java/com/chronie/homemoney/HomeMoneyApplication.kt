@@ -4,14 +4,15 @@ import android.app.Application
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import coil.ImageLoader
-import coil.ImageLoaderFactory
+import coil3.SingletonImageLoader
+import coil3.ImageLoader
+import coil3.PlatformContext
 import com.chronie.homemoney.core.error.ErrorReporter
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class HomeMoneyApplication : Application(), Configuration.Provider, ImageLoaderFactory {
+class HomeMoneyApplication : Application(), Configuration.Provider, SingletonImageLoader.Factory {
 
     @Inject
     lateinit var errorReporter: ErrorReporter
@@ -22,17 +23,15 @@ class HomeMoneyApplication : Application(), Configuration.Provider, ImageLoaderF
     @Inject
     lateinit var imageLoader: ImageLoader
 
-    override fun newImageLoader(): ImageLoader = imageLoader
+    override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader
 
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize error reporting system
         try {
             errorReporter.initialize()
             Log.d("HomeMoneyApplication", "Error reporting system initialized")
         } catch (e: Exception) {
-            // Even if error reporting system initialization fails, ensure app can run
             Log.e("HomeMoneyApplication", "Failed to initialize error reporting system", e)
         }
     }

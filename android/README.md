@@ -90,20 +90,20 @@ This is the native Android implementation of the Home Money financial tracking a
 ### Core Technologies
 - **Language**: Kotlin 2.4.0
 - **Android Gradle Plugin**: 9.2.1
-- **KSP**: 2.3.9
-- **UI Framework**: Jetpack Compose (BOM 2026.06.00)
-- **Dependency Injection**: Hilt 2.60
-- **Database**: Room 2.8.4 with SQLCipher 4.16.0
+- **KSP**: 2.4.10
+- **UI Framework**: Jetpack Compose (BOM 2026.06.01)
+- **Dependency Injection**: Hilt 2.60.1
+- **Database**: Room 2.8.4 with SQLCipher 4.17.0
 - **Networking**: Retrofit 3.0.0 + OkHttp logging-interceptor 5.4.0
 - **Async**: Kotlin Coroutines 1.11.0 + Flow
 
 ### Key Libraries
-- **Material Design 3**: Modern UI components (1.5.0-alpha22) with window-size-class
+- **Material Design 3**: Modern UI components (1.5.0-alpha23) with window-size-class
 - **Material (MDC)**: Material Components for Android (1.14.0)
 - **Navigation Compose**: Type-safe navigation (2.9.8)
 - **Paging 3**: Efficient data loading with Compose integration (3.5.0)
 - **WorkManager**: Background task scheduling (2.11.2) with Hilt integration
-- **Coil**: Image loading and caching (2.7.0) with custom DataUriMapper
+- **Coil Compose**: Image loading and caching (3.5.0) with custom DataUriMapper
 - **Gson**: JSON serialization
 - **DataStore**: Preferences storage (1.2.1)
 - **fastExcel**: Excel file handling (0.20.2) with aalto-xml (1.4.0) and XZ (1.12)
@@ -621,7 +621,7 @@ CREATE TABLE sync_queue (
 ## Security Considerations
 
 ### Data Protection
-- SQLCipher 4.16.0 encryption for local database with 32-character random passphrase
+- SQLCipher 4.17.0 encryption for local database with 32-character random passphrase
 - Passphrase stored in EncryptedSharedPreferences with AES256_GCM
 - Master Key backed by Android Keystore (AES256_GCM)
 - Cleartext traffic enabled for local development; use HTTPS in production
