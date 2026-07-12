@@ -3,9 +3,7 @@ package com.chronie.homemoney.domain.sync
 import com.chronie.homemoney.domain.model.SyncResult
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Sync Progress Information

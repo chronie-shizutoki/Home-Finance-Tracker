@@ -3,7 +3,6 @@ package com.chronie.homemoney.data.remote.interceptor
 import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
-import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import java.io.IOException
 import java.nio.charset.Charset
@@ -71,20 +70,18 @@ class LoggingInterceptor : Interceptor {
         
         // Log response body
         val responseBody = response.body
-        if (responseBody != null) {
-            val source = responseBody.source()
-            source.request(Long.MAX_VALUE)
-            val buffer = source.buffer
-            
-            val charset: Charset = responseBody.contentType()?.charset(StandardCharsets.UTF_8) 
-                ?: StandardCharsets.UTF_8
-            
-            if (responseBody.contentLength() != 0L) {
-                val content = buffer.clone().readString(charset)
-                logLongString("  Response Body: $content")
-            }
+        val source = responseBody.source()
+        source.request(Long.MAX_VALUE)
+        val buffer = source.buffer
+
+        val charset: Charset = responseBody.contentType()?.charset(StandardCharsets.UTF_8)
+            ?: StandardCharsets.UTF_8
+
+        if (responseBody.contentLength() != 0L) {
+            val content = buffer.clone().readString(charset)
+            logLongString("  Response Body: $content")
         }
-        
+
         return response
     }
     

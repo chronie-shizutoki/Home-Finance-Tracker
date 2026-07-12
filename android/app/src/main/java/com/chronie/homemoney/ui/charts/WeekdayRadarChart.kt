@@ -1,11 +1,10 @@
 package com.chronie.homemoney.ui.charts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,7 +21,6 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import java.text.NumberFormat
-import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -62,7 +60,6 @@ fun WeekdayRadarChartCard(
                 WeekdayRadarChart(
                     context = context,
                     weekdayData = weekdayData,
-                    currencyFormat = currencyFormat,
                     onWeekdayClick = { weekday ->
                         onNavigateToWeekdayDetail(
                             weekday.dayOfWeek,
@@ -95,11 +92,11 @@ fun WeekdayRadarChartCard(
 /**
  * Weekday Radar Chart
  */
+@SuppressLint("DefaultLocale")
 @Composable
 private fun WeekdayRadarChart(
     context: Context,
     weekdayData: List<WeekdayChartData>,
-    currencyFormat: NumberFormat,
     onWeekdayClick: (WeekdayChartData) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -292,6 +289,7 @@ private fun WeekdayRadarChart(
 /**
  * Weekday Data Item
  */
+@SuppressLint("DefaultLocale")
 @Composable
 private fun WeekdayDataItem(
     context: Context,
@@ -327,6 +325,7 @@ private fun WeekdayDataItem(
 /**
  * Category Detail Item
  */
+@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryDetailItem(
     context: Context,

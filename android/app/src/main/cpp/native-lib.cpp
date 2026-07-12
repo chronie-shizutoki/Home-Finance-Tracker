@@ -73,7 +73,7 @@ jbyteArray call_kotlin_sync(JNIEnv* env, const std::vector<uint8_t>& input_data)
     env->SetByteArrayRegion(jdata, 0, input_data.size(), (const jbyte*)input_data.data());
 
     LOGD("Calling handleIncomingSyncRequest in Kotlin...");
-    jbyteArray response = (jbyteArray)env->CallObjectMethod(g_engine_obj, mid, jid, jname, jdata);
+    auto response = (jbyteArray)env->CallObjectMethod(g_engine_obj, mid, jid, jname, jdata);
 
     if (env->ExceptionCheck()) {
         LOGE("Exception occurred in handleIncomingSyncRequest");
@@ -121,7 +121,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env, j
         int opt = 1;
         setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-        struct sockaddr_in addr;
+        struct sockaddr_in addr{};
         addr.sin_family = AF_INET;
         addr.sin_addr.s_addr = INADDR_ANY;
         addr.sin_port = htons(port);
@@ -138,7 +138,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env, j
         LOGD("Native High-Perf Server listening on port %d", port);
 
         while (g_server_running) {
-            struct sockaddr_in client_addr;
+            struct sockaddr_in client_addr{};
             socklen_t client_len = sizeof(client_addr);
             int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
             if (client_fd < 0) {
@@ -203,8 +203,8 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_stopServer(JNIEnv* env, jo
 
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env, jobject /* this */, jstring address, jint port, jbyteArray data) {
-    const char* nativeAddress = env->GetStringUTFChars(address, 0);
-    jbyte* buffer_ptr = env->GetByteArrayElements(data, 0);
+    const char* nativeAddress = env->GetStringUTFChars(address, nullptr);
+    jbyte* buffer_ptr = env->GetByteArrayElements(data, nullptr);
     jsize data_len = env->GetArrayLength(data);
 
     LOGD("Native Connecting to %s:%d", nativeAddress, port);
@@ -216,13 +216,13 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env, j
         return nullptr;
     }
 
-    struct timeval timeout;
+    struct timeval timeout{};
     timeout.tv_sec = 10;
     timeout.tv_usec = 0;
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
 
-    struct sockaddr_in server_addr;
+    struct sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
     inet_pton(AF_INET, nativeAddress, &server_addr.sin_addr);

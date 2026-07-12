@@ -1,7 +1,6 @@
 package com.chronie.homemoney.ui.expense
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
@@ -14,22 +13,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
@@ -40,10 +35,11 @@ import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import com.yalantis.ucrop.UCrop
-import com.yalantis.ucrop.UCropActivity
 import android.content.Intent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.core.graphics.toColorInt
 
 /**
  * AI Expense Screen
@@ -52,7 +48,7 @@ import android.content.Intent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AIExpenseScreen(
-    context: android.content.Context,
+    context: Context,
     onNavigateBack: () -> Unit,
     onRecordsSaved: () -> Unit,
     viewModel: AIExpenseViewModel = hiltViewModel()
@@ -66,10 +62,10 @@ fun AIExpenseScreen(
         if (it.resultCode == android.app.Activity.RESULT_OK) {
             // Get cropped image URI from uCrop
             val outputUri = UCrop.getOutput(it.data ?: Intent())
-            outputUri?.let {
-                viewModel.addImages(listOf(it))
+            outputUri?.let { uri ->
+                viewModel.addImages(listOf(uri))
                 // Delete temporary file
-                val file = File(it.path ?: "")
+                val file = File(uri.path ?: "")
                 if (file.exists()) {
                     file.delete()
                 }
@@ -84,10 +80,10 @@ fun AIExpenseScreen(
         if (it.resultCode == android.app.Activity.RESULT_OK) {
             // Get cropped image URI from uCrop
             val outputUri = UCrop.getOutput(it.data ?: Intent())
-            outputUri?.let {
-                viewModel.addImages(listOf(it))
+            outputUri?.let { uri ->
+                viewModel.addImages(listOf(uri))
                 // Delete temporary file
-                val file = File(it.path ?: "")
+                val file = File(uri.path ?: "")
                 if (file.exists()) {
                     file.delete()
                 }
@@ -118,13 +114,13 @@ fun AIExpenseScreen(
                 options.setHideBottomControls(false)
                 options.setFreeStyleCropEnabled(true)
                 // Set toolbar and status bar colors to avoid overlap
-                options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                options.setToolbarColor("#6750A4".toColorInt())
                 options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
                 // Ensure crop interface correctly handles status bar space
                 options.setToolbarTitle("")
                 options.setToolbarWidgetColor(android.graphics.Color.WHITE)
                 // Add extra padding to top toolbar to avoid overlapping status bar space
-                options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
+                options.setDimmedLayerColor("#80000000".toColorInt())
                 options.setShowCropGrid(false)
                 options.setShowCropFrame(true)
                 // Start cropping
@@ -134,7 +130,7 @@ fun AIExpenseScreen(
                     .withOptions(options)
                 cropLauncher.launch(uCrop.getIntent(context))
             } catch (e: Exception) {
-                android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
+                Log.e("AIExpenseScreen", "Failed to start crop", e)
             }
         }
     }
@@ -167,13 +163,13 @@ fun AIExpenseScreen(
                     options.setHideBottomControls(false)
                     options.setFreeStyleCropEnabled(true)
                     // Set toolbar and status bar colors to avoid overlap
-                    options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                    options.setToolbarColor("#6750A4".toColorInt())
                     options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
                     // Ensure crop interface correctly handles status bar space
                     options.setToolbarTitle("")
                     options.setToolbarWidgetColor(android.graphics.Color.WHITE)
                     // Add extra padding to top toolbar to avoid overlapping status bar space
-                    options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
+                    options.setDimmedLayerColor("#80000000".toColorInt())
                     options.setShowCropGrid(false)
                     options.setShowCropFrame(true)
                     // Start cropping
@@ -183,7 +179,7 @@ fun AIExpenseScreen(
                         .withOptions(options)
                     cropLauncher.launch(uCrop.getIntent(context))
                 } catch (e: Exception) {
-                    android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
+                    Log.e("AIExpenseScreen", "Failed to start crop", e)
                 }
             }
         }
@@ -209,13 +205,13 @@ fun AIExpenseScreen(
             options.setCompressionQuality(90)
                 options.setHideBottomControls(false)
                 options.setFreeStyleCropEnabled(true)
-                options.setToolbarColor(android.graphics.Color.parseColor("#6750A4"))
+                options.setToolbarColor("#6750A4".toColorInt())
                 options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
             // Ensure crop interface correctly handles status bar space
             options.setToolbarTitle("")
             options.setToolbarWidgetColor(android.graphics.Color.WHITE)
             // Add extra padding to top toolbar to avoid overlapping status bar space
-            options.setDimmedLayerColor(android.graphics.Color.parseColor("#80000000"))
+            options.setDimmedLayerColor("#80000000".toColorInt())
             options.setShowCropGrid(false)
             options.setShowCropFrame(true)
             // Start cropping
@@ -225,55 +221,55 @@ fun AIExpenseScreen(
                 .withOptions(options)
             existingImageCropLauncher.launch(uCrop.getIntent(context))
         } catch (e: Exception) {
-            android.util.Log.e("AIExpenseScreen", "Failed to start crop", e)
+            Log.e("AIExpenseScreen", "Failed to start crop", e)
         }
     }
 
     // Create temporary file for camera capture
     fun createImageFile(context: Context): Uri? {
-        val TAG = "AIExpenseScreen"
+        val tag = "AIExpenseScreen"
         return try {
             val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
             val imageFileName = "JPEG_${timeStamp}_"
             val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             
-            Log.d(TAG, "Storage dir: $storageDir")
+            Log.d(tag, "Storage dir: $storageDir")
             
             // Ensure storage directory exists
             if (storageDir?.exists() != true) {
-                Log.d(TAG, "Creating storage dir: ${storageDir?.mkdirs()}")
+                Log.d(tag, "Creating storage dir: ${storageDir?.mkdirs()}")
             }
             
             // Create file
             val image = File(storageDir, "$imageFileName.jpg")
             
-            Log.d(TAG, "Image file path: ${image.absolutePath}")
+            Log.d(tag, "Image file path: ${image.absolutePath}")
             
             // If file already exists, delete it
             if (image.exists()) {
-                Log.d(TAG, "Deleting existing file: ${image.delete()}")
+                Log.d(tag, "Deleting existing file: ${image.delete()}")
             }
             
             // Ensure file is created successfully
             if (image.createNewFile()) {
-                Log.d(TAG, "File created successfully")
+                Log.d(tag, "File created successfully")
                 // Use FileProvider to create URI, avoiding FileUriExposedException
                 val uri = androidx.core.content.FileProvider.getUriForFile(
                     context,
                     "${context.packageName}.fileprovider",
                     image
                 )
-                Log.d(TAG, "Created URI: $uri")
+                Log.d(tag, "Created URI: $uri")
                 uri
             } else {
-                Log.e(TAG, "Failed to create file")
+                Log.e(tag, "Failed to create file")
                 null
             }
         } catch (ex: IOException) {
-            Log.e(TAG, "IOException in createImageFile: ${ex.message}", ex)
+            Log.e(tag, "IOException in createImageFile: ${ex.message}", ex)
             null
         } catch (ex: Exception) {
-            Log.e(TAG, "Exception in createImageFile: ${ex.message}", ex)
+            Log.e(tag, "Exception in createImageFile: ${ex.message}", ex)
             null
         }
     }
@@ -300,7 +296,7 @@ fun AIExpenseScreen(
                 title = { Text(context.getString(R.string.ai_expense_title)) },
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = context.getString(R.string.back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
                 },
                 actions = {
@@ -346,7 +342,7 @@ fun AIExpenseScreen(
                          (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank())
             ) {
                 if (uiState.isLoading) {
-                    ExpressiveLoadingIndicator(size = 20.dp, containerVisible = false)
+                    ExpressiveLoadingIndicator(containerVisible = false)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
@@ -427,8 +423,9 @@ private fun ImageSourceSelectionBottomSheet(
     onCameraSelected: () -> Unit,
     onGallerySelected: () -> Unit
 ) {
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+    val bottomSheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
     )
     
     ModalBottomSheet(
@@ -499,7 +496,7 @@ private fun ImageSourceSelectionBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSelectionSection(
-    context: android.content.Context,
+    context: Context,
     selectedImages: List<Uri>,
     onAddImages: () -> Unit,
     onRemoveImage: (Uri) -> Unit,
@@ -613,7 +610,7 @@ private fun ImagePreviewCard(
  */
 @Composable
 private fun TextInputSection(
-    context: android.content.Context,
+    context: Context,
     textInput: String,
     onTextChange: (String) -> Unit
 ) {
@@ -640,7 +637,7 @@ private fun TextInputSection(
  */
 @Composable
 private fun RecognizedRecordsSection(
-    context: android.content.Context,
+    context: Context,
     records: List<AIExpenseRecord>,
     onUpdateRecord: (Int, AIExpenseRecord) -> Unit,
     onDeleteRecord: (Int) -> Unit,
@@ -662,7 +659,7 @@ private fun RecognizedRecordsSection(
                 enabled = !isSaving && records.any { it.isValid }
             ) {
                 if (isSaving) {
-                    ExpressiveLoadingIndicator(size = 16.dp, containerVisible = false)
+                    ExpressiveLoadingIndicator(containerVisible = false)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
@@ -699,7 +696,7 @@ private fun RecognizedRecordsSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordEditCard(
-    context: android.content.Context,
+    context: Context,
     record: AIExpenseRecord,
     onUpdate: (AIExpenseRecord) -> Unit,
     onDelete: () -> Unit
@@ -791,7 +788,7 @@ private fun RecordEditCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordEditDialog(
-    context: android.content.Context,
+    context: Context,
     record: AIExpenseRecord,
     onDismiss: () -> Unit,
     onConfirm: (AIExpenseRecord) -> Unit
@@ -835,7 +832,7 @@ private fun RecordEditDialog(
                     onClick = { showDatePicker = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    Text(selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(Icons.Default.DateRange, contentDescription = null)
                 }
@@ -856,7 +853,7 @@ private fun RecordEditDialog(
                     val updatedRecord = record.copy(
                         type = selectedType,
                         amount = amount.toDoubleOrNull() ?: record.amount,
-                        date = selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                        date = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                         remark = remark,
                         isEdited = true
                     )
@@ -920,7 +917,7 @@ private fun RecordEditDialog(
  */
 @Composable
 private fun ExpenseTypePickerDialog(
-    context: android.content.Context,
+    context: Context,
     selectedType: ExpenseType,
     onDismiss: () -> Unit,
     onTypeSelected: (ExpenseType) -> Unit
@@ -930,9 +927,9 @@ private fun ExpenseTypePickerDialog(
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
-            ExpenseType.values().toList()
+            ExpenseType.entries
         } else {
-            ExpenseType.values().filter { type ->
+            ExpenseType.entries.filter { type ->
                 val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
                 displayName.contains(searchQuery, ignoreCase = true) ||
                     type.name.contains(searchQuery, ignoreCase = true)
@@ -945,9 +942,9 @@ private fun ExpenseTypePickerDialog(
         title = {
             Column {
                 Text(context.getString(R.string.ai_expense_select_type))
-                if (filteredTypes.size != ExpenseType.values().size) {
+                if (filteredTypes.size != ExpenseType.entries.size) {
                     Text(
-                        text = "${context.getString(R.string.search_results_count, filteredTypes.size)}",
+                        text = context.getString(R.string.search_results_count, filteredTypes.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

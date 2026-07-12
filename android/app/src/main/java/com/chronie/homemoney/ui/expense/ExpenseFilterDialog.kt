@@ -9,10 +9,10 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -79,9 +79,9 @@ fun ExpenseFilterDialog(
                         Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel))
                     }
                 }
-                
-                Divider()
-                
+
+                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+
                 // Filter content area
                 Column(
                     modifier = Modifier
@@ -181,7 +181,7 @@ fun ExpenseFilterDialog(
                     )
                     
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        SortOption.values().forEach { option ->
+                        SortOption.entries.forEach { option ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
@@ -198,9 +198,9 @@ fun ExpenseFilterDialog(
                         }
                     }
                 }
-                
-                Divider()
-                
+
+                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+
                 // Bottom buttons area
                 Row(
                     modifier = Modifier
@@ -330,9 +330,9 @@ fun ExpenseTypeSelector(
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
-            ExpenseType.values().toList()
+            ExpenseType.entries
         } else {
-            ExpenseType.values().filter { type ->
+            ExpenseType.entries.filter { type ->
                 val displayName = ExpenseTypeLocalizer.getLocalizedName(context, type)
                 displayName.contains(searchQuery, ignoreCase = true) ||
                     type.name.contains(searchQuery, ignoreCase = true)
@@ -345,9 +345,9 @@ fun ExpenseTypeSelector(
         title = { 
             Column {
                 Text(context.getString(R.string.expense_list_filter_select_types))
-                if (filteredTypes.size != ExpenseType.values().size) {
+                if (filteredTypes.size != ExpenseType.entries.size) {
                     Text(
-                        text = "${context.getString(R.string.search_results_count, filteredTypes.size)}",
+                        text = context.getString(R.string.search_results_count, filteredTypes.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

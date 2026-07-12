@@ -274,7 +274,7 @@ class AIRecordRepositoryImpl @Inject constructor(
      */
     private fun parseAIResponse(content: String): List<AIExpenseRecord> {
         return try {
-            // Clean response content by removing markdown code block markers
+            // Clean response content by removing Markdown code block markers
             val cleanContent = content
                 .replace("```json", "")
                 .replace("```", "")
@@ -284,7 +284,7 @@ class AIRecordRepositoryImpl @Inject constructor(
             val listType = object : TypeToken<List<AIExpenseRecordDto>>() {}.type
             val dtoList: List<AIExpenseRecordDto> = try {
                 gson.fromJson(cleanContent, listType)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // If array parsing fails, try parsing single object
                 val singleDto = gson.fromJson(cleanContent, AIExpenseRecordDto::class.java)
                 listOf(singleDto)

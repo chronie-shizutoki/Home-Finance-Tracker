@@ -3,7 +3,6 @@ package com.chronie.homemoney.service
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
@@ -19,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
 class HealthCheckService @Inject constructor(
@@ -61,7 +61,7 @@ class HealthCheckService @Inject constructor(
                 } else {
                     android.util.Log.w("HealthCheckService", "No network connection, skipping health check")
                 }
-                delay(CHECK_INTERVAL)
+                delay(CHECK_INTERVAL.milliseconds)
             }
         }
     }
@@ -71,7 +71,7 @@ class HealthCheckService @Inject constructor(
             android.util.Log.d("HealthCheckService", "Checking server health...")
             
             // Use timeout mechanism to avoid long blocking
-            val response = withTimeout(HEALTH_CHECK_TIMEOUT) {
+            val response = withTimeout(HEALTH_CHECK_TIMEOUT.milliseconds) {
                 memberApi.checkHealth()
             }
             
@@ -87,7 +87,7 @@ class HealthCheckService @Inject constructor(
                 android.util.Log.w("HealthCheckService", "Health check failed: status=${response.status}, database=${response.database}")
                 handleHealthCheckFailure()
             }
-        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+        } catch (_: kotlinx.coroutines.TimeoutCancellationException) {
             android.util.Log.e("HealthCheckService", "Health check timeout after ${HEALTH_CHECK_TIMEOUT}ms")
             handleHealthCheckFailure()
         } catch (e: Exception) {
@@ -114,18 +114,11 @@ class HealthCheckService @Inject constructor(
 
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-            return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                   capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-        } else {
-            @Suppress("DEPRECATION")
-            val networkInfo = connectivityManager.activeNetworkInfo
-            @Suppress("DEPRECATION")
-            return networkInfo?.isConnected == true
-        }
+
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+               capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 
 }

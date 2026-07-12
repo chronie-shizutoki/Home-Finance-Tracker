@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -51,7 +49,6 @@ import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDate
 import java.util.Locale
 import javax.inject.Inject
 
@@ -230,16 +227,8 @@ fun HomeMoneyApp(
         composable("welcome") {
             WelcomeScreen(
                 context = context,
-                onSettingsClick = {
-                    navController.navigate("settings")
-                },
                 onGetStartedClick = {
                     navController.navigate("main") {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
-                onNavigateToMembership = {
-                    navController.navigate("membership") {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -302,10 +291,6 @@ fun HomeMoneyApp(
                 onRefreshHandled = { shouldRefreshExpenses = false },
                 selectedTab = selectedTab,
                 onTabChange = { selectedTab = it },
-                onNavigateToSettings = {
-                    selectedTab = 2
-                    navController.navigate("settings")
-                },
                 onNavigateToDatabaseTest = {
                     selectedTab = 2
                     navController.navigate("database_test")
@@ -363,11 +348,6 @@ fun HomeMoneyApp(
                 },
                 onNavigateToAI = {
                     navController.navigate("ai_expense")
-                },
-                onRequireLogin = {
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
-                    }
                 }
             )
         }
@@ -418,8 +398,6 @@ fun HomeMoneyApp(
             val amount = backStackEntry.arguments?.getFloat("amount")?.toDouble() ?: 0.0
             val count = backStackEntry.arguments?.getInt("count") ?: 0
             val percentage = backStackEntry.arguments?.getFloat("percentage") ?: 0f
-            val startDate = backStackEntry.arguments?.getString("startDate") ?: LocalDate.now().minusMonths(1).toString()
-            val endDate = backStackEntry.arguments?.getString("endDate") ?: LocalDate.now().toString()
 
             com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
                 context = context,

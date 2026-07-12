@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.budget
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,16 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.BudgetStatus
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 /**
  * Budget Management Card
@@ -30,7 +30,7 @@ import java.util.Locale
 fun BudgetCard(
     context: android.content.Context,
     viewModel: BudgetViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     refreshTrigger: Int = 0
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -208,7 +208,7 @@ fun BudgetUsageCard(
                             color = progressColor
                         )
                         Text(
-                            text = "(${String.format(Locale.getDefault(), "%.0f", usage.spendingPercentage)}%)",
+                            text = "(${String.format(LocalLocale.current.platformLocale, "%.0f", usage.spendingPercentage)}%)",
                             style = MaterialTheme.typography.bodySmall,
                             color = progressColor
                         )
@@ -269,7 +269,7 @@ fun BudgetUsageCard(
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
                         Text(
-                            text = "(${String.format(Locale.getDefault(), "%.0f", usage.spendingPercentage)}%)",
+                            text = "(${String.format(LocalLocale.current.platformLocale, "%.0f", usage.spendingPercentage)}%)",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Medium,
                             color = progressColor
@@ -290,7 +290,6 @@ fun BudgetUsageCard(
                     when (status) {
                         BudgetStatus.OVER_LIMIT -> {
                             AlertCard(
-                                context = context,
                                 title = context.getString(R.string.budget_alert_over_title),
                                 message = context.getString(
                                     R.string.budget_alert_over_message,
@@ -302,7 +301,6 @@ fun BudgetUsageCard(
                         }
                         BudgetStatus.WARNING -> {
                             AlertCard(
-                                context = context,
                                 title = context.getString(R.string.budget_alert_warning_title),
                                 message = context.getString(
                                     R.string.budget_alert_warning_message,
@@ -315,7 +313,6 @@ fun BudgetUsageCard(
                         }
                         BudgetStatus.NORMAL -> {
                             AlertCard(
-                                context = context,
                                 title = context.getString(R.string.budget_alert_normal_title),
                                 message = context.getString(
                                     R.string.budget_alert_normal_message,
@@ -334,13 +331,11 @@ fun BudgetUsageCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         DetailItem(
-                            context = context,
                             label = context.getString(R.string.budget_daily_average),
                             value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.dailyAverage)
                         )
                         
                         DetailItem(
-                            context = context,
                             label = context.getString(R.string.budget_recommended_daily),
                             value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.recommendedDaily),
                             valueColor = if (usage.recommendedDaily <= 0) {
@@ -363,7 +358,6 @@ fun BudgetUsageCard(
  */
 @Composable
 fun AlertCard(
-    context: android.content.Context,
     title: String,
     message: String,
     containerColor: androidx.compose.ui.graphics.Color,
@@ -399,11 +393,10 @@ fun AlertCard(
  */
 @Composable
 fun DetailItem(
-    context: android.content.Context,
     label: String,
     value: String,
     valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Text(

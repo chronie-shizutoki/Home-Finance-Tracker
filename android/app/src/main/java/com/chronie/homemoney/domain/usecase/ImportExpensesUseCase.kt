@@ -1,5 +1,6 @@
 package com.chronie.homemoney.domain.usecase
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import com.chronie.homemoney.R
@@ -8,8 +9,6 @@ import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.dhatim.fastexcel.reader.ReadableWorkbook
-import org.dhatim.fastexcel.reader.Sheet
-import org.dhatim.fastexcel.reader.Row
 import org.dhatim.fastexcel.reader.Cell
 
 import java.util.*
@@ -63,7 +62,7 @@ class ImportExpensesUseCase @Inject constructor(
         
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
             ReadableWorkbook(inputStream).use { workbook ->
-                val sheet = workbook.getFirstSheet()
+                val sheet = workbook.firstSheet
                 
                 val rows = sheet.read()
                 if (rows.isEmpty()) {
@@ -140,7 +139,7 @@ class ImportExpensesUseCase @Inject constructor(
             }
             
             java.time.LocalDate.parse(datePart).toString()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -150,7 +149,7 @@ class ImportExpensesUseCase @Inject constructor(
         
         return try {
             cell.asNumber().toDouble()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             cell.asString().toDoubleOrNull()
         }
     }
@@ -185,9 +184,10 @@ class ImportExpensesUseCase @Inject constructor(
         return -1
     }
     
+    @SuppressLint("DiscouragedApi")
     private fun parseExpenseType(typeStr: String): ExpenseType {
         // Try to match multiple language type names
-        return ExpenseType.values().find { type ->
+        return ExpenseType.entries.find { type ->
             val resourceId = context.resources.getIdentifier(
                 type.displayNameKey,
                 "string",

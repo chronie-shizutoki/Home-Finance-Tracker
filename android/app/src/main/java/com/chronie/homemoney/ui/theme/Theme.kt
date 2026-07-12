@@ -3,7 +3,6 @@ package com.chronie.homemoney.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -61,21 +60,11 @@ fun loadThemeSettings(context: Context): ThemeSettings {
     val useDynamicColor = prefs.getBoolean("use_dynamic_color", true)
     val primaryColor = prefs.getInt("primary_color", 0xFF6750A4.toInt()) // 默认紫色
     val paletteStyleValue = prefs.getInt("palette_style", PaletteStyle.Expressive.ordinal)
-    val paletteStyle = PaletteStyle.values().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
+    val paletteStyle = PaletteStyle.entries.toTypedArray().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
     return ThemeSettings(useDynamicColor, primaryColor, paletteStyle)
 }
 
-// Update theme settings in SharedPreferences
-fun updateThemeSettings(context: Context, settings: ThemeSettings) {
-    val prefs: SharedPreferences = context.getSharedPreferences("theme_settings", Context.MODE_PRIVATE)
-    prefs.edit().apply {
-        putBoolean("use_dynamic_color", settings.useDynamicColor)
-        putInt("primary_color", settings.primaryColor)
-        putInt("palette_style", settings.paletteStyle.ordinal)
-    }.apply()
-}
-
-// Generate color scheme using m3color library
+// Generate color scheme using md3 color library
 @Stable
 fun dynamicColorScheme(
     keyColor: Color,
@@ -270,17 +259,17 @@ fun createColorScheme(
     paletteStyle: PaletteStyle
 ): ColorScheme {
     val userPrimaryColor = Color(primaryColor)
-    
-    if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+    return if (dynamicColor) {
         // Use system-generated dynamic color scheme if available
-        return if (darkTheme) {
+        if (darkTheme) {
             dynamicDarkColorScheme(context)
         } else {
             dynamicLightColorScheme(context)
         }
     } else {
-        // Use m3color library to generate color scheme
-        return dynamicColorScheme(
+        // Use m3 color library to generate color scheme
+        dynamicColorScheme(
             keyColor = userPrimaryColor,
             isDark = darkTheme,
             style = paletteStyle

@@ -50,17 +50,17 @@ class LanDeviceSyncManager(
     init {
         nativeSyncEngine.setSyncRequestListener(object : NativeSyncEngine.SyncRequestListener {
             override fun onSyncDataReceived(deviceId: String, deviceName: String, data: ByteArray): ByteArray? {
-                Log.d(TAG, "B-Side: Received sync data request from $deviceName ($deviceId)")
+                Log.d(tag, "B-Side: Received sync data request from $deviceName ($deviceId)")
                 
                 // 1. Parse remote data packet
                 val remoteProto = try {
                     if (data.isEmpty()) {
-                        Log.e(TAG, "Received empty data from $deviceName")
+                        Log.e(tag, "Received empty data from $deviceName")
                         return null
                     }
                     ProtoSyncData.parseFrom(data)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to parse remote proto from $deviceName", e)
+                    Log.e(tag, "Failed to parse remote proto from $deviceName", e)
                     return null
                 }
 
@@ -68,29 +68,29 @@ class LanDeviceSyncManager(
                 val realName = if (remoteProto.deviceName.isNotEmpty()) remoteProto.deviceName else deviceName
                 val realId = if (remoteProto.deviceId.isNotEmpty()) remoteProto.deviceId else deviceId
                 
-                Log.d(TAG, "Parsed remote device info: $realName ($realId)")
+                Log.d(tag, "Parsed remote device info: $realName ($realId)")
 
                 // 2. Ask user if to accept (Blocking call)
                 val callback = syncRequestCallback
                 if (callback == null) {
-                    Log.w(TAG, "B-Side: No syncRequestCallback set! The app might not be on the sync screen. Current callback is null.")
+                    Log.w(tag, "B-Side: No syncRequestCallback set! The app might not be on the sync screen. Current callback is null.")
                     return null
                 }
                 
                 val acceptedResult = AtomicBoolean(false)
                 val latch = java.util.concurrent.CountDownLatch(1)
                 
-                Log.d(TAG, "B-Side: Launching Main coroutine for sync request dialog")
+                Log.d(tag, "B-Side: Launching Main coroutine for sync request dialog")
                 // Use CoroutineScope instead of GlobalScope to ensure UI thread is not blocked by network operations
                 val requestJob = CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        Log.d(TAG, "B-Side: Showing sync request dialog for $realName")
+                        Log.d(tag, "B-Side: Showing sync request dialog for $realName")
                         val info = com.chronie.homemoney.domain.sync.SyncRequestInfo(realId, realName, "Remote LAN")
                         val accepted = callback!!.onSyncRequest(info)
                         acceptedResult.set(accepted)
-                        Log.d(TAG, "B-Side: User response for $realName: $accepted")
+                        Log.d(tag, "B-Side: User response for $realName: $accepted")
                     } catch (e: Exception) {
-                        Log.e(TAG, "B-Side: Error in onSyncRequest callback", e)
+                        Log.e(tag, "B-Side: Error in onSyncRequest callback", e)
                     } finally {
                         latch.countDown()
                     }
@@ -100,23 +100,23 @@ class LanDeviceSyncManager(
                 try {
                     val waitSuccess = latch.await(60, java.util.concurrent.TimeUnit.SECONDS)
                     if (!waitSuccess) {
-                        Log.w(TAG, "B-Side: Sync request timed out waiting for user response")
+                        Log.w(tag, "B-Side: Sync request timed out waiting for user response")
                         requestJob.cancel()
                         return null
                     }
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "B-Side: Latch interrupted", e)
+                    Log.e(tag, "B-Side: Latch interrupted", e)
                     requestJob.cancel()
                     return null
                 }
                 
                 if (!acceptedResult.get()) {
-                    Log.d(TAG, "B-Side: Sync request rejected by user")
+                    Log.d(tag, "B-Side: Sync request rejected by user")
                     return null
                 }
 
                 // 3. User accepted, process remote data and prepare local data for sync
-                Log.d(TAG, "B-Side: Processing sync data from $realName")
+                Log.d(tag, "B-Side: Processing sync data from $realName")
                 return runBlocking(Dispatchers.IO) {
                     try {
                         updateSyncProgress(0.4f, "Processing remote $realName data...", true)
@@ -130,10 +130,10 @@ class LanDeviceSyncManager(
                         delay(1000)
                         clearSyncProgress()
                         
-                        Log.d(TAG, "B-Side: Sync with $realName completed, sending response")
+                        Log.d(tag, "B-Side: Sync with $realName completed, sending response")
                         responseBytes
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error processing sync on B-side", e)
+                        Log.e(tag, "Error processing sync on B-side", e)
                         updateSyncProgress(1.0f, "Sync failed: ${e.message}", false)
                         delay(2000)
                         clearSyncProgress()
@@ -176,7 +176,7 @@ class LanDeviceSyncManager(
     }
 
     override fun setSyncRequestCallback(callback: com.chronie.homemoney.domain.sync.SyncRequestCallback?) {
-        Log.d(TAG, "Setting syncRequestCallback: ${callback != null}")
+        Log.d(tag, "Setting syncRequestCallback: ${callback != null}")
         syncRequestCallback = callback
     }
 
@@ -223,7 +223,7 @@ class LanDeviceSyncManager(
     private fun createDiscoveryMessage(ip: String) = "DISCOVERY|$deviceId|$deviceName|$ip|${System.currentTimeMillis()}"
     
     override fun searchDevices(): Flow<DeviceInfo> = flow {
-        Log.d(TAG, "Starting robust LAN search")
+        Log.d(tag, "Starting robust LAN search")
         discoveredDevices.clear()
         if (!isWifiConnected()) return@flow
 
@@ -270,7 +270,7 @@ class LanDeviceSyncManager(
                             emit(device)
                         }
                     }
-                } catch (_: SocketTimeoutException) {} catch (e: Exception) { Log.e(TAG, "Search error", e) }
+                } catch (_: SocketTimeoutException) {} catch (e: Exception) { Log.e(tag, "Search error", e) }
             }
         } finally {
             socket.close()

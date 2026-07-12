@@ -8,16 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun WelcomeScreen(
     context: Context,
-    onSettingsClick: () -> Unit,
     onGetStartedClick: () -> Unit,
-    onNavigateToMembership: () -> Unit = {},
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -33,7 +32,7 @@ fun WelcomeScreen(
     LaunchedEffect(uiState) {
         if (uiState is WelcomeUiState.Error) {
             // Show error message in UI for 3 seconds then clear
-            kotlinx.coroutines.delay(3000)
+            kotlinx.coroutines.delay(3000.milliseconds)
             viewModel.clearError()
         }
     }

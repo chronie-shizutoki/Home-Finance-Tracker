@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class PreferencesManager @Inject constructor(
@@ -16,7 +17,7 @@ class PreferencesManager @Inject constructor(
     )
 
     fun saveUsername(username: String) {
-        prefs.edit().putString(KEY_USERNAME, username).apply()
+        prefs.edit { putString(KEY_USERNAME, username) }
     }
 
     fun getUsername(): String? {
@@ -24,7 +25,7 @@ class PreferencesManager @Inject constructor(
     }
 
     fun clearUsername() {
-        prefs.edit().remove(KEY_USERNAME).apply()
+        prefs.edit { remove(KEY_USERNAME) }
     }
 
     fun isLoggedIn(): Boolean {
@@ -32,7 +33,7 @@ class PreferencesManager @Inject constructor(
     }
 
     fun setSkippedLogin(skipped: Boolean) {
-        prefs.edit().putBoolean(KEY_SKIPPED_LOGIN, skipped).apply()
+        prefs.edit { putBoolean(KEY_SKIPPED_LOGIN, skipped) }
     }
 
     fun hasSkippedLogin(): Boolean {
@@ -42,56 +43,10 @@ class PreferencesManager @Inject constructor(
     fun shouldSkipWelcome(): Boolean {
         return isLoggedIn() || hasSkippedLogin()
     }
-    
-    // Membership subscription information cache (for offline mode)
-    fun saveMembershipStatus(isActive: Boolean, planName: String?, endDate: Long?) {
-        prefs.edit().apply {
-            putBoolean(KEY_MEMBERSHIP_ACTIVE, isActive)
-            putString(KEY_MEMBERSHIP_PLAN, planName)
-            putLong(KEY_MEMBERSHIP_END_DATE, endDate ?: 0L)
-            putLong(KEY_MEMBERSHIP_LAST_CHECK, System.currentTimeMillis())
-            apply()
-        }
-    }
-    
-    fun isMembershipActive(): Boolean {
-        val isActive = prefs.getBoolean(KEY_MEMBERSHIP_ACTIVE, false)
-        val endDate = prefs.getLong(KEY_MEMBERSHIP_END_DATE, 0L)
-        
-        // Check if the membership is active
-        if (endDate > 0) {
-            return isActive && System.currentTimeMillis() < endDate
-        }
-        
-        return isActive
-    }
-    
-    fun getMembershipPlanName(): String? {
-        return prefs.getString(KEY_MEMBERSHIP_PLAN, null)
-    }
-    
-    fun getMembershipEndDate(): Long? {
-        val endDate = prefs.getLong(KEY_MEMBERSHIP_END_DATE, 0L)
-        return if (endDate > 0) endDate else null
-    }
-    
-    fun getMembershipLastCheckTime(): Long {
-        return prefs.getLong(KEY_MEMBERSHIP_LAST_CHECK, 0L)
-    }
-    
-    fun clearMembershipStatus() {
-        prefs.edit().apply {
-            remove(KEY_MEMBERSHIP_ACTIVE)
-            remove(KEY_MEMBERSHIP_PLAN)
-            remove(KEY_MEMBERSHIP_END_DATE)
-            remove(KEY_MEMBERSHIP_LAST_CHECK)
-            apply()
-        }
-    }
 
     // Avatar-related features
     fun saveAvatar(avatar: String) {
-        prefs.edit().putString(KEY_AVATAR, avatar).apply()
+        prefs.edit { putString(KEY_AVATAR, avatar) }
     }
 
     fun getAvatar(): String? {
@@ -99,7 +54,7 @@ class PreferencesManager @Inject constructor(
     }
 
     fun clearAvatar() {
-        prefs.edit().remove(KEY_AVATAR).apply()
+        prefs.edit { remove(KEY_AVATAR) }
     }
 
     companion object {
@@ -107,9 +62,5 @@ class PreferencesManager @Inject constructor(
         private const val KEY_USERNAME = "username"
         private const val KEY_AVATAR = "avatar"
         private const val KEY_SKIPPED_LOGIN = "skipped_login"
-        private const val KEY_MEMBERSHIP_ACTIVE = "membership_active"
-        private const val KEY_MEMBERSHIP_PLAN = "membership_plan"
-        private const val KEY_MEMBERSHIP_END_DATE = "membership_end_date"
-        private const val KEY_MEMBERSHIP_LAST_CHECK = "membership_last_check"
     }
 }

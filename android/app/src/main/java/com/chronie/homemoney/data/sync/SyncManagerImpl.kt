@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class SyncManagerImpl @Inject constructor(
@@ -168,7 +169,7 @@ class SyncManagerImpl @Inject constructor(
     }
     
     override suspend fun setLastSyncTime(timestamp: Long) {
-        prefs.edit().putLong(KEY_LAST_SYNC_TIME, timestamp).apply()
+        prefs.edit { putLong(KEY_LAST_SYNC_TIME, timestamp) }
     }
     
     override suspend fun getPendingSyncCount(): Int {

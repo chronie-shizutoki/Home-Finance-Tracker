@@ -23,7 +23,7 @@ object MemberMapper {
     private fun parseDate(dateString: String): Long {
         return try {
             dateFormat.parse(dateString)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             System.currentTimeMillis()
         }
     }
