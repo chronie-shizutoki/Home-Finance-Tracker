@@ -8,6 +8,7 @@ import coil3.SingletonImageLoader
 import coil3.ImageLoader
 import coil3.PlatformContext
 import com.chronie.homemoney.core.error.ErrorReporter
+import com.chronie.homemoney.service.FairMemoryManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -23,6 +24,9 @@ class HomeMoneyApplication : Application(), Configuration.Provider, SingletonIma
     @Inject
     lateinit var imageLoader: ImageLoader
 
+    @Inject
+    lateinit var fairMemoryManager: FairMemoryManager
+
     override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader
 
     override fun onCreate() {
@@ -33,6 +37,13 @@ class HomeMoneyApplication : Application(), Configuration.Provider, SingletonIma
             Log.d("HomeMoneyApplication", "Error reporting system initialized")
         } catch (e: Exception) {
             Log.e("HomeMoneyApplication", "Failed to initialize error reporting system", e)
+        }
+
+        try {
+            fairMemoryManager.initialize()
+            Log.d("HomeMoneyApplication", "FairMemoryManager initialized")
+        } catch (e: Exception) {
+            Log.e("HomeMoneyApplication", "Failed to initialize FairMemoryManager", e)
         }
     }
 
