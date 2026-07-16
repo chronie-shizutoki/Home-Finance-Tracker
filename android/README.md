@@ -88,8 +88,8 @@ This is the native Android implementation of the Home Money financial tracking a
 ## Tech Stack
 
 ### Core Technologies
-- **Language**: Kotlin 2.4.0
-- **Android Gradle Plugin**: 9.2.1
+- **Language**: Kotlin 2.4.10
+- **Android Gradle Plugin**: 9.3.0
 - **KSP**: 2.4.10
 - **UI Framework**: Jetpack Compose (BOM 2026.06.01)
 - **Dependency Injection**: Hilt 2.60.1

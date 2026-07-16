@@ -25,7 +25,7 @@ data class LibraryInfo(
 val libraries = listOf(
     LibraryInfo(
         name = "Kotlin Stdlib",
-        version = "2.4.0",
+        version = "2.4.10",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://kotlinlang.org/"
