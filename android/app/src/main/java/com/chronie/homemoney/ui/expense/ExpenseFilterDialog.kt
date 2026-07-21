@@ -23,6 +23,8 @@ import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.SortOption
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Expense Filter Dialog
@@ -56,8 +58,8 @@ fun ExpenseFilterDialog(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.9f),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(16.dp),
+            color = MiuixTheme.colorScheme.surface,
             tonalElevation = 6.dp
         ) {
             Column(
@@ -73,7 +75,7 @@ fun ExpenseFilterDialog(
                 ) {
                     Text(
                         text = context.getString(R.string.expense_list_filter_title),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MiuixTheme.textStyles.title3
                     )
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel))
@@ -117,7 +119,7 @@ fun ExpenseFilterDialog(
                     // Date range
                     Text(
                         text = context.getString(R.string.expense_list_filter_date_range),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MiuixTheme.textStyles.body2
                     )
                     
                     Row(
@@ -148,7 +150,7 @@ fun ExpenseFilterDialog(
                     // Amount range
                     Text(
                         text = context.getString(R.string.expense_list_filter_amount_range),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MiuixTheme.textStyles.body2
                     )
                     
                     Row(
@@ -177,7 +179,7 @@ fun ExpenseFilterDialog(
                     // Sorting options
                     Text(
                         text = context.getString(R.string.expense_list_sort),
-                        style = MaterialTheme.typography.titleSmall
+                        style = MiuixTheme.textStyles.body2
                     )
                     
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -348,8 +350,8 @@ fun ExpenseTypeSelector(
                 if (filteredTypes.size != ExpenseType.entries.size) {
                     Text(
                         text = context.getString(R.string.search_results_count, filteredTypes.size),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
             }
@@ -392,7 +394,7 @@ fun ExpenseTypeSelector(
                         ) {
                             Text(
                                 text = context.getString(R.string.no_results_found),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
                             )
                         }
                     } else {

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.ui.components.CircularIconButton
 import androidx.core.net.toUri
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 data class LibraryInfo(
     val name: String,
@@ -374,7 +375,7 @@ fun OpenSourceLicensesScreen(
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MiuixTheme.colorScheme.background
                 )
             )
         }
@@ -410,19 +411,19 @@ fun LibraryCard(
         ) {
             Text(
                 text = library.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                style = MiuixTheme.textStyles.body1,
+                color = MiuixTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Version: ${library.version}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "License: ${library.license}",
-                style = MaterialTheme.typography.bodyMedium
+                style = MiuixTheme.textStyles.body2
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(

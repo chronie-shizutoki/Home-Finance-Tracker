@@ -24,6 +24,8 @@ import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Add Expense Screen
@@ -90,7 +92,7 @@ fun AddExpenseScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MiuixTheme.colorScheme.background
                 )
             )
         },
@@ -109,8 +111,8 @@ fun AddExpenseScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onNavigateToAI),
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = MaterialTheme.shapes.medium
+                color = MiuixTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -126,25 +128,25 @@ fun AddExpenseScreen(
                         Icon(
                             Icons.Default.Star,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MiuixTheme.colorScheme.primary
                         )
                         Column {
                             Text(
                                 text = context.getString(R.string.ai_expense_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                style = MiuixTheme.textStyles.body1,
+                                color = MiuixTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
                                 text = context.getString(R.string.ai_expense_entry_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                             )
                         }
                     }
                     Text(
                         text = ">",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MiuixTheme.textStyles.title3,
+                        color = MiuixTheme.colorScheme.primary
                     )
                 }
             }
@@ -245,7 +247,7 @@ fun ExpenseTypeDropdown(
     Column {
         Text(
             text = context.getString(R.string.add_expense_type_label),
-            style = MaterialTheme.typography.labelLarge
+            style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
         
@@ -295,7 +297,7 @@ fun ExpenseTypeDropdown(
                         text = { 
                             Text(
                                 context.getString(R.string.no_results_found),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
                             ) 
                         },
                         onClick = { expanded = false },
@@ -328,8 +330,8 @@ fun ExpenseTypeDropdown(
                     "TYPE_REQUIRED" -> context.getString(R.string.add_expense_validation_type_required)
                     else -> error
                 },
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
+                color = MiuixTheme.colorScheme.error,
+                style = MiuixTheme.textStyles.footnote1,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
         }
@@ -349,7 +351,7 @@ fun ExpenseAmountField(
     Column {
         Text(
             text = context.getString(R.string.add_expense_amount_label),
-            style = MaterialTheme.typography.labelLarge
+            style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -369,8 +371,8 @@ fun ExpenseAmountField(
                     "AMOUNT_INVALID" -> context.getString(R.string.add_expense_validation_amount_invalid)
                     else -> error
                 },
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
+                color = MiuixTheme.colorScheme.error,
+                style = MiuixTheme.textStyles.footnote1,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
         }
@@ -393,7 +395,7 @@ fun ExpenseDateField(
     Column {
         Text(
             text = context.getString(R.string.add_expense_date_label),
-            style = MaterialTheme.typography.labelLarge
+            style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedCard(
@@ -407,7 +409,7 @@ fun ExpenseDateField(
             ) {
                 Text(
                     text = selectedDate.format(dateFormatter),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MiuixTheme.textStyles.body1
                 )
             }
         }
@@ -417,8 +419,8 @@ fun ExpenseDateField(
                     "DATE_REQUIRED" -> context.getString(R.string.add_expense_validation_date_required)
                     else -> error
                 },
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
+                color = MiuixTheme.colorScheme.error,
+                style = MiuixTheme.textStyles.footnote1,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
         }
@@ -437,7 +439,7 @@ fun ExpenseRemarkField(
     Column {
         Text(
             text = context.getString(R.string.add_expense_remark_label),
-            style = MaterialTheme.typography.labelLarge
+            style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -467,7 +469,7 @@ fun ExpenseDatePickerDialog(
         initialSelectedDateMillis = initialDate.toEpochDay() * 24 * 60 * 60 * 1000
     )
 
-    val surfaceColor = MaterialTheme.colorScheme.surface
+    val surfaceColor = MiuixTheme.colorScheme.surface
 
     DatePickerDialog(
         onDismissRequest = onDismiss,

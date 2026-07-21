@@ -19,6 +19,7 @@ import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,13 +43,13 @@ fun WeekdayDetailScreen(
                     Column {
                         Text(
                             text = getWeekdayName(context, dayOfWeek),
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MiuixTheme.textStyles.title3,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = context.getString(R.string.expense_details),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                     }
                 },
@@ -64,7 +65,7 @@ fun WeekdayDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MiuixTheme.colorScheme.surface
                 )
             )
         }
@@ -80,7 +81,7 @@ fun WeekdayDetailScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MiuixTheme.colorScheme.primaryContainer
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -90,13 +91,13 @@ fun WeekdayDetailScreen(
                     ) {
                         Text(
                             text = context.getString(R.string.total_amount),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MiuixTheme.textStyles.body2
                         )
                         Text(
                             text = currencyFormat.format(amount),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MiuixTheme.textStyles.body1,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MiuixTheme.colorScheme.primary
                         )
                     }
                     
@@ -108,11 +109,11 @@ fun WeekdayDetailScreen(
                     ) {
                         Text(
                             text = context.getString(R.string.count),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MiuixTheme.textStyles.body2
                         )
                         Text(
                             text = "$count ${context.getString(R.string.records)}",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -125,11 +126,11 @@ fun WeekdayDetailScreen(
                     ) {
                         Text(
                             text = context.getString(R.string.percentage_of_total),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MiuixTheme.textStyles.body2
                         )
                         Text(
                             text = "${String.format("%.1f", percentage)}%",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -154,7 +155,7 @@ fun WeekdayDetailScreen(
                     if (state.categoryBreakdown.isNotEmpty()) {
                         Text(
                             text = context.getString(R.string.category_breakdown),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MiuixTheme.textStyles.body1,
                             fontWeight = FontWeight.Bold
                         )
                         
@@ -170,8 +171,8 @@ fun WeekdayDetailScreen(
                         ) {
                             Text(
                                 text = context.getString(R.string.no_data),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MiuixTheme.textStyles.body2,
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary,
                                 modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
                             )
                         }
@@ -181,13 +182,13 @@ fun WeekdayDetailScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
+                            containerColor = MiuixTheme.colorScheme.errorContainer
                         )
                     ) {
                         Text(
                             text = state.message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
                         )
                     }
@@ -215,12 +216,12 @@ private fun CategoryDetailItem(
             ) {
                 Text(
                     text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MiuixTheme.textStyles.body2,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     text = "${String.format("%.1f", category.percentage)}%",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MiuixTheme.textStyles.footnote1,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.width(60.dp)
                 )
@@ -231,8 +232,8 @@ private fun CategoryDetailItem(
             ExpressiveLinearProgressIndicator(
                 progress = category.percentage / 100f,
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                color = MiuixTheme.colorScheme.primary,
+                trackColor = MiuixTheme.colorScheme.surfaceVariant
             )
             
             Spacer(modifier = Modifier.height(8.dp))
@@ -243,13 +244,13 @@ private fun CategoryDetailItem(
             ) {
                 Text(
                     text = "${category.count} ${context.getString(R.string.records)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
                 Text(
                     text = currencyFormat.format(category.amount),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
             }

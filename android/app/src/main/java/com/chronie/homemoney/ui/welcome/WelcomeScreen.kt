@@ -12,6 +12,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun WelcomeScreen(
@@ -47,18 +48,18 @@ fun WelcomeScreen(
     ) {
         Text(
             text = context.getString(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
+            style = MiuixTheme.textStyles.title1,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.primary
+            color = MiuixTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = context.getString(R.string.welcome_message),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MiuixTheme.textStyles.body1,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MiuixTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(48.dp))
@@ -81,14 +82,14 @@ fun WelcomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = context.getString(R.string.auth_logging_in),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MiuixTheme.textStyles.body2
                 )
             }
             is WelcomeUiState.LoggedIn -> {
                 val state = uiState as WelcomeUiState.LoggedIn
                 Text(
                     text = context.getString(R.string.auth_welcome_back, state.username),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.body1,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -103,8 +104,8 @@ fun WelcomeScreen(
                 val errorMessage = (uiState as WelcomeUiState.Error).message
                 Text(
                     text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
+                    color = MiuixTheme.colorScheme.error,
+                    style = MiuixTheme.textStyles.body2,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -161,8 +162,8 @@ private fun LoginForm(
 
     Text(
         text = context.getString(R.string.auth_login_hint),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MiuixTheme.textStyles.footnote1,
+        color = MiuixTheme.colorScheme.onSurfaceSecondary,
         textAlign = TextAlign.Center
     )
 }

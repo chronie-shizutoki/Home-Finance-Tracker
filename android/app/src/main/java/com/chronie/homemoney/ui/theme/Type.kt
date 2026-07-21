@@ -1,27 +1,38 @@
 package com.chronie.homemoney.ui.theme
 
-import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import top.yukonga.miuix.kmp.theme.defaultTextStyles
 
-val Typography = Typography(
-    bodyLarge = TextStyle(
+/**
+ * Miuix text styles. The three styles the app previously customized via MD3
+ * Typography (bodyLarge / titleLarge / labelSmall) are mapped onto Miuix
+ * textStyles body1 / title3 / footnote2 respectively (same sizes).
+ *
+ * MD3 -> Miuix textStyle call-site mapping:
+ *   bodyMedium -> body2, titleMedium -> body1, bodySmall -> footnote1,
+ *   titleLarge -> title3, bodyLarge -> body1, titleSmall -> body2,
+ *   labelLarge -> body2, headlineSmall -> title2, labelSmall -> footnote2,
+ *   headlineLarge -> title1, headlineMedium -> title2.
+ */
+val miuixTextStyles = defaultTextStyles(
+    body1 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
-    titleLarge = TextStyle(
+    title3 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 22.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
-    labelSmall = TextStyle(
+    footnote2 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,

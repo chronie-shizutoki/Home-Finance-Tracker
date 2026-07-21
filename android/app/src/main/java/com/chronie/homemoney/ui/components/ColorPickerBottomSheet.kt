@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +76,7 @@ fun ColorPickerBottomSheet(
             ) {
                 Text(
                     text = context.getString(R.string.color_picker_title),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MiuixTheme.textStyles.title3
                 )
                 IconButton(onClick = { 
                     coroutineScope.launch {
@@ -159,7 +160,7 @@ private fun ColorGroupSection(
     ) {
         Text(
             text = groupName,
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -200,7 +201,7 @@ private fun ColorItem(
             if (isSelected) {
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MiuixTheme.colorScheme.onBackground,
                     modifier = Modifier.size(56.dp)
                 ) {}
             }
@@ -215,7 +216,7 @@ private fun ColorItem(
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = context.getString(R.string.confirm),
-                    tint = MaterialTheme.colorScheme.onBackground,
+                    tint = MiuixTheme.colorScheme.onBackground,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -223,7 +224,7 @@ private fun ColorItem(
 
         Text(
             text = context.getString(colorOption.nameResId),
-            style = MaterialTheme.typography.bodySmall,
+            style = MiuixTheme.textStyles.footnote1,
             modifier = Modifier.padding(top = 4.dp),
             maxLines = 1
         )
