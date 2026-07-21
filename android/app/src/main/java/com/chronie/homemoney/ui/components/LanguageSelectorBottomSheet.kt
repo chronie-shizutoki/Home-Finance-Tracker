@@ -11,7 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +26,11 @@ import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -86,13 +94,14 @@ fun LanguageSelectorBottomSheet(
                 }
             }
 
-            OutlinedTextField(
+            TextField(
                 value = searchText,
                 onValueChange = { searchText = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                placeholder = { Text(context.getString(R.string.common_search)) },
+                label = context.getString(R.string.common_search),
+                useLabelAsPlaceholder = true,
                 leadingIcon = {
                     Icon(Icons.Default.Search, contentDescription = context.getString(R.string.common_search))
                 },

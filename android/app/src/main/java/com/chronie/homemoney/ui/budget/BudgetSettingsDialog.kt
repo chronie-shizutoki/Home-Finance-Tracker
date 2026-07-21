@@ -5,7 +5,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +16,10 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Budget
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.CircularIconButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
@@ -82,19 +87,18 @@ fun BudgetSettingsDialog(
                     ) {
                         Icon(Icons.Default.Remove, contentDescription = null)
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = monthlyLimit,
-                        onValueChange = { 
+                        onValueChange = {
                             monthlyLimit = it
                             showError = false
                         },
-                        label = { Text(context.getString(R.string.budget_monthly_limit)) },
-                        placeholder = { Text("0.00") },
+                        label = context.getString(R.string.budget_monthly_limit),
+                        useLabelAsPlaceholder = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         modifier = Modifier.weight(1f),
-                        enabled = isEnabled,
-                        isError = showError
+                        enabled = isEnabled
                     )
                     CircularIconButton(
                         onClick = {
@@ -124,22 +128,18 @@ fun BudgetSettingsDialog(
                     ) {
                         Icon(Icons.Default.Remove, contentDescription = null)
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = warningThreshold,
-                        onValueChange = { 
+                        onValueChange = {
                             warningThreshold = it
                             showError = false
                         },
-                        label = { Text(context.getString(R.string.budget_warning_threshold)) },
-                        placeholder = { Text("80") },
+                        label = context.getString(R.string.budget_warning_threshold),
+                        useLabelAsPlaceholder = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.weight(1f),
-                        enabled = isEnabled,
-                        isError = showError,
-                        supportingText = {
-                            Text(context.getString(R.string.budget_warning_threshold_hint))
-                        }
+                        enabled = isEnabled
                     )
                     CircularIconButton(
                         onClick = {
@@ -152,6 +152,13 @@ fun BudgetSettingsDialog(
                         Icon(Icons.Default.Add, contentDescription = null)
                     }
                 }
+
+                // Warning threshold hint (was supportingText)
+                Text(
+                    text = context.getString(R.string.budget_warning_threshold_hint),
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
+                )
                 
                 // Error message
                 if (showError) {
@@ -165,11 +172,12 @@ fun BudgetSettingsDialog(
         },
         confirmButton = {
             TextButton(
+                text = context.getString(R.string.common_save),
                 onClick = {
                     // Validate input
                     val limit = monthlyLimit.toDoubleOrNull()
                     val threshold = warningThreshold.toDoubleOrNull()
-                    
+
                     when {
                         isEnabled && (limit == null || limit <= 0) -> {
                             showError = true
@@ -188,14 +196,13 @@ fun BudgetSettingsDialog(
                         }
                     }
                 }
-            ) {
-                Text(context.getString(R.string.common_save))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.common_cancel))
-            }
+            TextButton(
+                text = context.getString(R.string.common_cancel),
+                onClick = onDismiss
+            )
         }
     )
 }

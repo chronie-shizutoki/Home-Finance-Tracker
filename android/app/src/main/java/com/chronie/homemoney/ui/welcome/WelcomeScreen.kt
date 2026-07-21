@@ -2,7 +2,6 @@ package com.chronie.homemoney.ui.welcome
 
 import android.content.Context
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,6 +11,11 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -95,7 +99,8 @@ fun WelcomeScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = onGetStartedClick,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColorsPrimary()
                 ) {
                     Text(context.getString(R.string.getting_started))
                 }
@@ -129,11 +134,11 @@ private fun LoginForm(
     onSkipLogin: () -> Unit,
     context: Context
 ) {
-    OutlinedTextField(
+    TextField(
         value = username,
         onValueChange = onUsernameChange,
-        label = { Text(context.getString(R.string.auth_username_label)) },
-        placeholder = { Text(context.getString(R.string.auth_username_hint)) },
+        label = context.getString(R.string.auth_username_label),
+        useLabelAsPlaceholder = true,
         singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )
@@ -143,7 +148,8 @@ private fun LoginForm(
     Button(
         onClick = onLoginClick,
         modifier = Modifier.fillMaxWidth(),
-        enabled = username.isNotBlank()
+        enabled = username.isNotBlank(),
+        colors = ButtonDefaults.buttonColorsPrimary()
     ) {
         Text(context.getString(R.string.auth_login_button))
     }
@@ -152,11 +158,10 @@ private fun LoginForm(
 
     // Skip login button
     TextButton(
+        text = context.getString(R.string.auth_skip_login),
         onClick = onSkipLogin,
         modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(context.getString(R.string.auth_skip_login))
-    }
+    )
 
     Spacer(modifier = Modifier.height(8.dp))
 

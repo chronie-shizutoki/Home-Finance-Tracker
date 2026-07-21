@@ -8,7 +8,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -34,8 +44,19 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import com.chronie.homemoney.ui.components.OutlinedButton
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartsScreen(
     context: Context,
@@ -51,8 +72,7 @@ fun ChartsScreen(
             // Top toolbar with title and time range selector
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = MiuixTheme.colorScheme.surface,
-                tonalElevation = 3.dp
+                color = MiuixTheme.colorScheme.surface
             ) {
                 Row(
                     modifier = Modifier
@@ -108,7 +128,7 @@ fun ChartsScreen(
                             color = MiuixTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.refresh() }) {
+                        Button(onClick = { viewModel.refresh() }, colors = ButtonDefaults.buttonColorsPrimary()) {
                             Text(context.getString(R.string.retry))
                         }
                     }
@@ -199,7 +219,7 @@ private fun TimeRangeCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${formatDateByLocale(state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())} - ${formatDateByLocale(state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())}",
+                text = "${formatDateByLocale(state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locales[0].toLanguageTag())} - ${formatDateByLocale(state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locales[0].toLanguageTag())}",
                 style = MiuixTheme.textStyles.body2,
                 color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
@@ -578,11 +598,12 @@ private fun TimeRangeDialog(
                 onExpandedChange = { expanded = it },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
+                TextField(
                     value = getTimeRangeText(context, selectedTimeRange),
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text(context.getString(R.string.select_time_range)) },
+                    label = context.getString(R.string.select_time_range),
+                    useLabelAsPlaceholder = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -646,7 +667,7 @@ private fun TimeRangeDialog(
                     val startDateString = start.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     val endDateString = end.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     Text(
-                        text = "${context.getString(R.string.expense_list_filter_start_date)} ${formatDateByLocale(startDateString, context.resources.configuration.locale.toLanguageTag())} ${context.getString(R.string.expense_list_filter_end_date)} ${formatDateByLocale(endDateString, context.resources.configuration.locale.toLanguageTag())}",
+                        text = "${context.getString(R.string.expense_list_filter_start_date)} ${formatDateByLocale(startDateString, context.resources.configuration.locales[0].toLanguageTag())} ${context.getString(R.string.expense_list_filter_end_date)} ${formatDateByLocale(endDateString, context.resources.configuration.locales[0].toLanguageTag())}",
                         style = MiuixTheme.textStyles.body2,
                         color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
@@ -707,11 +728,12 @@ private fun CustomRangeBottomSheet(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             
-            OutlinedTextField(
+            TextField(
                 value = startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text(context.getString(R.string.expense_list_filter_start_date)) },
+                label = context.getString(R.string.expense_list_filter_start_date),
+                useLabelAsPlaceholder = true,
                 trailingIcon = {
                     IconButton(onClick = { showStartDatePicker = true }) {
                         Icon(
@@ -722,14 +744,15 @@ private fun CustomRangeBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
-            OutlinedTextField(
+
+            TextField(
                 value = endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text(context.getString(R.string.expense_list_filter_end_date)) },
+                label = context.getString(R.string.expense_list_filter_end_date),
+                useLabelAsPlaceholder = true,
                 trailingIcon = {
                     IconButton(onClick = { showEndDatePicker = true }) {
                         Icon(
@@ -767,7 +790,8 @@ private fun CustomRangeBottomSheet(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = !startDate.isAfter(endDate)
+                    enabled = !startDate.isAfter(endDate),
+                    colors = ButtonDefaults.buttonColorsPrimary()
                 ) {
                     Text(context.getString(R.string.confirm))
                 }
@@ -784,6 +808,7 @@ private fun CustomRangeBottomSheet(
             onDismissRequest = { showStartDatePicker = false },
             confirmButton = {
                 TextButton(
+                    text = context.getString(R.string.confirm),
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             startDate = java.time.Instant.ofEpochMilli(millis)
@@ -792,14 +817,10 @@ private fun CustomRangeBottomSheet(
                         }
                         showStartDatePicker = false
                     }
-                ) {
-                    Text(context.getString(R.string.confirm))
-                }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(text = context.getString(R.string.cancel), onClick = { showStartDatePicker = false })
             }
         ) {
             DatePicker(state = datePickerState)
@@ -815,6 +836,7 @@ private fun CustomRangeBottomSheet(
             onDismissRequest = { showEndDatePicker = false },
             confirmButton = {
                 TextButton(
+                    text = context.getString(R.string.confirm),
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             endDate = java.time.Instant.ofEpochMilli(millis)
@@ -823,14 +845,10 @@ private fun CustomRangeBottomSheet(
                         }
                         showEndDatePicker = false
                     }
-                ) {
-                    Text(context.getString(R.string.confirm))
-                }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showEndDatePicker = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(text = context.getString(R.string.cancel), onClick = { showEndDatePicker = false })
             }
         ) {
             DatePicker(state = datePickerState)

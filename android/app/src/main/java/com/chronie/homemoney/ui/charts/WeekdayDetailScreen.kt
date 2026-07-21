@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -19,10 +18,15 @@ import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import java.text.NumberFormat
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
-@SuppressLint("DefaultLocale")
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("DefaultStringFormat")
 @Composable
 fun WeekdayDetailScreen(
     context: Context,
@@ -38,21 +42,9 @@ fun WeekdayDetailScreen(
     
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = getWeekdayName(context, dayOfWeek),
-                            style = MiuixTheme.textStyles.title3,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = context.getString(R.string.expense_details),
-                            style = MiuixTheme.textStyles.footnote1,
-                            color = MiuixTheme.colorScheme.onSurfaceSecondary
-                        )
-                    }
-                },
+            SmallTopAppBar(
+                title = getWeekdayName(context, dayOfWeek),
+                subtitle = context.getString(R.string.expense_details),
                 navigationIcon = {
                     CircularIconButton(
                         onClick = onNavigateBack,
@@ -64,9 +56,7 @@ fun WeekdayDetailScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.surface
-                )
+                color = MiuixTheme.colorScheme.surface
             )
         }
     ) { paddingValues ->
@@ -80,8 +70,8 @@ fun WeekdayDetailScreen(
             // Total amount and percentage
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MiuixTheme.colorScheme.primaryContainer
+                colors = CardDefaults.defaultColors(
+                    color = MiuixTheme.colorScheme.primaryContainer
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -181,8 +171,8 @@ fun WeekdayDetailScreen(
                 is WeekdayDetailUiState.Error -> {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MiuixTheme.colorScheme.errorContainer
+                        colors = CardDefaults.defaultColors(
+                            color = MiuixTheme.colorScheme.errorContainer
                         )
                     ) {
                         Text(

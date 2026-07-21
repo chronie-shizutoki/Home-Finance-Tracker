@@ -7,12 +7,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.OutlinedButton
 import androidx.core.net.toUri
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 data class LibraryInfo(
@@ -355,7 +360,6 @@ val libraries = listOf(
     )
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OpenSourceLicensesScreen(
     context: Context,
@@ -364,8 +368,8 @@ fun OpenSourceLicensesScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(context.getString(com.chronie.homemoney.R.string.open_source_licenses)) },
+            SmallTopAppBar(
+                title = context.getString(com.chronie.homemoney.R.string.open_source_licenses),
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(com.chronie.homemoney.R.string.back))
@@ -374,9 +378,7 @@ fun OpenSourceLicensesScreen(
                 actions = {
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.background
-                )
+                color = MiuixTheme.colorScheme.background
             )
         }
     ) { paddingValues ->
@@ -403,8 +405,7 @@ fun LibraryCard(
     context: Context
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

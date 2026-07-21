@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,14 @@ import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
 import androidx.compose.ui.platform.LocalLocale
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -66,8 +73,8 @@ fun BudgetCard(
             // Loading state while fetching budget usage
             Card(
                 modifier = modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MiuixTheme.colorScheme.surfaceVariant
+                colors = CardDefaults.defaultColors(
+                    color = MiuixTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Box(
@@ -108,8 +115,8 @@ fun BudgetEnablePrompt(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MiuixTheme.colorScheme.secondaryContainer
+        colors = CardDefaults.defaultColors(
+            color = MiuixTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
@@ -140,7 +147,8 @@ fun BudgetEnablePrompt(
             
             Button(
                 onClick = onEnableClick,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColorsPrimary()
             ) {
                 Text(context.getString(R.string.budget_enable_button))
             }
@@ -175,8 +183,8 @@ fun BudgetUsageCard(
     
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MiuixTheme.colorScheme.primaryContainer
+        colors = CardDefaults.defaultColors(
+            color = MiuixTheme.colorScheme.primaryContainer
         )
     ) {
         Column(
@@ -199,7 +207,7 @@ fun BudgetUsageCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
+                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locales[0].toLanguageTag()),
                             style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Medium
                         )
@@ -224,7 +232,7 @@ fun BudgetUsageCard(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
+                            text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locales[0].toLanguageTag()),
                             style = MiuixTheme.textStyles.footnote1,
                             color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )

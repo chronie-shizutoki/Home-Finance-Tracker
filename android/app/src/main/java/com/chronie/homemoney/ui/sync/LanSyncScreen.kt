@@ -13,9 +13,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +41,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import com.chronie.homemoney.ui.components.OutlinedButton
 
 /**
  * Local Sync Screen
@@ -66,8 +82,8 @@ fun LanSyncScreen(
     
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.lan_sync_title)) },
+            SmallTopAppBar(
+                title = context.getString(R.string.lan_sync_title),
                 navigationIcon = {
                     CircularIconButton(
                         onClick = onNavigateBack,
@@ -79,9 +95,7 @@ fun LanSyncScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.background
-                )
+                color = MiuixTheme.colorScheme.background
             )
         }
     ) { paddingValues ->
@@ -229,9 +243,9 @@ fun LocalDeviceCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
+        cornerRadius = 20.dp,
+        colors = CardDefaults.defaultColors(
+            color = Color.Transparent
         )
     ) {
         Box(
@@ -339,15 +353,12 @@ fun SyncActionCard(
             .fillMaxWidth()
             .scale(scale)
             .clickable(enabled = enabled && !isLoading) { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (enabled) 
-                MiuixTheme.colorScheme.surfaceVariant 
-            else 
+        cornerRadius = 16.dp,
+        colors = CardDefaults.defaultColors(
+            color = if (enabled)
+                MiuixTheme.colorScheme.surfaceVariant
+            else
                 MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (enabled) 2.dp else 0.dp
         )
     ) {
         Row(
@@ -420,9 +431,9 @@ fun SyncActionCard(
 fun SyncInfoCard(context: Context) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MiuixTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+        cornerRadius = 16.dp,
+        colors = CardDefaults.defaultColors(
+            color = MiuixTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
         )
     ) {
         Column(
@@ -471,26 +482,24 @@ fun DeviceNameEditDialog(
         onDismissRequest = onDismiss,
         title = { Text(context.getString(R.string.edit_device_name)) },
         text = {
-            OutlinedTextField(
+            TextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(context.getString(R.string.device_name)) },
+                label = context.getString(R.string.device_name),
+                useLabelAsPlaceholder = true,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             TextButton(
+                text = context.getString(R.string.save),
                 onClick = { onConfirm(name) },
                 enabled = name.isNotBlank()
-            ) {
-                Text(context.getString(R.string.save))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
+            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
         }
     )
 }
@@ -648,9 +657,7 @@ fun DeviceSearchDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.close))
-                    }
+                    TextButton(text = context.getString(R.string.close), onClick = onDismiss)
                 }
             }
         }
@@ -676,9 +683,9 @@ fun DeviceListItem(
             .padding(vertical = 4.dp)
             .scale(scale)
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MiuixTheme.colorScheme.surfaceVariant
+        cornerRadius = 12.dp,
+        colors = CardDefaults.defaultColors(
+            color = MiuixTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -913,7 +920,8 @@ fun SyncRequestDialog(
 
                     Button(
                         onClick = onAccept,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColorsPrimary()
                     ) {
                         Text(context.getString(R.string.accept))
                     }
@@ -1013,7 +1021,8 @@ fun IncomingSyncRequestDialog(
 
                     Button(
                         onClick = onAccept,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColorsPrimary()
                     ) {
                         Text(context.getString(R.string.accept))
                     }

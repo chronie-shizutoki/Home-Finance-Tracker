@@ -15,7 +15,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -40,6 +44,16 @@ import androidx.core.net.toUri
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.core.graphics.toColorInt
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 enum class SettingsPage {
@@ -68,8 +82,7 @@ fun SettingsScreen(
         // Top title bar with back button and page title
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MiuixTheme.colorScheme.background,
-            tonalElevation = 0.dp
+            color = MiuixTheme.colorScheme.background
         ) {
             Row(
                 modifier = Modifier
@@ -701,11 +714,12 @@ fun AISettingsSection(
                         style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = inputApiKey,
                         onValueChange = { inputApiKey = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(context.getString(R.string.settings_ai_api_key_hint)) },
+                        label = context.getString(R.string.settings_ai_api_key_hint),
+                        useLabelAsPlaceholder = true,
                         singleLine = true
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -727,17 +741,19 @@ fun AISettingsSection(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.setAIApiKey(inputApiKey)
-                    showApiKeyDialog = false
-                }) {
-                    Text(context.getString(R.string.save))
-                }
+                TextButton(
+                    text = context.getString(R.string.save),
+                    onClick = {
+                        viewModel.setAIApiKey(inputApiKey)
+                        showApiKeyDialog = false
+                    }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showApiKeyDialog = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = { showApiKeyDialog = false }
+                )
             }
         )
     }
@@ -824,7 +840,8 @@ fun DataImportExportSection(
         Button(
             onClick = { checkAndRequestPermissions { showExportDialog = true } },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !exportInProgress && !importInProgress
+            enabled = !exportInProgress && !importInProgress,
+            colors = ButtonDefaults.buttonColorsPrimary()
         ) {
             if (exportInProgress) {
                 ExpressiveLoadingIndicator(containerVisible = false)
@@ -832,13 +849,14 @@ fun DataImportExportSection(
             }
             Text(text = if (exportInProgress) context.getString(R.string.export_in_progress) else context.getString(R.string.export_data))
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Button(
             onClick = { checkAndRequestPermissions { filePickerLauncher.launch("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") } },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !exportInProgress && !importInProgress
+            enabled = !exportInProgress && !importInProgress,
+            colors = ButtonDefaults.buttonColorsPrimary()
         ) {
             if (importInProgress) {
                 ExpressiveLoadingIndicator(containerVisible = false)
@@ -868,7 +886,7 @@ fun DataImportExportSection(
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { showExportDialog = false }) { Text(context.getString(R.string.cancel)) } }
+            dismissButton = { TextButton(text = context.getString(R.string.cancel), onClick = { showExportDialog = false }) }
         )
     }
 
@@ -882,25 +900,25 @@ fun DataImportExportSection(
                 Column {
                     Text(text = context.getString(R.string.export_start_date), modifier = Modifier.padding(bottom = 4.dp))
                     Surface(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
-                        Text(text = startDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_start_date), modifier = Modifier.padding(16.dp))
+                        Text(text = startDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locales[0].toLanguageTag()) } ?: context.getString(R.string.export_start_date), modifier = Modifier.padding(16.dp))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = context.getString(R.string.export_end_date), modifier = Modifier.padding(bottom = 4.dp))
                     Surface(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
-                        Text(text = endDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_end_date), modifier = Modifier.padding(16.dp))
+                        Text(text = endDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locales[0].toLanguageTag()) } ?: context.getString(R.string.export_end_date), modifier = Modifier.padding(16.dp))
                     }
                 }
                 if (showStartDatePicker) {
                     val datePickerState = rememberDatePickerState()
-                    DatePickerDialog(onDismissRequest = { showStartDatePicker = false }, confirmButton = { TextButton(onClick = { datePickerState.selectedDateMillis?.let { startDate = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }; showStartDatePicker = false }) { Text(context.getString(R.string.confirm)) } }) { DatePicker(state = datePickerState) }
+                    DatePickerDialog(onDismissRequest = { showStartDatePicker = false }, confirmButton = { TextButton(text = context.getString(R.string.confirm), onClick = { datePickerState.selectedDateMillis?.let { startDate = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }; showStartDatePicker = false }) }) { DatePicker(state = datePickerState) }
                 }
                 if (showEndDatePicker) {
                     val datePickerState = rememberDatePickerState()
-                    DatePickerDialog(onDismissRequest = { showEndDatePicker = false }, confirmButton = { TextButton(onClick = { datePickerState.selectedDateMillis?.let { endDate = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }; showEndDatePicker = false }) { Text(context.getString(R.string.confirm)) } }) { DatePicker(state = datePickerState) }
+                    DatePickerDialog(onDismissRequest = { showEndDatePicker = false }, confirmButton = { TextButton(text = context.getString(R.string.confirm), onClick = { datePickerState.selectedDateMillis?.let { endDate = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }; showEndDatePicker = false }) }) { DatePicker(state = datePickerState) }
                 }
             },
-            confirmButton = { TextButton(onClick = { showDateRangeDialog = false; viewModel.exportExpenses(startDate, endDate) }, enabled = startDate != null && endDate != null) { Text(context.getString(R.string.export_data)) } },
-            dismissButton = { TextButton(onClick = { showDateRangeDialog = false }) { Text(context.getString(R.string.cancel)) } }
+            confirmButton = { TextButton(text = context.getString(R.string.export_data), onClick = { showDateRangeDialog = false; viewModel.exportExpenses(startDate, endDate) }, enabled = startDate != null && endDate != null) },
+            dismissButton = { TextButton(text = context.getString(R.string.cancel), onClick = { showDateRangeDialog = false }) }
         )
     }
 }
@@ -960,7 +978,7 @@ fun SyncSection(
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { showSyncMethodDialog = true }, modifier = Modifier.fillMaxWidth(), enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
+                Button(onClick = { showSyncMethodDialog = true }, modifier = Modifier.fillMaxWidth(), enabled = syncStatus != com.chronie.homemoney.domain.model.SyncStatus.SYNCING, colors = ButtonDefaults.buttonColorsPrimary()) {
                     if (syncStatus == com.chronie.homemoney.domain.model.SyncStatus.SYNCING) {
                         ExpressiveLoadingIndicator(containerVisible = false)
                         Spacer(modifier = Modifier.width(8.dp))
@@ -986,7 +1004,7 @@ fun SyncSection(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showSyncMethodDialog = false }) { Text(context.getString(R.string.cancel)) } }
+            confirmButton = { TextButton(text = context.getString(R.string.cancel), onClick = { showSyncMethodDialog = false }) }
         )
     }
 }
@@ -1039,9 +1057,8 @@ fun AccountSection(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MiuixTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        cornerRadius = 16.dp,
+        colors = CardDefaults.defaultColors(color = MiuixTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.padding(bottom = 20.dp), contentAlignment = Alignment.Center) {
@@ -1062,13 +1079,13 @@ fun AccountSection(
             Text(text = context.getString(R.string.auth_current_user), style = MiuixTheme.textStyles.footnote1, color = MiuixTheme.colorScheme.onSurfaceSecondary, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(20.dp))
             if (currentUsername != null) {
-                FilledTonalButton(onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.filledTonalButtonColors(containerColor = MiuixTheme.colorScheme.errorContainer, contentColor = MiuixTheme.colorScheme.onErrorContainer)) {
+                Button(onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(color = MiuixTheme.colorScheme.errorContainer, contentColor = MiuixTheme.colorScheme.onErrorContainer)) {
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(context.getString(R.string.auth_logout_button))
                 }
             } else {
-                Button(onClick = { viewModel.clearSkippedLogin(); onRequireLogin() }, modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = { viewModel.clearSkippedLogin(); onRequireLogin() }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColorsPrimary()) {
                     Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(context.getString(R.string.auth_login_button))
@@ -1076,14 +1093,14 @@ fun AccountSection(
             }
         }
     }
-    
+
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(context.getString(R.string.auth_logout_confirm_title)) },
             text = { Text(context.getString(R.string.auth_logout_confirm_message)) },
-            confirmButton = { TextButton(onClick = { viewModel.logout(); showLogoutDialog = false }) { Text(text = context.getString(R.string.confirm), color = MiuixTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { showLogoutDialog = false }) { Text(context.getString(R.string.cancel)) } }
+            confirmButton = { TextButton(text = context.getString(R.string.confirm), onClick = { viewModel.logout(); showLogoutDialog = false }, colors = ButtonDefaults.textButtonColors(textColor = MiuixTheme.colorScheme.error)) },
+            dismissButton = { TextButton(text = context.getString(R.string.cancel), onClick = { showLogoutDialog = false }) }
         )
     }
 }

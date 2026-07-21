@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,9 +11,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.OutlinedButton
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MembershipScreen(
     context: Context,
@@ -26,8 +34,8 @@ fun MembershipScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.membership_title)) },
+            SmallTopAppBar(
+                title = context.getString(R.string.membership_title),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -60,8 +68,8 @@ fun MembershipScreen(
                         // User information card
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MiuixTheme.colorScheme.primaryContainer
+                            colors = CardDefaults.defaultColors(
+                                color = MiuixTheme.colorScheme.primaryContainer
                             )
                         ) {
                             Column(
@@ -88,9 +96,7 @@ fun MembershipScreen(
                         OutlinedButton(
                             onClick = { viewModel.logout(onLogout) },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MiuixTheme.colorScheme.error
-                            )
+                            contentColor = MiuixTheme.colorScheme.error
                         ) {
                             Text(context.getString(R.string.auth_logout_button))
                         }
@@ -110,7 +116,10 @@ fun MembershipScreen(
                             style = MiuixTheme.textStyles.body1
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadMembershipData() }) {
+                        Button(
+                            onClick = { viewModel.loadMembershipData() },
+                            colors = ButtonDefaults.buttonColorsPrimary()
+                        ) {
                             Text(context.getString(R.string.retry))
                         }
                     }
