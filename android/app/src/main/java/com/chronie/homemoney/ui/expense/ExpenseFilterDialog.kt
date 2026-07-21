@@ -8,11 +8,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -21,9 +25,21 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.SortOption
+import com.chronie.homemoney.ui.components.OutlinedButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Checkbox
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
@@ -59,8 +75,7 @@ fun ExpenseFilterDialog(
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.9f),
             shape = RoundedCornerShape(16.dp),
-            color = MiuixTheme.colorScheme.surface,
-            tonalElevation = 6.dp
+            color = MiuixTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -82,7 +97,7 @@ fun ExpenseFilterDialog(
                     }
                 }
 
-                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                HorizontalDivider(Modifier, 0.5.dp, MiuixTheme.colorScheme.dividerLine)
 
                 // Filter content area
                 Column(
@@ -93,11 +108,11 @@ fun ExpenseFilterDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Search keyword
-                    OutlinedTextField(
+                    TextField(
                         value = keyword,
                         onValueChange = { keyword = it },
-                        label = { Text(context.getString(R.string.common_search)) },
-                        placeholder = { Text(context.getString(R.string.expense_list_search_hint)) },
+                        label = context.getString(R.string.common_search),
+                        useLabelAsPlaceholder = true,
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -157,19 +172,21 @@ fun ExpenseFilterDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        OutlinedTextField(
+                        TextField(
                             value = minAmount,
                             onValueChange = { minAmount = it },
-                            label = { Text(context.getString(R.string.expense_list_filter_min_amount)) },
+                            label = context.getString(R.string.expense_list_filter_min_amount),
+                            useLabelAsPlaceholder = true,
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true
                         )
-                        
-                        OutlinedTextField(
+
+                        TextField(
                             value = maxAmount,
                             onValueChange = { maxAmount = it },
-                            label = { Text(context.getString(R.string.expense_list_filter_max_amount)) },
+                            label = context.getString(R.string.expense_list_filter_max_amount),
+                            useLabelAsPlaceholder = true,
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true
@@ -201,7 +218,7 @@ fun ExpenseFilterDialog(
                     }
                 }
 
-                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                HorizontalDivider(Modifier, 0.5.dp, MiuixTheme.colorScheme.dividerLine)
 
                 // Bottom buttons area
                 Row(
@@ -239,7 +256,8 @@ fun ExpenseFilterDialog(
                             onApplyFilters(filters)
                             onDismiss()
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColorsPrimary()
                     ) {
                         Text(context.getString(R.string.expense_list_apply_filters))
                     }
@@ -269,19 +287,18 @@ fun ExpenseFilterDialog(
         DatePickerDialog(
             onDismissRequest = { showStartDatePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        startDate = LocalDate.ofEpochDay(millis / 86400000L)
+                TextButton(
+                    text = context.getString(R.string.confirm),
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            startDate = LocalDate.ofEpochDay(millis / 86400000L)
+                        }
+                        showStartDatePicker = false
                     }
-                    showStartDatePicker = false
-                }) {
-                    Text(context.getString(R.string.confirm))
-                }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(text = context.getString(R.string.cancel), onClick = { showStartDatePicker = false })
             }
         ) {
             DatePicker(state = datePickerState)
@@ -296,19 +313,18 @@ fun ExpenseFilterDialog(
         DatePickerDialog(
             onDismissRequest = { showEndDatePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        endDate = LocalDate.ofEpochDay(millis / 86400000L)
+                TextButton(
+                    text = context.getString(R.string.confirm),
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            endDate = LocalDate.ofEpochDay(millis / 86400000L)
+                        }
+                        showEndDatePicker = false
                     }
-                    showEndDatePicker = false
-                }) {
-                    Text(context.getString(R.string.confirm))
-                }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showEndDatePicker = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(text = context.getString(R.string.cancel), onClick = { showEndDatePicker = false })
             }
         ) {
             DatePicker(state = datePickerState)
@@ -361,11 +377,12 @@ fun ExpenseTypeSelector(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 // Search field
-                OutlinedTextField(
+                TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(context.getString(R.string.search_category)) },
+                    label = context.getString(R.string.search_category),
+                    useLabelAsPlaceholder = true,
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
@@ -404,12 +421,12 @@ fun ExpenseTypeSelector(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Checkbox(
-                                    checked = tempSelectedTypes.contains(type),
-                                    onCheckedChange = { checked ->
-                                        tempSelectedTypes = if (checked) {
-                                            tempSelectedTypes + type
-                                        } else {
+                                    state = if (tempSelectedTypes.contains(type)) ToggleableState.On else ToggleableState.Off,
+                                    onClick = {
+                                        tempSelectedTypes = if (tempSelectedTypes.contains(type)) {
                                             tempSelectedTypes - type
+                                        } else {
+                                            tempSelectedTypes + type
                                         }
                                     }
                                 )
@@ -424,14 +441,10 @@ fun ExpenseTypeSelector(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(tempSelectedTypes) }) {
-                Text(context.getString(R.string.confirm))
-            }
+            TextButton(text = context.getString(R.string.confirm), onClick = { onConfirm(tempSelectedTypes) })
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
+            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
         }
     )
 }

@@ -11,7 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +25,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,13 +96,14 @@ fun ColorPickerBottomSheet(
                 }
             }
 
-            OutlinedTextField(
+            TextField(
                 value = searchText,
                 onValueChange = { searchText = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                placeholder = { Text(context.getString(R.string.color_picker_search_hint)) },
+                label = context.getString(R.string.color_picker_search_hint),
+                useLabelAsPlaceholder = true,
                 leadingIcon = {
                     Icon(Icons.Default.Search, contentDescription = context.getString(R.string.common_search))
                 },

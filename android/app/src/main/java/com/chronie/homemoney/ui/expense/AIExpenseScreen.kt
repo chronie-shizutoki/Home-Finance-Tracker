@@ -14,9 +14,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +48,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.core.graphics.toColorInt
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import com.chronie.homemoney.ui.components.OutlinedButton
 
 /**
  * AI Expense Screen
@@ -293,8 +313,8 @@ fun AIExpenseScreen(
     
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.ai_expense_title)) },
+            SmallTopAppBar(
+                title = context.getString(R.string.ai_expense_title),
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
@@ -303,9 +323,7 @@ fun AIExpenseScreen(
                 actions = {
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.background
-                )
+                color = MiuixTheme.colorScheme.background
             )
         }
     ) { paddingValues ->
@@ -339,8 +357,9 @@ fun AIExpenseScreen(
             Button(
                 onClick = { viewModel.startRecognition() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading && 
-                         (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank())
+                enabled = !uiState.isLoading &&
+                         (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank()),
+                colors = ButtonDefaults.buttonColorsPrimary()
             ) {
                 if (uiState.isLoading) {
                     ExpressiveLoadingIndicator(containerVisible = false)
@@ -513,11 +532,10 @@ private fun ImageSelectionSection(
                 text = context.getString(R.string.ai_expense_select_images),
                 style = MiuixTheme.textStyles.body1
             )
-            TextButton(onClick = onAddImages) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(context.getString(R.string.ai_expense_add_images))
-            }
+            TextButton(
+                text = context.getString(R.string.ai_expense_add_images),
+                onClick = onAddImages
+            )
         }
         
         if (selectedImages.isNotEmpty()) {
@@ -534,14 +552,13 @@ private fun ImageSelectionSection(
                 }
             }
         } else {
-            Card(
+            Surface(
                 onClick = onAddImages,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MiuixTheme.colorScheme.surfaceVariant
-                ),
+                shape = RoundedCornerShape(12.dp),
+                color = MiuixTheme.colorScheme.surfaceVariant,
                 border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
             ) {
                 Box(
@@ -621,13 +638,14 @@ private fun TextInputSection(
             style = MiuixTheme.textStyles.body1
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        TextField(
             value = textInput,
             onValueChange = onTextChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp),
-            placeholder = { Text(context.getString(R.string.ai_expense_text_hint)) },
+            label = context.getString(R.string.ai_expense_text_hint),
+            useLabelAsPlaceholder = true,
             maxLines = 5
         )
     }
@@ -657,7 +675,8 @@ private fun RecognizedRecordsSection(
             )
             Button(
                 onClick = onSaveAll,
-                enabled = !isSaving && records.any { it.isValid }
+                enabled = !isSaving && records.any { it.isValid },
+                colors = ButtonDefaults.buttonColorsPrimary()
             ) {
                 if (isSaving) {
                     ExpressiveLoadingIndicator(containerVisible = false)
@@ -706,10 +725,10 @@ private fun RecordEditCard(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (record.isValid) 
-                MiuixTheme.colorScheme.surface 
-            else 
+        colors = CardDefaults.defaultColors(
+            color = if (record.isValid)
+                MiuixTheme.colorScheme.surface
+            else
                 MiuixTheme.colorScheme.errorContainer
         )
     ) {
@@ -820,12 +839,12 @@ private fun RecordEditDialog(
                 }
                 
                 // Amount input
-                OutlinedTextField(
+                TextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text(context.getString(R.string.ai_expense_amount)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    prefix = { Text(context.getString(R.string.currency_symbol)) }
+                    label = context.getString(R.string.ai_expense_amount),
+                    useLabelAsPlaceholder = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 
                 // Date picker
@@ -839,10 +858,11 @@ private fun RecordEditDialog(
                 }
                 
                 // Remark input
-                OutlinedTextField(
+                TextField(
                     value = remark,
                     onValueChange = { remark = it },
-                    label = { Text(context.getString(R.string.ai_expense_remark)) },
+                    label = context.getString(R.string.ai_expense_remark),
+                    useLabelAsPlaceholder = true,
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )
@@ -850,6 +870,7 @@ private fun RecordEditDialog(
         },
         confirmButton = {
             TextButton(
+                text = context.getString(R.string.confirm),
                 onClick = {
                     val updatedRecord = record.copy(
                         type = selectedType,
@@ -860,14 +881,13 @@ private fun RecordEditDialog(
                     )
                     onConfirm(updatedRecord)
                 }
-            ) {
-                Text(context.getString(R.string.confirm))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
+            TextButton(
+                text = context.getString(R.string.cancel),
+                onClick = onDismiss
+            )
         }
     )
     
@@ -892,20 +912,20 @@ private fun RecordEditDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
+                    text = context.getString(R.string.confirm),
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             selectedDate = java.time.LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
                         }
                         showDatePicker = false
                     }
-                ) {
-                    Text(context.getString(R.string.confirm))
-                }
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(context.getString(R.string.cancel))
-                }
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = { showDatePicker = false }
+                )
             }
         ) {
             DatePicker(state = datePickerState)
@@ -955,11 +975,12 @@ private fun ExpenseTypePickerDialog(
         text = {
             Column {
                 // Search field
-                OutlinedTextField(
+                TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(context.getString(R.string.search_category)) },
+                    label = context.getString(R.string.search_category),
+                    useLabelAsPlaceholder = true,
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
@@ -968,8 +989,7 @@ private fun ExpenseTypePickerDialog(
                             }
                         }
                     },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors()
+                    singleLine = true
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -994,18 +1014,16 @@ private fun ExpenseTypePickerDialog(
                         items(filteredTypes.size) { index ->
                             val type = filteredTypes[index]
                             TextButton(
+                                text = ExpenseTypeLocalizer.getLocalizedName(context, type),
                                 onClick = { onTypeSelected(type) },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = if (type == selectedType)
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.textButtonColors(
+                                    textColor = if (type == selectedType)
                                         MiuixTheme.colorScheme.primary
                                     else
                                         MiuixTheme.colorScheme.onSurface
                                 )
-                            }
+                            )
                         }
                     }
                 }
@@ -1013,9 +1031,10 @@ private fun ExpenseTypePickerDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
+            TextButton(
+                text = context.getString(R.string.cancel),
+                onClick = onDismiss
+            )
         }
     )
 }

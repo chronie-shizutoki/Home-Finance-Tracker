@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.expense
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,7 +11,18 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +37,14 @@ import com.chronie.homemoney.ui.components.CircularIconButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
@@ -55,15 +75,11 @@ fun AddExpenseScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        if (expenseId != null) 
-                            context.getString(R.string.edit_expense_title) 
-                        else 
-                            context.getString(R.string.add_expense_title) 
-                    ) 
-                },
+            SmallTopAppBar(
+                title = if (expenseId != null)
+                    context.getString(R.string.edit_expense_title)
+                else
+                    context.getString(R.string.add_expense_title),
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
@@ -91,9 +107,7 @@ fun AddExpenseScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.background
-                )
+                color = MiuixTheme.colorScheme.background
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -255,7 +269,7 @@ fun ExpenseTypeDropdown(
             expanded = expanded,
             onExpandedChange = { expanded = it }
         ) {
-            OutlinedTextField(
+            TextField(
                 value = if (selectedType != null && !expanded) {
                     ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
                 } else if (expanded && searchQuery.isNotEmpty()) {
@@ -265,16 +279,17 @@ fun ExpenseTypeDropdown(
                 } else {
                     ""
                 },
-                onValueChange = { 
+                onValueChange = {
                     searchQuery = it
                     if (!expanded) expanded = true
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
-                placeholder = { Text(context.getString(R.string.add_expense_type_hint)) },
-                leadingIcon = { 
-                    Icon(Icons.Default.Search, contentDescription = null) 
+                label = context.getString(R.string.add_expense_type_hint),
+                useLabelAsPlaceholder = true,
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
                 },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
@@ -282,8 +297,6 @@ fun ExpenseTypeDropdown(
                         modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
                     )
                 },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                isError = error != null,
                 singleLine = true
             )
             
@@ -354,15 +367,14 @@ fun ExpenseAmountField(
             style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        TextField(
             value = amount,
             onValueChange = onAmountChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(context.getString(R.string.add_expense_amount_hint)) },
-            prefix = { Text(context.getString(R.string.currency_symbol) + " ") },
+            label = context.getString(R.string.add_expense_amount_hint),
+            useLabelAsPlaceholder = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-            isError = error != null
+            singleLine = true
         )
         if (error != null) {
             Text(
@@ -398,9 +410,12 @@ fun ExpenseDateField(
             style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedCard(
+        Surface(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            color = MiuixTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
         ) {
             Box(
                 modifier = Modifier
@@ -442,13 +457,14 @@ fun ExpenseRemarkField(
             style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        TextField(
             value = remark,
             onValueChange = onRemarkChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp),
-            placeholder = { Text(context.getString(R.string.add_expense_remark_hint)) },
+            label = context.getString(R.string.add_expense_remark_hint),
+            useLabelAsPlaceholder = true,
             maxLines = 4
         )
     }
@@ -475,20 +491,17 @@ fun ExpenseDatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
+                text = context.getString(R.string.confirm),
                 onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
                         val date = LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
                         onDateSelected(date)
                     }
                 }
-            ) {
-                Text(context.getString(R.string.confirm))
-            }
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
-            }
+            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
         },
         shape = androidx.compose.ui.graphics.RectangleShape,
         colors = DatePickerDefaults.colors(

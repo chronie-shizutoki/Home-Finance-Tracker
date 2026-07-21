@@ -2,7 +2,10 @@ package com.chronie.homemoney.ui.expense
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.foundation.layout.*
@@ -14,7 +17,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -38,6 +40,16 @@ import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
@@ -103,8 +115,7 @@ fun ExpenseListScreen(
         // Top Toolbar - Fixed at top of page, does not scroll with content
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MiuixTheme.colorScheme.surface,
-            tonalElevation = 3.dp
+            color = MiuixTheme.colorScheme.surface
         ) {
             Row(
                 modifier = Modifier
@@ -177,7 +188,7 @@ fun ExpenseListScreen(
                                 text = uiState.error ?: context.getString(R.string.common_error),
                                 style = MiuixTheme.textStyles.body1
                             )
-                            Button(onClick = { viewModel.refresh() }) {
+                            Button(onClick = { viewModel.refresh() }, colors = ButtonDefaults.buttonColorsPrimary()) {
                                 Text(context.getString(R.string.common_retry))
                             }
                         }
@@ -275,7 +286,7 @@ fun ExpenseListScreen(
                                         count = expenses.size,
                                         totalAmount = expenses.sumOf { it.amount },
                                         context = context,
-                                        locale = context.resources.configuration.locale.toLanguageTag(),
+                                        locale = context.resources.configuration.locales[0].toLanguageTag(),
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                 } else {
@@ -284,7 +295,7 @@ fun ExpenseListScreen(
                                         count = expenses.size,
                                         totalAmount = expenses.sumOf { it.amount },
                                         context = context,
-                                        locale = context.resources.configuration.locale.toLanguageTag(),
+                                        locale = context.resources.configuration.locales[0].toLanguageTag(),
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                 }
@@ -329,7 +340,7 @@ fun ExpenseListScreen(
                                     if (uiState.isLoading) {
                                         ExpressiveLoadingIndicator(containerVisible = true)
                                     } else {
-                                        Button(onClick = { viewModel.loadMore() }) {
+                                        Button(onClick = { viewModel.loadMore() }, colors = ButtonDefaults.buttonColorsPrimary()) {
                                             Text(context.getString(R.string.common_loading))
                                         }
                                     }
@@ -345,7 +356,6 @@ fun ExpenseListScreen(
         FloatingActionButton(
             onClick = onNavigateToAddExpense,
             containerColor = MiuixTheme.colorScheme.primary,
-            contentColor = MiuixTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -422,8 +432,8 @@ fun ExpenseStatisticsCard(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MiuixTheme.colorScheme.primaryContainer
+        colors = CardDefaults.defaultColors(
+            color = MiuixTheme.colorScheme.primaryContainer
         )
     ) {
         Column(
@@ -587,7 +597,7 @@ fun LongPressExpenseItem(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
+                                text = formatDateByLocale(expense.date, context.resources.configuration.locales[0].toLanguageTag()),
                                 style = MiuixTheme.textStyles.footnote1,
                                 color = MiuixTheme.colorScheme.onSurfaceSecondary
                             )
@@ -613,7 +623,7 @@ fun LongPressExpenseItem(
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MiuixTheme.colorScheme.primaryContainer,
+                                color = MiuixTheme.colorScheme.primaryContainer,
                                 contentColor = MiuixTheme.colorScheme.onPrimaryContainer
                             )
                         ) {
@@ -625,7 +635,7 @@ fun LongPressExpenseItem(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = context.getString(R.string.edit))
                         }
-                        
+
                         // Delete Button
                         Button(
                             onClick = {
@@ -633,7 +643,7 @@ fun LongPressExpenseItem(
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MiuixTheme.colorScheme.errorContainer,
+                                color = MiuixTheme.colorScheme.errorContainer,
                                 contentColor = MiuixTheme.colorScheme.onErrorContainer
                             )
                         ) {
@@ -657,7 +667,7 @@ fun LongPressExpenseItem(
                 title = { Text(text = context.getString(R.string.delete_confirm_title)) },
                 text = { Text(text = context.getString(R.string.delete_confirm_message)) },
                 confirmButton = {
-                    Button(onClick = { handleFirstConfirm() }) {
+                    Button(onClick = { handleFirstConfirm() }, colors = ButtonDefaults.buttonColorsPrimary()) {
                         Text(text = context.getString(R.string.confirm))
                     }
                 },
@@ -668,7 +678,7 @@ fun LongPressExpenseItem(
                 }
             )
         }
-        
+
         // Second Confirmation Dialog
         if (showSecondConfirmDialog.value) {
             AlertDialog(
@@ -679,7 +689,7 @@ fun LongPressExpenseItem(
                     Button(
                         onClick = { handleSecondConfirm() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MiuixTheme.colorScheme.errorContainer,
+                            color = MiuixTheme.colorScheme.errorContainer,
                             contentColor = MiuixTheme.colorScheme.onErrorContainer
                         )
                     ) {
@@ -710,8 +720,7 @@ fun ExpenseListItem(
     
     
     Card(
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation()
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -737,7 +746,7 @@ fun ExpenseListItem(
                     )
                 }
                 Text(
-                    text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
+                    text = formatDateByLocale(expense.date, context.resources.configuration.locales[0].toLanguageTag()),
                     style = MiuixTheme.textStyles.footnote1,
                     color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
@@ -817,14 +826,13 @@ fun ExpenseTableItems(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Table header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = MiuixTheme.colorScheme.surfaceContainerHighest
+                color = MiuixTheme.colorScheme.surfaceVariant
             ) {
                 Row(
                     modifier = Modifier

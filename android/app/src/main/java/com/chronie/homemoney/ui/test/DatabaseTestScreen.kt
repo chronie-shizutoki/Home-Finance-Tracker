@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,9 +14,16 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseTestScreen(
     context: android.content.Context,
@@ -28,8 +34,8 @@ fun DatabaseTestScreen(
     
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(context.getString(R.string.database_test)) },
+            SmallTopAppBar(
+                title = context.getString(R.string.database_test),
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
@@ -38,9 +44,7 @@ fun DatabaseTestScreen(
                 actions = {
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MiuixTheme.colorScheme.background
-                )
+                color = MiuixTheme.colorScheme.background
             )
         }
     ) { paddingValues ->
@@ -57,16 +61,17 @@ fun DatabaseTestScreen(
             ) {
                 Button(
                     onClick = { viewModel.addTestExpense() },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColorsPrimary()
                 ) {
                     Text(context.getString(R.string.add_test_data))
                 }
-                
+
                 Button(
                     onClick = { viewModel.clearAllExpenses() },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MiuixTheme.colorScheme.error
+                        color = MiuixTheme.colorScheme.error
                     )
                 ) {
                     Text(context.getString(R.string.clear_data))
@@ -92,8 +97,8 @@ fun DatabaseTestScreen(
             if (!uiState.message.isNullOrEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (uiState.isError) {
+                    colors = CardDefaults.defaultColors(
+                        color = if (uiState.isError) {
                             MiuixTheme.colorScheme.errorContainer
                         } else {
                             MiuixTheme.colorScheme.primaryContainer
@@ -174,7 +179,7 @@ fun ExpenseItem(
             }
             
             Text(
-                text = formatDateByLocale(expense.timeFormatted, context.resources.configuration.locale.toLanguageTag()),
+                text = formatDateByLocale(expense.timeFormatted, context.resources.configuration.locales[0].toLanguageTag()),
                 style = MiuixTheme.textStyles.footnote1,
                 color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
