@@ -33,6 +33,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +51,7 @@ fun ChartsScreen(
             // Top toolbar with title and time range selector
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surface,
+                color = MiuixTheme.colorScheme.surface,
                 tonalElevation = 3.dp
             ) {
                 Row(
@@ -62,7 +63,7 @@ fun ChartsScreen(
                 ) {
                     Text(
                         text = context.getString(R.string.charts_title),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MiuixTheme.textStyles.title3,
                         modifier = Modifier.weight(1f).padding(start = 8.dp)
                     )
                     
@@ -103,8 +104,8 @@ fun ChartsScreen(
                     ) {
                         Text(
                             text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+                            style = MiuixTheme.textStyles.body1,
+                            color = MiuixTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.refresh() }) {
@@ -193,14 +194,14 @@ private fun TimeRangeCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = getTimeRangeText(context, selectedTimeRange),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "${formatDateByLocale(state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())} - ${formatDateByLocale(state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE), context.resources.configuration.locale.toLanguageTag())}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.body2,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
         }
     }
@@ -216,7 +217,7 @@ private fun StatisticsSummaryCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = context.getString(R.string.statistics_summary),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             
@@ -260,12 +261,12 @@ private fun StatisticItem(label: String, value: String) {
     Column {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onSurfaceSecondary
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             fontWeight = FontWeight.Bold
         )
     }
@@ -281,7 +282,7 @@ private fun TrendLineChartCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = context.getString(R.string.trend_chart),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             
@@ -290,8 +291,8 @@ private fun TrendLineChartCard(
             if (dailyData.isEmpty()) {
                 Text(
                     text = context.getString(R.string.no_data),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
                     modifier = Modifier.padding(vertical = 32.dp)
                 )
             } else {
@@ -314,9 +315,9 @@ private fun HighQualityLineChart(
     currencyFormat: NumberFormat,
     modifier: Modifier = Modifier
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val textColor = MaterialTheme.colorScheme.onSurface
-    val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val primaryColor = MiuixTheme.colorScheme.primary
+    val textColor = MiuixTheme.colorScheme.onSurface
+    val gridColor = MiuixTheme.colorScheme.dividerLine
     
     Canvas(modifier = modifier) {
         if (data.isEmpty()) return@Canvas
@@ -467,7 +468,7 @@ private fun CategoryBreakdownCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = context.getString(R.string.category_breakdown),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             
@@ -476,8 +477,8 @@ private fun CategoryBreakdownCard(
             if (categoryData.isEmpty()) {
                 Text(
                     text = context.getString(R.string.no_data),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             } else {
@@ -505,11 +506,11 @@ private fun CategoryItem(
         ) {
             Text(
                 text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                style = MaterialTheme.typography.bodyMedium
+                style = MiuixTheme.textStyles.body2
             )
             Text(
                 text = "${String.format("%.1f", category.percentage)}%",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body2,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -521,16 +522,16 @@ private fun CategoryItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            color = MiuixTheme.colorScheme.primary,
+            trackColor = MiuixTheme.colorScheme.surfaceVariant
         )
         
         Spacer(modifier = Modifier.height(4.dp))
         
         Text(
             text = "${currencyFormat.format(category.amount)} (${category.count} ${context.getString(R.string.records)})",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onSurfaceSecondary
         )
     }
 }
@@ -556,7 +557,7 @@ private fun TimeRangeDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MiuixTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -565,7 +566,7 @@ private fun TimeRangeDialog(
         ) {
             Text(
                 text = context.getString(R.string.select_time_range),
-                style = MaterialTheme.typography.titleLarge,
+                style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -646,8 +647,8 @@ private fun TimeRangeDialog(
                     val endDateString = end.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     Text(
                         text = "${context.getString(R.string.expense_list_filter_start_date)} ${formatDateByLocale(startDateString, context.resources.configuration.locale.toLanguageTag())} ${context.getString(R.string.expense_list_filter_end_date)} ${formatDateByLocale(endDateString, context.resources.configuration.locale.toLanguageTag())}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
             }
@@ -692,7 +693,7 @@ private fun CustomRangeBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MiuixTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -701,7 +702,7 @@ private fun CustomRangeBottomSheet(
         ) {
             Text(
                 text = context.getString(R.string.custom_range),
-                style = MaterialTheme.typography.titleLarge,
+                style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -854,7 +855,7 @@ private fun TimeRangeOption(
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = getTimeRangeText(context, timeRange),
-            style = MaterialTheme.typography.bodyLarge
+            style = MiuixTheme.textStyles.body1
         )
     }
 }

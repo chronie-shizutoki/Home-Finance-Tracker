@@ -27,9 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +42,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 // Data class for Navigation Item Data
 data class TabItemData(
@@ -69,10 +69,10 @@ fun BottomNavigationBar(
     val unselectedColor = if (isDarkTheme) Color(0xFFAAAAAA) else Color(0xFF666666)
     
     // Selected item color: primary color from theme colors
-    val selectedColor = MaterialTheme.colorScheme.primary
+    val selectedColor = MiuixTheme.colorScheme.primary
     
     // Selected item background color: primaryContainer color from theme colors, semi-transparent effect
-    val selectedBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+    val selectedBackgroundColor = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
     
     // Define navigation items
     val navigationItems = listOf(
@@ -267,7 +267,7 @@ private fun TabItem(
         
         Text(
             text = item.label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MiuixTheme.textStyles.footnote2,
             color = if (isSelected) selectedColor else unselectedColor
         )
     }

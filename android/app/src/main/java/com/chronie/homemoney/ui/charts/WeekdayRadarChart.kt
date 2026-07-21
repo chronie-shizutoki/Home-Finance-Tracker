@@ -25,6 +25,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.PI
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Weekday Radar Chart Card
@@ -42,7 +43,7 @@ fun WeekdayRadarChartCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = context.getString(R.string.weekday_analysis),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             
@@ -51,8 +52,8 @@ fun WeekdayRadarChartCard(
             if (weekdayData.isEmpty() || weekdayData.all { it.amount == 0.0 }) {
                 Text(
                     text = context.getString(R.string.no_data),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
                     modifier = Modifier.padding(vertical = 32.dp)
                 )
             } else {
@@ -100,9 +101,9 @@ private fun WeekdayRadarChart(
     onWeekdayClick: (WeekdayChartData) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val textColor = MaterialTheme.colorScheme.onSurface
-    val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val primaryColor = MiuixTheme.colorScheme.primary
+    val textColor = MiuixTheme.colorScheme.onSurface
+    val gridColor = MiuixTheme.colorScheme.dividerLine
     
     // Store label positions for click detection
     val labelPositions = remember { mutableStateMapOf<Int, Pair<Offset, Float>>() }
@@ -302,21 +303,21 @@ private fun WeekdayDataItem(
     ) {
         Text(
             text = getWeekdayName(context, data.dayOfWeek),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MiuixTheme.textStyles.body2,
             modifier = Modifier.weight(1f)
         )
         
         Text(
             text = "${String.format("%.1f", data.percentage)}%",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MiuixTheme.textStyles.body2,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.width(60.dp)
         )
         
         Text(
             text = currencyFormat.format(data.amount),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
+            style = MiuixTheme.textStyles.body2,
+            color = MiuixTheme.colorScheme.primary,
             modifier = Modifier.width(100.dp)
         )
     }
@@ -340,12 +341,12 @@ private fun CategoryDetailItem(
         ) {
             Text(
                 text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body2,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = "${String.format("%.1f", category.percentage)}%",
-                style = MaterialTheme.typography.bodySmall,
+                style = MiuixTheme.textStyles.footnote1,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.width(60.dp)
             )
@@ -358,8 +359,8 @@ private fun CategoryDetailItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            color = MiuixTheme.colorScheme.primary,
+            trackColor = MiuixTheme.colorScheme.surfaceVariant
         )
         
         Spacer(modifier = Modifier.height(4.dp))
@@ -370,13 +371,13 @@ private fun CategoryDetailItem(
         ) {
             Text(
                 text = "${category.count} ${context.getString(R.string.records)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             Text(
                 text = currencyFormat.format(category.amount),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             )
         }

@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +74,7 @@ fun LanguageSelectorBottomSheet(
             ) {
                 Text(
                     text = context.getString(R.string.select_language),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MiuixTheme.textStyles.title3
                 )
                 IconButton(onClick = {
                     coroutineScope.launch {
@@ -150,11 +152,11 @@ private fun LanguageItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         color = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
+            MiuixTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.surface
+            MiuixTheme.colorScheme.surface
         },
-        shape = MaterialTheme.shapes.medium
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
@@ -168,20 +170,20 @@ private fun LanguageItem(
             ) {
                 Text(
                     text = language.englishName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MiuixTheme.textStyles.body1,
+                    color = MiuixTheme.colorScheme.onSurface
                 )
                 Text(
                     text = language.localName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MiuixTheme.colorScheme.primary
                 )
             }
         }

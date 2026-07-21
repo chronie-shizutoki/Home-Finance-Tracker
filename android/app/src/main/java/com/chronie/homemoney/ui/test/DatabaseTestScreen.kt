@@ -15,6 +15,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,7 @@ fun DatabaseTestScreen(
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MiuixTheme.colorScheme.background
                 )
             )
         }
@@ -65,7 +66,7 @@ fun DatabaseTestScreen(
                     onClick = { viewModel.clearAllExpenses() },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
+                        containerColor = MiuixTheme.colorScheme.error
                     )
                 ) {
                     Text(context.getString(R.string.clear_data))
@@ -81,7 +82,7 @@ fun DatabaseTestScreen(
                 ) {
                     Text(
                         text = context.getString(R.string.database_statistics),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MiuixTheme.textStyles.body1
                     )
                     Text(context.getString(R.string.record_count, uiState.expenseCount))
                     Text(context.getString(R.string.total_amount_database, uiState.totalAmount))
@@ -93,9 +94,9 @@ fun DatabaseTestScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = if (uiState.isError) {
-                            MaterialTheme.colorScheme.errorContainer
+                            MiuixTheme.colorScheme.errorContainer
                         } else {
-                            MaterialTheme.colorScheme.primaryContainer
+                            MiuixTheme.colorScheme.primaryContainer
                         }
                     )
                 ) {
@@ -108,7 +109,7 @@ fun DatabaseTestScreen(
             
             Text(
                 text = context.getString(R.string.expense_records),
-                style = MaterialTheme.typography.titleMedium
+                style = MiuixTheme.textStyles.body1
             )
             
             if (uiState.expenses.isEmpty()) {
@@ -155,27 +156,27 @@ fun ExpenseItem(
             ) {
                 Text(
                     text = expense.type,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MiuixTheme.textStyles.body1
                 )
                 Text(
                         text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.error
+                        style = MiuixTheme.textStyles.body1,
+                        color = MiuixTheme.colorScheme.error
                     )
             }
             
             if (expense.remark.isNotEmpty()) {
                 Text(
                     text = expense.remark,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             
             Text(
                 text = formatDateByLocale(expense.timeFormatted, context.resources.configuration.locale.toLanguageTag()),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             
             Row(
@@ -183,18 +184,18 @@ fun ExpenseItem(
             ) {
                 Text(
                     text = context.getString(if (expense.isSynced) R.string.synced else R.string.not_synced),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MiuixTheme.textStyles.footnote2,
                     color = if (expense.isSynced) {
-                        MaterialTheme.colorScheme.primary
+                        MiuixTheme.colorScheme.primary
                     } else {
-                        MaterialTheme.colorScheme.error
+                        MiuixTheme.colorScheme.error
                     }
                 )
                 
                 Text(
                     text = "ID: ${expense.id}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
         }

@@ -40,6 +40,7 @@ import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.core.graphics.toColorInt
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * AI Expense Screen
@@ -303,7 +304,7 @@ fun AIExpenseScreen(
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MiuixTheme.colorScheme.background
                 )
             )
         }
@@ -372,8 +373,8 @@ fun AIExpenseScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
+                    color = MiuixTheme.colorScheme.error,
+                    style = MiuixTheme.textStyles.footnote1
                 )
             }
         }
@@ -441,7 +442,7 @@ private fun ImageSourceSelectionBottomSheet(
         ) {
             Text(
                 text = context.getString(R.string.ai_expense_select_image_source),
-                style = MaterialTheme.typography.titleLarge,
+                style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold
             )
             
@@ -459,7 +460,7 @@ private fun ImageSourceSelectionBottomSheet(
                         Icons.Default.CameraAlt,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MiuixTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = context.getString(R.string.ai_expense_take_photo))
@@ -480,7 +481,7 @@ private fun ImageSourceSelectionBottomSheet(
                         Icons.Default.PhotoLibrary,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MiuixTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = context.getString(R.string.ai_expense_choose_from_gallery))
@@ -510,7 +511,7 @@ private fun ImageSelectionSection(
         ) {
             Text(
                 text = context.getString(R.string.ai_expense_select_images),
-                style = MaterialTheme.typography.titleMedium
+                style = MiuixTheme.textStyles.body1
             )
             TextButton(onClick = onAddImages) {
                 Icon(Icons.Default.Add, contentDescription = null)
@@ -539,9 +540,9 @@ private fun ImageSelectionSection(
                     .fillMaxWidth()
                     .height(120.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MiuixTheme.colorScheme.surfaceVariant
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -552,12 +553,12 @@ private fun ImageSelectionSection(
                             Icons.Default.Add,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                         Text(
                             context.getString(R.string.ai_expense_click_to_add),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                     }
                 }
@@ -598,7 +599,7 @@ private fun ImagePreviewCard(
                 Icon(
                     Icons.Default.Close,
                     contentDescription = "Remove",
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MiuixTheme.colorScheme.error
                 )
             }
         }
@@ -617,7 +618,7 @@ private fun TextInputSection(
     Column {
         Text(
             text = context.getString(R.string.ai_expense_or_input_text),
-            style = MaterialTheme.typography.titleMedium
+            style = MiuixTheme.textStyles.body1
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -652,7 +653,7 @@ private fun RecognizedRecordsSection(
         ) {
             Text(
                 text = context.getString(R.string.ai_expense_records_count, records.size),
-                style = MaterialTheme.typography.titleMedium
+                style = MiuixTheme.textStyles.body1
             )
             Button(
                 onClick = onSaveAll,
@@ -707,9 +708,9 @@ private fun RecordEditCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (record.isValid) 
-                MaterialTheme.colorScheme.surface 
+                MiuixTheme.colorScheme.surface 
             else 
-                MaterialTheme.colorScheme.errorContainer
+                MiuixTheme.colorScheme.errorContainer
         )
     ) {
         Column(
@@ -724,30 +725,30 @@ private fun RecordEditCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = ExpenseTypeLocalizer.getLocalizedName(context, record.type),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MiuixTheme.textStyles.body1
                     )
                     Text(
                         text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), record.amount),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MiuixTheme.textStyles.title2,
+                        color = MiuixTheme.colorScheme.primary
                     )
                     Text(
                         text = record.date,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                     if (record.remark.isNotBlank()) {
                         Text(
                             text = record.remark,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                     if (record.isEdited) {
                         Text(
                             text = context.getString(R.string.ai_expense_edited),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary,
+                            style = MiuixTheme.textStyles.footnote2,
+                            color = MiuixTheme.colorScheme.secondary,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
@@ -761,7 +762,7 @@ private fun RecordEditCard(
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = context.getString(R.string.ai_expense_delete_record),
-                            tint = MaterialTheme.colorScheme.error
+                            tint = MiuixTheme.colorScheme.error
                         )
                     }
                 }
@@ -945,8 +946,8 @@ private fun ExpenseTypePickerDialog(
                 if (filteredTypes.size != ExpenseType.entries.size) {
                     Text(
                         text = context.getString(R.string.search_results_count, filteredTypes.size),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
             }
@@ -983,7 +984,7 @@ private fun ExpenseTypePickerDialog(
                     ) {
                         Text(
                             text = context.getString(R.string.no_results_found),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                     }
                 } else {
@@ -1000,9 +1001,9 @@ private fun ExpenseTypePickerDialog(
                                     text = ExpenseTypeLocalizer.getLocalizedName(context, type),
                                     modifier = Modifier.fillMaxWidth(),
                                     color = if (type == selectedType)
-                                        MaterialTheme.colorScheme.primary
+                                        MiuixTheme.colorScheme.primary
                                     else
-                                        MaterialTheme.colorScheme.onSurface
+                                        MiuixTheme.colorScheme.onSurface
                                 )
                             }
                         }

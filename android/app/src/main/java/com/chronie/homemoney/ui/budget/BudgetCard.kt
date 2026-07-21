@@ -21,6 +21,8 @@ import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.expense.formatMonthLabelByLocale
 import androidx.compose.ui.platform.LocalLocale
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Budget Management Card
@@ -65,7 +67,7 @@ fun BudgetCard(
             Card(
                 modifier = modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MiuixTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Box(
@@ -107,7 +109,7 @@ fun BudgetEnablePrompt(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MiuixTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
@@ -121,19 +123,19 @@ fun BudgetEnablePrompt(
                 imageVector = Icons.Default.AccountBalance,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                tint = MiuixTheme.colorScheme.onSecondaryContainer
             )
             
             Text(
                 text = context.getString(R.string.budget_enable_title),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
                 text = context.getString(R.string.budget_enable_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                style = MiuixTheme.textStyles.body2,
+                color = MiuixTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
             )
             
             Button(
@@ -166,15 +168,15 @@ fun BudgetUsageCard(
     }
     
     val progressColor = when (status) {
-        BudgetStatus.OVER_LIMIT -> MaterialTheme.colorScheme.error
-        BudgetStatus.WARNING -> MaterialTheme.colorScheme.tertiary
-        BudgetStatus.NORMAL -> MaterialTheme.colorScheme.primary
+        BudgetStatus.OVER_LIMIT -> MiuixTheme.colorScheme.error
+        BudgetStatus.WARNING -> MiuixTheme.colorScheme.primaryVariant
+        BudgetStatus.NORMAL -> MiuixTheme.colorScheme.primary
     }
     
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MiuixTheme.colorScheme.primaryContainer
         )
     ) {
         Column(
@@ -198,18 +200,18 @@ fun BudgetUsageCard(
                     ) {
                         Text(
                             text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = context.getString(R.string.currency_format_no_decimal, context.getString(R.string.currency_symbol), usage.currentSpending) + "/" + context.getString(R.string.currency_format_no_decimal, context.getString(R.string.currency_symbol), usage.monthlyLimit),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Bold,
                             color = progressColor
                         )
                         Text(
                             text = "(${String.format(LocalLocale.current.platformLocale, "%.0f", usage.spendingPercentage)}%)",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MiuixTheme.textStyles.footnote1,
                             color = progressColor
                         )
                     }
@@ -218,13 +220,13 @@ fun BudgetUsageCard(
                     Column {
                         Text(
                             text = context.getString(R.string.budget_monthly_progress),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MiuixTheme.textStyles.body1,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locale.toLanguageTag()),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -259,18 +261,18 @@ fun BudgetUsageCard(
                     ) {
                         Text(
                             text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.currentSpending),
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MiuixTheme.textStyles.title2,
                             fontWeight = FontWeight.Bold,
                             color = progressColor
                         )
                         Text(
                             text = "/ " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.monthlyLimit),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            style = MiuixTheme.textStyles.body1,
+                            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
                         Text(
                             text = "(${String.format(LocalLocale.current.platformLocale, "%.0f", usage.spendingPercentage)}%)",
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MiuixTheme.textStyles.body2,
                             fontWeight = FontWeight.Medium,
                             color = progressColor
                         )
@@ -283,7 +285,7 @@ fun BudgetUsageCard(
                             .fillMaxWidth()
                             .height(8.dp),
                         color = progressColor,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        trackColor = MiuixTheme.colorScheme.surfaceVariant
                     )
                     
                     // Status alert
@@ -295,8 +297,8 @@ fun BudgetUsageCard(
                                     R.string.budget_alert_over_message,
                                     context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.currentSpending - usage.monthlyLimit)
                                 ),
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                containerColor = MiuixTheme.colorScheme.errorContainer,
+                                contentColor = MiuixTheme.colorScheme.onErrorContainer
                             )
                         }
                         BudgetStatus.WARNING -> {
@@ -307,8 +309,8 @@ fun BudgetUsageCard(
                                     context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.remainingAmount),
                                     usage.spendingPercentage
                                 ),
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                containerColor = MiuixTheme.colorScheme.tertiaryContainer,
+                                contentColor = MiuixTheme.colorScheme.onTertiaryContainer
                             )
                         }
                         BudgetStatus.NORMAL -> {
@@ -319,8 +321,8 @@ fun BudgetUsageCard(
                                     context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.remainingAmount),
                                     100 - usage.spendingPercentage
                                 ),
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                containerColor = MiuixTheme.colorScheme.secondaryContainer,
+                                contentColor = MiuixTheme.colorScheme.onSecondaryContainer
                             )
                         }
                     }
@@ -339,11 +341,11 @@ fun BudgetUsageCard(
                             label = context.getString(R.string.budget_recommended_daily),
                             value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.recommendedDaily),
                             valueColor = if (usage.recommendedDaily <= 0) {
-                                MaterialTheme.colorScheme.error
+                                MiuixTheme.colorScheme.error
                             } else if (usage.recommendedDaily < usage.dailyAverage * 0.8) {
-                                MaterialTheme.colorScheme.tertiary
+                                MiuixTheme.colorScheme.primaryVariant
                             } else {
-                                MaterialTheme.colorScheme.primary
+                                MiuixTheme.colorScheme.primary
                             }
                         )
                     }
@@ -367,7 +369,7 @@ fun AlertCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = containerColor,
-        shape = MaterialTheme.shapes.small
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -375,13 +377,13 @@ fun AlertCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleSmall,
+                style = MiuixTheme.textStyles.body2,
                 fontWeight = FontWeight.Bold,
                 color = contentColor
             )
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodySmall,
+                style = MiuixTheme.textStyles.footnote1,
                 color = contentColor.copy(alpha = 0.8f)
             )
         }
@@ -395,18 +397,18 @@ fun AlertCard(
 fun DetailItem(
     label: String,
     value: String,
-    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    valueColor: androidx.compose.ui.graphics.Color = MiuixTheme.colorScheme.onPrimaryContainer,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.titleSmall,
+            style = MiuixTheme.textStyles.body2,
             fontWeight = FontWeight.Medium,
             color = valueColor
         )

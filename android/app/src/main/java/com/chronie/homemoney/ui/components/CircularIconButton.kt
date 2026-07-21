@@ -3,14 +3,14 @@ package com.chronie.homemoney.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Circular IconButton Component *  for circular icon buttons
@@ -26,7 +26,7 @@ fun CircularIconButton(
 ) {
     Surface(
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MiuixTheme.colorScheme.surfaceVariant,
         modifier = modifier
     ) {
         IconButton(

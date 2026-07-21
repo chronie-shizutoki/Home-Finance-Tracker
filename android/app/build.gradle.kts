@@ -149,6 +149,8 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.material3.window.size)
     implementation(libs.material.icons.extended)
+    implementation(libs.miuix.ui)
+    implementation(libs.miuix.preference)
     implementation(libs.androidx.activity.compose)
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.lifecycle.viewmodel.compose)

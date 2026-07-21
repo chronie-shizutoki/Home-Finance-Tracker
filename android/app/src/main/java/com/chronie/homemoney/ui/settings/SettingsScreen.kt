@@ -39,6 +39,8 @@ import java.time.LocalDate
 import androidx.core.net.toUri
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.core.graphics.toColorInt
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 enum class SettingsPage {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
@@ -66,7 +68,7 @@ fun SettingsScreen(
         // Top title bar with back button and page title
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.background,
+            color = MiuixTheme.colorScheme.background,
             tonalElevation = 0.dp
         ) {
             Row(
@@ -95,13 +97,13 @@ fun SettingsScreen(
                         SettingsPage.DATA_SYNC -> context.getString(R.string.sync_title)
                         SettingsPage.ABOUT -> context.getString(R.string.common_more_functions)
                     },
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MiuixTheme.textStyles.title3,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
         }
 
-        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(thickness = 0.5.dp, color = MiuixTheme.colorScheme.dividerLine)
 
         AnimatedContent(
             targetState = currentPage,
@@ -175,8 +177,8 @@ fun MainSettingsMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onNavigate(SettingsPage.ACCOUNT) },
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-            shape = MaterialTheme.shapes.large
+            color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+            shape = RoundedCornerShape(16.dp)
         ) {
             Row(
                 modifier = Modifier.padding(20.dp),
@@ -194,7 +196,7 @@ fun MainSettingsMenu(
                     } else {
                         Surface(
                             modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.primaryContainer,
+                            color = MiuixTheme.colorScheme.primaryContainer,
                             shape = CircleShape
                         ) {
                             Icon(
@@ -211,13 +213,13 @@ fun MainSettingsMenu(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = currentUsername ?: context.getString(R.string.auth_not_logged_in),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MiuixTheme.textStyles.body1,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = context.getString(R.string.auth_account_info),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
                 
@@ -270,8 +272,8 @@ fun SettingsCategoryItem(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        shape = MaterialTheme.shapes.medium
+        color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -279,32 +281,32 @@ fun SettingsCategoryItem(
         ) {
             Surface(
                 modifier = Modifier.size(40.dp),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
                 shape = CircleShape
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.padding(8.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MiuixTheme.colorScheme.primary
                 )
             }
             
             Spacer(modifier = Modifier.width(16.dp))
             
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                Text(text = title, style = MiuixTheme.textStyles.body1, fontWeight = FontWeight.Medium)
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MiuixTheme.colorScheme.onSurfaceSecondary
             )
         }
     }
@@ -353,7 +355,7 @@ fun AppearanceSettingsPage(
     ) {
         Text(
             text = context.getString(R.string.language_settings),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
@@ -370,14 +372,14 @@ fun AppearanceSettingsPage(
         
         Text(
             text = context.getString(R.string.theme_settings),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            shape = MaterialTheme.shapes.medium
+            color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Row(
                 modifier = Modifier.padding(16.dp),
@@ -385,11 +387,11 @@ fun AppearanceSettingsPage(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = context.getString(R.string.dynamic_color), style = MaterialTheme.typography.bodyLarge)
+                    Text(text = context.getString(R.string.dynamic_color), style = MiuixTheme.textStyles.body1)
                     Text(
                         text = context.getString(R.string.dynamic_color_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
                 ExpressiveSwitch(
@@ -417,7 +419,7 @@ fun AppearanceSettingsPage(
                         shape = CircleShape,
                         color = Color(themeSettings.value.primaryColor),
                         modifier = Modifier.size(24.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
                     ) {}
                 }
             )
@@ -509,7 +511,7 @@ fun AboutSettingsPage(
     ) {
         Text(
             text = context.getString(R.string.feedback_title),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SettingsDetailItem(
@@ -531,7 +533,7 @@ fun AboutSettingsPage(
         
         Text(
             text = context.getString(R.string.open_source_licenses),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SettingsDetailItem(
@@ -550,7 +552,7 @@ fun AboutSettingsPage(
         ) {
             Text(
                 text = context.getString(R.string.developer_options),
-                style = MaterialTheme.typography.titleMedium
+                style = MiuixTheme.textStyles.body1
             )
             ExpressiveSwitch(
                 checked = isDeveloperMode,
@@ -588,8 +590,8 @@ fun SettingsDetailItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        shape = MaterialTheme.shapes.medium
+        color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -597,12 +599,12 @@ fun SettingsDetailItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge)
+                Text(text = title, style = MiuixTheme.textStyles.body1)
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
             }
@@ -615,7 +617,7 @@ fun SettingsDetailItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MiuixTheme.colorScheme.onSurfaceSecondary
             )
         }
     }
@@ -632,8 +634,8 @@ fun AppVersionInfo(context: Context) {
 
     Text(
         text = "Version $versionName ($versionCode)",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MiuixTheme.textStyles.footnote1,
+        color = MiuixTheme.colorScheme.onSurfaceSecondary,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp, bottom = 8.dp)
@@ -676,7 +678,7 @@ fun AISettingsSection(
     Column {
         Text(
             text = context.getString(R.string.settings_ai_title),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
@@ -696,7 +698,7 @@ fun AISettingsSection(
                 Column {
                     Text(
                         text = context.getString(R.string.settings_ai_api_key_description),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     OutlinedTextField(
@@ -709,8 +711,8 @@ fun AISettingsSection(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = context.getString(R.string.settings_ai_get_api_key),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW,
@@ -752,7 +754,7 @@ fun BudgetSettingsSection(
     Column {
         Text(
             text = context.getString(R.string.budget_settings),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
@@ -815,7 +817,7 @@ fun DataImportExportSection(
     Column {
         Text(
             text = context.getString(R.string.data_import_export),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
@@ -854,14 +856,14 @@ fun DataImportExportSection(
                 Column {
                     Surface(
                         modifier = Modifier.fillMaxWidth().clickable { showExportDialog = false; viewModel.exportExpenses(null, null) },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium
+                        color = MiuixTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(text = context.getString(R.string.export_all_data), modifier = Modifier.padding(16.dp)) }
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
                         modifier = Modifier.fillMaxWidth().clickable { showExportDialog = false; showDateRangeDialog = true },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium
+                        color = MiuixTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(12.dp)
                     ) { Text(text = context.getString(R.string.export_date_range), modifier = Modifier.padding(16.dp)) }
                 }
             },
@@ -879,12 +881,12 @@ fun DataImportExportSection(
             text = {
                 Column {
                     Text(text = context.getString(R.string.export_start_date), modifier = Modifier.padding(bottom = 4.dp))
-                    Surface(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }, color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium) {
+                    Surface(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
                         Text(text = startDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_start_date), modifier = Modifier.padding(16.dp))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = context.getString(R.string.export_end_date), modifier = Modifier.padding(bottom = 4.dp))
-                    Surface(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }, color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium) {
+                    Surface(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
                         Text(text = endDate?.let { formatDateByLocale(it.toString(), context.resources.configuration.locale.toLanguageTag()) } ?: context.getString(R.string.export_end_date), modifier = Modifier.padding(16.dp))
                     }
                 }
@@ -924,8 +926,8 @@ fun SyncSection(
     }
     
     Column {
-        Text(text = context.getString(R.string.sync_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
-        Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), shape = MaterialTheme.shapes.medium) {
+        Text(text = context.getString(R.string.sync_title), style = MiuixTheme.textStyles.body1, modifier = Modifier.padding(bottom = 8.dp))
+        Surface(modifier = Modifier.fillMaxWidth(), color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = context.getString(R.string.sync_status))
@@ -938,23 +940,23 @@ fun SyncSection(
                             com.chronie.homemoney.domain.model.SyncStatus.CONFLICT -> context.getString(R.string.sync_status_conflict)
                         },
                         color = when (syncStatus) {
-                            com.chronie.homemoney.domain.model.SyncStatus.SUCCESS -> MaterialTheme.colorScheme.primary
-                            com.chronie.homemoney.domain.model.SyncStatus.FAILED, com.chronie.homemoney.domain.model.SyncStatus.CONFLICT -> MaterialTheme.colorScheme.error
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            com.chronie.homemoney.domain.model.SyncStatus.SUCCESS -> MiuixTheme.colorScheme.primary
+                            com.chronie.homemoney.domain.model.SyncStatus.FAILED, com.chronie.homemoney.domain.model.SyncStatus.CONFLICT -> MiuixTheme.colorScheme.error
+                            else -> MiuixTheme.colorScheme.onSurfaceSecondary
                         }
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = context.getString(R.string.sync_last_time))
-                    Text(text = lastSyncTime ?: context.getString(R.string.sync_never), style = MaterialTheme.typography.bodySmall)
+                    Text(text = lastSyncTime ?: context.getString(R.string.sync_never), style = MiuixTheme.textStyles.footnote1)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = context.getString(R.string.sync_pending_count))
                     Text(
                         text = pendingSyncCount.toString(),
-                        color = if (pendingSyncCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (pendingSyncCount > 0) MiuixTheme.colorScheme.primary else MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -975,11 +977,11 @@ fun SyncSection(
             title = { Text(context.getString(R.string.sync_select_method)) },
             text = {
                 Column {
-                    Surface(modifier = Modifier.fillMaxWidth().clickable { showSyncMethodDialog = false; viewModel.manualSync() }, color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium) {
+                    Surface(modifier = Modifier.fillMaxWidth().clickable { showSyncMethodDialog = false; viewModel.manualSync() }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
                         Text(text = context.getString(R.string.sync_cloud), modifier = Modifier.padding(16.dp))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Surface(modifier = Modifier.fillMaxWidth().clickable { showSyncMethodDialog = false; onNavigateToLanSync() }, color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium) {
+                    Surface(modifier = Modifier.fillMaxWidth().clickable { showSyncMethodDialog = false; onNavigateToLanSync() }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
                         Text(text = context.getString(R.string.sync_lan), modifier = Modifier.padding(16.dp))
                     }
                 }
@@ -1037,30 +1039,30 @@ fun AccountSection(
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MiuixTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.padding(bottom = 20.dp), contentAlignment = Alignment.Center) {
-                Surface(modifier = Modifier.size(140.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), shadowElevation = 4.dp) {}
-                Surface(modifier = Modifier.size(132.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), border = BorderStroke(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))) {}
+                Surface(modifier = Modifier.size(140.dp), shape = CircleShape, color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), shadowElevation = 4.dp) {}
+                Surface(modifier = Modifier.size(132.dp), shape = CircleShape, color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f), border = BorderStroke(3.dp, MiuixTheme.colorScheme.primary.copy(alpha = 0.3f))) {}
                 Box(modifier = Modifier.size(120.dp).clickable { imagePickerLauncher.launch("image/*") }) {
                     if (avatarLoading) ExpressiveLoadingIndicator(containerVisible = false)
                     else if (avatar != null) {
                         AsyncImage(model = avatar, contentDescription = null, modifier = Modifier.size(120.dp).clip(CircleShape), contentScale = ContentScale.Crop)
                     } else {
-                        Surface(modifier = Modifier.size(120.dp), color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Surface(modifier = Modifier.size(120.dp), color = MiuixTheme.colorScheme.primaryContainer, shape = CircleShape) {
+                            Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(48.dp), tint = MiuixTheme.colorScheme.onPrimaryContainer)
                         }
                     }
                 }
             }
-            Text(text = currentUsername ?: context.getString(R.string.auth_not_logged_in), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Medium)
-            Text(text = context.getString(R.string.auth_current_user), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
+            Text(text = currentUsername ?: context.getString(R.string.auth_not_logged_in), style = MiuixTheme.textStyles.title3, fontWeight = FontWeight.Medium)
+            Text(text = context.getString(R.string.auth_current_user), style = MiuixTheme.textStyles.footnote1, color = MiuixTheme.colorScheme.onSurfaceSecondary, modifier = Modifier.padding(top = 4.dp))
             Spacer(modifier = Modifier.height(20.dp))
             if (currentUsername != null) {
-                FilledTonalButton(onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) {
+                FilledTonalButton(onClick = { showLogoutDialog = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.filledTonalButtonColors(containerColor = MiuixTheme.colorScheme.errorContainer, contentColor = MiuixTheme.colorScheme.onErrorContainer)) {
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(context.getString(R.string.auth_logout_button))
@@ -1080,7 +1082,7 @@ fun AccountSection(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(context.getString(R.string.auth_logout_confirm_title)) },
             text = { Text(context.getString(R.string.auth_logout_confirm_message)) },
-            confirmButton = { TextButton(onClick = { viewModel.logout(); showLogoutDialog = false }) { Text(text = context.getString(R.string.confirm), color = MaterialTheme.colorScheme.error) } },
+            confirmButton = { TextButton(onClick = { viewModel.logout(); showLogoutDialog = false }) { Text(text = context.getString(R.string.confirm), color = MiuixTheme.colorScheme.error) } },
             dismissButton = { TextButton(onClick = { showLogoutDialog = false }) { Text(context.getString(R.string.cancel)) } }
         )
     }

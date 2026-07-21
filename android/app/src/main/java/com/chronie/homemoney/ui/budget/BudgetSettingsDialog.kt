@@ -15,6 +15,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Budget
 import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.CircularIconButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Budget Settings Dialog
@@ -57,7 +58,7 @@ fun BudgetSettingsDialog(
                 ) {
                     Text(
                         text = context.getString(R.string.budget_enable_feature),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MiuixTheme.textStyles.body1
                     )
                     ExpressiveSwitch(
                         checked = isEnabled,
@@ -156,8 +157,8 @@ fun BudgetSettingsDialog(
                 if (showError) {
                     Text(
                         text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                        color = MiuixTheme.colorScheme.error,
+                        style = MiuixTheme.textStyles.footnote1
                     )
                 }
             }

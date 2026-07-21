@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +61,7 @@ fun MembershipScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = MiuixTheme.colorScheme.primaryContainer
                             )
                         ) {
                             Column(
@@ -69,14 +70,14 @@ fun MembershipScreen(
                             ) {
                                 Text(
                                     text = state.member?.username ?: "",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    style = MiuixTheme.textStyles.title2,
+                                    color = MiuixTheme.colorScheme.onPrimaryContainer
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = context.getString(R.string.auth_logged_in),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onPrimaryContainer
                                 )
                             }
                         }
@@ -88,7 +89,7 @@ fun MembershipScreen(
                             onClick = { viewModel.logout(onLogout) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error
+                                contentColor = MiuixTheme.colorScheme.error
                             )
                         ) {
                             Text(context.getString(R.string.auth_logout_button))
@@ -105,8 +106,8 @@ fun MembershipScreen(
                     ) {
                         Text(
                             text = state.message,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
+                            color = MiuixTheme.colorScheme.error,
+                            style = MiuixTheme.textStyles.body1
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.loadMembershipData() }) {

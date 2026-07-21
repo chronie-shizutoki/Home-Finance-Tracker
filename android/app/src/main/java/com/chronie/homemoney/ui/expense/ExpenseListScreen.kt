@@ -37,6 +37,8 @@ import com.chronie.homemoney.ui.budget.BudgetCard
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Expense List Screen
@@ -101,7 +103,7 @@ fun ExpenseListScreen(
         // Top Toolbar - Fixed at top of page, does not scroll with content
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
+            color = MiuixTheme.colorScheme.surface,
             tonalElevation = 3.dp
         ) {
             Row(
@@ -113,7 +115,7 @@ fun ExpenseListScreen(
             ) {
                 Text(
                     text = context.getString(R.string.expense_list_title),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MiuixTheme.textStyles.title3,
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 )
                 
@@ -173,7 +175,7 @@ fun ExpenseListScreen(
                         ) {
                             Text(
                                 text = uiState.error ?: context.getString(R.string.common_error),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MiuixTheme.textStyles.body1
                             )
                             Button(onClick = { viewModel.refresh() }) {
                                 Text(context.getString(R.string.common_retry))
@@ -192,12 +194,12 @@ fun ExpenseListScreen(
                         ) {
                             Text(
                                 text = context.getString(R.string.expense_list_empty),
-                                style = MaterialTheme.typography.titleMedium
+                                style = MiuixTheme.textStyles.body1
                             )
                             Text(
                                 text = context.getString(R.string.expense_list_empty_description),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MiuixTheme.textStyles.body2,
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
                             )
                         }
                     }
@@ -342,8 +344,8 @@ fun ExpenseListScreen(
                 // Floating Action Button
         FloatingActionButton(
             onClick = onNavigateToAddExpense,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MiuixTheme.colorScheme.primary,
+            contentColor = MiuixTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -390,21 +392,21 @@ fun ExpenseDateHeader(
         Column {
             Text(
                 text = displayDate,
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MiuixTheme.colorScheme.onSurface
             )
             Text(
                 text = context.getString(R.string.expense_stats_count) + ": $count",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
         }
         Text(
             text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), totalAmount),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.error
+            color = MiuixTheme.colorScheme.error
         )
     }
 }
@@ -421,7 +423,7 @@ fun ExpenseStatisticsCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MiuixTheme.colorScheme.primaryContainer
         )
     ) {
         Column(
@@ -470,14 +472,14 @@ fun StatisticItem(
     Column(modifier = modifier) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.body1,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MiuixTheme.colorScheme.onPrimaryContainer
         )
     }
 }
@@ -553,8 +555,8 @@ fun LongPressExpenseItem(
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheetMenu.value = false },
                 sheetState = bottomSheetState,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MiuixTheme.colorScheme.onSurface,
+                containerColor = MiuixTheme.colorScheme.surface,
                 dragHandle = { BottomSheetDefaults.DragHandle() }
             ) {
                 Column(
@@ -570,14 +572,14 @@ fun LongPressExpenseItem(
                     ) {
                         Text(
                             text = typeDisplayName,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MiuixTheme.textStyles.body1,
                             fontWeight = FontWeight.Bold
                         )
                         if (!expense.remark.isNullOrBlank()) {
                             Text(
                                 text = expense.remark,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MiuixTheme.textStyles.body2,
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
                             )
                         }
                         Row(
@@ -586,14 +588,14 @@ fun LongPressExpenseItem(
                         ) {
                             Text(
                                 text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.onSurfaceSecondary
                             )
                             Text(
                                 text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MiuixTheme.textStyles.title3,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
+                                color = MiuixTheme.colorScheme.error
                             )
                         }
                     }
@@ -611,8 +613,8 @@ fun LongPressExpenseItem(
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                containerColor = MiuixTheme.colorScheme.primaryContainer,
+                                contentColor = MiuixTheme.colorScheme.onPrimaryContainer
                             )
                         ) {
                             Icon(
@@ -631,8 +633,8 @@ fun LongPressExpenseItem(
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                containerColor = MiuixTheme.colorScheme.errorContainer,
+                                contentColor = MiuixTheme.colorScheme.onErrorContainer
                             )
                         ) {
                             Icon(
@@ -677,8 +679,8 @@ fun LongPressExpenseItem(
                     Button(
                         onClick = { handleSecondConfirm() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            containerColor = MiuixTheme.colorScheme.errorContainer,
+                            contentColor = MiuixTheme.colorScheme.onErrorContainer
                         )
                     ) {
                         Text(text = context.getString(R.string.delete))
@@ -724,27 +726,27 @@ fun ExpenseListItem(
             ) {
                 Text(
                     text = typeDisplayName,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.body1,
                     fontWeight = FontWeight.Medium
                 )
                 if (!expense.remark.isNullOrBlank()) {
                     Text(
                         text = expense.remark,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
                 Text(
                     text = formatDateByLocale(expense.date, context.resources.configuration.locale.toLanguageTag()),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             Text(
                 text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
-                style = MaterialTheme.typography.titleLarge,
+                style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.error
+                color = MiuixTheme.colorScheme.error
             )
         }
     }
@@ -766,8 +768,8 @@ fun ExpenseTableDateHeader(
     
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = MaterialTheme.shapes.small
+        color = MiuixTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -778,9 +780,9 @@ fun ExpenseTableDateHeader(
         ) {
             Text(
                 text = displayDate,
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -788,14 +790,14 @@ fun ExpenseTableDateHeader(
             ) {
                 Text(
                     text = "${context.getString(R.string.expense_stats_count)}: $count",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
                 Text(
                     text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), totalAmount),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.body1,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
+                    color = MiuixTheme.colorScheme.error
                 )
             }
         }
@@ -822,7 +824,7 @@ fun ExpenseTableItems(
             // Table header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceContainerHighest
+                color = MiuixTheme.colorScheme.surfaceContainerHighest
             ) {
                 Row(
                     modifier = Modifier
@@ -832,34 +834,34 @@ fun ExpenseTableItems(
                 ) {
                     Text(
                         text = context.getString(R.string.expense_type),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                     Text(
                         text = context.getString(R.string.expense_remark),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.weight(1.5f),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                     Text(
                         text = context.getString(R.string.expense_amount),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.width(120.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.End,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                     Text(
                         text = context.getString(R.string.common_actions),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.width(100.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
             }
             
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = MiuixTheme.colorScheme.dividerLine)
             
             // Table rows
             expenses.forEachIndexed { index, expense ->
@@ -873,28 +875,28 @@ fun ExpenseTableItems(
                 ) {
                     Text(
                         text = typeDisplayName,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MiuixTheme.textStyles.body1,
                         modifier = Modifier.weight(1f),
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = expense.remark ?: "-",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MiuixTheme.textStyles.body2,
                         modifier = Modifier.weight(1.5f),
                         color = if (expense.remark.isNullOrBlank()) 
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) 
+                            MiuixTheme.colorScheme.onSurfaceSecondary.copy(alpha = 0.5f) 
                         else 
-                            MaterialTheme.colorScheme.onSurface,
+                            MiuixTheme.colorScheme.onSurface,
                         maxLines = 2,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                     Text(
                         text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MiuixTheme.textStyles.body1,
                         modifier = Modifier.width(120.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.End,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
+                        color = MiuixTheme.colorScheme.error
                     )
                     Row(
                         modifier = Modifier.width(100.dp),
@@ -907,7 +909,7 @@ fun ExpenseTableItems(
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = context.getString(R.string.edit),
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = MiuixTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -918,7 +920,7 @@ fun ExpenseTableItems(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = context.getString(R.string.delete),
-                                tint = MaterialTheme.colorScheme.error,
+                                tint = MiuixTheme.colorScheme.error,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -927,7 +929,7 @@ fun ExpenseTableItems(
                 
                 if (index < expenses.size - 1) {
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        color = MiuixTheme.colorScheme.dividerLine.copy(alpha = 0.5f),
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }

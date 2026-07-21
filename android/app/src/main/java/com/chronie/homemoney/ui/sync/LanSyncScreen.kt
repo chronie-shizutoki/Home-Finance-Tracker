@@ -37,6 +37,7 @@ import com.chronie.homemoney.ui.settings.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Local Sync Screen
@@ -79,7 +80,7 @@ fun LanSyncScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MiuixTheme.colorScheme.background
                 )
             )
         }
@@ -102,7 +103,7 @@ fun LanSyncScreen(
             // Sync Options Title
             Text(
                 text = context.getString(R.string.sync_options),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             
@@ -222,8 +223,8 @@ fun LocalDeviceCard(
     onEditName: () -> Unit
 ) {
     val gradientColors = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.primaryContainer
+        MiuixTheme.colorScheme.primary,
+        MiuixTheme.colorScheme.primaryContainer
     )
     
     Card(
@@ -269,12 +270,12 @@ fun LocalDeviceCard(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = context.getString(R.string.this_device),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body2,
                             color = Color.White.copy(alpha = 0.8f)
                         )
                         Text(
                             text = deviceName,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MiuixTheme.textStyles.title3,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
@@ -307,7 +308,7 @@ fun LocalDeviceCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = context.getString(R.string.lan_sync_ready),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MiuixTheme.textStyles.footnote1,
                         color = Color.White.copy(alpha = 0.9f)
                     )
                 }
@@ -341,9 +342,9 @@ fun SyncActionCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (enabled) 
-                MaterialTheme.colorScheme.surfaceVariant 
+                MiuixTheme.colorScheme.surfaceVariant 
             else 
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (enabled) 2.dp else 0.dp
@@ -361,9 +362,9 @@ fun SyncActionCard(
                     .size(48.dp)
                     .background(
                         color = if (enabled)
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            MiuixTheme.colorScheme.primary.copy(alpha = 0.1f)
                         else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                            MiuixTheme.colorScheme.onSurface.copy(alpha = 0.05f),
                         shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -375,9 +376,9 @@ fun SyncActionCard(
                         imageVector = icon,
                         contentDescription = null,
                         tint = if (enabled)
-                            MaterialTheme.colorScheme.primary
+                            MiuixTheme.colorScheme.primary
                         else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            MiuixTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -388,16 +389,16 @@ fun SyncActionCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MiuixTheme.textStyles.body2,
                     color = if (enabled)
-                        MaterialTheme.colorScheme.onSurface
+                        MiuixTheme.colorScheme.onSurface
                     else
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             
@@ -405,7 +406,7 @@ fun SyncActionCard(
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
         }
@@ -421,7 +422,7 @@ fun SyncInfoCard(context: Context) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+            containerColor = MiuixTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
         )
     ) {
         Column(
@@ -433,13 +434,13 @@ fun SyncInfoCard(context: Context) {
                 Icon(
                     imageVector = Icons.Outlined.Info,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    tint = MiuixTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = context.getString(R.string.sync_info_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSecondaryContainer
                 )
             }
             
@@ -447,8 +448,8 @@ fun SyncInfoCard(context: Context) {
             
             Text(
                 text = context.getString(R.string.sync_info_content),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
             )
         }
     }
@@ -557,7 +558,7 @@ fun DeviceSearchDialog(
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface
+            color = MiuixTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier.padding(24.dp)
@@ -565,7 +566,7 @@ fun DeviceSearchDialog(
                 // Title
                 Text(
                     text = context.getString(R.string.searching_devices),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MiuixTheme.textStyles.title2,
                     fontWeight = FontWeight.Bold
                 )
                 
@@ -573,8 +574,8 @@ fun DeviceSearchDialog(
                 
                 Text(
                     text = context.getString(R.string.make_sure_same_wifi),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -604,8 +605,8 @@ fun DeviceSearchDialog(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = context.getString(R.string.searching),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                                 )
                             }
                         } else {
@@ -616,13 +617,13 @@ fun DeviceSearchDialog(
                                     imageVector = Icons.Outlined.SearchOff,
                                     contentDescription = null,
                                     modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MiuixTheme.colorScheme.onSurfaceSecondary
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = context.getString(R.string.no_devices_found),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                                 )
                             }
                         }
@@ -677,7 +678,7 @@ fun DeviceListItem(
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MiuixTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -691,7 +692,7 @@ fun DeviceListItem(
                 modifier = Modifier
                     .size(48.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -699,7 +700,7 @@ fun DeviceListItem(
                 Icon(
                     imageVector = Icons.Default.Devices,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MiuixTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -709,13 +710,13 @@ fun DeviceListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = device.deviceName,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MiuixTheme.textStyles.body2,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = device.address,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
             }
             
@@ -769,7 +770,7 @@ fun SyncProgressBottomSheet(
                 modifier = Modifier
                     .size(64.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -778,7 +779,7 @@ fun SyncProgressBottomSheet(
                     imageVector = Icons.Default.Sync,
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MiuixTheme.colorScheme.primary
                 )
             }
 
@@ -787,7 +788,7 @@ fun SyncProgressBottomSheet(
             // Title
             Text(
                 text = context.getString(R.string.sync_in_progress),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MiuixTheme.textStyles.title2,
                 fontWeight = FontWeight.Bold
             )
 
@@ -796,8 +797,8 @@ fun SyncProgressBottomSheet(
             // Progress message
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.body2,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -813,8 +814,8 @@ fun SyncProgressBottomSheet(
             // Progress percentage
             Text(
                 text = "${(progress * 100).toInt()}%",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -845,7 +846,7 @@ fun SyncRequestDialog(
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface
+            color = MiuixTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -856,7 +857,7 @@ fun SyncRequestDialog(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -865,7 +866,7 @@ fun SyncRequestDialog(
                         imageVector = Icons.Default.Devices,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MiuixTheme.colorScheme.primary
                     )
                 }
 
@@ -874,7 +875,7 @@ fun SyncRequestDialog(
                 // Title
                 Text(
                     text = context.getString(R.string.sync_request_title),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MiuixTheme.textStyles.title2,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -883,8 +884,8 @@ fun SyncRequestDialog(
                 // Device name
                 Text(
                     text = deviceInfo.deviceName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MiuixTheme.textStyles.body1,
+                    color = MiuixTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -892,8 +893,8 @@ fun SyncRequestDialog(
                 // Message
                 Text(
                     text = context.getString(R.string.sync_request_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -945,7 +946,7 @@ fun IncomingSyncRequestDialog(
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface
+            color = MiuixTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -956,7 +957,7 @@ fun IncomingSyncRequestDialog(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -965,7 +966,7 @@ fun IncomingSyncRequestDialog(
                         imageVector = Icons.Default.Sync,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MiuixTheme.colorScheme.primary
                     )
                 }
 
@@ -974,7 +975,7 @@ fun IncomingSyncRequestDialog(
                 // Title
                 Text(
                     text = context.getString(R.string.incoming_sync_request_title),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MiuixTheme.textStyles.title2,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -983,8 +984,8 @@ fun IncomingSyncRequestDialog(
                 // Device name
                 Text(
                     text = requestInfo.deviceName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MiuixTheme.textStyles.body1,
+                    color = MiuixTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -992,8 +993,8 @@ fun IncomingSyncRequestDialog(
                 // Message
                 Text(
                     text = context.getString(R.string.incoming_sync_request_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
