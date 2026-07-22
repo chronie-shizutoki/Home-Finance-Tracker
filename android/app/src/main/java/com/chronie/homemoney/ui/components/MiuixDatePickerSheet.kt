@@ -1,6 +1,8 @@
 package com.chronie.homemoney.ui.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,7 +13,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import top.yukonga.miuix.kmp.basic.NumberPicker
@@ -33,6 +34,7 @@ import java.time.YearMonth
  */
 @Composable
 fun MiuixDatePickerSheet(
+    context: Context,
     show: Boolean,
     initialDate: LocalDate,
     onDismiss: () -> Unit,
@@ -50,7 +52,6 @@ fun MiuixDatePickerSheet(
         if (day > daysInMonth) day = daysInMonth
     }
 
-    val context = LocalContext.current
     val locale = context.resources.configuration.locales[0]
     val monthNames = remember(locale) {
         DateFormatSymbols.getInstance(locale).months.toList().take(12)
@@ -59,47 +60,53 @@ fun MiuixDatePickerSheet(
     WindowBottomSheet(
         show = show,
         title = title,
-        onDismissRequest = onDismiss,
-        startAction = {
-            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
-        },
-        endAction = {
-            TextButton(
-                text = context.getString(R.string.confirm),
-                onClick = {
-                    onDateSelected(LocalDate.of(year, month, day))
-                    onDismiss()
-                }
-            )
-        }
+        onDismissRequest = onDismiss
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            NumberPicker(
-                value = year,
-                onValueChange = { year = it },
-                modifier = Modifier.weight(1f),
-                range = 1970..2100,
-                label = { it.toString() },
-            )
-            NumberPicker(
-                value = month,
-                onValueChange = { month = it },
-                modifier = Modifier.weight(1f),
-                range = 1..12,
-                label = { monthNames[it - 1] },
-            )
-            NumberPicker(
-                value = day,
-                onValueChange = { day = it },
-                modifier = Modifier.weight(1f),
-                range = 1..daysInMonth,
-                label = { it.toString() },
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NumberPicker(
+                    value = year,
+                    onValueChange = { year = it },
+                    modifier = Modifier.weight(1f),
+                    range = 1970..2100,
+                    label = { it.toString() },
+                )
+                NumberPicker(
+                    value = month,
+                    onValueChange = { month = it },
+                    modifier = Modifier.weight(1f),
+                    range = 1..12,
+                    label = { monthNames[it - 1] },
+                )
+                NumberPicker(
+                    value = day,
+                    onValueChange = { day = it },
+                    modifier = Modifier.weight(1f),
+                    range = 1..daysInMonth,
+                    label = { it.toString() },
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+                TextButton(
+                    text = context.getString(R.string.confirm),
+                    onClick = {
+                        onDateSelected(LocalDate.of(year, month, day))
+                        onDismiss()
+                    }
+                )
+            }
         }
     }
 }

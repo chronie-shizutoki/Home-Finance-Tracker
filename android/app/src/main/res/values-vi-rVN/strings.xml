@@ -13,7 +13,7 @@
     <string name="developer_tools">Công cụ nhà phát triển</string>
     <string name="theme_settings">Cài đặt chủ đề</string>
     <string name="dynamic_color">Màu động</string>
-    <string name="dynamic_color_description">Thay đổi theo màu hình nền (Android 12+)</string>
+    <string name="dynamic_color_description">Thay đổi theo màu hình nền</string>
     <string name="manual_color_selection">Chọn màu thủ công</string>
     <string name="primary_color">Màu chính</string>
     <string name="dynamic_color_enabled">Màu động đã bật</string>

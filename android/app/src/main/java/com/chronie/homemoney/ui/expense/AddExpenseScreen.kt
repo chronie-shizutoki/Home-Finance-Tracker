@@ -196,6 +196,7 @@ fun AddExpenseScreen(
 
     // Date Picker Sheet
     MiuixDatePickerSheet(
+        context = context,
         show = showDatePicker,
         initialDate = uiState.selectedDate,
         onDismiss = { showDatePicker = false },

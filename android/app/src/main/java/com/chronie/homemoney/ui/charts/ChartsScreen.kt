@@ -741,6 +741,7 @@ private fun CustomRangeBottomSheet(
     }
 
     MiuixDatePickerSheet(
+        context = context,
         show = showStartDatePicker,
         initialDate = startDate,
         onDismiss = { showStartDatePicker = false },
@@ -749,6 +750,7 @@ private fun CustomRangeBottomSheet(
     )
 
     MiuixDatePickerSheet(
+        context = context,
         show = showEndDatePicker,
         initialDate = endDate,
         onDismiss = { showEndDatePicker = false },
