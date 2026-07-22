@@ -851,7 +851,7 @@ private fun RecordEditDialog(
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
@@ -944,7 +944,6 @@ private fun ExpenseTypePickerDialog(
                 modifier = Modifier.fillMaxWidth(),
                 label = context.getString(R.string.search_category),
                 useLabelAsPlaceholder = true,
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
@@ -989,18 +988,6 @@ private fun ExpenseTypePickerDialog(
                         )
                     }
                 }
-            }
-
-            // Cancel button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = onDismiss
-                )
             }
         }
     }

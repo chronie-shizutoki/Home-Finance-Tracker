@@ -21,3 +21,4 @@ bin/
 server-go/server
 server-go/server.exe
 database.sqlite
+android.artifacts/*

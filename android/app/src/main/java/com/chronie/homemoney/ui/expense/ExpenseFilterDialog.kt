@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -21,23 +22,29 @@ import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
-import com.chronie.homemoney.ui.components.OutlinedButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.theme.LocalDismissState
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Checkbox
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.RadioButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.window.WindowDialog
+import top.yukonga.miuix.kmp.window.WindowListPopup
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.DropdownImpl
+import top.yukonga.miuix.kmp.theme.LocalDismissState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.Color
 
 /**
  * Expense Filter Dialog
@@ -59,6 +66,7 @@ fun ExpenseFilterDialog(
     var showTypeSelector by remember { mutableStateOf(false) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+    var showSortPopup by remember { mutableStateOf(false) }
     
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     
@@ -114,9 +122,10 @@ fun ExpenseFilterDialog(
                     )
                     
                     // Expense Type Selection
-                    OutlinedButton(
+                    Button(
                         onClick = { showTypeSelector = true },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors()
                     ) {
                         Text(
                             text = if (selectedTypes.isEmpty()) {
@@ -137,9 +146,10 @@ fun ExpenseFilterDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        OutlinedButton(
+                        Button(
                             onClick = { showStartDatePicker = true },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors()
                         ) {
                             Text(
                                 text = startDate?.format(dateFormatter) 
@@ -147,9 +157,10 @@ fun ExpenseFilterDialog(
                             )
                         }
                         
-                        OutlinedButton(
+                        Button(
                             onClick = { showEndDatePicker = true },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors()
                         ) {
                             Text(
                                 text = endDate?.format(dateFormatter) 
@@ -195,20 +206,52 @@ fun ExpenseFilterDialog(
                         style = MiuixTheme.textStyles.body2
                     )
                     
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        SortOption.entries.forEach { option ->
+                    Box {
+                        Surface(
+                            onClick = { showSortPopup = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MiuixTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
+                        ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                RadioButton(
-                                    selected = sortOption == option,
-                                    onClick = { sortOption = option }
-                                )
                                 Text(
-                                    text = getSortOptionText(context, option),
-                                    modifier = Modifier.padding(start = 8.dp)
+                                    text = getSortOptionText(context, sortOption),
+                                    style = MiuixTheme.textStyles.body1
                                 )
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                                )
+                            }
+                        }
+
+                        WindowListPopup(
+                            show = showSortPopup,
+                            onDismissRequest = { showSortPopup = false }
+                        ) {
+                            val dismiss = LocalDismissState.current
+                            ListPopupColumn {
+                                SortOption.entries.forEachIndexed { index, option ->
+                                    DropdownImpl(
+                                        text = getSortOptionText(context, option),
+                                        optionSize = SortOption.entries.size,
+                                        isSelected = sortOption == option,
+                                        index = index,
+                                        onSelectedIndexChange = {
+                                            sortOption = option
+                                            showSortPopup = false
+                                            dismiss?.invoke()
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -223,7 +266,7 @@ fun ExpenseFilterDialog(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedButton(
+                    Button(
                         onClick = {
                             keyword = ""
                             selectedTypes = emptySet()
@@ -233,7 +276,8 @@ fun ExpenseFilterDialog(
                             endDate = null
                             sortOption = SortOption.DATE_DESC
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors()
                     ) {
                         Text(context.getString(R.string.expense_list_clear_filters))
                     }
@@ -340,28 +384,44 @@ fun ExpenseTypeSelector(
             }
 
             // Search field
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                label = context.getString(R.string.search_category),
-                useLabelAsPlaceholder = true,
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.weight(1f),
+                    label = context.getString(R.string.search_category),
+                    useLabelAsPlaceholder = true,
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                            }
                         }
-                    }
-                },
-                singleLine = true
-            )
+                    },
+                    singleLine = true
+                )
+                
+                IconButton(
+                    onClick = { /* Search is already filtering in real-time */ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = context.getString(R.string.common_search),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 300.dp)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (filteredTypes.isEmpty()) {
                     Box(
@@ -403,7 +463,7 @@ fun ExpenseTypeSelector(
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)

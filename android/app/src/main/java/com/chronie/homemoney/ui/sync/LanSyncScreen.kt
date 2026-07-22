@@ -490,10 +490,10 @@ fun DeviceNameEditDialog(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
-                Spacer(modifier = Modifier.width(8.dp))
                 TextButton(
                     text = context.getString(R.string.save),
                     onClick = { onConfirm(name) },
@@ -650,14 +650,6 @@ fun DeviceSearchDialog(
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(text = context.getString(R.string.close), onClick = onDismiss)
-                }
             }
         }
     }

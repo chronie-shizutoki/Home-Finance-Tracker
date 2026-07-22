@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +48,15 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
+import top.yukonga.miuix.kmp.window.WindowListPopup
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.DropdownImpl
+import top.yukonga.miuix.kmp.theme.LocalDismissState
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+enum class ChartType {
+    TREND, CATEGORY, WEEKDAY
+}
 
 @Composable
 fun ChartsScreen(
@@ -55,11 +66,18 @@ fun ChartsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedTimeRange by viewModel.selectedTimeRange.collectAsState()   
-    var showTimeRangeDialog by remember { mutableStateOf(false) }
+    var showTimeRangePopup by remember { mutableStateOf(false) }
+    var selectedChartType by remember { mutableStateOf(ChartType.TREND) }
+    var showChartTypePopup by remember { mutableStateOf(false) }
+    
+    // Custom range state
+    val customStartDate by viewModel.customStartDate.collectAsState()
+    val customEndDate by viewModel.customEndDate.collectAsState()
+    var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top toolbar with title and time range selector
+            // Top toolbar with title and selectors
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MiuixTheme.colorScheme.surface
@@ -71,17 +89,102 @@ fun ChartsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = context.getString(R.string.charts_title),
-                        style = MiuixTheme.textStyles.title3,
-                        modifier = Modifier.weight(1f).padding(start = 8.dp)
-                    )
-                    
-                    IconButton(onClick = { showTimeRangeDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Select time range"
+                    Row(
+                        modifier = Modifier.weight(1f).padding(start = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = context.getString(R.string.charts_title),
+                            style = MiuixTheme.textStyles.title3
                         )
+                        
+                        // Chart Type Switcher
+                        Box {
+                            Row(
+                                modifier = Modifier
+                                    .clickable { showChartTypePopup = true }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = getChartTypeText(context, selectedChartType),
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.primary
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MiuixTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            
+                            WindowListPopup(
+                                show = showChartTypePopup,
+                                onDismissRequest = { showChartTypePopup = false }
+                            ) {
+                                val dismiss = LocalDismissState.current
+                                ListPopupColumn {
+                                    ChartType.entries.forEachIndexed { index, type ->
+                                        DropdownImpl(
+                                            text = getChartTypeText(context, type),
+                                            optionSize = ChartType.entries.size,
+                                            isSelected = selectedChartType == type,
+                                            index = index,
+                                            onSelectedIndexChange = {
+                                                selectedChartType = type
+                                                dismiss?.invoke()
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Time Range Selector
+                    Box {
+                        IconButton(onClick = { showTimeRangePopup = true }) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "Select time range"
+                            )
+                        }
+                        
+                        WindowListPopup(
+                            show = showTimeRangePopup,
+                            onDismissRequest = { showTimeRangePopup = false }
+                        ) {
+                            val dismiss = LocalDismissState.current
+                            val timeRanges = listOf(
+                                TimeRange.THIS_WEEK,
+                                TimeRange.THIS_MONTH,
+                                TimeRange.LAST_MONTH,
+                                TimeRange.THIS_QUARTER,
+                                TimeRange.THIS_YEAR,
+                                TimeRange.CUSTOM
+                            )
+                            ListPopupColumn {
+                                timeRanges.forEachIndexed { index, timeRange ->
+                                    DropdownImpl(
+                                        text = getTimeRangeText(context, timeRange),
+                                        optionSize = timeRanges.size,
+                                        isSelected = selectedTimeRange == timeRange,
+                                        index = index,
+                                        onSelectedIndexChange = {
+                                            if (timeRange == TimeRange.CUSTOM) {
+                                                showCustomRangeBottomSheet = true
+                                                dismiss?.invoke()
+                                            } else {
+                                                viewModel.selectTimeRange(timeRange)
+                                                dismiss?.invoke()
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -101,6 +204,7 @@ fun ChartsScreen(
                         context = context,
                         state = state,
                         selectedTimeRange = selectedTimeRange,
+                        selectedChartType = selectedChartType,
                         onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
                     )
                 }
@@ -125,18 +229,19 @@ fun ChartsScreen(
                 }
             }
         }
-        
-        TimeRangeDialog(
-            show = showTimeRangeDialog,
-            context = context,
-            selectedTimeRange = selectedTimeRange,
-            onDismiss = { showTimeRangeDialog = false },
-            onTimeRangeSelected = { timeRange ->
-                viewModel.selectTimeRange(timeRange)
-                showTimeRangeDialog = false
-            }
-        )
     }
+
+    CustomRangeBottomSheet(
+        show = showCustomRangeBottomSheet,
+        context = context,
+        initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
+        initialEndDate = customEndDate ?: LocalDate.now(),
+        onDismiss = { showCustomRangeBottomSheet = false },
+        onConfirm = { startDate, endDate ->
+            viewModel.setCustomDateRange(startDate, endDate)
+            viewModel.selectTimeRange(TimeRange.CUSTOM)
+        }
+    )
 }
 
 @Composable
@@ -144,15 +249,11 @@ private fun ChartsContent(
     context: Context,
     state: ChartsUiState.Success,
     selectedTimeRange: TimeRange,
+    selectedChartType: ChartType,
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val scrollState = rememberScrollState()
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
-    
-    // Debug logging
-    LaunchedEffect(state) {
-        android.util.Log.d("ChartsScreen", "UI updated: total=${state.statistics.totalAmount}, categories=${state.categoryData.size}, daily=${state.dailyData.size}")
-    }
     
     Column(
         modifier = Modifier
@@ -166,30 +267,32 @@ private fun ChartsContent(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Statistics summary
+        // Statistics summary (Always show)
         StatisticsSummaryCard(context, state.statistics, currencyFormat)
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Trend line chart
-        TrendLineChartCard(context, state.dailyData, currencyFormat)
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Category breakdown
-        CategoryBreakdownCard(context, state.categoryData, currencyFormat)
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Weekday analysis radar chart
-        WeekdayRadarChartCard(
-            context = context,
-            weekdayData = state.weekdayData,
-            currencyFormat = currencyFormat,
-            startDate = state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            endDate = state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
-        )
+        when (selectedChartType) {
+            ChartType.TREND -> {
+                // Trend line chart
+                TrendLineChartCard(context, state.dailyData, currencyFormat)
+            }
+            ChartType.CATEGORY -> {
+                // Category breakdown
+                CategoryBreakdownCard(context, state.categoryData, currencyFormat)
+            }
+            ChartType.WEEKDAY -> {
+                // Weekday analysis
+                WeekdayRadarChartCard(
+                    context = context,
+                    weekdayData = state.weekdayData,
+                    currencyFormat = currencyFormat,
+                    startDate = state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    endDate = state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+                )
+            }
+        }
     }
 }
 
@@ -467,100 +570,6 @@ private fun CategoryItem(
 }
 
 @Composable
-private fun TimeRangeDialog(
-    show: Boolean,
-    context: Context,
-    selectedTimeRange: TimeRange,
-    onDismiss: () -> Unit,
-    onTimeRangeSelected: (TimeRange) -> Unit
-) {
-    val viewModel = hiltViewModel<ChartsViewModel>()
-    val customStartDate by viewModel.customStartDate.collectAsState()
-    val customEndDate by viewModel.customEndDate.collectAsState()
-
-    var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
-
-    WindowBottomSheet(
-        show = show,
-        title = context.getString(R.string.select_time_range),
-        onDismissRequest = onDismiss
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            listOf(
-                TimeRange.THIS_WEEK,
-                TimeRange.THIS_MONTH,
-                TimeRange.LAST_MONTH,
-                TimeRange.THIS_QUARTER,
-                TimeRange.THIS_YEAR,
-                TimeRange.CUSTOM
-            ).forEach { timeRange ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (timeRange == TimeRange.CUSTOM) {
-                                showCustomRangeBottomSheet = true
-                            } else {
-                                onTimeRangeSelected(timeRange)
-                            }
-                        }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = selectedTimeRange == timeRange,
-                        onClick = {
-                            if (timeRange == TimeRange.CUSTOM) {
-                                showCustomRangeBottomSheet = true
-                            } else {
-                                onTimeRangeSelected(timeRange)
-                            }
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = getTimeRangeText(context, timeRange),
-                        style = MiuixTheme.textStyles.body1
-                    )
-                }
-            }
-
-            if (selectedTimeRange == TimeRange.CUSTOM && customStartDate != null && customEndDate != null) {
-                val start = customStartDate
-                val end = customEndDate
-                if (start != null && end != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    val startDateString = start.format(DateTimeFormatter.ISO_LOCAL_DATE)
-                    val endDateString = end.format(DateTimeFormatter.ISO_LOCAL_DATE)
-                    Text(
-                        text = "${context.getString(R.string.expense_list_filter_start_date)} ${formatDateByLocale(startDateString, context.resources.configuration.locales[0].toLanguageTag())} ${context.getString(R.string.expense_list_filter_end_date)} ${formatDateByLocale(endDateString, context.resources.configuration.locales[0].toLanguageTag())}",
-                        style = MiuixTheme.textStyles.body2,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
-                }
-            }
-        }
-    }
-
-    CustomRangeBottomSheet(
-        show = showCustomRangeBottomSheet,
-        context = context,
-        initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
-        initialEndDate = customEndDate ?: LocalDate.now(),
-        onDismiss = { showCustomRangeBottomSheet = false },
-        onConfirm = { startDate, endDate ->
-            viewModel.setCustomDateRange(startDate, endDate)
-            onTimeRangeSelected(TimeRange.CUSTOM)
-        }
-    )
-}
-
-@Composable
 private fun CustomRangeBottomSheet(
     show: Boolean,
     context: Context,
@@ -701,6 +710,14 @@ private fun TimeRangeOption(
             text = getTimeRangeText(context, timeRange),
             style = MiuixTheme.textStyles.body1
         )
+    }
+}
+
+private fun getChartTypeText(context: Context, type: ChartType): String {
+    return when (type) {
+        ChartType.TREND -> context.getString(R.string.trend_chart)
+        ChartType.CATEGORY -> context.getString(R.string.category_breakdown)
+        ChartType.WEEKDAY -> context.getString(R.string.weekday_analysis)
     }
 }
 

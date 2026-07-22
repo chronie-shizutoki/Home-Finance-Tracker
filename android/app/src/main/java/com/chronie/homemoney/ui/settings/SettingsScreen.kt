@@ -755,7 +755,7 @@ fun AISettingsSection(
         )
     }
 
-    var inputApiKey by remember(showApiKeyDialog) { mutableStateOf(apiKey) }
+    var inputApiKey by remember(showApiKeyDialog, apiKey) { mutableStateOf(apiKey) }
     WindowDialog(
         show = showApiKeyDialog,
         title = context.getString(R.string.settings_ai_api_key),
@@ -796,13 +796,13 @@ fun AISettingsSection(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
                     text = context.getString(R.string.cancel),
                     onClick = { showApiKeyDialog = false }
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 TextButton(
                     text = context.getString(R.string.save),
                     onClick = {
@@ -937,15 +937,6 @@ fun DataImportExportSection(
                 color = MiuixTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(12.dp)
             ) { Text(text = context.getString(R.string.export_date_range), modifier = Modifier.padding(16.dp)) }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showExportDialog = false })
-            }
         }
     }
 
@@ -971,10 +962,10 @@ fun DataImportExportSection(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(text = context.getString(R.string.cancel), onClick = { showDateRangeDialog = false })
-                Spacer(modifier = Modifier.width(8.dp))
                 TextButton(text = context.getString(R.string.export_data), onClick = { showDateRangeDialog = false; viewModel.exportExpenses(startDate, endDate) }, enabled = startDate != null && endDate != null)
             }
         }
@@ -1078,15 +1069,6 @@ fun SyncSection(
             Surface(modifier = Modifier.fillMaxWidth().clickable { showSyncMethodDialog = false; onNavigateToLanSync() }, color = MiuixTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
                 Text(text = context.getString(R.string.sync_lan), modifier = Modifier.padding(16.dp))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showSyncMethodDialog = false })
-            }
         }
     }
 }
@@ -1184,10 +1166,10 @@ fun AccountSection(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(text = context.getString(R.string.cancel), onClick = { showLogoutDialog = false })
-            Spacer(modifier = Modifier.width(8.dp))
             TextButton(text = context.getString(R.string.confirm), onClick = { viewModel.logout(); showLogoutDialog = false }, colors = ButtonDefaults.textButtonColors(textColor = MiuixTheme.colorScheme.error))
         }
     }

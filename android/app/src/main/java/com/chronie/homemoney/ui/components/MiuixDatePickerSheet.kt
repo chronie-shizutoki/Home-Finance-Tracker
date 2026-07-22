@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import top.yukonga.miuix.kmp.basic.NumberPicker
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import java.text.DateFormatSymbols
 import java.time.LocalDate
@@ -75,6 +77,7 @@ fun MiuixDatePickerSheet(
                     modifier = Modifier.weight(1f),
                     range = 1970..2100,
                     label = { it.toString() },
+                    textStyle = MiuixTheme.textStyles.title3
                 )
                 NumberPicker(
                     value = month,
@@ -82,6 +85,7 @@ fun MiuixDatePickerSheet(
                     modifier = Modifier.weight(1f),
                     range = 1..12,
                     label = { monthNames[it - 1] },
+                    textStyle = MiuixTheme.textStyles.title3
                 )
                 NumberPicker(
                     value = day,
@@ -89,6 +93,7 @@ fun MiuixDatePickerSheet(
                     modifier = Modifier.weight(1f),
                     range = 1..daysInMonth,
                     label = { it.toString() },
+                    textStyle = MiuixTheme.textStyles.title3
                 )
             }
 
@@ -96,7 +101,7 @@ fun MiuixDatePickerSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
                 TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
                 TextButton(
