@@ -13,12 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,13 +47,14 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
+import top.yukonga.miuix.kmp.window.WindowDialog
 import com.chronie.homemoney.ui.components.OutlinedButton
 
 /**
  * Local Sync Screen
  * A redesigned sync interface with modern design aesthetics
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanSyncScreen(
     context: Context,
@@ -147,20 +142,19 @@ fun LanSyncScreen(
             SyncInfoCard(context = context)
         }
     }
-    
+
     // Local Device Name Edit Dialog
-    if (showDeviceNameDialog) {
-        DeviceNameEditDialog(
-            context = context,
-            currentName = deviceName,
-            onDismiss = { showDeviceNameDialog = false },
-            onConfirm = { newName ->
-                viewModel.setDeviceName(newName)
-                showDeviceNameDialog = false
-            }
-        )
-    }
-    
+    DeviceNameEditDialog(
+        show = showDeviceNameDialog,
+        context = context,
+        currentName = deviceName,
+        onDismiss = { showDeviceNameDialog = false },
+        onConfirm = { newName ->
+            viewModel.setDeviceName(newName)
+            showDeviceNameDialog = false
+        }
+    )
+
     // Device Search Dialog
     if (showDeviceSearchDialog) {
         DeviceSearchDialog(
@@ -180,26 +174,24 @@ fun LanSyncScreen(
     val syncProgress by viewModel.syncProgress.collectAsState()
     val syncProgressMessage by viewModel.syncProgressMessage.collectAsState()
 
-    if (showSyncProgress) {
-        SyncProgressBottomSheet(
-            context = context,
-            progress = syncProgress,
-            message = syncProgressMessage,
-            onDismiss = { viewModel.hideSyncProgress() }
-        )
-    }
+    SyncProgressBottomSheet(
+        show = showSyncProgress,
+        context = context,
+        progress = syncProgress,
+        message = syncProgressMessage,
+        onDismiss = { viewModel.hideSyncProgress() }
+    )
 
     // Server-side Passive Sync Progress (searched-side device)
     val serverSyncProgress by viewModel.serverSyncProgress.collectAsState()
 
-    if (serverSyncProgress.isActive) {
-        SyncProgressBottomSheet(
-            context = context,
-            progress = serverSyncProgress.progress,
-            message = serverSyncProgress.message,
-            onDismiss = { viewModel.clearServerSyncProgress() }
-        )
-    }
+    SyncProgressBottomSheet(
+        show = serverSyncProgress.isActive,
+        context = context,
+        progress = serverSyncProgress.progress,
+        message = serverSyncProgress.message,
+        onDismiss = { viewModel.clearServerSyncProgress() }
+    )
 
     // Sync Request Dialog (client-side)
     val showSyncRequestDialog by viewModel.showSyncRequestDialog.collectAsState()
@@ -471,17 +463,20 @@ fun SyncInfoCard(context: Context) {
  */
 @Composable
 fun DeviceNameEditDialog(
+    show: Boolean,
     context: Context,
     currentName: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var name by remember { mutableStateOf(currentName) }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.edit_device_name)) },
-        text = {
+    var name by remember(show) { mutableStateOf(currentName) }
+
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.edit_device_name),
+        onDismissRequest = onDismiss
+    ) {
+        Column {
             TextField(
                 value = name,
                 onValueChange = { name = it },
@@ -490,24 +485,28 @@ fun DeviceNameEditDialog(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-        },
-        confirmButton = {
-            TextButton(
-                text = context.getString(R.string.save),
-                onClick = { onConfirm(name) },
-                enabled = name.isNotBlank()
-            )
-        },
-        dismissButton = {
-            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(
+                    text = context.getString(R.string.save),
+                    onClick = { onConfirm(name) },
+                    enabled = name.isNotBlank()
+                )
+            }
         }
-    )
+    }
 }
 
 /**
  * Device Search Dialog
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceSearchDialog(
     context: Context,
@@ -749,22 +748,18 @@ fun DeviceListItem(
 /**
  * Sync progress BottomSheet
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncProgressBottomSheet(
+    show: Boolean,
     context: Context,
     progress: Float,
     message: String,
     onDismiss: () -> Unit
 ) {
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden
-    )
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.sync_in_progress),
+        onDismissRequest = onDismiss
     ) {
         Column(
             modifier = Modifier
@@ -789,15 +784,6 @@ fun SyncProgressBottomSheet(
                     tint = MiuixTheme.colorScheme.primary
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Title
-            Text(
-                text = context.getString(R.string.sync_in_progress),
-                style = MiuixTheme.textStyles.title2,
-                fontWeight = FontWeight.Bold
-            )
 
             Spacer(modifier = Modifier.height(8.dp))
 

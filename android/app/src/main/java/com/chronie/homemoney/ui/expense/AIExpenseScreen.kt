@@ -13,16 +13,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +29,7 @@ import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import java.io.File
@@ -60,13 +54,14 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
+import top.yukonga.miuix.kmp.window.WindowDialog
 import com.chronie.homemoney.ui.components.OutlinedButton
 
 /**
  * AI Expense Screen
  * Displays AI-generated expense records and allows user interaction
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AIExpenseScreen(
     context: Context,
@@ -400,58 +395,52 @@ fun AIExpenseScreen(
     }
 
     // Image source selection BottomSheet
-    if (showImageSourceDialog) {
-        ImageSourceSelectionBottomSheet(
-            context = context,
-            onDismiss = { showImageSourceDialog = false },
-            onCameraSelected = {
-                // Check camera permission
-                val hasCameraPermission = ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-                
-                if (hasCameraPermission) {
-                    // If permission granted, launch camera directly
-                    cameraImageUri = createImageFile(context)
-                    cameraImageUri?.let {
-                        cameraLauncher.launch(it)
-                    }
-                } else {
-                    // Request camera permission
-                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+    ImageSourceSelectionBottomSheet(
+        show = showImageSourceDialog,
+        context = context,
+        onDismiss = { showImageSourceDialog = false },
+        onCameraSelected = {
+            // Check camera permission
+            val hasCameraPermission = ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasCameraPermission) {
+                // If permission granted, launch camera directly
+                cameraImageUri = createImageFile(context)
+                cameraImageUri?.let {
+                    cameraLauncher.launch(it)
                 }
-                showImageSourceDialog = false
-            },
-            onGallerySelected = {
-                // Launch gallery picker launcher
-                imagePickerLauncher.launch("image/*")
-                showImageSourceDialog = false
+            } else {
+                // Request camera permission
+                permissionLauncher.launch(android.Manifest.permission.CAMERA)
             }
-        )
-    }
+            showImageSourceDialog = false
+        },
+        onGallerySelected = {
+            // Launch gallery picker launcher
+            imagePickerLauncher.launch("image/*")
+            showImageSourceDialog = false
+        }
+    )
 }
 
 /**
  * Image source selection BottomSheet
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSourceSelectionBottomSheet(
+    show: Boolean,
     context: Context,
     onDismiss: () -> Unit,
     onCameraSelected: () -> Unit,
     onGallerySelected: () -> Unit
 ) {
-    val bottomSheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
-    )
-    
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = bottomSheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.ai_expense_select_image_source),
+        onDismissRequest = onDismiss
     ) {
         Column(
             modifier = Modifier
@@ -459,12 +448,6 @@ private fun ImageSourceSelectionBottomSheet(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = context.getString(R.string.ai_expense_select_image_source),
-                style = MiuixTheme.textStyles.title3,
-                fontWeight = FontWeight.Bold
-            )
-            
             // Camera option
             OutlinedButton(
                 onClick = onCameraSelected,
@@ -513,7 +496,6 @@ private fun ImageSourceSelectionBottomSheet(
 /**
  * Image selection section
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSelectionSection(
     context: Context,
@@ -713,7 +695,6 @@ private fun RecognizedRecordsSection(
 /**
  * Record edit card
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordEditCard(
     context: Context,
@@ -789,148 +770,129 @@ private fun RecordEditCard(
         }
     }
     
-    if (showEditDialog) {
-        RecordEditDialog(
-            context = context,
-            record = record,
-            onDismiss = { showEditDialog = false },
-            onConfirm = { updated ->
-                onUpdate(updated)
-                showEditDialog = false
-            }
-        )
-    }
+    RecordEditDialog(
+        show = showEditDialog,
+        context = context,
+        record = record,
+        onDismiss = { showEditDialog = false },
+        onConfirm = { updated ->
+            onUpdate(updated)
+            showEditDialog = false
+        }
+    )
 }
 
 /**
  * Record edit dialog
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordEditDialog(
+    show: Boolean,
     context: Context,
     record: AIExpenseRecord,
     onDismiss: () -> Unit,
     onConfirm: (AIExpenseRecord) -> Unit
 ) {
-    var selectedType by remember { mutableStateOf(record.type) }
-    var amount by remember { mutableStateOf(record.amount.toString()) }
-    var remark by remember { mutableStateOf(record.remark) }
-    var selectedDate by remember { mutableStateOf(java.time.LocalDate.parse(record.date)) }
+    var selectedType by remember(show) { mutableStateOf(record.type) }
+    var amount by remember(show) { mutableStateOf(record.amount.toString()) }
+    var remark by remember(show) { mutableStateOf(record.remark) }
+    var selectedDate by remember(show) { mutableStateOf(java.time.LocalDate.parse(record.date)) }
     var showTypePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.ai_expense_edit_record)) },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.ai_expense_edit_record),
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Type selection
+            OutlinedButton(
+                onClick = { showTypePicker = true },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Type selection
-                OutlinedButton(
-                    onClick = { showTypePicker = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(ExpenseTypeLocalizer.getLocalizedName(context, selectedType))
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                }
-                
-                // Amount input
-                TextField(
-                    value = amount,
-                    onValueChange = { amount = it },
-                    label = context.getString(R.string.ai_expense_amount),
-                    useLabelAsPlaceholder = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                // Date picker
-                OutlinedButton(
-                    onClick = { showDatePicker = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.DateRange, contentDescription = null)
-                }
-                
-                // Remark input
-                TextField(
-                    value = remark,
-                    onValueChange = { remark = it },
-                    label = context.getString(R.string.ai_expense_remark),
-                    useLabelAsPlaceholder = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
+                Text(ExpenseTypeLocalizer.getLocalizedName(context, selectedType))
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
             }
-        },
-        confirmButton = {
-            TextButton(
-                text = context.getString(R.string.confirm),
-                onClick = {
-                    val updatedRecord = record.copy(
-                        type = selectedType,
-                        amount = amount.toDoubleOrNull() ?: record.amount,
-                        date = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                        remark = remark,
-                        isEdited = true
-                    )
-                    onConfirm(updatedRecord)
-                }
+
+            // Amount input
+            TextField(
+                value = amount,
+                onValueChange = { amount = it },
+                label = context.getString(R.string.ai_expense_amount),
+                useLabelAsPlaceholder = true,
+                modifier = Modifier.fillMaxWidth()
             )
-        },
-        dismissButton = {
-            TextButton(
-                text = context.getString(R.string.cancel),
-                onClick = onDismiss
-            )
-        }
-    )
-    
-    if (showTypePicker) {
-        ExpenseTypePickerDialog(
-            context = context,
-            selectedType = selectedType,
-            onDismiss = { showTypePicker = false },
-            onTypeSelected = { type ->
-                selectedType = type
-                showTypePicker = false
+
+            // Date picker
+            OutlinedButton(
+                onClick = { showDatePicker = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(Icons.Default.DateRange, contentDescription = null)
             }
-        )
-    }
-    
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.toEpochDay() * 24 * 60 * 60 * 1000
-        )
-        
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
+
+            // Remark input
+            TextField(
+                value = remark,
+                onValueChange = { remark = it },
+                label = context.getString(R.string.ai_expense_remark),
+                useLabelAsPlaceholder = true,
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 3
+            )
+
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = onDismiss
+                )
                 TextButton(
                     text = context.getString(R.string.confirm),
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            selectedDate = java.time.LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
-                        }
-                        showDatePicker = false
+                        val updatedRecord = record.copy(
+                            type = selectedType,
+                            amount = amount.toDoubleOrNull() ?: record.amount,
+                            date = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                            remark = remark,
+                            isEdited = true
+                        )
+                        onConfirm(updatedRecord)
                     }
                 )
-            },
-            dismissButton = {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = { showDatePicker = false }
-                )
             }
-        ) {
-            DatePicker(state = datePickerState)
         }
     }
+
+    ExpenseTypePickerDialog(
+        show = showTypePicker,
+        context = context,
+        selectedType = selectedType,
+        onDismiss = { showTypePicker = false },
+        onTypeSelected = { type ->
+            selectedType = type
+            showTypePicker = false
+        }
+    )
+
+    MiuixDatePickerSheet(
+        show = showDatePicker,
+        initialDate = selectedDate,
+        onDismiss = { showDatePicker = false },
+        onDateSelected = { date -> selectedDate = date },
+        title = context.getString(R.string.add_expense_date_label)
+    )
 }
 
 /**
@@ -938,13 +900,14 @@ private fun RecordEditDialog(
  */
 @Composable
 private fun ExpenseTypePickerDialog(
+    show: Boolean,
     context: Context,
     selectedType: ExpenseType,
     onDismiss: () -> Unit,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    
+    var searchQuery by remember(show) { mutableStateOf("") }
+
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
@@ -957,84 +920,87 @@ private fun ExpenseTypePickerDialog(
             }
         }
     }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Column {
-                Text(context.getString(R.string.ai_expense_select_type))
-                if (filteredTypes.size != ExpenseType.entries.size) {
+
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.ai_expense_select_type),
+        onDismissRequest = onDismiss
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if (filteredTypes.size != ExpenseType.entries.size) {
+                Text(
+                    text = context.getString(R.string.search_results_count, filteredTypes.size),
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            // Search field
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = context.getString(R.string.search_category),
+                useLabelAsPlaceholder = true,
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                        }
+                    }
+                },
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Category list
+            if (filteredTypes.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
-                        text = context.getString(R.string.search_results_count, filteredTypes.size),
-                        style = MiuixTheme.textStyles.footnote1,
+                        text = context.getString(R.string.no_results_found),
                         color = MiuixTheme.colorScheme.onSurfaceSecondary
                     )
                 }
-            }
-        },
-        text = {
-            Column {
-                // Search field
-                TextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = context.getString(R.string.search_category),
-                    useLabelAsPlaceholder = true,
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
-                            }
-                        }
-                    },
-                    singleLine = true
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Category list
-                if (filteredTypes.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = context.getString(R.string.no_results_found),
-                            color = MiuixTheme.colorScheme.onSurfaceSecondary
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.heightIn(max = 400.dp)
-                    ) {
-                        items(filteredTypes.size) { index ->
-                            val type = filteredTypes[index]
-                            TextButton(
-                                text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                                onClick = { onTypeSelected(type) },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.textButtonColors(
-                                    textColor = if (type == selectedType)
-                                        MiuixTheme.colorScheme.primary
-                                    else
-                                        MiuixTheme.colorScheme.onSurface
-                                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 400.dp)
+                ) {
+                    items(filteredTypes.size) { index ->
+                        val type = filteredTypes[index]
+                        TextButton(
+                            text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                            onClick = { onTypeSelected(type) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.textButtonColors(
+                                textColor = if (type == selectedType)
+                                    MiuixTheme.colorScheme.primary
+                                else
+                                    MiuixTheme.colorScheme.onSurface
                             )
-                        }
+                        )
                     }
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(
-                text = context.getString(R.string.cancel),
-                onClick = onDismiss
-            )
+
+            // Cancel button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = onDismiss
+                )
+            }
         }
-    )
+    }
 }

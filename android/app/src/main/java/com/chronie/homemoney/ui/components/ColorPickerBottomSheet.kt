@@ -11,10 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,17 +20,18 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
-import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPickerBottomSheet(
+    show: Boolean,
     currentColor: Int,
     onColorSelected: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -43,11 +40,6 @@ fun ColorPickerBottomSheet(
     var searchText by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
-    )
-    val coroutineScope = rememberCoroutineScope()
 
     val colorGroups = remember { getColorGroups() }
 
@@ -66,36 +58,22 @@ fun ColorPickerBottomSheet(
         }
     }
 
-    ModalBottomSheet(
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.color_picker_title),
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        startAction = {
+            TextButton(
+                text = context.getString(R.string.cancel),
+                onClick = onDismiss
+            )
+        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = context.getString(R.string.color_picker_title),
-                    style = MiuixTheme.textStyles.title3
-                )
-                IconButton(onClick = { 
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
-                }) {
-                    Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel))
-                }
-            }
-
             TextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -131,7 +109,7 @@ fun ColorPickerBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.heightIn(max = 480.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 filteredGroups.forEach { group ->
@@ -142,10 +120,7 @@ fun ColorPickerBottomSheet(
                             currentColor = currentColor,
                             onColorSelected = {
                                 onColorSelected(it)
-                                coroutineScope.launch {
-                                    sheetState.hide()
-                                    onDismiss()
-                                }
+                                onDismiss()
                             },
                             context = context
                         )

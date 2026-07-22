@@ -8,11 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +20,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.domain.model.SortOption
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import com.chronie.homemoney.ui.components.OutlinedButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -40,12 +36,12 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Expense Filter Dialog
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseFilterDialog(
     context: android.content.Context,
@@ -267,69 +263,34 @@ fun ExpenseFilterDialog(
     }
     
     // Expense Type Selection Dialog Box
-    if (showTypeSelector) {
-        ExpenseTypeSelector(
-            context = context,
-            selectedTypes = selectedTypes,
-            onDismiss = { showTypeSelector = false },
-            onConfirm = { types ->
-                selectedTypes = types
-                showTypeSelector = false
-            }
-        )
-    }
+    ExpenseTypeSelector(
+        show = showTypeSelector,
+        context = context,
+        selectedTypes = selectedTypes,
+        onDismiss = { showTypeSelector = false },
+        onConfirm = { types ->
+            selectedTypes = types
+            showTypeSelector = false
+        }
+    )
     
     // Start Date Picker
-    if (showStartDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = startDate?.toEpochDay()?.times(86400000L)
-        )
-        DatePickerDialog(
-            onDismissRequest = { showStartDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    text = context.getString(R.string.confirm),
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            startDate = LocalDate.ofEpochDay(millis / 86400000L)
-                        }
-                        showStartDatePicker = false
-                    }
-                )
-            },
-            dismissButton = {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showStartDatePicker = false })
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-    
+    MiuixDatePickerSheet(
+        show = showStartDatePicker,
+        initialDate = startDate ?: LocalDate.now(),
+        onDismiss = { showStartDatePicker = false },
+        onDateSelected = { date -> startDate = date },
+        title = context.getString(R.string.expense_list_filter_start_date)
+    )
+
     // End Date Picker
-    if (showEndDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = endDate?.toEpochDay()?.times(86400000L)
-        )
-        DatePickerDialog(
-            onDismissRequest = { showEndDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    text = context.getString(R.string.confirm),
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            endDate = LocalDate.ofEpochDay(millis / 86400000L)
-                        }
-                        showEndDatePicker = false
-                    }
-                )
-            },
-            dismissButton = {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showEndDatePicker = false })
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+    MiuixDatePickerSheet(
+        show = showEndDatePicker,
+        initialDate = endDate ?: LocalDate.now(),
+        onDismiss = { showEndDatePicker = false },
+        onDateSelected = { date -> endDate = date },
+        title = context.getString(R.string.expense_list_filter_end_date)
+    )
 }
 
 /**
@@ -337,14 +298,15 @@ fun ExpenseFilterDialog(
  */
 @Composable
 fun ExpenseTypeSelector(
+    show: Boolean,
     context: android.content.Context,
     selectedTypes: Set<ExpenseType>,
     onDismiss: () -> Unit,
     onConfirm: (Set<ExpenseType>) -> Unit
 ) {
-    var tempSelectedTypes by remember { mutableStateOf(selectedTypes) }
-    var searchQuery by remember { mutableStateOf("") }
-    
+    var tempSelectedTypes by remember(show) { mutableStateOf(selectedTypes) }
+    var searchQuery by remember(show) { mutableStateOf("") }
+
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
@@ -357,96 +319,96 @@ fun ExpenseTypeSelector(
             }
         }
     }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { 
-            Column {
-                Text(context.getString(R.string.expense_list_filter_select_types))
-                if (filteredTypes.size != ExpenseType.entries.size) {
-                    Text(
-                        text = context.getString(R.string.search_results_count, filteredTypes.size),
-                        style = MiuixTheme.textStyles.footnote1,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
-                }
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Search field
-                TextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = context.getString(R.string.search_category),
-                    useLabelAsPlaceholder = true,
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
-                            }
-                        }
-                    },
-                    singleLine = true
+
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.expense_list_filter_select_types),
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (filteredTypes.size != ExpenseType.entries.size) {
+                Text(
+                    text = context.getString(R.string.search_results_count, filteredTypes.size),
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 300.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    if (filteredTypes.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = context.getString(R.string.no_results_found),
-                                color = MiuixTheme.colorScheme.onSurfaceSecondary
-                            )
+            }
+
+            // Search field
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = context.getString(R.string.search_category),
+                useLabelAsPlaceholder = true,
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
                         }
-                    } else {
-                        filteredTypes.forEach { type ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    state = if (tempSelectedTypes.contains(type)) ToggleableState.On else ToggleableState.Off,
-                                    onClick = {
-                                        tempSelectedTypes = if (tempSelectedTypes.contains(type)) {
-                                            tempSelectedTypes - type
-                                        } else {
-                                            tempSelectedTypes + type
-                                        }
+                    }
+                },
+                singleLine = true
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (filteredTypes.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = context.getString(R.string.no_results_found),
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                    }
+                } else {
+                    filteredTypes.forEach { type ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                state = if (tempSelectedTypes.contains(type)) ToggleableState.On else ToggleableState.Off,
+                                onClick = {
+                                    tempSelectedTypes = if (tempSelectedTypes.contains(type)) {
+                                        tempSelectedTypes - type
+                                    } else {
+                                        tempSelectedTypes + type
                                     }
-                                )
-                                Text(
-                                    text = ExpenseTypeLocalizer.getLocalizedName(context, type),
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
-                            }
+                                }
+                            )
+                            Text(
+                                text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
                         }
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(text = context.getString(R.string.confirm), onClick = { onConfirm(tempSelectedTypes) })
-        },
-        dismissButton = {
-            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+                TextButton(text = context.getString(R.string.confirm), onClick = { onConfirm(tempSelectedTypes) })
+            }
         }
-    )
+    }
 }
 
 /**

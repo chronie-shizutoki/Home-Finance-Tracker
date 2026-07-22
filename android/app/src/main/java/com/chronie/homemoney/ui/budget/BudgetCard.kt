@@ -90,17 +90,16 @@ fun BudgetCard(
     }
     
     // Budget Settings Dialog
-    if (showSettings) {
-        BudgetSettingsDialog(
-            context = context,
-            currentBudget = uiState.budget,
-            onDismiss = { showSettings = false },
-            onSave = { limit, threshold, enabled ->
-                viewModel.saveBudget(limit, threshold, enabled)
-                showSettings = false
-            }
-        )
-    }
+    BudgetSettingsDialog(
+        show = showSettings,
+        context = context,
+        currentBudget = uiState.budget,
+        onDismiss = { showSettings = false },
+        onSave = { limit, threshold, enabled ->
+            viewModel.saveBudget(limit, threshold, enabled)
+            showSettings = false
+        }
+    )
 }
 
 /**

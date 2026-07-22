@@ -9,20 +9,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,23 +23,28 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SnackbarDuration
+import top.yukonga.miuix.kmp.basic.SnackbarHost
+import top.yukonga.miuix.kmp.basic.SnackbarHostState
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Add Expense Screen
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
     context: android.content.Context,
@@ -200,18 +194,17 @@ fun AddExpenseScreen(
         }
     }
 
-    // Date Picker Dialog
-    if (showDatePicker) {
-        ExpenseDatePickerDialog(
-            context = context,
-            initialDate = uiState.selectedDate,
-            onDismiss = { showDatePicker = false },
-            onDateSelected = { date ->
-                viewModel.setDate(date)
-                showDatePicker = false
-            }
-        )
-    }
+    // Date Picker Sheet
+    MiuixDatePickerSheet(
+        show = showDatePicker,
+        initialDate = uiState.selectedDate,
+        onDismiss = { showDatePicker = false },
+        onDateSelected = { date ->
+            viewModel.setDate(date)
+            showDatePicker = false
+        },
+        title = context.getString(R.string.add_expense_date_label)
+    )
 
     // Show save error in snackbar
     LaunchedEffect(uiState.saveError) {
@@ -226,8 +219,11 @@ fun AddExpenseScreen(
 
 /**
  * Expense Type Dropdown Menu - Supports search feature
+ *
+ * Migrated from m3 ExposedDropdownMenuBox to a Surface trigger + WindowDialog picker.
+ * The trigger Surface shows the selected type (or hint), and opens a searchable
+ * picker dialog on click.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseTypeDropdown(
     selectedType: ExpenseType?,
@@ -235,9 +231,9 @@ fun ExpenseTypeDropdown(
     context: android.content.Context,
     onTypeSelected: (ExpenseType) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    
+    var showPicker by remember { mutableStateOf(false) }
+    var searchQuery by remember(showPicker) { mutableStateOf("") }
+
     // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
@@ -250,13 +246,6 @@ fun ExpenseTypeDropdown(
             }
         }
     }
-    
-    // Reset search when dropdown closes
-    LaunchedEffect(expanded) {
-        if (!expanded) {
-            searchQuery = ""
-        }
-    }
 
     Column {
         Text(
@@ -264,76 +253,36 @@ fun ExpenseTypeDropdown(
             style = MiuixTheme.textStyles.body2
         )
         Spacer(modifier = Modifier.height(8.dp))
-        
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
+
+        Surface(
+            onClick = { showPicker = true },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            color = MiuixTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
         ) {
-            TextField(
-                value = if (selectedType != null && !expanded) {
-                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
-                } else if (expanded && searchQuery.isNotEmpty()) {
-                    searchQuery
-                } else if (selectedType != null) {
-                    ExpenseTypeLocalizer.getLocalizedName(context, selectedType)
-                } else {
-                    ""
-                },
-                onValueChange = {
-                    searchQuery = it
-                    if (!expanded) expanded = true
-                },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
-                label = context.getString(R.string.add_expense_type_hint),
-                useLabelAsPlaceholder = true,
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded,
-                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
-                    )
-                },
-                singleLine = true
-            )
-            
-            ExposedDropdownMenu(
-                modifier = Modifier.heightIn(max = 280.dp),
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (filteredTypes.isEmpty()) {
-                    DropdownMenuItem(
-                        text = { 
-                            Text(
-                                context.getString(R.string.no_results_found),
-                                color = MiuixTheme.colorScheme.onSurfaceSecondary
-                            ) 
-                        },
-                        onClick = { expanded = false },
-                        enabled = false
-                    )
-                } else {
-                    filteredTypes.forEach { type ->
-                        DropdownMenuItem(
-                            text = { 
-                                Text(
-                                    ExpenseTypeLocalizer.getLocalizedName(context, type),
-                                    fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal
-                                ) 
-                            },
-                            onClick = {
-                                onTypeSelected(type)
-                                searchQuery = ""
-                                expanded = false
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                        )
+                Text(
+                    text = selectedType?.let { ExpenseTypeLocalizer.getLocalizedName(context, it) }
+                        ?: context.getString(R.string.add_expense_type_hint),
+                    style = MiuixTheme.textStyles.body1,
+                    color = if (selectedType != null) {
+                        MiuixTheme.colorScheme.onSurface
+                    } else {
+                        MiuixTheme.colorScheme.onSurfaceSecondary
                     }
-                }
+                )
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                )
             }
         }
 
@@ -347,6 +296,94 @@ fun ExpenseTypeDropdown(
                 style = MiuixTheme.textStyles.footnote1,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
+        }
+    }
+
+    // Type picker dialog
+    WindowDialog(
+        show = showPicker,
+        title = context.getString(R.string.add_expense_type_label),
+        onDismissRequest = { showPicker = false }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Search field
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = context.getString(R.string.search_category),
+                useLabelAsPlaceholder = true,
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                        }
+                    }
+                },
+                singleLine = true
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                if (filteredTypes.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = context.getString(R.string.no_results_found),
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                    }
+                } else {
+                    filteredTypes.forEach { type ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onTypeSelected(type)
+                                    showPicker = false
+                                },
+                            color = if (type == selectedType) {
+                                MiuixTheme.colorScheme.primaryContainer
+                            } else {
+                                MiuixTheme.colorScheme.surface
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = ExpenseTypeLocalizer.getLocalizedName(context, type),
+                                modifier = Modifier.padding(12.dp),
+                                style = MiuixTheme.textStyles.body1,
+                                fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Cancel button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = { showPicker = false }
+                )
+            }
         }
     }
 }
@@ -394,7 +431,6 @@ fun ExpenseAmountField(
 /**
  * Expense Date Input Field
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseDateField(
     selectedDate: LocalDate,
@@ -466,53 +502,6 @@ fun ExpenseRemarkField(
             label = context.getString(R.string.add_expense_remark_hint),
             useLabelAsPlaceholder = true,
             maxLines = 4
-        )
-    }
-}
-
-/**
- * Expense Date Picker Dialog
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ExpenseDatePickerDialog(
-    context: android.content.Context,
-    initialDate: LocalDate,
-    onDismiss: () -> Unit,
-    onDateSelected: (LocalDate) -> Unit
-) {
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDate.toEpochDay() * 24 * 60 * 60 * 1000
-    )
-
-    val surfaceColor = MiuixTheme.colorScheme.surface
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(
-                text = context.getString(R.string.confirm),
-                onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val date = LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
-                        onDateSelected(date)
-                    }
-                }
-            )
-        },
-        dismissButton = {
-            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
-        },
-        shape = androidx.compose.ui.graphics.RectangleShape,
-        colors = DatePickerDefaults.colors(
-            containerColor = surfaceColor
-        )
-    ) {
-        DatePicker(
-            state = datePickerState,
-            colors = DatePickerDefaults.colors(
-                containerColor = surfaceColor
-            )
         )
     }
 }
