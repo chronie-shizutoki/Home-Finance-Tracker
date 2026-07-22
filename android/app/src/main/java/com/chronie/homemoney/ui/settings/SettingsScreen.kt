@@ -10,6 +10,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +39,11 @@ import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.time.LocalDate
 import androidx.core.net.toUri
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.chronie.homemoney.ui.util.TransitionSpecs
+import com.chronie.homemoney.ui.util.predictiveBackEffect
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.core.graphics.toColorInt
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -69,15 +76,117 @@ fun SettingsScreen(
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {}
 ) {
-    var currentPage by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
+    val navController = rememberNavController()
 
-    // Handle back button click - use BackHandler only, PredictiveBackHandler may cause issues
-    BackHandler(enabled = currentPage != SettingsPage.MAIN) {
-        currentPage = SettingsPage.MAIN
+    NavHost(
+        navController = navController,
+        startDestination = SettingsPage.MAIN.name,
+        modifier = Modifier.fillMaxSize(),
+        enterTransition = { TransitionSpecs.enterTransition() },
+        exitTransition = { TransitionSpecs.exitTransition() },
+        popEnterTransition = { TransitionSpecs.popEnterTransition() },
+        popExitTransition = { TransitionSpecs.popExitTransition() }
+    ) {
+        composable(SettingsPage.MAIN.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.settings),
+                showBackButton = false,
+                onBack = { /* Top level, handled by parent */ },
+                scope = this
+            ) {
+                MainSettingsMenu(
+                    viewModel = viewModel,
+                    context = context,
+                    onNavigate = { navController.navigate(it.name) }
+                )
+            }
+        }
+        composable(SettingsPage.ACCOUNT.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.auth_account_info),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) {
+                AccountSettingsPage(
+                    viewModel = viewModel,
+                    context = context,
+                    onLogout = onLogout,
+                    onRequireLogin = onRequireLogin
+                )
+            }
+        }
+        composable(SettingsPage.APPEARANCE.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.theme_settings),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) {
+                AppearanceSettingsPage(
+                    viewModel = viewModel,
+                    context = context
+                )
+            }
+        }
+        composable(SettingsPage.FEATURES.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.budget_settings),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) {
+                FeaturesSettingsPage(
+                    viewModel = viewModel,
+                    context = context
+                )
+            }
+        }
+        composable(SettingsPage.DATA_SYNC.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.sync_title),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) {
+                DataSyncSettingsPage(
+                    viewModel = viewModel,
+                    context = context,
+                    onNavigateToLanSync = onNavigateToLanSync
+                )
+            }
+        }
+        composable(SettingsPage.ABOUT.name) {
+            SettingsPageScaffold(
+                title = context.getString(R.string.common_more_functions),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) {
+                AboutSettingsPage(
+                    viewModel = viewModel,
+                    context = context,
+                    onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
+                    onNavigateToDatabaseTest = onNavigateToDatabaseTest
+                )
+            }
+        }
     }
+}
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Top title bar with back button and page title
+/**
+ * A scaffold for settings pages that integrates the title bar and predictive back effects.
+ * This ensures the title bar animates WITH the content during transitions.
+ */
+@Composable
+private fun SettingsPageScaffold(
+    title: String,
+    showBackButton: Boolean = true,
+    onBack: () -> Unit,
+    scope: AnimatedContentScope,
+    content: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MiuixTheme.colorScheme.background)
+            .predictiveBackEffect(scope)
+    ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MiuixTheme.colorScheme.background
@@ -88,9 +197,9 @@ fun SettingsScreen(
                     .padding(horizontal = 4.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (currentPage != SettingsPage.MAIN) {
+                if (showBackButton) {
                     CircularIconButton(
-                        onClick = { currentPage = SettingsPage.MAIN },
+                        onClick = onBack,
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -98,16 +207,9 @@ fun SettingsScreen(
                 } else {
                     Spacer(modifier = Modifier.width(12.dp))
                 }
-                
+
                 Text(
-                    text = when (currentPage) {
-                        SettingsPage.MAIN -> context.getString(R.string.settings)
-                        SettingsPage.ACCOUNT -> context.getString(R.string.auth_account_info)
-                        SettingsPage.APPEARANCE -> context.getString(R.string.theme_settings)
-                        SettingsPage.FEATURES -> context.getString(R.string.budget_settings)
-                        SettingsPage.DATA_SYNC -> context.getString(R.string.sync_title)
-                        SettingsPage.ABOUT -> context.getString(R.string.common_more_functions)
-                    },
+                    text = title,
                     style = MiuixTheme.textStyles.title3,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
@@ -116,52 +218,8 @@ fun SettingsScreen(
 
         HorizontalDivider(thickness = 0.5.dp, color = MiuixTheme.colorScheme.dividerLine)
 
-        AnimatedContent(
-            targetState = currentPage,
-            transitionSpec = {
-                scaleIn(
-                    initialScale = 0.9f,
-                    animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
-                ) + fadeIn(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)) togetherWith
-                        scaleOut(
-                            targetScale = 0.9f,
-                            animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
-                        ) + fadeOut(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f))
-            },
-            label = "SettingsPageTransition"
-        ) { page ->
-            when (page) {
-                SettingsPage.MAIN -> MainSettingsMenu(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigate = { currentPage = it }
-                )
-                SettingsPage.ACCOUNT -> AccountSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onLogout = onLogout,
-                    onRequireLogin = onRequireLogin
-                )
-                SettingsPage.APPEARANCE -> AppearanceSettingsPage(
-                    viewModel = viewModel,
-                    context = context
-                )
-                SettingsPage.FEATURES -> FeaturesSettingsPage(
-                    viewModel = viewModel,
-                    context = context
-                )
-                SettingsPage.DATA_SYNC -> DataSyncSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigateToLanSync = onNavigateToLanSync
-                )
-                SettingsPage.ABOUT -> AboutSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
-                    onNavigateToDatabaseTest = onNavigateToDatabaseTest
-                )
-            }
+        Box(modifier = Modifier.weight(1f)) {
+            content()
         }
     }
 }

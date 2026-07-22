@@ -2,6 +2,10 @@ package com.chronie.homemoney.ui.budget
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
@@ -256,7 +260,11 @@ fun BudgetUsageCard(
             }
             
             // Expanded state content (expandable/collapsible)
-            AnimatedVisibility(visible = isExpanded) {
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(animationSpec = tween(300, easing = FastOutSlowInEasing)),
+                exit = shrinkVertically(animationSpec = tween(300, easing = FastOutSlowInEasing))
+            ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {

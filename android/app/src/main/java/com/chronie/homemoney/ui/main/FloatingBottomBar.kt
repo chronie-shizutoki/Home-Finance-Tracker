@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -194,6 +194,7 @@ fun RowScope.FloatingBottomBarItem(
                 onClick = onClick
             )
             .fillMaxHeight()
+            .padding(horizontal = 16.dp)
             .weight(1f)
             .graphicsLayer {
                 val s = scale()
@@ -345,7 +346,6 @@ fun FloatingBottomBar(
         CompositionLocalProvider(LocalFloatingBottomBarContentColor provides colors.contentColor) {
             Row(
                 Modifier
-                    .fillMaxWidth()
                     .onGloballyPositioned { coords ->
                         totalWidthPx = coords.size.width.toFloat()
                         val contentWidthPx = totalWidthPx - with(density) { 8.dp.toPx() }
@@ -404,7 +404,8 @@ fun FloatingBottomBar(
                     )
                     .then(if (isLiquidGlassMode && interactiveHighlight != null) interactiveHighlight.modifier else Modifier)
                     .height(64.dp)
-                    .padding(4.dp),
+                    .padding(4.dp)
+                    .width(IntrinsicSize.Max),
                 verticalAlignment = Alignment.CenterVertically,
                 content = content
             )
@@ -438,7 +439,8 @@ fun FloatingBottomBar(
                         )
                         .then(interactiveHighlight?.modifier ?: Modifier)
                         .height(56.dp)
-                        .padding(horizontal = 4.dp),
+                        .padding(horizontal = 4.dp)
+                        .width(IntrinsicSize.Max),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     content()

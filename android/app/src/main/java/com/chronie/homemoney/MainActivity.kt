@@ -7,13 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,6 +41,8 @@ import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
+import com.chronie.homemoney.ui.util.TransitionSpecs
+import com.chronie.homemoney.ui.util.predictiveBackEffect
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -169,165 +165,123 @@ fun HomeMoneyApp(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        enterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { it },
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            ) + fadeIn(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        },
-        exitTransition = {
-            scaleOut(
-                targetScale = 0.9f,
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            ) + fadeOut(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        },
-        popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { -it / 4 },
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            ) + fadeIn(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        },
-        popExitTransition = {
-            scaleOut(
-                targetScale = 0.9f,
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            ) + fadeOut(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        }
+        enterTransition = { TransitionSpecs.enterTransition() },
+        exitTransition = { TransitionSpecs.exitTransition() },
+        popEnterTransition = { TransitionSpecs.popEnterTransition() },
+        popExitTransition = { TransitionSpecs.popExitTransition() }
     ) {
         composable("welcome") {
-            WelcomeScreen(
-                context = context,
-                onGetStartedClick = {
-                    navController.navigate("main") {
-                        popUpTo(0) { inclusive = true }
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                WelcomeScreen(
+                    context = context,
+                    onGetStartedClick = {
+                        navController.navigate("main") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         composable("membership") {
-            MembershipScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onLogout = {
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                MembershipScreen(
+                    context = context,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onLogout = {
+                        navController.navigate("welcome") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         composable("settings") {
-            SettingsScreen(
-                context = context,
-                onNavigateToDatabaseTest = {
-                    navController.navigate("database_test")
-                },
-                onNavigateToLanSync = {
-                    navController.navigate("lan_sync")
-                },
-                onNavigateToOpenSourceLicenses = {
-                    navController.navigate("open_source_licenses")
-                },
-                onLogout = {
-                    // Logout, clear entire navigation stack and return to welcome page
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                SettingsScreen(
+                    context = context,
+                    onNavigateToDatabaseTest = {
+                        navController.navigate("database_test")
+                    },
+                    onNavigateToLanSync = {
+                        navController.navigate("lan_sync")
+                    },
+                    onNavigateToOpenSourceLicenses = {
+                        navController.navigate("open_source_licenses")
+                    },
+                    onLogout = {
+                        // Logout, clear entire navigation stack and return to welcome page
+                        navController.navigate("welcome") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    onRequireLogin = {
+                        navController.navigate("welcome") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                },
-                onRequireLogin = {
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
+                )
+            }
         }
 
         composable("lan_sync") {
-            LanSyncScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                LanSyncScreen(
+                    context = context,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable("main") {
-            MainScreen(
-                context = context,
-                shouldRefreshExpenses = shouldRefreshExpenses,
-                onRefreshHandled = { shouldRefreshExpenses = false },
-                selectedTab = selectedTab,
-                onTabChange = { selectedTab = it },
-                onNavigateToDatabaseTest = {
-                    selectedTab = 2
-                    navController.navigate("database_test")
-                },
-                onNavigateToAddExpense = {
-                    selectedTab = 0
-                    navController.navigate("add_expense")
-                },
-                onNavigateToEditExpense = { expenseId ->
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                MainScreen(
+                    context = context,
+                    shouldRefreshExpenses = shouldRefreshExpenses,
+                    onRefreshHandled = { shouldRefreshExpenses = false },
+                    selectedTab = selectedTab,
+                    onTabChange = { selectedTab = it },
+                    onNavigateToDatabaseTest = {
+                        selectedTab = 2
+                        navController.navigate("database_test")
+                    },
+                    onNavigateToAddExpense = {
+                        selectedTab = 0
+                        navController.navigate("add_expense")
+                    },
+                    onNavigateToEditExpense = { expenseId ->
                         selectedTab = 0
                         navController.navigate(
                             route = "add_expense?expenseId=$expenseId"
                         )
                     },
-                onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
-                    selectedTab = 1
-                    navController.navigate(
-                        route = "weekday_detail?dayOfWeek=$dayOfWeek&amount=$amount&count=$count&percentage=$percentage&startDate=$startDate&endDate=$endDate"
-                    )
-                },
-                onNavigateToLanSync = {
-                    selectedTab = 2
-                    navController.navigate("lan_sync")
-                },
-                onNavigateToOpenSourceLicenses = {
-                    selectedTab = 2
-                    navController.navigate("open_source_licenses")
-                },
-                onRequireLogin = {
-                    // Logout, clear entire navigation stack and return to welcome page
-                    navController.navigate("welcome") {
-                        popUpTo(0) { inclusive = true }
+                    onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
+                        selectedTab = 1
+                        navController.navigate(
+                            route = "weekday_detail?dayOfWeek=$dayOfWeek&amount=$amount&count=$count&percentage=$percentage&startDate=$startDate&endDate=$endDate"
+                        )
+                    },
+                    onNavigateToLanSync = {
+                        selectedTab = 2
+                        navController.navigate("lan_sync")
+                    },
+                    onNavigateToOpenSourceLicenses = {
+                        selectedTab = 2
+                        navController.navigate("open_source_licenses")
+                    },
+                    onRequireLogin = {
+                        // Logout, clear entire navigation stack and return to welcome page
+                        navController.navigate("welcome") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         composable(
@@ -341,48 +295,56 @@ fun HomeMoneyApp(
             )
         ) { backStackEntry ->
             val expenseId = backStackEntry.arguments?.getString("expenseId")
-            AddExpenseScreen(
-                context = context,
-                expenseId = expenseId,
-                onNavigateBack = {
-                    shouldRefreshExpenses = true
-                    navController.popBackStack()
-                },
-                onNavigateToAI = {
-                    navController.navigate("ai_expense")
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                AddExpenseScreen(
+                    context = context,
+                    expenseId = expenseId,
+                    onNavigateBack = {
+                        shouldRefreshExpenses = true
+                        navController.popBackStack()
+                    },
+                    onNavigateToAI = {
+                        navController.navigate("ai_expense")
+                    }
+                )
+            }
         }
 
         composable("ai_expense") {
-            AIExpenseScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onRecordsSaved = {
-                    shouldRefreshExpenses = true
-                    navController.popBackStack()
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                AIExpenseScreen(
+                    context = context,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onRecordsSaved = {
+                        shouldRefreshExpenses = true
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable("database_test") {
-            DatabaseTestScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                DatabaseTestScreen(
+                    context = context,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable("open_source_licenses") {
-            OpenSourceLicensesScreen(
-                context = context,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                OpenSourceLicensesScreen(
+                    context = context,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(
@@ -401,16 +363,18 @@ fun HomeMoneyApp(
             val count = backStackEntry.arguments?.getInt("count") ?: 0
             val percentage = backStackEntry.arguments?.getFloat("percentage") ?: 0f
 
-            com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
-                context = context,
-                dayOfWeek = dayOfWeek,
-                amount = amount,
-                count = count,
-                percentage = percentage,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
+                com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
+                    context = context,
+                    dayOfWeek = dayOfWeek,
+                    amount = amount,
+                    count = count,
+                    percentage = percentage,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }

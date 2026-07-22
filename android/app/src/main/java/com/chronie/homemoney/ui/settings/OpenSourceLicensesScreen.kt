@@ -79,27 +79,6 @@ val libraries = listOf(
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/activity"
     ),
     LibraryInfo(
-        name = "JUnit",
-        version = "4.13.2",
-        license = "Eclipse Public License 1.0",
-        licenseUrl = "https://www.eclipse.org/legal/epl-v10.html",
-        projectUrl = "https://junit.org/junit4/"
-    ),
-    LibraryInfo(
-        name = "AndroidX Test JUnit",
-        version = "1.3.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/test"
-    ),
-    LibraryInfo(
-        name = "AndroidX Test Espresso",
-        version = "3.7.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/test"
-    ),
-    LibraryInfo(
         name = "Jetpack Compose BOM",
         version = "2026.06.01",
         license = "Apache License 2.0",
@@ -122,17 +101,31 @@ val libraries = listOf(
     ),
     LibraryInfo(
         name = "AndroidX Material3",
-        version = "1.5.0-alpha23",
+        version = "1.5.0-alpha24",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
     ),
     LibraryInfo(
-        name = "AndroidX Material3 Window Size Class",
-        version = "1.5.0-alpha23",
+        name = "Miuix UI",
+        version = "0.9.3",
         license = "Apache License 2.0",
         licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
+        projectUrl = "https://github.com/mizure/miuix-kmp"
+    ),
+    LibraryInfo(
+        name = "Miuix Blur",
+        version = "0.9.3",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/mizure/miuix-kmp"
+    ),
+    LibraryInfo(
+        name = "Miuix Preference",
+        version = "0.9.3",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/mizure/miuix-kmp"
     ),
     LibraryInfo(
         name = "AndroidX Lifecycle Runtime Compose",
@@ -324,6 +317,13 @@ val libraries = listOf(
         projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material"
     ),
     LibraryInfo(
+        name = "Charty",
+        version = "3.0.0-rc01",
+        license = "Apache License 2.0",
+        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
+        projectUrl = "https://github.com/himanshoe/charty"
+    ),
+    LibraryInfo(
         name = "gRPC OkHttp",
         version = "1.82.2",
         license = "Apache License 2.0",
@@ -357,6 +357,13 @@ val libraries = listOf(
         license = "CDDL 1.0 / GPL 2.0 with Classpath Exception",
         licenseUrl = "https://github.com/javaee/javax.annotation/blob/master/LICENSE",
         projectUrl = "https://github.com/javaee/javax.annotation"
+    ),
+    LibraryInfo(
+        name = "JUnit",
+        version = "4.13.2",
+        license = "Eclipse Public License 1.0",
+        licenseUrl = "https://www.eclipse.org/legal/epl-v10.html",
+        projectUrl = "https://junit.org/junit4/"
     )
 )
 
