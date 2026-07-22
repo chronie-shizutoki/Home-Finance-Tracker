@@ -311,29 +311,44 @@ fun ExpenseTypeDropdown(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Search field
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                label = context.getString(R.string.search_category),
-                useLabelAsPlaceholder = true,
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.weight(1f),
+                    label = context.getString(R.string.search_category),
+                    useLabelAsPlaceholder = true,
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = context.getString(R.string.clear))
+                            }
                         }
-                    }
-                },
-                singleLine = true
-            )
+                    },
+                    singleLine = true
+                )
+                
+                IconButton(
+                    onClick = { /* Search is already filtering in real-time */ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = context.getString(R.string.common_search),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 300.dp)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (filteredTypes.isEmpty()) {
                     Box(
@@ -372,18 +387,6 @@ fun ExpenseTypeDropdown(
                         }
                     }
                 }
-            }
-
-            // Cancel button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = { showPicker = false }
-                )
             }
         }
     }

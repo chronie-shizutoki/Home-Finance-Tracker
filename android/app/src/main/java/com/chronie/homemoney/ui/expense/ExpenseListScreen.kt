@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
@@ -41,6 +43,9 @@ import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,7 +65,6 @@ fun ExpenseListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
-    var showMoreMenu by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var budgetRefreshTrigger by remember { mutableIntStateOf(0) }
 
@@ -111,8 +115,44 @@ fun ExpenseListScreen(
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 )
                 
-                Box {
-                    IconButton(onClick = { showMoreMenu = true }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onNavigateToAddExpense) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = context.getString(R.string.add_expense_title)
+                        )
+                    }
+
+                    val menuEntries = listOf(
+                        DropdownEntry(
+                            items = listOf(
+                                DropdownItem(
+                                    text = context.getString(R.string.common_filter),
+                                    icon = { modifier ->
+                                        Icon(
+                                            imageVector = Icons.Default.FilterList,
+                                            contentDescription = null,
+                                            modifier = modifier
+                                        )
+                                    },
+                                    onClick = { showFilterDialog = true }
+                                ),
+                                DropdownItem(
+                                    text = context.getString(R.string.expense_list_clear_filters),
+                                    icon = { modifier ->
+                                        Icon(
+                                            imageVector = Icons.Default.FilterListOff,
+                                            contentDescription = null,
+                                            modifier = modifier
+                                        )
+                                    },
+                                    onClick = { viewModel.resetFilters() }
+                                )
+                            )
+                        )
+                    )
+
+                    WindowIconDropdownMenu(entries = menuEntries) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = context.getString(R.string.common_more_functions)
@@ -312,20 +352,7 @@ fun ExpenseListScreen(
             }
         }
     }   
-                // Floating Action Button
-        FloatingActionButton(
-            onClick = onNavigateToAddExpense,
-            containerColor = MiuixTheme.colorScheme.primary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .padding(bottom = 80.dp) // Raise button to avoid overlapping with bottom navigation bar
-        ) {
-            Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
-        }
-        
-        // Filter Dialog Box (uses compose.ui Dialog, remains conditionally composed)
-        if (showFilterDialog) {
+                if (showFilterDialog) {
             ExpenseFilterDialog(
                 context = context,
                 currentFilters = uiState.filters,
@@ -334,49 +361,6 @@ fun ExpenseListScreen(
                     viewModel.updateFilters(filters)
                 }
             )
-        }
-
-        // More Menu Bottom Sheet (replaces m3 DropdownMenu)
-        WindowBottomSheet(
-            show = showMoreMenu,
-            title = context.getString(R.string.common_more_functions),
-            onDismissRequest = { showMoreMenu = false }
-        ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showMoreMenu = false
-                            showFilterDialog = true
-                        },
-                    color = MiuixTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = context.getString(R.string.common_filter),
-                        modifier = Modifier.padding(16.dp),
-                        style = MiuixTheme.textStyles.body1
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showMoreMenu = false
-                            viewModel.resetFilters()
-                        },
-                    color = MiuixTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = context.getString(R.string.expense_list_clear_filters),
-                        modifier = Modifier.padding(16.dp),
-                        style = MiuixTheme.textStyles.body1
-                    )
-                }
-            }
         }
     }
 }

@@ -59,13 +59,7 @@ fun LanguageSelectorBottomSheet(
     WindowBottomSheet(
         show = show,
         title = context.getString(R.string.select_language),
-        onDismissRequest = onDismiss,
-        startAction = {
-            TextButton(
-                text = context.getString(R.string.cancel),
-                onClick = onDismiss
-            )
-        }
+        onDismissRequest = onDismiss
     ) {
         Column(
             modifier = Modifier
@@ -80,9 +74,6 @@ fun LanguageSelectorBottomSheet(
                     .focusRequester(focusRequester),
                 label = context.getString(R.string.common_search),
                 useLabelAsPlaceholder = true,
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = context.getString(R.string.common_search))
-                },
                 trailingIcon = if (searchText.isNotEmpty()) {
                     {
                         IconButton(onClick = {

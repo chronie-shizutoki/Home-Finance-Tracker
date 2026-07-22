@@ -32,13 +32,13 @@ fun BudgetSettingsDialog(
     onDismiss: () -> Unit,
     onSave: (monthlyLimit: Double, warningThreshold: Double, isEnabled: Boolean) -> Unit
 ) {
-    var monthlyLimit by remember { 
+    var monthlyLimit by remember(show, currentBudget) { 
         mutableStateOf(currentBudget?.monthlyLimit?.toString() ?: "")
     }
-    var warningThreshold by remember { 
+    var warningThreshold by remember(show, currentBudget) { 
         mutableStateOf(((currentBudget?.warningThreshold ?: 0.8) * 100).toString())
     }
-    var isEnabled by remember { 
+    var isEnabled by remember(show, currentBudget) { 
         mutableStateOf(currentBudget?.isEnabled ?: false)
     }
     var showError by remember { mutableStateOf(false) }
@@ -170,7 +170,7 @@ fun BudgetSettingsDialog(
                 // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(
