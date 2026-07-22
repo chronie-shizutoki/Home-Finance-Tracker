@@ -12,6 +12,7 @@
     <string name="api_key_set">Telah ditetapkan: %s</string>
     <string name="developer_tools">Alatan Pembangun</string>
     <string name="theme_settings">Tetapan Tema</string>
+    <string name="features_settings">Tetapan Fungsi</string>
     <string name="dynamic_color">Warna Dinamik</string>
     <string name="dynamic_color_description">Mengikut warna kertas dinding</string>
     <string name="manual_color_selection">Pilih Warna Secara Manual</string>

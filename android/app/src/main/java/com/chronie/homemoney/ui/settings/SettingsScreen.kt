@@ -246,7 +246,7 @@ fun MainSettingsMenu(
         )
         
         SettingsCategoryItem(
-            title = "Features", // Alternatively use: R.string.budget_settings
+            title = context.getString(R.string.features_settings),
             description = context.getString(R.string.settings_ai_title) + ", " + context.getString(R.string.budget_settings),
             icon = Icons.Default.AutoAwesome,
             onClick = { onNavigate(SettingsPage.FEATURES) }
