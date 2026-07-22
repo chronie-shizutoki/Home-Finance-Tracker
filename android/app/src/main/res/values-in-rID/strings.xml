@@ -11,9 +11,10 @@
     <string name="select_language">Pilih Bahasa</string>
     <string name="api_key_set">Telah diatur: %s</string>
     <string name="developer_tools">Alat Pengembang</string>
-    <string name="theme_settings">Pengaturan Tema</string>
+    <string name="theme_settings">Theme</string>
+    <string name="features_settings">Features</string>
     <string name="dynamic_color">Warna Dinamis</string>
-    <string name="dynamic_color_description">Mengikuti warna wallpaper (Android 12+)</string>
+    <string name="dynamic_color_description">Use colors from your wallpaper</string>
     <string name="manual_color_selection">Pilih Warna Manual</string>
     <string name="primary_color">Warna Utama</string>
     <string name="dynamic_color_enabled">Warna dinamis diaktifkan</string>
