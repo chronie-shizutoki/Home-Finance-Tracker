@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -51,11 +52,13 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.spring
 
 enum class SettingsPage {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
 }
 
+@SuppressLint("NoCollectCallFound")
 @Composable
 fun SettingsScreen(
     context: Context,
@@ -68,7 +71,7 @@ fun SettingsScreen(
 ) {
     var currentPage by rememberSaveable { mutableStateOf(SettingsPage.MAIN) }
 
-    // Handle back button click
+    // Handle back button click - use BackHandler only, PredictiveBackHandler may cause issues
     BackHandler(enabled = currentPage != SettingsPage.MAIN) {
         currentPage = SettingsPage.MAIN
     }
@@ -116,15 +119,14 @@ fun SettingsScreen(
         AnimatedContent(
             targetState = currentPage,
             transitionSpec = {
-                if (targetState != SettingsPage.MAIN) {
-                    // Enter secondary page: slide in from right with fade in
-                    (slideInHorizontally { it } + fadeIn()) togetherWith 
-                    (slideOutHorizontally { -it / 2 } + fadeOut())
-                } else {
-                    // Return to main page: slide out to left with fade out
-                    (slideInHorizontally { -it / 2 } + fadeIn()) togetherWith 
-                    (slideOutHorizontally { it } + fadeOut())
-                }
+                scaleIn(
+                    initialScale = 0.9f,
+                    animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
+                ) + fadeIn(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)) togetherWith
+                        scaleOut(
+                            targetScale = 0.9f,
+                            animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
+                        ) + fadeOut(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f))
             },
             label = "SettingsPageTransition"
         ) { page ->

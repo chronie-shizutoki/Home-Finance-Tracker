@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.charts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -187,6 +188,7 @@ private fun WeekdayRadarChart(
 /**
  * Weekday Data Item
  */
+@SuppressLint("DefaultLocale")
 @Composable
 private fun WeekdayDataItem(
     context: Context,
@@ -222,6 +224,7 @@ private fun WeekdayDataItem(
 /**
  * Category Detail Item
  */
+@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryDetailItem(
     context: Context,

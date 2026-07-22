@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.charts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,10 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.himanshoe.charty.line.LineChart
 import com.himanshoe.charty.line.data.LineData
 import com.himanshoe.charty.line.config.LineChartConfig
+import com.himanshoe.charty.bar.BarChart
+import com.himanshoe.charty.bar.data.BarData
+import com.himanshoe.charty.bar.config.BarChartConfig
 import com.himanshoe.charty.common.config.ChartScaffoldConfig
 import com.himanshoe.charty.color.ChartyColor
 import com.chronie.homemoney.R
@@ -320,29 +325,37 @@ private fun HighQualityLineChart(
 ) {
     val primaryColor = MiuixTheme.colorScheme.primary
     
-    val lineData = data.map {
+    val labelStep = maxOf(1, data.size / 7)
+    val lineData = data.mapIndexed { index, dailyData ->
+        val label = if (index % labelStep == 0 || index == data.size - 1) {
+            "${dailyData.date.monthValue}/${dailyData.date.dayOfMonth}"
+        } else {
+            ""
+        }
         LineData(
-            label = "${it.date.monthValue}/${it.date.dayOfMonth}",
-            value = it.amount.toFloat()
+            label = label,
+            value = dailyData.amount.toFloat()
         )
     }
     
-    LineChart(
-        data = { lineData },
-        modifier = modifier,
-        color = ChartyColor.Solid(primaryColor),
-        lineConfig = LineChartConfig(
-            lineWidth = 4f,
-            showPoints = true,
-            pointRadius = 6f,
-            smoothCurve = true
-        ),
-        scaffoldConfig = ChartScaffoldConfig(
-            gridColor = MiuixTheme.colorScheme.dividerLine,
-            axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            labelTextStyle = MiuixTheme.textStyles.body2.copy(color = MiuixTheme.colorScheme.onSurface)
+    Box(modifier = modifier.padding(start = 24.dp, end = 8.dp)) {
+        LineChart(
+            data = { lineData },
+            modifier = Modifier.fillMaxSize(),
+            color = ChartyColor.Solid(primaryColor),
+            lineConfig = LineChartConfig(
+                lineWidth = 4f,
+                showPoints = true,
+                pointRadius = 6f,
+                smoothCurve = true
+            ),
+            scaffoldConfig = ChartScaffoldConfig(
+                gridColor = MiuixTheme.colorScheme.dividerLine,
+                axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                labelTextStyle = MiuixTheme.textStyles.footnote1.copy(color = MiuixTheme.colorScheme.onSurface)
+            )
         )
-    )
+    }
 }
 
 @Composable
@@ -369,15 +382,46 @@ private fun CategoryBreakdownCard(
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             } else {
+                val barData = categoryData.map { category ->
+                    BarData(
+                        label = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
+                        value = category.amount.toFloat()
+                    )
+                }
+                
+                Box(modifier = Modifier.padding(start = 24.dp, end = 8.dp, bottom = 8.dp)) {
+                    BarChart(
+                        data = { barData },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(320.dp),
+                        color = ChartyColor.Solid(MiuixTheme.colorScheme.primary),
+                        barConfig = BarChartConfig(
+                            barWidthFraction = 0.4f
+                        ),
+                        scaffoldConfig = ChartScaffoldConfig(
+                            gridColor = MiuixTheme.colorScheme.dividerLine,
+                            axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            labelTextStyle = MiuixTheme.textStyles.footnote2.copy(
+                                color = MiuixTheme.colorScheme.onSurface,
+                                fontSize = 9.sp
+                            )
+                        )
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
                 categoryData.forEach { category ->
                     CategoryItem(context, category, currencyFormat)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryItem(
     context: Context,

@@ -150,6 +150,7 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.miuix.ui)
     implementation(libs.miuix.preference)
+    implementation(libs.miuix.blur)
     implementation(libs.androidx.activity.compose)
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.lifecycle.viewmodel.compose)

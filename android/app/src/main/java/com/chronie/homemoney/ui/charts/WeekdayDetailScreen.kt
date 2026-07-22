@@ -26,7 +26,7 @@ import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
-@SuppressLint("DefaultStringFormat")
+@SuppressLint("DefaultStringFormat", "DefaultLocale")
 @Composable
 fun WeekdayDetailScreen(
     context: Context,
