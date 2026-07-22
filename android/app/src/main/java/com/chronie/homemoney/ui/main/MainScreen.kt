@@ -2,7 +2,8 @@ package com.chronie.homemoney.ui.main
 
 import android.content.Context
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -62,12 +63,12 @@ fun MainScreen(
                 transitionSpec = {
                     scaleIn(
                         initialScale = 0.9f,
-                        animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
-                    ) + fadeIn(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)) togetherWith
+                        animationSpec = tween(300, easing = FastOutSlowInEasing)
+                    ) + fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) togetherWith
                             scaleOut(
                                 targetScale = 0.9f,
-                                animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f)
-                            ) + fadeOut(animationSpec = spring(stiffness = 300f, dampingRatio = 0.7f))
+                                animationSpec = tween(300, easing = FastOutSlowInEasing)
+                            ) + fadeOut(animationSpec = tween(300, easing = FastOutSlowInEasing))
                 },
                 contentAlignment = Alignment.Center
             ) { tab ->
@@ -107,7 +108,6 @@ fun MainScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth()
                 .padding(bottom = 8.dp)
         ) {
             FloatingBottomBar(
