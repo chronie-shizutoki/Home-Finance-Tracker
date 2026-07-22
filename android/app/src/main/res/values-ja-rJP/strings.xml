@@ -13,7 +13,7 @@
     <string name="developer_tools">開発者ツール</string>
     <string name="theme_settings">テーマ設定</string>
     <string name="dynamic_color">ダイナミックカラー</string>
-    <string name="dynamic_color_description">壁紙の色に合わせて変化（Android 12+）</string>
+    <string name="dynamic_color_description">壁紙の色に合わせて変化</string>
     <string name="manual_color_selection">手動で色を選択</string>
     <string name="primary_color">プライマリーカラー</string>
     <string name="dynamic_color_enabled">ダイナミックカラーがオンです</string>

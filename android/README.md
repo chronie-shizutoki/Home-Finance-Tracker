@@ -28,7 +28,7 @@ This is the native Android implementation of the Home Money financial tracking a
 
 ### Technical Features
 - **Encrypted Database**: SQLCipher-encrypted Room database with hardware-backed key storage via EncryptedSharedPreferences
-- **Material Design 3**: Modern UI with dynamic color support (Android 12+) and manual color picker customization
+- **Material Design 3**: Modern UI with dynamic color support and manual color picker customization
 - **Edge-to-Edge Display**: Immersive full-screen experience with transparent system bars
 - **Developer Mode**: Built-in database testing and debugging tools
 - **Customizable Theme**: Manual color picker and dynamic color from wallpaper
@@ -407,7 +407,7 @@ Daily Goods, Luxury, Communication, Food, Snacks, Cold Drinks, Convenience Food,
 
 #### Theme Customization
 - Go to Settings → Theme
-- Dynamic Color: Use colors from your wallpaper (Android 12+)
+- Dynamic Color: Use colors from your wallpaper
 - Manual Color Selection: Use color picker to select custom accent colors
 - Preview theme changes in real-time
 - Save custom theme preferences

@@ -13,7 +13,7 @@
     <string name="developer_tools">Alat Pengembang</string>
     <string name="theme_settings">Pengaturan Tema</string>
     <string name="dynamic_color">Warna Dinamis</string>
-    <string name="dynamic_color_description">Mengikuti warna wallpaper (Android 12+)</string>
+    <string name="dynamic_color_description">Mengikuti warna wallpaper</string>
     <string name="manual_color_selection">Pilih Warna Manual</string>
     <string name="primary_color">Warna Utama</string>
     <string name="dynamic_color_enabled">Warna dinamis diaktifkan</string>

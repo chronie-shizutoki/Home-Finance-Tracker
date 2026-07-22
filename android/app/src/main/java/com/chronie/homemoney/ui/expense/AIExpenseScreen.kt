@@ -887,6 +887,7 @@ private fun RecordEditDialog(
     )
 
     MiuixDatePickerSheet(
+        context = context,
         show = showDatePicker,
         initialDate = selectedDate,
         onDismiss = { showDatePicker = false },
