@@ -1,13 +1,8 @@
 package com.chronie.homemoney.ui.expense
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,18 +12,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,14 +37,17 @@ import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
+import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Expense List Screen
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun ExpenseListScreen(
     context: android.content.Context,
@@ -70,23 +62,11 @@ fun ExpenseListScreen(
     var showMoreMenu by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var budgetRefreshTrigger by remember { mutableIntStateOf(0) }
-    
-    val pullRefreshState = rememberPullToRefreshState()
-    
-    // Get window size class for responsive layout
-    // Use LocalContext to get the original context (not the localized one passed in)
-    val localContext = LocalContext.current
-    val activity = localContext as? android.app.Activity
-        ?: localContext.findActivity()
-    val windowSizeClass = if (activity != null) {
-        calculateWindowSizeClass(activity)
-    } else {
-        null
-    }
-    // Use table layout only on Medium (600dp+) or Expanded screens
-    val useTableLayout = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Medium ||
-                         windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
-    
+
+    // Use screen width to decide table layout (replaces material3 WindowSizeClass)
+    val configuration = LocalConfiguration.current
+    val useTableLayout = configuration.screenWidthDp.dp >= 600.dp
+
     // Handle refresh requests from parent scope
     LaunchedEffect(shouldRefresh) {
         if (shouldRefresh) {
@@ -95,15 +75,15 @@ fun ExpenseListScreen(
             onRefreshHandled()
         }
     }
-    
+
     // Refresh function
     val onRefresh: () -> Unit = {
         isRefreshing = true
         viewModel.refresh()
         budgetRefreshTrigger++
     }
-    
-    // Handle refresh state reset after refresh 
+
+    // Handle refresh state reset after refresh
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             delay(1000.milliseconds)
@@ -135,26 +115,6 @@ fun ExpenseListScreen(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = context.getString(R.string.common_more_functions)
-                        )
-                    }
-                    
-                    DropdownMenu(
-                        expanded = showMoreMenu,
-                        onDismissRequest = { showMoreMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(context.getString(R.string.common_filter)) },
-                            onClick = {
-                                showMoreMenu = false
-                                showFilterDialog = true
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(context.getString(R.string.expense_list_clear_filters)) },
-                            onClick = {
-                                showMoreMenu = false
-                                viewModel.resetFilters()
-                            }
                         )
                     }
                 }
@@ -242,10 +202,9 @@ fun ExpenseListScreen(
                         }
                     }
                     
-                    PullToRefreshBox(
+                    PullToRefresh(
                         isRefreshing = isRefreshing,
                         onRefresh = onRefresh,
-                        state = pullRefreshState,
                         modifier = Modifier.fillMaxSize()
                     ) {
                         LazyColumn(
@@ -364,7 +323,7 @@ fun ExpenseListScreen(
             Icon(Icons.Default.Add, contentDescription = context.getString(R.string.add_expense_title))
         }
         
-        // Filter Dialog Box
+        // Filter Dialog Box (uses compose.ui Dialog, remains conditionally composed)
         if (showFilterDialog) {
             ExpenseFilterDialog(
                 context = context,
@@ -374,6 +333,49 @@ fun ExpenseListScreen(
                     viewModel.updateFilters(filters)
                 }
             )
+        }
+
+        // More Menu Bottom Sheet (replaces m3 DropdownMenu)
+        WindowBottomSheet(
+            show = showMoreMenu,
+            title = context.getString(R.string.common_more_functions),
+            onDismissRequest = { showMoreMenu = false }
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showMoreMenu = false
+                            showFilterDialog = true
+                        },
+                    color = MiuixTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = context.getString(R.string.common_filter),
+                        modifier = Modifier.padding(16.dp),
+                        style = MiuixTheme.textStyles.body1
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showMoreMenu = false
+                            viewModel.resetFilters()
+                        },
+                    color = MiuixTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = context.getString(R.string.expense_list_clear_filters),
+                        modifier = Modifier.padding(16.dp),
+                        style = MiuixTheme.textStyles.body1
+                    )
+                }
+            }
         }
     }
 }
@@ -497,7 +499,6 @@ fun StatisticItem(
 /**
  * Long Press Expense Item
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LongPressExpenseItem(
     expense: Expense,
@@ -508,43 +509,40 @@ fun LongPressExpenseItem(
 ) {
     // Bottom Sheet Menu Display State
     val showBottomSheetMenu = remember { mutableStateOf(false) }
-    val bottomSheetState = rememberBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded
-    )
-    
+
     // Dialog State - First Confirm Dialog
     val showFirstConfirmDialog = remember { mutableStateOf(false) }
     // Dialog State - Second Confirm Dialog
     val showSecondConfirmDialog = remember { mutableStateOf(false) }
-    
+
     // Handle First Confirmation
     fun handleFirstConfirm() {
         showFirstConfirmDialog.value = false
         showSecondConfirmDialog.value = true
     }
-    
+
     // Handle Second Confirmation
     fun handleSecondConfirm() {
         showSecondConfirmDialog.value = false
         showBottomSheetMenu.value = false
         onDelete()
     }
-    
+
     // Cancel Delete
     fun cancelDelete() {
         showFirstConfirmDialog.value = false
         showSecondConfirmDialog.value = false
     }
-    
-    // Show Delete Confirmation Dialog
+
+    // Show Delete Confirmation dialog
     fun showDeleteConfirm() {
         showBottomSheetMenu.value = false
         showFirstConfirmDialog.value = true
     }
-    
+
     // Localized Expense Type Name
     val typeDisplayName = ExpenseTypeLocalizer.getLocalizedName(context, expense.type)
-    
+
     Box(modifier = modifier.fillMaxWidth()) {
         // Expense List Item
         ExpenseListItem(
@@ -559,149 +557,151 @@ fun LongPressExpenseItem(
                     )
                 }
         )
-        
-        // Bottom Sheet Menu
-        if (showBottomSheetMenu.value) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheetMenu.value = false },
-                sheetState = bottomSheetState,
-                contentColor = MiuixTheme.colorScheme.onSurface,
-                containerColor = MiuixTheme.colorScheme.surface,
-                dragHandle = { BottomSheetDefaults.DragHandle() }
+
+        // Bottom Sheet Menu (always composed, show-driven)
+        WindowBottomSheet(
+            show = showBottomSheetMenu.value,
+            title = typeDisplayName,
+            onDismissRequest = { showBottomSheetMenu.value = false }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Selected Record Details
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Selected Record Details
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    if (!expense.remark.isNullOrBlank()) {
                         Text(
-                            text = typeDisplayName,
-                            style = MiuixTheme.textStyles.body1,
-                            fontWeight = FontWeight.Bold
+                            text = expense.remark,
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
-                        if (!expense.remark.isNullOrBlank()) {
-                            Text(
-                                text = expense.remark,
-                                style = MiuixTheme.textStyles.body2,
-                                color = MiuixTheme.colorScheme.onSurfaceSecondary
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = formatDateByLocale(expense.date, context.resources.configuration.locales[0].toLanguageTag()),
-                                style = MiuixTheme.textStyles.footnote1,
-                                color = MiuixTheme.colorScheme.onSurfaceSecondary
-                            )
-                            Text(
-                                text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
-                                style = MiuixTheme.textStyles.title3,
-                                fontWeight = FontWeight.Bold,
-                                color = MiuixTheme.colorScheme.error
-                            )
-                        }
                     }
-                    
-                    // Action Buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Edit Button
-                        Button(
-                            onClick = {
-                                showBottomSheetMenu.value = false
-                                onEdit()
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                color = MiuixTheme.colorScheme.primaryContainer,
-                                contentColor = MiuixTheme.colorScheme.onPrimaryContainer
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Edit,
-                                contentDescription = "Edit",
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = context.getString(R.string.edit))
-                        }
-
-                        // Delete Button
-                        Button(
-                            onClick = {
-                                showDeleteConfirm()
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                color = MiuixTheme.colorScheme.errorContainer,
-                                contentColor = MiuixTheme.colorScheme.onErrorContainer
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "Delete",
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = context.getString(R.string.delete))
-                        }
+                        Text(
+                            text = formatDateByLocale(expense.date, context.resources.configuration.locales[0].toLanguageTag()),
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                        Text(
+                            text = "-" + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
+                            style = MiuixTheme.textStyles.title3,
+                            fontWeight = FontWeight.Bold,
+                            color = MiuixTheme.colorScheme.error
+                        )
                     }
                 }
-            }
-        }
-        
-        // First Confirmation Dialog
-        if (showFirstConfirmDialog.value) {
-            AlertDialog(
-                onDismissRequest = { cancelDelete() },
-                title = { Text(text = context.getString(R.string.delete_confirm_title)) },
-                text = { Text(text = context.getString(R.string.delete_confirm_message)) },
-                confirmButton = {
-                    Button(onClick = { handleFirstConfirm() }, colors = ButtonDefaults.buttonColorsPrimary()) {
-                        Text(text = context.getString(R.string.confirm))
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { cancelDelete() }) {
-                        Text(text = context.getString(R.string.cancel))
-                    }
-                }
-            )
-        }
 
-        // Second Confirmation Dialog
-        if (showSecondConfirmDialog.value) {
-            AlertDialog(
-                onDismissRequest = { cancelDelete() },
-                title = { Text(text = context.getString(R.string.delete_second_confirm_title)) },
-                text = { Text(text = context.getString(R.string.delete_second_confirm_message)) },
-                confirmButton = {
+                // Action Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Edit Button
                     Button(
-                        onClick = { handleSecondConfirm() },
+                        onClick = {
+                            showBottomSheetMenu.value = false
+                            onEdit()
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            color = MiuixTheme.colorScheme.primaryContainer,
+                            contentColor = MiuixTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Edit",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = context.getString(R.string.edit))
+                    }
+
+                    // Delete Button
+                    Button(
+                        onClick = {
+                            showDeleteConfirm()
+                        },
+                        modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             color = MiuixTheme.colorScheme.errorContainer,
                             contentColor = MiuixTheme.colorScheme.onErrorContainer
                         )
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(text = context.getString(R.string.delete))
                     }
-                },
-                dismissButton = {
-                    Button(onClick = { cancelDelete() }) {
-                        Text(text = context.getString(R.string.cancel))
-                    }
                 }
-            )
+            }
+        }
+
+        // First Confirmation Dialog (always composed, show-driven)
+        WindowDialog(
+            show = showFirstConfirmDialog.value,
+            title = context.getString(R.string.delete_confirm_title),
+            summary = context.getString(R.string.delete_confirm_message),
+            onDismissRequest = { cancelDelete() }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = { cancelDelete() }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { handleFirstConfirm() },
+                    colors = ButtonDefaults.buttonColorsPrimary()
+                ) {
+                    Text(text = context.getString(R.string.confirm))
+                }
+            }
+        }
+
+        // Second Confirmation Dialog (always composed, show-driven)
+        WindowDialog(
+            show = showSecondConfirmDialog.value,
+            title = context.getString(R.string.delete_second_confirm_title),
+            summary = context.getString(R.string.delete_second_confirm_message),
+            onDismissRequest = { cancelDelete() }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.cancel),
+                    onClick = { cancelDelete() }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { handleSecondConfirm() },
+                    colors = ButtonDefaults.buttonColors(
+                        color = MiuixTheme.colorScheme.errorContainer,
+                        contentColor = MiuixTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Text(text = context.getString(R.string.delete))
+                }
+            }
         }
     }
 }
@@ -816,7 +816,6 @@ fun ExpenseTableDateHeader(
 /**
  * Table layout for expense items on wide screens
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseTableItems(
     expenses: List<Expense>,
@@ -943,16 +942,5 @@ fun ExpenseTableItems(
                 }
             }
         }
-    }
-}
-
-/**
- * Extension function to find Activity from Context
- */
-private tailrec fun android.content.Context.findActivity(): android.app.Activity? {
-    return when (this) {
-        is android.app.Activity -> this
-        is android.content.ContextWrapper -> baseContext.findActivity()
-        else -> null
     }
 }

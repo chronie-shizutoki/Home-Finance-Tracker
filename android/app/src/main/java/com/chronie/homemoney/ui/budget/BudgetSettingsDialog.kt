@@ -5,8 +5,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,13 +19,14 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowDialog
 
 /**
  * Budget Settings Dialog
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetSettingsDialog(
+    show: Boolean,
     context: android.content.Context,
     currentBudget: Budget?,
     onDismiss: () -> Unit,
@@ -45,16 +44,15 @@ fun BudgetSettingsDialog(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(context.getString(R.string.budget_settings_title))
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.budget_settings_title),
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
                 // Enable feature switch
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -168,41 +166,44 @@ fun BudgetSettingsDialog(
                         style = MiuixTheme.textStyles.footnote1
                     )
                 }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                text = context.getString(R.string.common_save),
-                onClick = {
-                    // Validate input
-                    val limit = monthlyLimit.toDoubleOrNull()
-                    val threshold = warningThreshold.toDoubleOrNull()
 
-                    when {
-                        isEnabled && (limit == null || limit <= 0) -> {
-                            showError = true
-                            errorMessage = context.getString(R.string.budget_error_invalid_limit)
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        text = context.getString(R.string.common_cancel),
+                        onClick = onDismiss
+                    )
+                    TextButton(
+                        text = context.getString(R.string.common_save),
+                        onClick = {
+                            // Validate input
+                            val limit = monthlyLimit.toDoubleOrNull()
+                            val threshold = warningThreshold.toDoubleOrNull()
+
+                            when {
+                                isEnabled && (limit == null || limit <= 0) -> {
+                                    showError = true
+                                    errorMessage = context.getString(R.string.budget_error_invalid_limit)
+                                }
+                                isEnabled && (threshold == null || threshold < 0 || threshold > 100) -> {
+                                    showError = true
+                                    errorMessage = context.getString(R.string.budget_error_invalid_threshold)
+                                }
+                                else -> {
+                                    onSave(
+                                        limit ?: 0.0,
+                                        (threshold ?: 80.0) / 100,
+                                        isEnabled
+                                    )
+                                }
+                            }
                         }
-                        isEnabled && (threshold == null || threshold < 0 || threshold > 100) -> {
-                            showError = true
-                            errorMessage = context.getString(R.string.budget_error_invalid_threshold)
-                        }
-                        else -> {
-                            onSave(
-                                limit ?: 0.0,
-                                (threshold ?: 80.0) / 100,
-                                isEnabled
-                            )
-                        }
-                    }
+                    )
                 }
-            )
-        },
-        dismissButton = {
-            TextButton(
-                text = context.getString(R.string.common_cancel),
-                onClick = onDismiss
-            )
+            }
         }
-    )
 }

@@ -15,8 +15,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -48,6 +46,8 @@ import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                 HomeMoneyTheme {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
+                        color = MiuixTheme.colorScheme.background
                     ) {
                         HomeMoneyApp(
                             context = localizedContext,

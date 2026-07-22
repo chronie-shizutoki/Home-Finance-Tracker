@@ -3,22 +3,12 @@ package com.chronie.homemoney.ui.charts
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -38,11 +28,11 @@ import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
@@ -53,10 +43,8 @@ import top.yukonga.miuix.kmp.basic.RadioButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.basic.TextField
-import com.chronie.homemoney.ui.components.OutlinedButton
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartsScreen(
     context: Context,
@@ -136,17 +124,16 @@ fun ChartsScreen(
             }
         }
         
-        if (showTimeRangeDialog) {
-            TimeRangeDialog(
-                context = context,
-                selectedTimeRange = selectedTimeRange,
-                onDismiss = { showTimeRangeDialog = false },
-                onTimeRangeSelected = { timeRange ->
-                    viewModel.selectTimeRange(timeRange)
-                    showTimeRangeDialog = false
-                }
-            )
-        }
+        TimeRangeDialog(
+            show = showTimeRangeDialog,
+            context = context,
+            selectedTimeRange = selectedTimeRange,
+            onDismiss = { showTimeRangeDialog = false },
+            onTimeRangeSelected = { timeRange ->
+                viewModel.selectTimeRange(timeRange)
+                showTimeRangeDialog = false
+            }
+        )
     }
 }
 
@@ -556,9 +543,9 @@ private fun CategoryItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeRangeDialog(
+    show: Boolean,
     context: Context,
     selectedTimeRange: TimeRange,
     onDismiss: () -> Unit,
@@ -567,103 +554,64 @@ private fun TimeRangeDialog(
     val viewModel = hiltViewModel<ChartsViewModel>()
     val customStartDate by viewModel.customStartDate.collectAsState()
     val customEndDate by viewModel.customEndDate.collectAsState()
-    
+
     var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
 
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded
-    )
-    
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MiuixTheme.colorScheme.surface
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.select_time_range),
+        onDismissRequest = onDismiss
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = context.getString(R.string.select_time_range),
-                style = MiuixTheme.textStyles.title3,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            
-            var expanded by remember { mutableStateOf(false) }
-            
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TextField(
-                    value = getTimeRangeText(context, selectedTimeRange),
-                    onValueChange = {},
-                    readOnly = true,
-                    label = context.getString(R.string.select_time_range),
-                    useLabelAsPlaceholder = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            listOf(
+                TimeRange.THIS_WEEK,
+                TimeRange.THIS_MONTH,
+                TimeRange.LAST_MONTH,
+                TimeRange.THIS_QUARTER,
+                TimeRange.THIS_YEAR,
+                TimeRange.CUSTOM
+            ).forEach { timeRange ->
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(
-                            type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                            enabled = true
-                        )
-                )
-                
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    listOf(
-                        TimeRange.THIS_WEEK,
-                        TimeRange.THIS_MONTH,
-                        TimeRange.LAST_MONTH,
-                        TimeRange.THIS_QUARTER,
-                        TimeRange.THIS_YEAR,
-                        TimeRange.CUSTOM
-                    ).forEach { timeRange ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    RadioButton(
-                                        selected = selectedTimeRange == timeRange,
-                                        onClick = {
-                                            if (timeRange == TimeRange.CUSTOM) {
-                                                showCustomRangeBottomSheet = true
-                                            } else {
-                                                onTimeRangeSelected(timeRange)
-                                            }
-                                            expanded = false
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(getTimeRangeText(context, timeRange))
-                                }
-                            },
-                            onClick = {
-                                if (timeRange == TimeRange.CUSTOM) {
-                                    showCustomRangeBottomSheet = true
-                                } else {
-                                    onTimeRangeSelected(timeRange)
-                                }
-                                expanded = false
+                        .clickable {
+                            if (timeRange == TimeRange.CUSTOM) {
+                                showCustomRangeBottomSheet = true
+                            } else {
+                                onTimeRangeSelected(timeRange)
                             }
-                        )
-                    }
+                        }
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedTimeRange == timeRange,
+                        onClick = {
+                            if (timeRange == TimeRange.CUSTOM) {
+                                showCustomRangeBottomSheet = true
+                            } else {
+                                onTimeRangeSelected(timeRange)
+                            }
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = getTimeRangeText(context, timeRange),
+                        style = MiuixTheme.textStyles.body1
+                    )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
+
             if (selectedTimeRange == TimeRange.CUSTOM && customStartDate != null && customEndDate != null) {
                 val start = customStartDate
                 val end = customEndDate
                 if (start != null && end != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
                     val startDateString = start.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     val endDateString = end.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     Text(
@@ -673,187 +621,140 @@ private fun TimeRangeDialog(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
-    
-    if (showCustomRangeBottomSheet) {
-        CustomRangeBottomSheet(
-            context = context,
-            initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
-            initialEndDate = customEndDate ?: LocalDate.now(),
-            onDismiss = { showCustomRangeBottomSheet = false },
-            onConfirm = { startDate, endDate ->
-                viewModel.setCustomDateRange(startDate, endDate)
-                onTimeRangeSelected(TimeRange.CUSTOM)
-            }
-        )
-    }
+
+    CustomRangeBottomSheet(
+        show = showCustomRangeBottomSheet,
+        context = context,
+        initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
+        initialEndDate = customEndDate ?: LocalDate.now(),
+        onDismiss = { showCustomRangeBottomSheet = false },
+        onConfirm = { startDate, endDate ->
+            viewModel.setCustomDateRange(startDate, endDate)
+            onTimeRangeSelected(TimeRange.CUSTOM)
+        }
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomRangeBottomSheet(
+    show: Boolean,
     context: Context,
     initialStartDate: LocalDate,
     initialEndDate: LocalDate,
     onDismiss: () -> Unit,
     onConfirm: (LocalDate, LocalDate) -> Unit
 ) {
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.PartiallyExpanded
-    )
-    val coroutineScope = rememberCoroutineScope()
-    
-    var startDate by remember { mutableStateOf(initialStartDate) }
-    var endDate by remember { mutableStateOf(initialEndDate) }
+    var startDate by remember(show) { mutableStateOf(initialStartDate) }
+    var endDate by remember(show) { mutableStateOf(initialEndDate) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
-    
-    ModalBottomSheet(
+
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.custom_range),
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MiuixTheme.colorScheme.surface
+        startAction = {
+            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+        },
+        endAction = {
+            TextButton(
+                text = context.getString(R.string.confirm),
+                onClick = {
+                    onConfirm(startDate, endDate)
+                },
+                enabled = !startDate.isAfter(endDate)
+            )
+        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = context.getString(R.string.custom_range),
-                style = MiuixTheme.textStyles.title3,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            
-            TextField(
-                value = startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                onValueChange = {},
-                readOnly = true,
-                label = context.getString(R.string.expense_list_filter_start_date),
-                useLabelAsPlaceholder = true,
-                trailingIcon = {
-                    IconButton(onClick = { showStartDatePicker = true }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = context.getString(R.string.expense_list_filter_start_date)
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextField(
-                value = endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                onValueChange = {},
-                readOnly = true,
-                label = context.getString(R.string.expense_list_filter_end_date),
-                useLabelAsPlaceholder = true,
-                trailingIcon = {
-                    IconButton(onClick = { showEndDatePicker = true }) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = context.getString(R.string.expense_list_filter_end_date)
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Row(
+            Surface(
+                onClick = { showStartDatePicker = true },
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                color = MiuixTheme.colorScheme.surfaceVariant
             ) {
-                OutlinedButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            sheetState.hide()
-                            onDismiss()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(context.getString(R.string.cancel))
+                    Column {
+                        Text(
+                            text = context.getString(R.string.expense_list_filter_start_date),
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                        Text(
+                            text = startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                            style = MiuixTheme.textStyles.body1
+                        )
+                    }
+                    Icon(
+                        Icons.Default.DateRange,
+                        contentDescription = context.getString(R.string.expense_list_filter_start_date),
+                        tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                    )
                 }
-                Button(
-                    onClick = {
-                        onConfirm(startDate, endDate)
-                        coroutineScope.launch {
-                            sheetState.hide()
-                            onDismiss()
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    enabled = !startDate.isAfter(endDate),
-                    colors = ButtonDefaults.buttonColorsPrimary()
+            }
+
+            Surface(
+                onClick = { showEndDatePicker = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                color = MiuixTheme.colorScheme.surfaceVariant
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(context.getString(R.string.confirm))
+                    Column {
+                        Text(
+                            text = context.getString(R.string.expense_list_filter_end_date),
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                        Text(
+                            text = endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                            style = MiuixTheme.textStyles.body1
+                        )
+                    }
+                    Icon(
+                        Icons.Default.DateRange,
+                        contentDescription = context.getString(R.string.expense_list_filter_end_date),
+                        tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                    )
                 }
             }
         }
     }
-    
-    if (showStartDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = startDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-        )
-        
-        DatePickerDialog(
-            onDismissRequest = { showStartDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    text = context.getString(R.string.confirm),
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            startDate = java.time.Instant.ofEpochMilli(millis)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
-                        }
-                        showStartDatePicker = false
-                    }
-                )
-            },
-            dismissButton = {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showStartDatePicker = false })
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-    
-    if (showEndDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = endDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-        )
-        
-        DatePickerDialog(
-            onDismissRequest = { showEndDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    text = context.getString(R.string.confirm),
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            endDate = java.time.Instant.ofEpochMilli(millis)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
-                        }
-                        showEndDatePicker = false
-                    }
-                )
-            },
-            dismissButton = {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showEndDatePicker = false })
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+
+    MiuixDatePickerSheet(
+        show = showStartDatePicker,
+        initialDate = startDate,
+        onDismiss = { showStartDatePicker = false },
+        onDateSelected = { date -> startDate = date },
+        title = context.getString(R.string.expense_list_filter_start_date)
+    )
+
+    MiuixDatePickerSheet(
+        show = showEndDatePicker,
+        initialDate = endDate,
+        onDismiss = { showEndDatePicker = false },
+        onDateSelected = { date -> endDate = date },
+        title = context.getString(R.string.expense_list_filter_end_date)
+    )
 }
 
 @Composable

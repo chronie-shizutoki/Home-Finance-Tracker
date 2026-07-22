@@ -11,10 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,18 +21,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.Language
-import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import androidx.compose.foundation.shape.RoundedCornerShape
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSelectorBottomSheet(
+    show: Boolean,
     currentLanguage: Language,
     onLanguageSelected: (Language) -> Unit,
     onDismiss: () -> Unit,
@@ -44,11 +41,6 @@ fun LanguageSelectorBottomSheet(
 ) {
     var searchText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
-    )
-    val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val allLanguages = remember { Language.entries }
@@ -64,36 +56,22 @@ fun LanguageSelectorBottomSheet(
         }
     }
 
-    ModalBottomSheet(
+    WindowBottomSheet(
+        show = show,
+        title = context.getString(R.string.select_language),
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        startAction = {
+            TextButton(
+                text = context.getString(R.string.cancel),
+                onClick = onDismiss
+            )
+        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = context.getString(R.string.select_language),
-                    style = MiuixTheme.textStyles.title3
-                )
-                IconButton(onClick = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
-                }) {
-                    Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel))
-                }
-            }
-
             TextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -129,7 +107,7 @@ fun LanguageSelectorBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.heightIn(max = 480.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredLanguages) { language ->
@@ -138,10 +116,7 @@ fun LanguageSelectorBottomSheet(
                         isSelected = language == currentLanguage,
                         onClick = {
                             onLanguageSelected(language)
-                            coroutineScope.launch {
-                                sheetState.hide()
-                                onDismiss()
-                            }
+                            onDismiss()
                         }
                     )
                 }
