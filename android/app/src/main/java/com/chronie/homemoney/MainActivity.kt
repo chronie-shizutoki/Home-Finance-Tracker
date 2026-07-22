@@ -1,5 +1,6 @@
 package com.chronie.homemoney
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -10,15 +11,15 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var healthCheckService: HealthCheckService
 
+    @SuppressLint("LocalContextConfigurationRead")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -156,7 +158,7 @@ fun HomeMoneyApp(
 ) {
     val navController = rememberNavController()
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     // Determine initial route
     val startDestination = remember {
@@ -196,8 +198,8 @@ fun HomeMoneyApp(
             )
         },
         popEnterTransition = {
-            scaleIn(
-                initialScale = 0.9f,
+            slideInHorizontally(
+                initialOffsetX = { -it / 4 },
                 animationSpec = tween(
                     durationMillis = 300,
                     easing = FastOutSlowInEasing
@@ -210,8 +212,8 @@ fun HomeMoneyApp(
             )
         },
         popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { it },
+            scaleOut(
+                targetScale = 0.9f,
                 animationSpec = tween(
                     durationMillis = 300,
                     easing = FastOutSlowInEasing

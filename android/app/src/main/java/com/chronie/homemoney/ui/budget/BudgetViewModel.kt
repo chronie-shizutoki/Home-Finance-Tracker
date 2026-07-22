@@ -72,7 +72,12 @@ class BudgetViewModel @Inject constructor(
                     isEnabled = isEnabled
                 )
                 saveBudgetUseCase(budget)
-                _uiState.update { it.copy(error = null) }
+                _uiState.update { it.copy(budget = budget, error = null) }
+                if (isEnabled) {
+                    loadBudgetUsage()
+                } else {
+                    _uiState.update { it.copy(budgetUsage = null) }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -89,6 +94,12 @@ class BudgetViewModel @Inject constructor(
                     isEnabled = enabled
                 )
                 saveBudgetUseCase(budget)
+                _uiState.update { it.copy(budget = budget, error = null) }
+                if (enabled) {
+                    loadBudgetUsage()
+                } else {
+                    _uiState.update { it.copy(budgetUsage = null) }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }

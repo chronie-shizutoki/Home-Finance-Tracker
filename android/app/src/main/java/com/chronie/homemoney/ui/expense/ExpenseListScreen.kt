@@ -48,6 +48,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 /**
  * Expense List Screen
  */
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun ExpenseListScreen(
     context: android.content.Context,

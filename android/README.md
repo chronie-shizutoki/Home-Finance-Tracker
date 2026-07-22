@@ -509,7 +509,7 @@ CREATE TABLE sync_queue (
 ### API Response Format
 ```json
 {
-  "data": { ... },
+  "data": { },
   "message": "success",
   "success": true
 }
@@ -640,8 +640,7 @@ CREATE TABLE sync_queue (
 ### Permissions
 - `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`: Network operations and sync
 - `CHANGE_WIFI_MULTICAST_STATE`: LAN device discovery
-- `CAMERA`: AI expense recognition (not required)
-- `READ_EXTERNAL_STORAGE` (max SDK 32), `WRITE_EXTERNAL_STORAGE` (max SDK 32): Excel import/export
+- `CAMERA`: AI expense recognition
 - `READ_MEDIA_IMAGES` (Android 13+): Gallery image selection
 
 ## Contributing
