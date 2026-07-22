@@ -11,9 +11,10 @@
     <string name="select_language">選擇語言</string>
     <string name="api_key_set">已設定：%s…</string>
     <string name="developer_tools">開發人員工具</string>
-    <string name="theme_settings">主題設定</string>
+    <string name="theme_settings">Theme</string>
+    <string name="features_settings">Features</string>
     <string name="dynamic_color">動態色彩</string>
-    <string name="dynamic_color_description">使用桌布顏色（Android 12+）</string>
+    <string name="dynamic_color_description">Use colors from your wallpaper</string>
     <string name="manual_color_selection">手動選擇色彩</string>
     <string name="primary_color">主要色彩</string>
     <string name="dynamic_color_enabled">動態色彩已啟用</string>
