@@ -1,30 +1,27 @@
 package com.chronie.homemoney.ui.charts
 
-import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.himanshoe.charty.radar.RadarChart
+import com.himanshoe.charty.radar.data.RadarDataSet
+import com.himanshoe.charty.radar.data.RadarAxisData
+import com.himanshoe.charty.radar.config.RadarChartConfig
+import com.himanshoe.charty.radar.config.RadarGridConfig
+import com.himanshoe.charty.radar.config.RadarLabelConfig
+import com.himanshoe.charty.radar.config.RadarGridStyle
+import com.himanshoe.charty.radar.config.RadarCenterConfig
+import com.himanshoe.charty.color.ChartyColor
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import java.text.NumberFormat
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
-import kotlin.math.PI
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -74,7 +71,7 @@ fun WeekdayRadarChartCard(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp)
+                        .height(350.dp)
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -94,7 +91,6 @@ fun WeekdayRadarChartCard(
 /**
  * Weekday Radar Chart
  */
-@SuppressLint("DefaultLocale")
 @Composable
 private fun WeekdayRadarChart(
     context: Context,
@@ -106,184 +102,84 @@ private fun WeekdayRadarChart(
     val textColor = MiuixTheme.colorScheme.onSurface
     val gridColor = MiuixTheme.colorScheme.dividerLine
     
-    // Store label positions for click detection
-    val labelPositions = remember { mutableStateMapOf<Int, Pair<Offset, Float>>() }
+    val weekdayLabels = listOf(
+        context.getString(R.string.sunday_short),
+        context.getString(R.string.monday_short),
+        context.getString(R.string.tuesday_short),
+        context.getString(R.string.wednesday_short),
+        context.getString(R.string.thursday_short),
+        context.getString(R.string.friday_short),
+        context.getString(R.string.saturday_short)
+    )
     
-    Canvas(modifier = modifier.pointerInput(Unit) {
-        detectTapGestures { offset ->
-            // Detect which weekday label was clicked
-            labelPositions.forEach { (dayOfWeek, posAndRadius) ->
-                val (labelPos, radius) = posAndRadius
-                val distance = sqrt(
-                    (offset.x - labelPos.x) * (offset.x - labelPos.x) +
-                    (offset.y - labelPos.y) * (offset.y - labelPos.y)
+    val maxAmount = weekdayData.maxOfOrNull { it.amount } ?: 1.0
+    
+    val radarAxisData = weekdayData.mapIndexed { index, data ->
+        RadarAxisData(
+            label = weekdayLabels[index],
+            value = data.amount.toFloat(),
+            maxValue = maxAmount.toFloat()
+        )
+    }
+    
+    val dataSets = listOf(
+        RadarDataSet(
+            label = context.getString(R.string.weekday_analysis),
+            axes = radarAxisData,
+            color = ChartyColor.Solid(primaryColor),
+            fillAlpha = 0.3f
+        )
+    )
+    
+    RadarChart(
+        data = { dataSets },
+        modifier = modifier,
+        config = RadarChartConfig(
+            gridConfig = RadarGridConfig(
+                showGridLines = true,
+                showAxisLines = true,
+                gridStyle = RadarGridStyle.POLYGON,
+                numberOfGridLevels = 5,
+                gridLineWidth = 1f,
+                gridLineColor = ChartyColor.Solid(gridColor),
+                axisLineWidth = 1f,
+                axisLineColor = ChartyColor.Solid(textColor.copy(alpha = 0.5f))
+            ),
+            labelConfig = RadarLabelConfig(
+                showLabels = true,
+                labelTextStyle = MiuixTheme.textStyles.body2.copy(color = textColor)
+            ),
+            centerConfig = RadarCenterConfig(
+                centerBackgroundRadius = 0f
+            ),
+            showDataPoints = true,
+            dataPointRadius = 6f,
+            dataLineWidth = 3f,
+            paddingFraction = 0.2f,
+            startAngleDegrees = -90f
+        )
+    )
+    
+    Spacer(modifier = Modifier.height(16.dp))
+    
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        weekdayData.forEachIndexed { index, data ->
+            Surface(
+                onClick = { onWeekdayClick(data) },
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = if (data.amount > 0) primaryColor.copy(alpha = 0.1f) else MiuixTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = weekdayLabels[index],
+                    style = MiuixTheme.textStyles.body2,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp)
                 )
-                if (distance <= radius) {
-                    weekdayData.getOrNull(dayOfWeek)?.let { data ->
-                        onWeekdayClick(data)
-                    }
-                }
             }
-        }
-    }) {
-        val width = size.width
-        val height = size.height
-        val centerX = width / 2
-        val centerY = height / 2
-        val radius = minOf(width, height) / 2 - 120f
-        
-        // Get maximum amount for normalization
-        val maxAmount = weekdayData.maxOfOrNull { it.amount } ?: 1.0
-        if (maxAmount == 0.0) return@Canvas
-        
-        // Draw concentric circles (5 levels) and add amount labels
-        val levels = 5
-        for (i in 1..levels) {
-            val levelRadius = radius * i / levels
-            val levelAmount = maxAmount * i / levels
-            
-            // Draw circle
-            drawCircle(
-                color = gridColor,
-                radius = levelRadius,
-                center = Offset(centerX, centerY),
-                style = Stroke(width = 1f)
-            )
-            
-            // Add amount label on the right side
-            val amountText = String.format("%.0f", levelAmount)
-            val amountPaint = android.graphics.Paint().apply {
-                textAlign = android.graphics.Paint.Align.LEFT
-                textSize = 24f
-                color = gridColor.copy(alpha = 0.8f).toArgb()
-            }
-            
-            drawContext.canvas.nativeCanvas.drawText(
-                amountText,
-                centerX + levelRadius + 10f,
-                centerY + 8f,
-                amountPaint
-            )
-        }
-        
-        // 7 vertices (Sunday to Saturday)
-        val vertices = 7
-        val angleStep = 2 * PI / vertices
-        
-        // Start from top (Sunday), clockwise
-        val startAngle = -PI / 2 // Start from above
-        
-        // Draw lines from center to each vertex
-        for (i in 0 until vertices) {
-            val angle = startAngle + angleStep * i
-            val endX = centerX + radius * cos(angle).toFloat()
-            val endY = centerY + radius * sin(angle).toFloat()
-            
-            drawLine(
-                color = gridColor,
-                start = Offset(centerX, centerY),
-                end = Offset(endX, endY),
-                strokeWidth = 1f
-            )
-        }
-        
-        // Draw data polygon
-        val dataPath = Path()
-        val points = mutableListOf<Offset>()
-        
-        for (i in 0 until vertices) {
-            val data = weekdayData.getOrNull(i)
-            val normalizedValue = if (data != null && maxAmount > 0) {
-                (data.amount / maxAmount).toFloat()
-            } else {
-                0f
-            }
-            
-            val angle = startAngle + angleStep * i
-            val pointRadius = radius * normalizedValue
-            val x = centerX + pointRadius * cos(angle).toFloat()
-            val y = centerY + pointRadius * sin(angle).toFloat()
-            
-            points.add(Offset(x, y))
-            
-            if (i == 0) {
-                dataPath.moveTo(x, y)
-            } else {
-                dataPath.lineTo(x, y)
-            }
-        }
-        dataPath.close()
-        
-        // Fill data area
-        drawPath(
-            path = dataPath,
-            color = primaryColor.copy(alpha = 0.3f)
-        )
-        
-        // Draw data boundary line
-        drawPath(
-            path = dataPath,
-            color = primaryColor,
-            style = Stroke(width = 3f)
-        )
-        
-        // Draw data points
-        points.forEach { point ->
-            drawCircle(
-                color = primaryColor,
-                radius = 6f,
-                center = point
-            )
-            drawCircle(
-                color = Color.White,
-                radius = 3f,
-                center = point
-            )
-        }
-        
-        // Draw weekday labels (clickable)
-        val weekdayLabels = listOf(
-            context.getString(R.string.sunday_short),
-            context.getString(R.string.monday_short),
-            context.getString(R.string.tuesday_short),
-            context.getString(R.string.wednesday_short),
-            context.getString(R.string.thursday_short),
-            context.getString(R.string.friday_short),
-            context.getString(R.string.saturday_short)
-        )
-        
-        labelPositions.clear()
-        
-        for (i in 0 until vertices) {
-            val angle = startAngle + angleStep * i
-            val labelRadius = radius + 60f
-            val x = centerX + labelRadius * cos(angle).toFloat()
-            val y = centerY + labelRadius * sin(angle).toFloat()
-            
-            // Store label position for click detection
-            labelPositions[i] = Pair(Offset(x, y), 40f)
-            
-            // Draw label background circle (indicate clickable)
-            drawCircle(
-                color = primaryColor.copy(alpha = 0.1f),
-                radius = 35f,
-                center = Offset(x, y)
-            )
-            
-            // Adjust text alignment
-            val textPaint = android.graphics.Paint().apply {
-                textSize = 36f
-                color = textColor.toArgb()
-                textAlign = android.graphics.Paint.Align.CENTER
-                isFakeBoldText = true
-            }
-            
-            drawContext.canvas.nativeCanvas.drawText(
-                weekdayLabels[i],
-                x,
-                y + 12f, // Center vertically
-                textPaint
-            )
         }
     }
 }
@@ -291,7 +187,6 @@ private fun WeekdayRadarChart(
 /**
  * Weekday Data Item
  */
-@SuppressLint("DefaultLocale")
 @Composable
 private fun WeekdayDataItem(
     context: Context,
@@ -327,7 +222,6 @@ private fun WeekdayDataItem(
 /**
  * Category Detail Item
  */
-@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryDetailItem(
     context: Context,

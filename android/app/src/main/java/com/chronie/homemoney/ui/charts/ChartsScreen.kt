@@ -1,8 +1,6 @@
 package com.chronie.homemoney.ui.charts
 
-import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,15 +11,14 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.himanshoe.charty.line.LineChart
+import com.himanshoe.charty.line.data.LineData
+import com.himanshoe.charty.line.config.LineChartConfig
+import com.himanshoe.charty.common.config.ChartScaffoldConfig
+import com.himanshoe.charty.color.ChartyColor
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
@@ -315,7 +312,6 @@ private fun TrendLineChartCard(
     }
 }
 
-@SuppressLint("DefaultLocale")
 @Composable
 private fun HighQualityLineChart(
     data: List<DailyChartData>,
@@ -323,146 +319,30 @@ private fun HighQualityLineChart(
     modifier: Modifier = Modifier
 ) {
     val primaryColor = MiuixTheme.colorScheme.primary
-    val textColor = MiuixTheme.colorScheme.onSurface
-    val gridColor = MiuixTheme.colorScheme.dividerLine
     
-    Canvas(modifier = modifier) {
-        if (data.isEmpty()) return@Canvas
-        
-        val maxAmount = data.maxOfOrNull { it.amount } ?: 0.0
-        if (maxAmount == 0.0) return@Canvas
-        
-        val width = size.width
-        val height = size.height
-        val paddingLeft = 80f
-        val paddingRight = 40f
-        val paddingTop = 60f
-        val paddingBottom = 80f
-        
-        val chartWidth = width - paddingLeft - paddingRight
-        val chartHeight = height - paddingTop - paddingBottom
-        
-        val paint = android.graphics.Paint().apply {
-            textAlign = android.graphics.Paint.Align.CENTER
-            textSize = 28f
-            color = textColor.toArgb()
-        }
-        
-        // Draw Y-axis grid lines and labels
-        val ySteps = 5
-        for (i in 0..ySteps) {
-            val y = paddingTop + (chartHeight / ySteps) * i
-            val amount = maxAmount * (1 - i.toFloat() / ySteps)
-            
-            // Grid line
-            drawLine(
-                color = gridColor,
-                start = Offset(paddingLeft, y),
-                end = Offset(width - paddingRight, y),
-                strokeWidth = 1f
-            )
-            
-            // Y-axis label
-            val label = currencyFormat.format(amount)
-            drawContext.canvas.nativeCanvas.drawText(
-                label,
-                paddingLeft - 10f,
-                y + 10f,
-                paint.apply { textAlign = android.graphics.Paint.Align.RIGHT }
-            )
-        }
-        
-        // Draw axes
-        drawLine(
-            color = textColor.copy(alpha = 0.5f),
-            start = Offset(paddingLeft, paddingTop),
-            end = Offset(paddingLeft, height - paddingBottom),
-            strokeWidth = 2f
+    val lineData = data.map {
+        LineData(
+            label = "${it.date.monthValue}/${it.date.dayOfMonth}",
+            value = it.amount.toFloat()
         )
-        drawLine(
-            color = textColor.copy(alpha = 0.5f),
-            start = Offset(paddingLeft, height - paddingBottom),
-            end = Offset(width - paddingRight, height - paddingBottom),
-            strokeWidth = 2f
-        )
-        
-        // Draw line chart
-        val path = Path()
-        val points = mutableListOf<Pair<Float, Float>>()
-        
-        data.forEachIndexed { index, dailyData ->
-            val x = paddingLeft + (index.toFloat() / (data.size - 1).coerceAtLeast(1)) * chartWidth
-            val y = height - paddingBottom - (dailyData.amount.toFloat() / maxAmount.toFloat()) * chartHeight
-            
-            points.add(Pair(x, y))
-            
-            if (index == 0) {
-                path.moveTo(x, y)
-            } else {
-                path.lineTo(x, y)
-            }
-        }
-        
-        // Draw line chart
-        drawPath(
-            path = path,
-            color = primaryColor,
-            style = Stroke(width = 4f)
-        )
-        
-        // Draw data points and labels
-        data.forEachIndexed { index, dailyData ->
-            val (x, y) = points[index]
-            
-            // Data point
-            drawCircle(
-                color = primaryColor,
-                radius = 6f,
-                center = Offset(x, y)
-            )
-            
-            drawCircle(
-                color = Color.White,
-                radius = 3f,
-                center = Offset(x, y)
-            )
-            
-            // Draw value label for non-zero data points
-            if (dailyData.amount > 0) {
-                val valueLabel = String.format("%.0f", dailyData.amount)
-                drawContext.canvas.nativeCanvas.drawText(
-                    valueLabel,
-                    x,
-                    y - 20f,
-                    paint.apply {
-                        color = primaryColor.toArgb()
-                        textAlign = android.graphics.Paint.Align.CENTER
-                        textSize = 22f
-                    }
-                )
-            }
-        }
-        
-        // Draw X-axis date labels
-        val xLabelStep = (data.size / 7).coerceAtLeast(1)
-        data.forEachIndexed { index, dailyData ->
-            if (index % xLabelStep == 0 || index == data.size - 1) {
-                val (x, _) = points[index]
-                val dateLabel = "${dailyData.date.monthValue}/${dailyData.date.dayOfMonth}"
-                
-                drawContext.canvas.nativeCanvas.drawText(
-                    dateLabel,
-                    x,
-                    height - paddingBottom + 40f,
-                    paint.apply {
-                        color = textColor.toArgb()
-                        textAlign = android.graphics.Paint.Align.CENTER
-                        textSize = 26f
-                    }
-                )
-            }
-        }
     }
+    
+    LineChart(
+        data = { lineData },
+        modifier = modifier,
+        color = ChartyColor.Solid(primaryColor),
+        lineConfig = LineChartConfig(
+            lineWidth = 4f,
+            showPoints = true,
+            pointRadius = 6f,
+            smoothCurve = true
+        ),
+        scaffoldConfig = ChartScaffoldConfig(
+            gridColor = MiuixTheme.colorScheme.dividerLine,
+            axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            labelTextStyle = MiuixTheme.textStyles.body2.copy(color = MiuixTheme.colorScheme.onSurface)
+        )
+    )
 }
 
 @Composable
@@ -498,7 +378,6 @@ private fun CategoryBreakdownCard(
     }
 }
 
-@SuppressLint("DefaultLocale")
 @Composable
 private fun CategoryItem(
     context: Context,

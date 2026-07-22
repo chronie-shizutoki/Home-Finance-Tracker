@@ -51,6 +51,8 @@ fastexcel = "0.20.2"
 aalto-xml = "1.4.0"
 xz = "1.12"
 
+charty = "3.0.0-rc01"
+
 ucrop = "2.2.11"
 
 grpc = "1.82.2"
@@ -148,6 +150,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "a
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
 
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+charty = { group = "com.himanshoe", name = "charty", version.ref = "charty" }
 
 [bundles]
 

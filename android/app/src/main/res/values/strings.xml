@@ -12,7 +12,8 @@
     <string name="select_language">Select Language</string>
     <string name="api_key_set">Set: %s...</string>
     <string name="developer_tools">Developer Tools</string>
-    <string name="theme_settings">Theme Settings</string>
+    <string name="theme_settings">Theme</string>
+    <string name="features_settings">Features</string>
     <string name="dynamic_color">Dynamic Color</string>
     <string name="dynamic_color_description">Use colors from your wallpaper</string>
     <string name="manual_color_selection">Manual Color Selection</string>
