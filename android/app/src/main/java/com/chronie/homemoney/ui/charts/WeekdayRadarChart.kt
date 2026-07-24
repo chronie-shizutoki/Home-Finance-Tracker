@@ -2,6 +2,7 @@ package com.chronie.homemoney.ui.charts
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -231,21 +232,38 @@ private fun CategoryDetailItem(
     category: CategoryChartData,
     currencyFormat: NumberFormat
 ) {
+    val categoryColor = getColorForExpenseType(category.type)
+    
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
-            Text(
-                text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                style = MiuixTheme.textStyles.body2,
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(8.dp)
+                        .height(8.dp)
+                        .background(
+                            color = categoryColor,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                )
+                Text(
+                    text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
+                    style = MiuixTheme.textStyles.body2,
+                    modifier = Modifier.weight(1f)
+                )
+            }
             Text(
                 text = "${String.format("%.1f", category.percentage)}%",
                 style = MiuixTheme.textStyles.footnote1,
                 fontWeight = FontWeight.Bold,
+                color = categoryColor,
                 modifier = Modifier.width(60.dp)
             )
         }
@@ -257,7 +275,7 @@ private fun CategoryDetailItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = MiuixTheme.colorScheme.primary,
+            color = categoryColor,
             trackColor = MiuixTheme.colorScheme.surfaceVariant
         )
         
@@ -275,11 +293,46 @@ private fun CategoryDetailItem(
             Text(
                 text = currencyFormat.format(category.amount),
                 style = MiuixTheme.textStyles.footnote1,
-                color = MiuixTheme.colorScheme.primary,
+                color = categoryColor,
                 fontWeight = FontWeight.Bold
             )
         }
     }
+}
+
+private val expenseTypeColors = mapOf(
+    "DAILY_GOODS" to androidx.compose.ui.graphics.Color(0xFFEF4444),
+    "LUXURY" to androidx.compose.ui.graphics.Color(0xFF8B5CF6),
+    "COMMUNICATION" to androidx.compose.ui.graphics.Color(0xFF3B82F6),
+    "FOOD" to androidx.compose.ui.graphics.Color(0xFF10B981),
+    "SNACKS" to androidx.compose.ui.graphics.Color(0xFFF59E0B),
+    "COLD_DRINKS" to androidx.compose.ui.graphics.Color(0xFF06B6D4),
+    "CONVENIENCE_FOOD" to androidx.compose.ui.graphics.Color(0xFF84CC16),
+    "TEXTILES" to androidx.compose.ui.graphics.Color(0xFFF97316),
+    "BEVERAGES" to androidx.compose.ui.graphics.Color(0xFFEC4899),
+    "CONDIMENTS" to androidx.compose.ui.graphics.Color(0xFF14B8A6),
+    "TRANSPORTATION" to androidx.compose.ui.graphics.Color(0xFF6366F1),
+    "DINING" to androidx.compose.ui.graphics.Color(0xFFF43F5E),
+    "MEDICAL" to androidx.compose.ui.graphics.Color(0xFF0EA5E9),
+    "FRUITS" to androidx.compose.ui.graphics.Color(0xFF22C55E),
+    "OTHER" to androidx.compose.ui.graphics.Color(0xFF6B7280),
+    "SEAFOOD" to androidx.compose.ui.graphics.Color(0xFF0891B2),
+    "DAIRY" to androidx.compose.ui.graphics.Color(0xFFA855F7),
+    "GIFTS" to androidx.compose.ui.graphics.Color(0xFFD946EF),
+    "TRAVEL" to androidx.compose.ui.graphics.Color(0xFF0284C7),
+    "GOVERNMENT" to androidx.compose.ui.graphics.Color(0xFF7C3AED),
+    "UTILITIES" to androidx.compose.ui.graphics.Color(0xFFF97316),
+    "BEAUTY" to androidx.compose.ui.graphics.Color(0xFFF472B6),
+    "BEAN_PRODUCTS" to androidx.compose.ui.graphics.Color(0xFF84CC16),
+    "COSMETICS" to androidx.compose.ui.graphics.Color(0xFFEC4899),
+    "ELECTRONICS" to androidx.compose.ui.graphics.Color(0xFF3B82F6),
+    "HOUSEHOLD_APPLIANCES" to androidx.compose.ui.graphics.Color(0xFF10B981),
+    "HARDWARE" to androidx.compose.ui.graphics.Color(0xFF6B7280),
+    "CLOTHING" to androidx.compose.ui.graphics.Color(0xFFF59E0B)
+)
+
+private fun getColorForExpenseType(type: String): androidx.compose.ui.graphics.Color {
+    return expenseTypeColors[type] ?: androidx.compose.ui.graphics.Color(0xFF6B7280)
 }
 
 /**

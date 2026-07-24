@@ -2,9 +2,19 @@ package com.chronie.homemoney.ui.charts
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -12,6 +22,8 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -480,32 +492,156 @@ private fun CategoryBreakdownCard(
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             } else {
-                val barData = categoryData.map { category ->
-                    BarData(
-                        label = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                        value = category.amount.toFloat()
-                    )
+                val maxAmount = categoryData.maxOf { it.amount }
+                val scrollState = rememberScrollState()
+                var isAnimated by remember { mutableStateOf(false) }
+                
+                LaunchedEffect(categoryData) {
+                    kotlinx.coroutines.delay(150)
+                    isAnimated = true
                 }
                 
-                Box(modifier = Modifier.padding(start = 24.dp, end = 8.dp, bottom = 8.dp)) {
-                    BarChart(
-                        data = { barData },
+                val chartHeight = 220.dp
+                val labelHeight = 40.dp
+                val yAxisWidth = 50.dp
+                val barWidth = 24.dp
+                val itemWidth = 50.dp
+                val spacing = 16.dp
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(chartHeight + labelHeight)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        repeat(5) { i ->
+                            val value = maxAmount * (4 - i) / 4
+                            Row(
+                                modifier = Modifier.height((chartHeight / 4)),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = currencyFormat.format(value),
+                                    style = MiuixTheme.textStyles.footnote2.copy(
+                                        color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                                        fontSize = 9.sp
+                                    ),
+                                    modifier = Modifier.width(yAxisWidth)
+                                )
+                                androidx.compose.foundation.layout.Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(0.5.dp)
+                                        .background(MiuixTheme.colorScheme.dividerLine.copy(alpha = 0.3f))
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.height(labelHeight),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                text = "0",
+                                style = MiuixTheme.textStyles.footnote2.copy(
+                                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                                    fontSize = 9.sp
+                                ),
+                                modifier = Modifier.width(yAxisWidth)
+                            )
+                        }
+                    }
+                    
+                    androidx.compose.foundation.layout.Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(320.dp),
-                        color = ChartyColor.Solid(MiuixTheme.colorScheme.primary),
-                        barConfig = BarChartConfig(
-                            barWidthFraction = 0.4f
-                        ),
-                        scaffoldConfig = ChartScaffoldConfig(
-                            gridColor = MiuixTheme.colorScheme.dividerLine,
-                            axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                            labelTextStyle = MiuixTheme.textStyles.footnote2.copy(
-                                color = MiuixTheme.colorScheme.onSurface,
-                                fontSize = 9.sp
-                            )
-                        )
-                    )
+                            .fillMaxHeight()
+                            .padding(start = yAxisWidth)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(chartHeight + labelHeight)
+                                .horizontalScroll(scrollState),
+                            horizontalArrangement = Arrangement.spacedBy(spacing),
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            categoryData.forEachIndexed { index, category ->
+                                val barColor = getColorForExpenseType(category.type)
+                                val targetBarHeight = if (maxAmount > 0) {
+                                    (category.amount / maxAmount * chartHeight.value).dp
+                                } else {
+                                    0.dp
+                                }
+                                
+                                val animatedProgress = animateFloatAsState(
+                                    targetValue = if (isAnimated) 1f else 0f,
+                                    animationSpec = tween(
+                                        durationMillis = 700,
+                                        delayMillis = index * 40,
+                                        easing = androidx.compose.animation.core.EaseOutQuart
+                                    )
+                                )
+                                val animatedBarHeight = (targetBarHeight.value * animatedProgress.value).dp
+                                
+                                androidx.compose.foundation.layout.Box(
+                                    modifier = Modifier.width(itemWidth)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Bottom
+                                    ) {
+                                        Text(
+                                            text = "${String.format("%.1f", category.percentage)}%",
+                                            style = MiuixTheme.textStyles.footnote1.copy(
+                                                color = barColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 10.sp
+                                            ),
+                                            modifier = Modifier.padding(bottom = 4.dp)
+                                        )
+                                        
+                                        androidx.compose.foundation.layout.Box(
+                                            modifier = Modifier
+                                                .width(barWidth)
+                                                .height(animatedBarHeight)
+                                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(
+                                                    topStart = 6.dp,
+                                                    topEnd = 6.dp,
+                                                    bottomStart = 3.dp,
+                                                    bottomEnd = 3.dp
+                                                ))
+                                                .background(
+                                                    color = barColor,
+                                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(
+                                                        topStart = 6.dp,
+                                                        topEnd = 6.dp,
+                                                        bottomStart = 3.dp,
+                                                        bottomEnd = 3.dp
+                                                    )
+                                                )
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        
+                                        Text(
+                                            text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
+                                            style = MiuixTheme.textStyles.footnote2.copy(
+                                                color = MiuixTheme.colorScheme.onSurface,
+                                                fontSize = 9.sp
+                                            ),
+                                            maxLines = 1,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -526,20 +662,37 @@ private fun CategoryItem(
     category: CategoryChartData,
     currencyFormat: NumberFormat
 ) {
+    val categoryColor = getColorForExpenseType(category.type)
+    
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
-                style = MiuixTheme.textStyles.body2
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(10.dp)
+                        .height(10.dp)
+                        .background(
+                            color = categoryColor,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                )
+                Text(
+                    text = ExpenseTypeLocalizer.getLocalizedTypeName(context, category.type),
+                    style = MiuixTheme.textStyles.body2
+                )
+            }
             Text(
                 text = "${String.format("%.1f", category.percentage)}%",
                 style = MiuixTheme.textStyles.body2,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = categoryColor
             )
         }
         
@@ -550,7 +703,7 @@ private fun CategoryItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp),
-            color = MiuixTheme.colorScheme.primary,
+            color = categoryColor,
             trackColor = MiuixTheme.colorScheme.surfaceVariant
         )
         
@@ -725,4 +878,67 @@ private fun getTimeRangeText(context: Context, timeRange: TimeRange): String {
         TimeRange.THIS_YEAR -> context.getString(R.string.this_year)
         TimeRange.CUSTOM -> context.getString(R.string.custom_range)
     }
+}
+
+private val expenseTypeColors = mapOf(
+    "DAILY_GOODS" to androidx.compose.ui.graphics.Color(0xFFEF4444),
+    "LUXURY" to androidx.compose.ui.graphics.Color(0xFF8B5CF6),
+    "COMMUNICATION" to androidx.compose.ui.graphics.Color(0xFF3B82F6),
+    "FOOD" to androidx.compose.ui.graphics.Color(0xFF10B981),
+    "SNACKS" to androidx.compose.ui.graphics.Color(0xFFF59E0B),
+    "COLD_DRINKS" to androidx.compose.ui.graphics.Color(0xFF06B6D4),
+    "CONVENIENCE_FOOD" to androidx.compose.ui.graphics.Color(0xFF84CC16),
+    "TEXTILES" to androidx.compose.ui.graphics.Color(0xFFF97316),
+    "BEVERAGES" to androidx.compose.ui.graphics.Color(0xFFEC4899),
+    "CONDIMENTS" to androidx.compose.ui.graphics.Color(0xFF14B8A6),
+    "TRANSPORTATION" to androidx.compose.ui.graphics.Color(0xFF6366F1),
+    "DINING" to androidx.compose.ui.graphics.Color(0xFFF43F5E),
+    "MEDICAL" to androidx.compose.ui.graphics.Color(0xFF0EA5E9),
+    "FRUITS" to androidx.compose.ui.graphics.Color(0xFF22C55E),
+    "OTHER" to androidx.compose.ui.graphics.Color(0xFF6B7280),
+    "SEAFOOD" to androidx.compose.ui.graphics.Color(0xFF0891B2),
+    "DAIRY" to androidx.compose.ui.graphics.Color(0xFFA855F7),
+    "GIFTS" to androidx.compose.ui.graphics.Color(0xFFD946EF),
+    "TRAVEL" to androidx.compose.ui.graphics.Color(0xFF0284C7),
+    "GOVERNMENT" to androidx.compose.ui.graphics.Color(0xFF7C3AED),
+    "UTILITIES" to androidx.compose.ui.graphics.Color(0xFFF97316),
+    "BEAUTY" to androidx.compose.ui.graphics.Color(0xFFF472B6),
+    "BEAN_PRODUCTS" to androidx.compose.ui.graphics.Color(0xFF84CC16),
+    "COSMETICS" to androidx.compose.ui.graphics.Color(0xFFEC4899),
+    "ELECTRONICS" to androidx.compose.ui.graphics.Color(0xFF3B82F6),
+    "HOUSEHOLD_APPLIANCES" to androidx.compose.ui.graphics.Color(0xFF10B981),
+    "HARDWARE" to androidx.compose.ui.graphics.Color(0xFF6B7280),
+    "CLOTHING" to androidx.compose.ui.graphics.Color(0xFFF59E0B)
+)
+
+private fun getColorForExpenseType(type: String): androidx.compose.ui.graphics.Color {
+    return expenseTypeColors[type] ?: androidx.compose.ui.graphics.Color(0xFF6B7280)
+}
+
+private val colorPalette = listOf(
+    androidx.compose.ui.graphics.Color(0xFFEF4444),
+    androidx.compose.ui.graphics.Color(0xFFF97316),
+    androidx.compose.ui.graphics.Color(0xFFF59E0B),
+    androidx.compose.ui.graphics.Color(0xFF84CC16),
+    androidx.compose.ui.graphics.Color(0xFF22C55E),
+    androidx.compose.ui.graphics.Color(0xFF10B981),
+    androidx.compose.ui.graphics.Color(0xFF14B8A6),
+    androidx.compose.ui.graphics.Color(0xFF06B6D4),
+    androidx.compose.ui.graphics.Color(0xFF0EA5E9),
+    androidx.compose.ui.graphics.Color(0xFF3B82F6),
+    androidx.compose.ui.graphics.Color(0xFF6366F1),
+    androidx.compose.ui.graphics.Color(0xFF8B5CF6),
+    androidx.compose.ui.graphics.Color(0xFFA855F7),
+    androidx.compose.ui.graphics.Color(0xFFD946EF),
+    androidx.compose.ui.graphics.Color(0xFFEC4899),
+    androidx.compose.ui.graphics.Color(0xFFF472B6),
+    androidx.compose.ui.graphics.Color(0xFFF43F5E),
+    androidx.compose.ui.graphics.Color(0xFF0891B2),
+    androidx.compose.ui.graphics.Color(0xFF0284C7),
+    androidx.compose.ui.graphics.Color(0xFF7C3AED),
+    androidx.compose.ui.graphics.Color(0xFF6B7280)
+)
+
+private fun getColorForIndex(index: Int): androidx.compose.ui.graphics.Color {
+    return colorPalette[index % colorPalette.size]
 }
