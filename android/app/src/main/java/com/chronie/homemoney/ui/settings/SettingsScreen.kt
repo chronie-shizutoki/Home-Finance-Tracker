@@ -6,60 +6,62 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.*
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
-import com.yalantis.ucrop.UCrop
-import java.io.File
-import java.time.LocalDate
-import androidx.core.net.toUri
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.chronie.homemoney.ui.util.TransitionSpecs
 import com.chronie.homemoney.ui.util.predictiveBackEffect
-import kotlin.time.Duration.Companion.milliseconds
-import androidx.core.graphics.toColorInt
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.yalantis.ucrop.UCrop
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowDialog
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.animation.core.spring
+import java.io.File
+import java.time.LocalDate
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 enum class SettingsPage {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
@@ -88,326 +90,346 @@ fun SettingsScreen(
         popExitTransition = { TransitionSpecs.popExitTransition() }
     ) {
         composable(SettingsPage.MAIN.name) {
-            SettingsPageScaffold(
-                title = context.getString(R.string.settings),
-                showBackButton = false,
-                onBack = { /* Top level, handled by parent */ },
-                scope = this
-            ) {
-                MainSettingsMenu(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigate = { navController.navigate(it.name) }
-                )
-            }
+            MainSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                onNavigate = { navController.navigate(it.name) }
+            )
         }
         composable(SettingsPage.ACCOUNT.name) {
-            SettingsPageScaffold(
+            SettingsSubPage(
                 title = context.getString(R.string.auth_account_info),
                 onBack = { navController.popBackStack() },
                 scope = this
-            ) {
+            ) { paddingValues ->
                 AccountSettingsPage(
                     viewModel = viewModel,
                     context = context,
                     onLogout = onLogout,
-                    onRequireLogin = onRequireLogin
+                    onRequireLogin = onRequireLogin,
+                    paddingValues = paddingValues
                 )
             }
         }
         composable(SettingsPage.APPEARANCE.name) {
-            SettingsPageScaffold(
+            SettingsSubPage(
                 title = context.getString(R.string.theme_settings),
                 onBack = { navController.popBackStack() },
                 scope = this
-            ) {
+            ) { paddingValues ->
                 AppearanceSettingsPage(
                     viewModel = viewModel,
-                    context = context
+                    context = context,
+                    paddingValues = paddingValues
                 )
             }
         }
         composable(SettingsPage.FEATURES.name) {
-            SettingsPageScaffold(
+            SettingsSubPage(
                 title = context.getString(R.string.budget_settings),
                 onBack = { navController.popBackStack() },
                 scope = this
-            ) {
+            ) { paddingValues ->
                 FeaturesSettingsPage(
                     viewModel = viewModel,
-                    context = context
+                    context = context,
+                    paddingValues = paddingValues
                 )
             }
         }
         composable(SettingsPage.DATA_SYNC.name) {
-            SettingsPageScaffold(
+            SettingsSubPage(
                 title = context.getString(R.string.sync_title),
                 onBack = { navController.popBackStack() },
                 scope = this
-            ) {
+            ) { paddingValues ->
                 DataSyncSettingsPage(
                     viewModel = viewModel,
                     context = context,
-                    onNavigateToLanSync = onNavigateToLanSync
+                    onNavigateToLanSync = onNavigateToLanSync,
+                    paddingValues = paddingValues
                 )
             }
         }
         composable(SettingsPage.ABOUT.name) {
-            SettingsPageScaffold(
+            SettingsSubPage(
                 title = context.getString(R.string.common_more_functions),
                 onBack = { navController.popBackStack() },
                 scope = this
-            ) {
+            ) { paddingValues ->
                 AboutSettingsPage(
                     viewModel = viewModel,
                     context = context,
                     onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
-                    onNavigateToDatabaseTest = onNavigateToDatabaseTest
+                    onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                    paddingValues = paddingValues
                 )
             }
         }
     }
 }
 
-/**
- * A scaffold for settings pages that integrates the title bar and predictive back effects.
- * This ensures the title bar animates WITH the content during transitions.
- */
 @Composable
-private fun SettingsPageScaffold(
-    title: String,
-    showBackButton: Boolean = true,
-    onBack: () -> Unit,
-    scope: AnimatedContentScope,
-    content: @Composable () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MiuixTheme.colorScheme.background)
-            .predictiveBackEffect(scope)
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MiuixTheme.colorScheme.background
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (showBackButton) {
-                    CircularIconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(start = 8.dp)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                } else {
-                    Spacer(modifier = Modifier.width(12.dp))
-                }
-
-                Text(
-                    text = title,
-                    style = MiuixTheme.textStyles.title3,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
-        }
-
-        HorizontalDivider(thickness = 0.5.dp, color = MiuixTheme.colorScheme.dividerLine)
-
-        Box(modifier = Modifier.weight(1f)) {
-            content()
-        }
-    }
-}
-
-@Composable
-fun MainSettingsMenu(
+private fun MainSettingsPage(
     viewModel: SettingsViewModel,
     context: Context,
     onNavigate: (SettingsPage) -> Unit
 ) {
-    val currentUsername by viewModel.currentUsername.collectAsState()
-    val avatar by viewModel.avatar.collectAsState()
-    val scrollState = rememberScrollState()
+    val scrollBehavior = MiuixScrollBehavior()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        // User account summary entry
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigate(SettingsPage.ACCOUNT) },
-            color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = context.getString(R.string.settings),
+                largeTitle = context.getString(R.string.settings),
+                scrollBehavior = scrollBehavior
+            )
+        },
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MiuixTheme.colorScheme.background)
             ) {
-                // Small avatar image
-                Box(modifier = Modifier.size(60.dp)) {
-                    if (avatar != null) {
-                        AsyncImage(
-                            model = avatar,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize().clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = paddingValues.calculateTopPadding(),
+                        end = 16.dp
+                    )
+                ) {
+                    item {
+                        val currentUsername by viewModel.currentUsername.collectAsState()
+                        val avatar by viewModel.avatar.collectAsState()
+
                         Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MiuixTheme.colorScheme.primaryContainer,
-                            shape = CircleShape
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                                .clickable { onNavigate(SettingsPage.ACCOUNT) },
+                            color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            Icon(
-                                Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.padding(12.dp)
-                            )
+                            Row(
+                                modifier = Modifier.padding(20.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(modifier = Modifier.size(60.dp)) {
+                                    if (avatar != null) {
+                                        AsyncImage(
+                                            model = avatar,
+                                            contentDescription = null,
+                                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Surface(
+                                            modifier = Modifier.fillMaxSize(),
+                                            color = MiuixTheme.colorScheme.primaryContainer,
+                                            shape = CircleShape
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Person,
+                                                contentDescription = null,
+                                                modifier = Modifier.padding(12.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = currentUsername ?: context.getString(R.string.auth_not_logged_in),
+                                        style = MiuixTheme.textStyles.body1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = context.getString(R.string.auth_account_info),
+                                        style = MiuixTheme.textStyles.footnote1,
+                                        color = MiuixTheme.colorScheme.onSurfaceSecondary
+                                    )
+                                }
+
+                                Icon(Icons.Default.ChevronRight, contentDescription = null)
+                            }
                         }
                     }
+
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                    item {
+                        ArrowPreference(
+                            title = context.getString(R.string.theme_settings),
+                            summary = context.getString(R.string.language_settings),
+                            startAction = {
+                                Row {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = CircleShape
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Palette,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(8.dp),
+                                            tint = MiuixTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                }
+                            },
+                            onClick = { onNavigate(SettingsPage.APPEARANCE) }
+                        )
+                    }
+
+                    item {
+                        ArrowPreference(
+                            title = context.getString(R.string.features_settings),
+                            summary = context.getString(R.string.settings_ai_title) + ", " + context.getString(R.string.budget_settings),
+                            startAction = {
+                                Row {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = CircleShape
+                                    ) {
+                                        Icon(
+                                            Icons.Default.AutoAwesome,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(8.dp),
+                                            tint = MiuixTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                }
+                            },
+                            onClick = { onNavigate(SettingsPage.FEATURES) }
+                        )
+                    }
+
+                    item {
+                        ArrowPreference(
+                            title = context.getString(R.string.sync_title),
+                            summary = context.getString(R.string.data_import_export),
+                            startAction = {
+                                Row {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = CircleShape
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Sync,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(8.dp),
+                                            tint = MiuixTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                }
+                            },
+                            onClick = { onNavigate(SettingsPage.DATA_SYNC) }
+                        )
+                    }
+
+                    item {
+                        ArrowPreference(
+                            title = context.getString(R.string.common_more_functions),
+                            summary = context.getString(R.string.feedback_title) + ", " + context.getString(R.string.open_source_licenses),
+                            startAction = {
+                                Row {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = CircleShape
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Info,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(8.dp),
+                                            tint = MiuixTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                }
+                            },
+                            onClick = { onNavigate(SettingsPage.ABOUT) }
+                        )
+                    }
                 }
-                
-                Spacer(modifier = Modifier.width(16.dp))
-                
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = currentUsername ?: context.getString(R.string.auth_not_logged_in),
-                        style = MiuixTheme.textStyles.body1,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = context.getString(R.string.auth_account_info),
-                        style = MiuixTheme.textStyles.footnote1,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
-                }
-                
-                Icon(Icons.Default.ChevronRight, contentDescription = null)
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Appearance settings category
-        SettingsCategoryItem(
-            title = context.getString(R.string.theme_settings),
-            description = context.getString(R.string.language_settings),
-            icon = Icons.Default.Palette,
-            onClick = { onNavigate(SettingsPage.APPEARANCE) }
-        )
-        
-        SettingsCategoryItem(
-            title = context.getString(R.string.features_settings),
-            description = context.getString(R.string.settings_ai_title) + ", " + context.getString(R.string.budget_settings),
-            icon = Icons.Default.AutoAwesome,
-            onClick = { onNavigate(SettingsPage.FEATURES) }
-        )
-        
-        SettingsCategoryItem(
-            title = context.getString(R.string.sync_title),
-            description = context.getString(R.string.data_import_export),
-            icon = Icons.Default.Sync,
-            onClick = { onNavigate(SettingsPage.DATA_SYNC) }
-        )
-        
-        SettingsCategoryItem(
-            title = context.getString(R.string.common_more_functions),
-            description = context.getString(R.string.feedback_title) + ", " + context.getString(R.string.open_source_licenses),
-            icon = Icons.Default.Info,
-            onClick = { onNavigate(SettingsPage.ABOUT) }
-        )
-    }
+    )
 }
 
 @Composable
-fun SettingsCategoryItem(
+private fun SettingsSubPage(
     title: String,
-    description: String,
-    icon: ImageVector,
-    onClick: () -> Unit
+    onBack: () -> Unit,
+    scope: AnimatedContentScope,
+    content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable(onClick = onClick),
-        color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(40.dp),
-                color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
-                shape = CircleShape
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.padding(8.dp),
-                    tint = MiuixTheme.colorScheme.primary
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MiuixTheme.textStyles.body1, fontWeight = FontWeight.Medium)
-                Text(
-                    text = description,
-                    style = MiuixTheme.textStyles.footnote1,
-                    color = MiuixTheme.colorScheme.onSurfaceSecondary
-                )
-            }
-            
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MiuixTheme.colorScheme.onSurfaceSecondary
+    Scaffold(
+        topBar = {
+            SmallTopAppBar(
+                title = title,
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
+        },
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MiuixTheme.colorScheme.background)
+                    .padding(horizontal = 16.dp)
+                    .predictiveBackEffect(scope)
+            ) {
+                content(paddingValues)
+            }
         }
-    }
+    )
 }
-
-// --- Sub-page components ---
 
 @Composable
 fun AccountSettingsPage(
     viewModel: SettingsViewModel,
     context: Context,
     onLogout: () -> Unit,
-    onRequireLogin: () -> Unit
+    onRequireLogin: () -> Unit,
+    paddingValues: PaddingValues
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        AccountSection(
-            viewModel = viewModel,
-            context = context,
-            onLogout = onLogout,
-            onRequireLogin = onRequireLogin
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            bottom = 16.dp
         )
+    ) {
+        item {
+            AccountSection(
+                viewModel = viewModel,
+                context = context,
+                onLogout = onLogout,
+                onRequireLogin = onRequireLogin
+            )
+        }
     }
 }
 
 @Composable
 fun AppearanceSettingsPage(
     viewModel: SettingsViewModel,
-    context: Context
+    context: Context,
+    paddingValues: PaddingValues
 ) {
     val currentLanguage by viewModel.currentLanguage.collectAsState()
     val useDynamicColor by viewModel.useDynamicColor.collectAsState()
@@ -415,124 +437,135 @@ fun AppearanceSettingsPage(
     var showColorPicker by remember { mutableStateOf(false) }
     val themeSettings = LocalThemeSettings.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            bottom = 16.dp
+        )
     ) {
-        Text(
-            text = context.getString(R.string.language_settings),
-            style = MiuixTheme.textStyles.body1,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        SettingsDetailItem(
-            title = context.getString(R.string.select_language),
-            subtitle = currentLanguage.localName,
-            onClick = {
-                showLanguageBottomSheet = true
-                openSystemAppLanguageSettings(context)
-            }
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = context.getString(R.string.theme_settings),
-            style = MiuixTheme.textStyles.body1,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = context.getString(R.string.dynamic_color), style = MiuixTheme.textStyles.body1)
-                    Text(
-                        text = context.getString(R.string.dynamic_color_description),
-                        style = MiuixTheme.textStyles.footnote1,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
-                }
-                ExpressiveSwitch(
-                    checked = useDynamicColor,
-                    onCheckedChange = { enabled ->
-                        themeSettings.value = ThemeSettings(
-                            useDynamicColor = enabled,
-                            primaryColor = themeSettings.value.primaryColor,
-                            paletteStyle = themeSettings.value.paletteStyle
-                        )
-                        viewModel.toggleDynamicColor(enabled)
-                    }
-                )
-            }
-        }
-        
-        if (!useDynamicColor) {
-            Spacer(modifier = Modifier.height(12.dp))
-            SettingsDetailItem(
-                title = context.getString(R.string.manual_color_selection),
-                subtitle = context.getString(R.string.current_theme_color),
-                onClick = { showColorPicker = true },
-                trailingContent = {
-                    Surface(
-                        shape = CircleShape,
-                        color = Color(themeSettings.value.primaryColor),
-                        modifier = Modifier.size(24.dp),
-                        border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
-                    ) {}
+        item {
+            Text(
+                text = context.getString(R.string.language_settings),
+                style = MiuixTheme.textStyles.body1,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            ArrowPreference(
+                title = context.getString(R.string.select_language),
+                summary = currentLanguage.localName,
+                onClick = {
+                    showLanguageBottomSheet = true
                 }
             )
         }
 
-        // Bottom Sheets
-        LanguageSelectorBottomSheet(
-            show = showLanguageBottomSheet,
-            currentLanguage = currentLanguage,
-            onLanguageSelected = { viewModel.setLanguage(it) },
-            onDismiss = { showLanguageBottomSheet = false },
-            context = context
-        )
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
 
-        ColorPickerBottomSheet(
-            show = showColorPicker,
-            currentColor = themeSettings.value.primaryColor,
-            onColorSelected = { color ->
-                themeSettings.value = ThemeSettings(
-                    useDynamicColor = false,
-                    primaryColor = color,
-                    paletteStyle = themeSettings.value.paletteStyle
+            Text(
+                text = context.getString(R.string.theme_settings),
+                style = MiuixTheme.textStyles.body1,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = context.getString(R.string.dynamic_color), style = MiuixTheme.textStyles.body1)
+                        Text(
+                            text = context.getString(R.string.dynamic_color_description),
+                            style = MiuixTheme.textStyles.footnote1,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                    }
+                    ExpressiveSwitch(
+                        checked = useDynamicColor,
+                        onCheckedChange = { enabled ->
+                            themeSettings.value = ThemeSettings(
+                                useDynamicColor = enabled,
+                                primaryColor = themeSettings.value.primaryColor,
+                                paletteStyle = themeSettings.value.paletteStyle
+                            )
+                            viewModel.toggleDynamicColor(enabled)
+                        }
+                    )
+                }
+            }
+        }
+
+        item {
+            if (!useDynamicColor) {
+                Spacer(modifier = Modifier.height(12.dp))
+                ArrowPreference(
+                    title = context.getString(R.string.manual_color_selection),
+                    summary = context.getString(R.string.current_theme_color),
+                    endActions = {
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(themeSettings.value.primaryColor),
+                            modifier = Modifier.size(24.dp),
+                            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
+                        ) {}
+                    },
+                    onClick = { showColorPicker = true }
                 )
-                viewModel.setPrimaryColor(color)
-            },
-            onDismiss = { showColorPicker = false },
-            context = context
-        )
+            }
+        }
+
+        item {
+            LanguageSelectorBottomSheet(
+                show = showLanguageBottomSheet,
+                currentLanguage = currentLanguage,
+                onLanguageSelected = { viewModel.setLanguage(it) },
+                onDismiss = { showLanguageBottomSheet = false },
+                context = context
+            )
+
+            ColorPickerBottomSheet(
+                show = showColorPicker,
+                currentColor = themeSettings.value.primaryColor,
+                onColorSelected = { color ->
+                    themeSettings.value = ThemeSettings(
+                        useDynamicColor = false,
+                        primaryColor = color,
+                        paletteStyle = themeSettings.value.paletteStyle
+                    )
+                    viewModel.setPrimaryColor(color)
+                },
+                onDismiss = { showColorPicker = false },
+                context = context
+            )
+        }
     }
 }
 
 @Composable
 fun FeaturesSettingsPage(
     viewModel: SettingsViewModel,
-    context: Context
+    context: Context,
+    paddingValues: PaddingValues
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            bottom = 16.dp
+        )
     ) {
-        AISettingsSection(viewModel = viewModel, context = context)
-        Spacer(modifier = Modifier.height(24.dp))
-        BudgetSettingsSection(context = context)
+        item {
+            AISettingsSection(viewModel = viewModel, context = context)
+            Spacer(modifier = Modifier.height(24.dp))
+            BudgetSettingsSection(context = context)
+        }
     }
 }
 
@@ -540,23 +573,27 @@ fun FeaturesSettingsPage(
 fun DataSyncSettingsPage(
     viewModel: SettingsViewModel,
     context: Context,
-    onNavigateToLanSync: () -> Unit
+    onNavigateToLanSync: () -> Unit,
+    paddingValues: PaddingValues
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        SyncSection(
-            viewModel = viewModel,
-            context = context,
-            onNavigateToLanSync = onNavigateToLanSync
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            bottom = 16.dp
         )
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(24.dp))
-        DataImportExportSection(viewModel = viewModel, context = context)
+    ) {
+        item {
+            SyncSection(
+                viewModel = viewModel,
+                context = context,
+                onNavigateToLanSync = onNavigateToLanSync
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(24.dp))
+            DataImportExportSection(viewModel = viewModel, context = context)
+        }
     }
 }
 
@@ -565,131 +602,91 @@ fun AboutSettingsPage(
     viewModel: SettingsViewModel,
     context: Context,
     onNavigateToOpenSourceLicenses: () -> Unit,
-    onNavigateToDatabaseTest: () -> Unit
+    onNavigateToDatabaseTest: () -> Unit,
+    paddingValues: PaddingValues
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            bottom = 100.dp
+        )
     ) {
-        Text(
-            text = context.getString(R.string.feedback_title),
-            style = MiuixTheme.textStyles.body1,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        SettingsDetailItem(
-            title = context.getString(R.string.feedback_title),
-            subtitle = context.getString(R.string.feedback_description),
-            onClick = {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW,
-                        "https://wj.qq.com/s2/24109109/3572/".toUri())
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Browser Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = context.getString(R.string.open_source_licenses),
-            style = MiuixTheme.textStyles.body1,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        SettingsDetailItem(
-            title = context.getString(R.string.open_source_licenses),
-            subtitle = context.getString(R.string.open_source_licenses_description),
-            onClick = onNavigateToOpenSourceLicenses
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // Developer options section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        item {
             Text(
-                text = context.getString(R.string.developer_options),
-                style = MiuixTheme.textStyles.body1
+                text = context.getString(R.string.feedback_title),
+                style = MiuixTheme.textStyles.body1,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            ExpressiveSwitch(
-                checked = isDeveloperMode,
-                onCheckedChange = { viewModel.toggleDeveloperMode() }
-            )
-        }
-        
-        if (isDeveloperMode) {
-            Spacer(modifier = Modifier.height(8.dp))
-            SettingsDetailItem(
-                title = context.getString(R.string.database_test),
-                subtitle = "Local database debugging",
-                onClick = onNavigateToDatabaseTest
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(48.dp))
-        
-        AppVersionInfo(context = context)
-        
-        // Reserve bottom space to avoid being blocked by floating bottom bar
-        Spacer(modifier = Modifier.height(100.dp))
-    }
-}
-
-@Composable
-fun SettingsDetailItem(
-    title: String,
-    subtitle: String? = null,
-    onClick: () -> Unit,
-    trailingContent: @Composable (() -> Unit)? = null
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable(onClick = onClick),
-        color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MiuixTheme.textStyles.body1)
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MiuixTheme.textStyles.footnote1,
-                        color = MiuixTheme.colorScheme.onSurfaceSecondary
-                    )
+            ArrowPreference(
+                title = context.getString(R.string.feedback_title),
+                summary = context.getString(R.string.feedback_description),
+                onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            "https://wj.qq.com/s2/24109109/3572/".toUri())
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Browser Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-            
-            if (trailingContent != null) {
-                trailingContent()
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MiuixTheme.colorScheme.onSurfaceSecondary
             )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = context.getString(R.string.open_source_licenses),
+                style = MiuixTheme.textStyles.body1,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            ArrowPreference(
+                title = context.getString(R.string.open_source_licenses),
+                summary = context.getString(R.string.open_source_licenses_description),
+                onClick = onNavigateToOpenSourceLicenses
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = context.getString(R.string.developer_options),
+                    style = MiuixTheme.textStyles.body1
+                )
+                ExpressiveSwitch(
+                    checked = isDeveloperMode,
+                    onCheckedChange = { viewModel.toggleDeveloperMode() }
+                )
+            }
+        }
+
+        item {
+            if (isDeveloperMode) {
+                Spacer(modifier = Modifier.height(8.dp))
+                ArrowPreference(
+                    title = context.getString(R.string.database_test),
+                    summary = "Local database debugging",
+                    onClick = onNavigateToDatabaseTest
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(48.dp))
+            AppVersionInfo(context = context)
         }
     }
 }
-
-// --- Original UI components or minor adjustments ---
 
 @Composable
 fun AppVersionInfo(context: Context) {
@@ -740,17 +737,17 @@ fun AISettingsSection(
 ) {
     val apiKey by viewModel.aiApiKey.collectAsState()
     var showApiKeyDialog by remember { mutableStateOf(false) }
-    
+
     Column {
         Text(
             text = context.getString(R.string.settings_ai_title),
             style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
-        SettingsDetailItem(
+
+        ArrowPreference(
             title = context.getString(R.string.settings_ai_api_key),
-            subtitle = if (apiKey.isNotEmpty()) context.getString(R.string.api_key_set, apiKey.take(8)) else context.getString(R.string.settings_ai_api_key_description),
+            summary = if (apiKey.isNotEmpty()) context.getString(R.string.api_key_set, apiKey.take(8)) else context.getString(R.string.settings_ai_api_key_description),
             onClick = { showApiKeyDialog = true }
         )
     }
@@ -822,17 +819,17 @@ fun BudgetSettingsSection(
 ) {
     val uiState by budgetViewModel.uiState.collectAsState()
     var showBudgetDialog by remember { mutableStateOf(false) }
-    
+
     Column {
         Text(
             text = context.getString(R.string.budget_settings),
             style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
-        SettingsDetailItem(
+
+        ArrowPreference(
             title = context.getString(R.string.budget_monthly_limit),
-            subtitle = if (uiState.budget?.isEnabled == true) {
+            summary = if (uiState.budget?.isEnabled == true) {
                 "${context.getString(R.string.budget_enable_feature)}: " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), uiState.budget?.monthlyLimit ?: 0.0)
             } else {
                 context.getString(R.string.budget_enable_title)
@@ -840,7 +837,7 @@ fun BudgetSettingsSection(
             onClick = { showBudgetDialog = true }
         )
     }
-    
+
     com.chronie.homemoney.ui.budget.BudgetSettingsDialog(
         show = showBudgetDialog,
         context = context,
@@ -864,7 +861,7 @@ fun DataImportExportSection(
     var showDateRangeDialog by remember { mutableStateOf(false) }
     var startDate by remember { mutableStateOf<LocalDate?>(null) }
     var endDate by remember { mutableStateOf<LocalDate?>(null) }
-    
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -872,25 +869,25 @@ fun DataImportExportSection(
             Toast.makeText(context, context.getString(R.string.permission_storage_required), Toast.LENGTH_LONG).show()
         }
     }
-    
+
     fun checkAndRequestPermissions(onGranted: () -> Unit) {
         val permissions =
             arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
         val allGranted = permissions.all { androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
         if (allGranted) onGranted() else permissionLauncher.launch(permissions)
     }
-    
+
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? -> uri?.let { viewModel.importExpenses(it) } }
-    
+
     Column {
         Text(
             text = context.getString(R.string.data_import_export),
             style = MiuixTheme.textStyles.body1,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         Button(
             onClick = { checkAndRequestPermissions { showExportDialog = true } },
             modifier = Modifier.fillMaxWidth(),
@@ -919,7 +916,7 @@ fun DataImportExportSection(
             Text(text = if (importInProgress) context.getString(R.string.import_in_progress) else context.getString(R.string.import_data))
         }
     }
-    
+
     WindowDialog(
         show = showExportDialog,
         title = context.getString(R.string.export_data),
@@ -1001,7 +998,7 @@ fun SyncSection(
     val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
     val syncMessage by viewModel.syncMessage.collectAsState()
     var showSyncMethodDialog by remember { mutableStateOf(false) }
-    
+
     syncMessage?.let { message ->
         LaunchedEffect(message) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -1009,7 +1006,7 @@ fun SyncSection(
             viewModel.clearSyncMessage()
         }
     }
-    
+
     Column {
         Text(text = context.getString(R.string.sync_title), style = MiuixTheme.textStyles.body1, modifier = Modifier.padding(bottom = 8.dp))
         Surface(modifier = Modifier.fillMaxWidth(), color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), shape = RoundedCornerShape(12.dp)) {
@@ -1055,7 +1052,7 @@ fun SyncSection(
             }
         }
     }
-    
+
     WindowDialog(
         show = showSyncMethodDialog,
         title = context.getString(R.string.sync_select_method),
@@ -1105,7 +1102,7 @@ fun AccountSection(
             }
         }
     }
-    
+
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val outputUri = Uri.fromFile(File(context.cacheDir, "cropped_avatar_${System.currentTimeMillis()}.png"))
@@ -1118,7 +1115,7 @@ fun AccountSection(
             cropLauncher.launch(UCrop.of(it, outputUri).withAspectRatio(1f, 1f).withMaxResultSize(256, 256).withOptions(options).getIntent(context))
         }
     }
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 16.dp,
