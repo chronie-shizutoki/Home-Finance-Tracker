@@ -3,8 +3,12 @@ package com.chronie.homemoney.ui.test
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,14 +18,17 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.expense.formatDateByLocale
-import top.yukonga.miuix.kmp.basic.Button
-import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.basic.DropdownDefaults
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -32,111 +39,144 @@ fun DatabaseTestScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = context.getString(R.string.database_test),
+                largeTitle = context.getString(R.string.database_test),
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))
                     }
                 },
                 actions = {
-                    Box(modifier = Modifier.padding(end = 8.dp))
-                },
-                color = MiuixTheme.colorScheme.background
+                    val moreMenuEntries = listOf(
+                        DropdownEntry(
+                            items = listOf(
+                                DropdownItem(
+                                    text = context.getString(R.string.add_test_data),
+                                    icon = { modifier ->
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = null,
+                                            modifier = modifier
+                                        )
+                                    },
+                                    onClick = { viewModel.addTestExpense() }
+                                )
+                            )
+                        ),
+                        DropdownEntry(
+                            items = listOf(
+                                DropdownItem(
+                                    text = "",
+                                    icon = { modifier ->
+                                        Row(
+                                            modifier = modifier,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = null,
+                                                tint = MiuixTheme.colorScheme.error
+                                            )
+                                            Text(
+                                                text = context.getString(R.string.clear_data),
+                                                color = MiuixTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
+                                    onClick = { viewModel.clearAllExpenses() }
+                                )
+                            )
+                        )
+                    )
+                    WindowIconDropdownMenu(
+                        entries = moreMenuEntries,
+                        dropdownColors = DropdownDefaults.dropdownColors(
+                            contentColor = MiuixTheme.colorScheme.onSurface,
+                            summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                        )
+                    ) {
+                        Icon(Icons.Default.MoreVert, contentDescription = context.getString(R.string.common_more_functions))
+                    }
+                }
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding() + 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = { viewModel.addTestExpense() },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColorsPrimary()
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(context.getString(R.string.add_test_data))
-                }
-
-                Button(
-                    onClick = { viewModel.clearAllExpenses() },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        color = MiuixTheme.colorScheme.error
-                    )
-                ) {
-                    Text(context.getString(R.string.clear_data))
-                }
-            }
-            
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = context.getString(R.string.database_statistics),
-                        style = MiuixTheme.textStyles.body1
-                    )
-                    Text(context.getString(R.string.record_count, uiState.expenseCount))
-                    Text(context.getString(R.string.total_amount_database, uiState.totalAmount))
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = context.getString(R.string.database_statistics),
+                            style = MiuixTheme.textStyles.body1
+                        )
+                        Text(context.getString(R.string.record_count, uiState.expenseCount))
+                        Text(context.getString(R.string.total_amount_database, uiState.totalAmount))
+                    }
                 }
             }
             
             if (!uiState.message.isNullOrEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.defaultColors(
-                        color = if (uiState.isError) {
-                            MiuixTheme.colorScheme.errorContainer
-                        } else {
-                            MiuixTheme.colorScheme.primaryContainer
-                        }
-                    )
-                ) {
-                    Text(
-                        text = uiState.message ?: "",
-                        modifier = Modifier.padding(16.dp)
-                    )
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = if (uiState.isError) {
+                                MiuixTheme.colorScheme.errorContainer
+                            } else {
+                                MiuixTheme.colorScheme.primaryContainer
+                            }
+                        )
+                    ) {
+                        Text(
+                            text = uiState.message ?: "",
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
             
-            Text(
-                text = context.getString(R.string.expense_records),
-                style = MiuixTheme.textStyles.body1
-            )
+            item {
+                Text(
+                    text = context.getString(R.string.expense_records),
+                    style = MiuixTheme.textStyles.body1
+                )
+            }
             
             if (uiState.expenses.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(context.getString(R.string.no_data))
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(context.getString(R.string.no_data))
+                    }
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.expenses) { expense ->
-                        ExpenseItem(
-                            context = context,
-                            expense = expense.toUiModel()
-                        )
-                    }
+                items(uiState.expenses) { expense ->
+                    ExpenseItem(
+                        context = context,
+                        expense = expense.toUiModel()
+                    )
                 }
             }
         }
