@@ -4,55 +4,57 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.himanshoe.charty.line.LineChart
-import com.himanshoe.charty.line.data.LineData
-import com.himanshoe.charty.line.config.LineChartConfig
-import com.himanshoe.charty.bar.BarChart
-import com.himanshoe.charty.bar.data.BarData
-import com.himanshoe.charty.bar.config.BarChartConfig
-import com.himanshoe.charty.common.config.ChartScaffoldConfig
-import com.himanshoe.charty.color.ChartyColor
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
-import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
-import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
+import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
+import com.chronie.homemoney.ui.expense.formatDateByLocale
+import com.himanshoe.charty.bar.BarChart
+import com.himanshoe.charty.bar.config.BarChartConfig
+import com.himanshoe.charty.bar.data.BarData
+import com.himanshoe.charty.color.ChartyColor
+import com.himanshoe.charty.common.config.ChartScaffoldConfig
+import com.himanshoe.charty.line.LineChart
+import com.himanshoe.charty.line.config.LineChartConfig
+import com.himanshoe.charty.line.data.LineData
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.DropdownImpl
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.theme.LocalDismissState
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
+import top.yukonga.miuix.kmp.window.WindowListPopup
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.basic.Button
-import top.yukonga.miuix.kmp.basic.ButtonDefaults
-import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.RadioButton
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.window.WindowBottomSheet
-import top.yukonga.miuix.kmp.window.WindowListPopup
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
-import top.yukonga.miuix.kmp.basic.DropdownImpl
-import top.yukonga.miuix.kmp.theme.LocalDismissState
-import androidx.compose.foundation.shape.RoundedCornerShape
 
 enum class ChartType {
     TREND, CATEGORY, WEEKDAY
@@ -75,30 +77,16 @@ fun ChartsScreen(
     val customEndDate by viewModel.customEndDate.collectAsState()
     var showCustomRangeBottomSheet by remember { mutableStateOf(false) }
     
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top toolbar with title and selectors
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MiuixTheme.colorScheme.surface
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f).padding(start = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.charts_title),
-                            style = MiuixTheme.textStyles.title3
-                        )
-                        
+    val scrollBehavior = MiuixScrollBehavior()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = context.getString(R.string.charts_title),
+                largeTitle = context.getString(R.string.charts_title),
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         // Chart Type Switcher
                         Box {
                             Row(
@@ -141,107 +129,109 @@ fun ChartsScreen(
                                 }
                             }
                         }
-                    }
-                    
-                    // Time Range Selector
-                    Box {
-                        IconButton(onClick = { showTimeRangePopup = true }) {
-                            Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = "Select time range"
-                            )
-                        }
                         
-                        WindowListPopup(
-                            show = showTimeRangePopup,
-                            onDismissRequest = { showTimeRangePopup = false }
-                        ) {
-                            val dismiss = LocalDismissState.current
-                            val timeRanges = listOf(
-                                TimeRange.THIS_WEEK,
-                                TimeRange.THIS_MONTH,
-                                TimeRange.LAST_MONTH,
-                                TimeRange.THIS_QUARTER,
-                                TimeRange.THIS_YEAR,
-                                TimeRange.CUSTOM
-                            )
-                            ListPopupColumn {
-                                timeRanges.forEachIndexed { index, timeRange ->
-                                    DropdownImpl(
-                                        text = getTimeRangeText(context, timeRange),
-                                        optionSize = timeRanges.size,
-                                        isSelected = selectedTimeRange == timeRange,
-                                        index = index,
-                                        onSelectedIndexChange = {
-                                            if (timeRange == TimeRange.CUSTOM) {
-                                                showCustomRangeBottomSheet = true
-                                                dismiss?.invoke()
-                                            } else {
-                                                viewModel.selectTimeRange(timeRange)
-                                                dismiss?.invoke()
+                        // Time Range Selector
+                        Box {
+                            IconButton(onClick = { showTimeRangePopup = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = "Select time range"
+                                )
+                            }
+                            
+                            WindowListPopup(
+                                show = showTimeRangePopup,
+                                onDismissRequest = { showTimeRangePopup = false }
+                            ) {
+                                val dismiss = LocalDismissState.current
+                                val timeRanges = listOf(
+                                    TimeRange.THIS_WEEK,
+                                    TimeRange.THIS_MONTH,
+                                    TimeRange.LAST_MONTH,
+                                    TimeRange.THIS_QUARTER,
+                                    TimeRange.THIS_YEAR,
+                                    TimeRange.CUSTOM
+                                )
+                                ListPopupColumn {
+                                    timeRanges.forEachIndexed { index, timeRange ->
+                                        DropdownImpl(
+                                            text = getTimeRangeText(context, timeRange),
+                                            optionSize = timeRanges.size,
+                                            isSelected = selectedTimeRange == timeRange,
+                                            index = index,
+                                            onSelectedIndexChange = {
+                                                if (timeRange == TimeRange.CUSTOM) {
+                                                    showCustomRangeBottomSheet = true
+                                                    dismiss?.invoke()
+                                                } else {
+                                                    viewModel.selectTimeRange(timeRange)
+                                                    dismiss?.invoke()
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            
-            // Content area
-            when (val state = uiState) {
-                is ChartsUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ExpressiveLoadingIndicator()
-                    }
+            )
+        }
+    ) { paddingValues ->
+        // Content area
+        when (val state = uiState) {
+            is ChartsUiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ExpressiveLoadingIndicator()
                 }
-                is ChartsUiState.Success -> {
-                    ChartsContent(
-                        context = context,
-                        state = state,
-                        selectedTimeRange = selectedTimeRange,
-                        selectedChartType = selectedChartType,
-                        onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+            }
+            is ChartsUiState.Success -> {
+                ChartsContent(
+                    context = context,
+                    state = state,
+                    selectedTimeRange = selectedTimeRange,
+                    selectedChartType = selectedChartType,
+                    scrollBehavior = scrollBehavior,
+                    paddingValues = paddingValues,
+                    onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+                )
+            }
+            is ChartsUiState.Error -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = state.message,
+                        style = MiuixTheme.textStyles.body1,
+                        color = MiuixTheme.colorScheme.error
                     )
-                }
-                is ChartsUiState.Error -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MiuixTheme.textStyles.body1,
-                            color = MiuixTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.refresh() }, colors = ButtonDefaults.buttonColorsPrimary()) {
-                            Text(context.getString(R.string.retry))
-                        }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.refresh() }, colors = ButtonDefaults.buttonColorsPrimary()) {
+                        Text(context.getString(R.string.retry))
                     }
                 }
             }
         }
-    }
 
-    CustomRangeBottomSheet(
-        show = showCustomRangeBottomSheet,
-        context = context,
-        initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
-        initialEndDate = customEndDate ?: LocalDate.now(),
-        onDismiss = { showCustomRangeBottomSheet = false },
-        onConfirm = { startDate, endDate ->
-            viewModel.setCustomDateRange(startDate, endDate)
-            viewModel.selectTimeRange(TimeRange.CUSTOM)
-        }
-    )
+        CustomRangeBottomSheet(
+            show = showCustomRangeBottomSheet,
+            context = context,
+            initialStartDate = customStartDate ?: LocalDate.now().minusMonths(1),
+            initialEndDate = customEndDate ?: LocalDate.now(),
+            onDismiss = { showCustomRangeBottomSheet = false },
+            onConfirm = { startDate, endDate ->
+                viewModel.setCustomDateRange(startDate, endDate)
+                viewModel.selectTimeRange(TimeRange.CUSTOM)
+            }
+        )
+    }
 }
 
 @Composable
@@ -250,47 +240,52 @@ private fun ChartsContent(
     state: ChartsUiState.Success,
     selectedTimeRange: TimeRange,
     selectedChartType: ChartType,
+    scrollBehavior: ScrollBehavior,
+    paddingValues: PaddingValues,
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
-    val scrollState = rememberScrollState()
+    val listState = rememberLazyListState()
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
     
-    Column(
+    LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-            .padding(bottom = 80.dp)
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentPadding = PaddingValues(top = paddingValues.calculateTopPadding() + 16.dp, start = 16.dp, end = 16.dp, bottom = 80.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Time range display
-        TimeRangeCard(context, selectedTimeRange, state)
+        item {
+            // Time range display
+            TimeRangeCard(context, selectedTimeRange, state)
+        }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            // Statistics summary (Always show)
+            StatisticsSummaryCard(context, state.statistics, currencyFormat)
+        }
         
-        // Statistics summary (Always show)
-        StatisticsSummaryCard(context, state.statistics, currencyFormat)
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        when (selectedChartType) {
-            ChartType.TREND -> {
-                // Trend line chart
-                TrendLineChartCard(context, state.dailyData, currencyFormat)
-            }
-            ChartType.CATEGORY -> {
-                // Category breakdown
-                CategoryBreakdownCard(context, state.categoryData, currencyFormat)
-            }
-            ChartType.WEEKDAY -> {
-                // Weekday analysis
-                WeekdayRadarChartCard(
-                    context = context,
-                    weekdayData = state.weekdayData,
-                    currencyFormat = currencyFormat,
-                    startDate = state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    endDate = state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
-                )
+        item {
+            when (selectedChartType) {
+                ChartType.TREND -> {
+                    // Trend line chart
+                    TrendLineChartCard(context, state.dailyData, currencyFormat)
+                }
+                ChartType.CATEGORY -> {
+                    // Category breakdown
+                    CategoryBreakdownCard(context, state.categoryData, currencyFormat)
+                }
+                ChartType.WEEKDAY -> {
+                    // Weekday analysis
+                    WeekdayRadarChartCard(
+                        context = context,
+                        weekdayData = state.weekdayData,
+                        currencyFormat = currencyFormat,
+                        startDate = state.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        endDate = state.endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        onNavigateToWeekdayDetail = onNavigateToWeekdayDetail
+                    )
+                }
             }
         }
     }

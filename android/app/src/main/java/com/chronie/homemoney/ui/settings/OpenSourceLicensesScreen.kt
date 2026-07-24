@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -16,8 +17,9 @@ import androidx.core.net.toUri
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 data class LibraryInfo(
@@ -373,10 +375,14 @@ fun OpenSourceLicensesScreen(
     onNavigateBack: () -> Unit = {}
 ) {
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = context.getString(com.chronie.homemoney.R.string.open_source_licenses),
+                largeTitle = context.getString(com.chronie.homemoney.R.string.open_source_licenses),
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     CircularIconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, end = 4.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(com.chronie.homemoney.R.string.back))
@@ -384,16 +390,15 @@ fun OpenSourceLicensesScreen(
                 },
                 actions = {
                     Box(modifier = Modifier.padding(end = 8.dp))
-                },
-                color = MiuixTheme.colorScheme.background
+                }
             )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding() + 16.dp, start = 16.dp, end = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(libraries) { library ->
