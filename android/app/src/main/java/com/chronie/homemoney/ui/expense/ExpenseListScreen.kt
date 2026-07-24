@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
+import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.ui.budget.BudgetCard
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlinx.coroutines.delay
@@ -40,15 +40,21 @@ import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
+import top.yukonga.miuix.kmp.menu.WindowIconCascadingDropdownMenu
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 /**
  * Expense List Screen
@@ -61,6 +67,7 @@ fun ExpenseListScreen(
     shouldRefresh: Boolean = false,
     onRefreshHandled: () -> Unit = {},
     onNavigateToAddExpense: () -> Unit = {},
+    onNavigateToAIExpense: () -> Unit = {},
     onNavigateToEditExpense: (expenseId: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -96,36 +103,75 @@ fun ExpenseListScreen(
         }
     }
     
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Top Toolbar - Fixed at top of page, does not scroll with content
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MiuixTheme.colorScheme.surface
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = context.getString(R.string.expense_list_title),
-                    style = MiuixTheme.textStyles.title3,
-                    modifier = Modifier.weight(1f).padding(start = 8.dp)
-                )
-                
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onNavigateToAddExpense) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = context.getString(R.string.add_expense_title)
-                        )
-                    }
+    val scrollBehavior = MiuixScrollBehavior()
 
-                    val menuEntries = listOf(
-                        DropdownEntry(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = context.getString(R.string.expense_list_title),
+                largeTitle = context.getString(R.string.expense_list_title),
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val addMenuEntries = listOf(
+                            DropdownEntry(
+                                items = listOf(
+                                    DropdownItem(
+                                        text = context.getString(R.string.add_expense_title),
+                                        icon = { modifier ->
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = null,
+                                                modifier = modifier
+                                            )
+                                        },
+                                        onClick = onNavigateToAddExpense
+                                    ),
+                                    DropdownItem(
+                                        text = context.getString(R.string.ai_expense_title),
+                                        icon = { modifier ->
+                                            Icon(
+                                                imageVector = Icons.Default.AutoAwesome,
+                                                contentDescription = null,
+                                                modifier = modifier
+                                            )
+                                        },
+                                        onClick = onNavigateToAIExpense
+                                    )
+                                )
+                            )
+                        )
+
+                        WindowIconDropdownMenu(entries = addMenuEntries) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = context.getString(R.string.add_expense_title)
+                            )
+                        }
+
+                        val filterMenuEntry = DropdownEntry(
                             items = listOf(
+                                DropdownItem(
+                                    text = context.getString(R.string.expense_list_sort),
+                                    children = listOf(
+                                        DropdownItem(
+                                            text = context.getString(R.string.expense_list_sort_date_desc),
+                                            onClick = { viewModel.updateSortOption(SortOption.DATE_DESC) }
+                                        ),
+                                        DropdownItem(
+                                            text = context.getString(R.string.expense_list_sort_date_asc),
+                                            onClick = { viewModel.updateSortOption(SortOption.DATE_ASC) }
+                                        ),
+                                        DropdownItem(
+                                            text = context.getString(R.string.expense_list_sort_amount_desc),
+                                            onClick = { viewModel.updateSortOption(SortOption.AMOUNT_DESC) }
+                                        ),
+                                        DropdownItem(
+                                            text = context.getString(R.string.expense_list_sort_amount_asc),
+                                            onClick = { viewModel.updateSortOption(SortOption.AMOUNT_ASC) }
+                                        )
+                                    )
+                                ),
                                 DropdownItem(
                                     text = context.getString(R.string.common_filter),
                                     icon = { modifier ->
@@ -150,23 +196,20 @@ fun ExpenseListScreen(
                                 )
                             )
                         )
-                    )
 
-                    WindowIconDropdownMenu(entries = menuEntries) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = context.getString(R.string.common_more_functions)
-                        )
+                        WindowIconCascadingDropdownMenu(entry = filterMenuEntry) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = context.getString(R.string.common_filter)
+                            )
+                        }
                     }
                 }
-            }
+            )
         }
-        
+    ) { paddingValues ->
         // Content Area - Below toolbar, can scroll
         Column(modifier = Modifier.fillMaxSize()) {
-            // Leave space for toolbar
-            Spacer(modifier = Modifier.height(64.dp)) // Toolbar height approximation
-            
             when {
                 uiState.isLoading && uiState.expenses.isEmpty() -> {
                     Box(
@@ -250,98 +293,101 @@ fun ExpenseListScreen(
                     ) {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 80.dp), // Leave space for floating action button
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding(), bottom = 80.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                        // Budget Management Card
-                        item(key = "budget_card") {
-                            BudgetCard(
-                                context = context,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                refreshTrigger = budgetRefreshTrigger
-                            )
-                        }
-                        
-                        // Expense Statistics Card
-                        item(key = "stats_card") {
-                            ExpenseStatisticsCard(
-                                statistics = uiState.statistics,
-                                context = context,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-                        }
-                        
-                        // Expense List Items
-                        groupedExpenses.forEach { (date, expenses) ->
-                            // Date Header
-                            item(key = "header_$date") {
+                            // Budget Management Card
+                            item(key = "budget_card") {
+                                BudgetCard(
+                                    context = context,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    refreshTrigger = budgetRefreshTrigger
+                                )
+                            }
+                            
+                            // Expense Statistics Card
+                            item(key = "stats_card") {
+                                ExpenseStatisticsCard(
+                                    statistics = uiState.statistics,
+                                    context = context,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                )
+                            }
+                            
+                            // Expense List Items
+                            groupedExpenses.forEach { (date, expenses) ->
+                                // Date Header
+                                item(key = "header_$date") {
+                                    if (useTableLayout) {
+                                        ExpenseTableDateHeader(
+                                            date = date,
+                                            count = expenses.size,
+                                            totalAmount = expenses.sumOf { it.amount },
+                                            context = context,
+                                            locale = context.resources.configuration.locales[0].toLanguageTag(),
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    } else {
+                                        ExpenseDateHeader(
+                                            date = date,
+                                            count = expenses.size,
+                                            totalAmount = expenses.sumOf { it.amount },
+                                            context = context,
+                                            locale = context.resources.configuration.locales[0].toLanguageTag(),
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
+                                }
+                                
+                                // Expense Items for this Date
                                 if (useTableLayout) {
-                                    ExpenseTableDateHeader(
-                                        date = date,
-                                        count = expenses.size,
-                                        totalAmount = expenses.sumOf { it.amount },
-                                        context = context,
-                                        locale = context.resources.configuration.locales[0].toLanguageTag(),
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
+                                    item(key = "table_$date") {
+                                        ExpenseTableItems(
+                                            expenses = expenses,
+                                            context = context,
+                                            onEdit = { expense -> onNavigateToEditExpense(expense.id) },
+                                            onDelete = { expense -> viewModel.deleteExpense(expense) },
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
                                 } else {
-                                    ExpenseDateHeader(
-                                        date = date,
-                                        count = expenses.size,
-                                        totalAmount = expenses.sumOf { it.amount },
-                                        context = context,
-                                        locale = context.resources.configuration.locales[0].toLanguageTag(),
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
+                                    items(
+                                        items = expenses,
+                                        key = { expense -> "expense_${expense.id}" }
+                                    ) { expense ->
+                                        LongPressExpenseItem(
+                                            expense = expense,
+                                            context = context,
+                                            onEdit = { onNavigateToEditExpense(expense.id) },
+                                            onDelete = { viewModel.deleteExpense(expense) },
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
                                 }
                             }
                             
-                            // Expense Items for this Date
-                            if (useTableLayout) {
-                                item(key = "table_$date") {
-                                    ExpenseTableItems(
-                                        expenses = expenses,
-                                        context = context,
-                                        onEdit = { expense -> onNavigateToEditExpense(expense.id) },
-                                        onDelete = { expense -> viewModel.deleteExpense(expense) },
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                }
-                            } else {
-                                items(
-                                    items = expenses,
-                                    key = { expense -> "expense_${expense.id}" }
-                                ) { expense ->
-                                    LongPressExpenseItem(
-                                        expense = expense,
-                                        context = context,
-                                        onEdit = { onNavigateToEditExpense(expense.id) },
-                                        onDelete = { viewModel.deleteExpense(expense) },
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                }
-                            }
-                        }
-                        
-                        // Load More Indicator
-                        if (uiState.hasMore) {
-                            item(key = "load_more") {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (uiState.isLoading) {
-                                        ExpressiveLoadingIndicator(containerVisible = true)
-                                    } else {
-                                        Button(onClick = { viewModel.loadMore() }, colors = ButtonDefaults.buttonColorsPrimary()) {
-                                            Text(context.getString(R.string.common_loading))
+                            // Load More Indicator
+                            if (uiState.hasMore) {
+                                item(key = "load_more") {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (uiState.isLoading) {
+                                            ExpressiveLoadingIndicator(containerVisible = true)
+                                        } else {
+                                            Button(onClick = { viewModel.loadMore() }, colors = ButtonDefaults.buttonColorsPrimary()) {
+                                                Text(context.getString(R.string.common_loading))
+                                            }
                                         }
                                     }
                                 }
@@ -351,8 +397,8 @@ fun ExpenseListScreen(
                 }
             }
         }
-    }   
-                if (showFilterDialog) {
+
+        if (showFilterDialog) {
             ExpenseFilterDialog(
                 context = context,
                 currentFilters = uiState.filters,

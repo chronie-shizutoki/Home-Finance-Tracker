@@ -50,8 +50,7 @@ fun AddExpenseScreen(
     context: android.content.Context,
     expenseId: String? = null,
     viewModel: AddExpenseViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToAI: () -> Unit = {}
+    onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -114,52 +113,6 @@ fun AddExpenseScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // AI Expense Entry
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onNavigateToAI),
-                color = MiuixTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Star,
-                            contentDescription = null,
-                            tint = MiuixTheme.colorScheme.primary
-                        )
-                        Column {
-                            Text(
-                                text = context.getString(R.string.ai_expense_title),
-                                style = MiuixTheme.textStyles.body1,
-                                color = MiuixTheme.colorScheme.onPrimaryContainer
-                            )
-                            Text(
-                                text = context.getString(R.string.ai_expense_entry_description),
-                                style = MiuixTheme.textStyles.footnote1,
-                                color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
-                    Text(
-                        text = ">",
-                        style = MiuixTheme.textStyles.title3,
-                        color = MiuixTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            HorizontalDivider()
 
             // Expense Type Dropdown Menu
             ExpenseTypeDropdown(

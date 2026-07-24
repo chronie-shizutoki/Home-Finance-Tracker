@@ -254,6 +254,10 @@ fun HomeMoneyApp(
                         selectedTab = 0
                         navController.navigate("add_expense")
                     },
+                    onNavigateToAIExpense = {
+                        selectedTab = 0
+                        navController.navigate("ai_expense")
+                    },
                     onNavigateToEditExpense = { expenseId ->
                         selectedTab = 0
                         navController.navigate(
@@ -302,9 +306,6 @@ fun HomeMoneyApp(
                     onNavigateBack = {
                         shouldRefreshExpenses = true
                         navController.popBackStack()
-                    },
-                    onNavigateToAI = {
-                        navController.navigate("ai_expense")
                     }
                 )
             }
