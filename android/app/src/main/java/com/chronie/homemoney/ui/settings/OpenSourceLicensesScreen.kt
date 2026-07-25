@@ -9,6 +9,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.ui.components.CircularIconButton
@@ -21,361 +26,125 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import org.json.JSONArray
+import org.json.JSONObject
 
-data class LibraryInfo(
+data class LicenseItem(
+    val group: String,
     val name: String,
     val version: String,
-    val license: String,
-    val licenseUrl: String,
+    val fullName: String
+) {
+    val displayName: String
+        get() = name.split("-").joinToString(" ") { it.replaceFirstChar { ch -> ch.uppercase() } }
+    
+    val license: String
+        get() = when {
+            group.startsWith("androidx") || group.startsWith("com.google.android") || 
+            group.startsWith("org.jetbrains") || group.startsWith("com.squareup") ||
+            group.startsWith("io.coil-kt") || group.startsWith("io.grpc") ||
+            group.startsWith("android") -> "Apache License 2.0"
+            group == "net.zetetic" -> "BSD 3-Clause License"
+            group == "org.tukaani" -> "Public Domain"
+            group == "com.google.protobuf" -> "BSD 3-Clause"
+            group == "javax.annotation" -> "CDDL 1.0 / GPL 2.0"
+            group.startsWith("io.mockk") -> "Apache License 2.0"
+            group.startsWith("com.jaredsburrows") -> "Apache License 2.0"
+            group.startsWith("org.dhatim") -> "Apache License 2.0"
+            group.startsWith("com.fasterxml") -> "Apache License 2.0"
+            group.startsWith("com.github.yalantis") -> "Apache License 2.0"
+            group.startsWith("top.yukonga") -> "Apache License 2.0"
+            group.startsWith("com.himanshoe") -> "Apache License 2.0"
+            group.startsWith("org.opencv") -> "Apache License 2.0"
+            group.startsWith("com.google.mlkit") -> "Apache License 2.0"
+            else -> "Apache License 2.0"
+        }
+    
+    val licenseUrl: String
+        get() = when (license) {
+            "Apache License 2.0" -> "https://www.apache.org/licenses/LICENSE-2.0"
+            "BSD 3-Clause License" -> "https://opensource.org/licenses/BSD-3-Clause"
+            "BSD 3-Clause" -> "https://opensource.org/licenses/BSD-3-Clause"
+            "Public Domain" -> "https://tukaani.org/xz/legal.html"
+            "CDDL 1.0 / GPL 2.0" -> "https://github.com/javaee/javax.annotation/blob/master/LICENSE"
+            else -> "https://www.apache.org/licenses/LICENSE-2.0"
+        }
+    
     val projectUrl: String
-)
+        get() = when {
+            group.startsWith("androidx") -> "https://developer.android.com/jetpack/androidx/releases/${name.substringBefore("-")}"
+            group.startsWith("com.google.android.material") -> "https://github.com/material-components/material-components-android"
+            group.startsWith("org.jetbrains.kotlin") -> "https://kotlinlang.org/"
+            group.startsWith("org.jetbrains.kotlinx.coroutines") -> "https://github.com/Kotlin/kotlinx.coroutines"
+            group.startsWith("com.squareup.retrofit2") -> "https://github.com/square/retrofit"
+            group.startsWith("com.squareup.okhttp3") -> "https://github.com/square/okhttp"
+            group.startsWith("io.coil-kt") -> "https://github.com/coil-kt/coil"
+            group.startsWith("com.google.dagger") -> "https://dagger.dev/hilt/"
+            group.startsWith("androidx.datastore") -> "https://developer.android.com/jetpack/androidx/releases/datastore"
+            group.startsWith("androidx.room") -> "https://developer.android.com/jetpack/androidx/releases/room"
+            group.startsWith("androidx.lifecycle") -> "https://developer.android.com/jetpack/androidx/releases/lifecycle"
+            group.startsWith("androidx.navigation") -> "https://developer.android.com/jetpack/androidx/releases/navigation"
+            group.startsWith("androidx.paging") -> "https://developer.android.com/jetpack/androidx/releases/paging"
+            group.startsWith("androidx.work") -> "https://developer.android.com/jetpack/androidx/releases/work"
+            group.startsWith("androidx.security") -> "https://developer.android.com/jetpack/androidx/releases/security"
+            group.startsWith("net.zetetic") -> "https://www.zetetic.net/sqlcipher/"
+            group.startsWith("io.grpc") -> "https://github.com/grpc/grpc-java"
+            group.startsWith("com.google.protobuf") -> "https://github.com/protocolbuffers/protobuf"
+            group.startsWith("com.github.yalantis") -> "https://github.com/Yalantis/uCrop"
+            group.startsWith("io.mockk") -> "https://mockk.io/"
+            group.startsWith("org.dhatim") -> "https://github.com/dhatim/fastexcel"
+            group.startsWith("org.tukaani") -> "https://tukaani.org/xz/"
+            group.startsWith("com.github.Kyant0") -> "https://github.com/Kyant0/M3Color"
+            group.startsWith("top.yukonga") -> "https://github.com/mizure/miuix-kmp"
+            group.startsWith("com.himanshoe") -> "https://github.com/himanshoe/charty"
+            group.startsWith("org.opencv") -> "https://opencv.org/"
+            group.startsWith("com.google.mlkit") -> "https://developers.google.com/ml-kit/"
+            group.startsWith("javax.annotation") -> "https://github.com/javaee/javax.annotation"
+            group.startsWith("com.google.android.gms") -> "https://developer.android.com/google/play-services"
+            group.startsWith("androidx.compose.material") -> "https://developer.android.com/jetpack/androidx/releases/compose-material"
+            group.startsWith("androidx.compose.ui") -> "https://developer.android.com/jetpack/androidx/releases/compose"
+            group.startsWith("androidx.activity") -> "https://developer.android.com/jetpack/androidx/releases/activity"
+            group.startsWith("androidx.appcompat") -> "https://developer.android.com/jetpack/androidx/releases/appcompat"
+            group.startsWith("androidx.core") -> "https://developer.android.com/jetpack/androidx/releases/core"
+            group.startsWith("androidx.splashscreen") -> "https://developer.android.com/jetpack/androidx/releases/core"
+            group.startsWith("androidx.coordinatorlayout") -> "https://developer.android.com/jetpack/androidx/releases/coordinatorlayout"
+            group.startsWith("androidx.hilt") -> "https://developer.android.com/jetpack/androidx/releases/hilt"
+            group.startsWith("androidx.sqlite") -> "https://developer.android.com/jetpack/androidx/releases/sqlite"
+            else -> "https://central.sonatype.com/artifact/$group/$name"
+        }
+}
 
-val libraries = listOf(
-    LibraryInfo(
-        name = "Kotlin Stdlib",
-        version = "2.4.10",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://kotlinlang.org/"
-    ),
-    LibraryInfo(
-        name = "Kotlin Coroutines Android",
-        version = "1.11.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"
-    ),
-    LibraryInfo(
-        name = "AndroidX Core KTX",
-        version = "1.19.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/core"
-    ),
-    LibraryInfo(
-        name = "AndroidX AppCompat",
-        version = "1.7.1",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/appcompat"
-    ),
-    LibraryInfo(
-        name = "AndroidX CoordinatorLayout",
-        version = "1.3.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/coordinatorlayout"
-    ),
-    LibraryInfo(
-        name = "AndroidX Core Splashscreen",
-        version = "1.2.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/core"
-    ),
-    LibraryInfo(
-        name = "AndroidX Activity Compose",
-        version = "1.13.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/activity"
-    ),
-    LibraryInfo(
-        name = "Jetpack Compose BOM",
-        version = "2026.06.01",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-bom"
-    ),
-    LibraryInfo(
-        name = "M3Color",
-        version = "2026.1",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/Kyant0/M3Color"
-    ),
-    LibraryInfo(
-        name = "Google Material Components",
-        version = "1.14.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/material-components/material-components-android"
-    ),
-    LibraryInfo(
-        name = "AndroidX Material3",
-        version = "1.5.0-alpha24",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
-    ),
-    LibraryInfo(
-        name = "Miuix UI",
-        version = "0.9.3",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/mizure/miuix-kmp"
-    ),
-    LibraryInfo(
-        name = "Miuix Blur",
-        version = "0.9.3",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/mizure/miuix-kmp"
-    ),
-    LibraryInfo(
-        name = "Miuix Preference",
-        version = "0.9.3",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/mizure/miuix-kmp"
-    ),
-    LibraryInfo(
-        name = "AndroidX Lifecycle Runtime Compose",
-        version = "2.11.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
-    ),
-    LibraryInfo(
-        name = "AndroidX Lifecycle ViewModel Compose",
-        version = "2.11.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
-    ),
-    LibraryInfo(
-        name = "AndroidX Navigation Compose",
-        version = "2.9.8",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/navigation"
-    ),
-    LibraryInfo(
-        name = "Dagger Hilt Android",
-        version = "2.60.1",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://dagger.dev/hilt/"
-    ),
-    LibraryInfo(
-        name = "AndroidX Hilt Navigation Compose",
-        version = "1.4.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/hilt"
-    ),
-    LibraryInfo(
-        name = "AndroidX Datastore Preferences",
-        version = "1.2.1",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/datastore"
-    ),
-    LibraryInfo(
-        name = "AndroidX Room Runtime",
-        version = "2.8.4",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/room"
-    ),
-    LibraryInfo(
-        name = "AndroidX Room KTX",
-        version = "2.8.4",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/room"
-    ),
-    LibraryInfo(
-        name = "Retrofit",
-        version = "3.0.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/square/retrofit"
-    ),
-    LibraryInfo(
-        name = "Retrofit Gson Converter",
-        version = "3.0.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/square/retrofit/tree/master/retrofit-converters/gson"
-    ),
-    LibraryInfo(
-        name = "OkHttp Logging Interceptor",
-        version = "5.4.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/square/okhttp"
-    ),
-    LibraryInfo(
-        name = "AndroidX Paging Runtime KTX",
-        version = "3.5.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/paging"
-    ),
-    LibraryInfo(
-        name = "AndroidX Paging Compose",
-        version = "3.5.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/paging"
-    ),
-    LibraryInfo(
-        name = "Coil Compose",
-        version = "3.5.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/coil-kt/coil"
-    ),
-    LibraryInfo(
-        name = "AndroidX Security Crypto",
-        version = "1.1.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/security"
-    ),
-    LibraryInfo(
-        name = "SQLCipher Android",
-        version = "4.17.0",
-        license = "BSD 3-Clause License",
-        licenseUrl = "https://opensource.org/licenses/BSD-3-Clause",
-        projectUrl = "https://www.zetetic.net/sqlcipher/"
-    ),
-    LibraryInfo(
-        name = "AndroidX SQLite",
-        version = "2.7.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/sqlite"
-    ),
-    LibraryInfo(
-        name = "AndroidX Work Runtime KTX",
-        version = "2.11.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/work"
-    ),
-    LibraryInfo(
-        name = "AndroidX Hilt Work",
-        version = "1.4.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/hilt"
-    ),
-    LibraryInfo(
-        name = "FastExcel",
-        version = "0.20.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/dhatim/fastexcel"
-    ),
-    LibraryInfo(
-        name = "FastExcel Reader",
-        version = "0.20.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/dhatim/fastexcel"
-    ),
-    LibraryInfo(
-        name = "Aalto XML",
-        version = "1.4.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/FasterXML/aalto-xml"
-    ),
-    LibraryInfo(
-        name = "XZ",
-        version = "1.12",
-        license = "Public Domain",
-        licenseUrl = "https://tukaani.org/xz/legal.html",
-        projectUrl = "https://tukaani.org/xz/"
-    ),
-    LibraryInfo(
-        name = "UCrop",
-        version = "2.2.11",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/Yalantis/uCrop"
-    ),
-    LibraryInfo(
-        name = "MockK",
-        version = "1.14.11",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://mockk.io/"
-    ),
-    LibraryInfo(
-        name = "Kotlin Coroutines Test",
-        version = "1.11.0",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/Kotlin/kotlinx.coroutines"
-    ),
-    LibraryInfo(
-        name = "Material Icons Extended",
-        version = "BOM",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material"
-    ),
-    LibraryInfo(
-        name = "Charty",
-        version = "3.0.0-rc01",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/himanshoe/charty"
-    ),
-    LibraryInfo(
-        name = "gRPC OkHttp",
-        version = "1.82.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/grpc/grpc-java"
-    ),
-    LibraryInfo(
-        name = "gRPC Protobuf Lite",
-        version = "1.82.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/grpc/grpc-java"
-    ),
-    LibraryInfo(
-        name = "gRPC Stub",
-        version = "1.82.2",
-        license = "Apache License 2.0",
-        licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0",
-        projectUrl = "https://github.com/grpc/grpc-java"
-    ),
-    LibraryInfo(
-        name = "Protobuf JavaLite",
-        version = "4.35.1",
-        license = "BSD 3-Clause",
-        licenseUrl = "https://github.com/protocolbuffers/protobuf/blob/main/LICENSE",
-        projectUrl = "https://github.com/protocolbuffers/protobuf"
-    ),
-    LibraryInfo(
-        name = "Javax Annotation API",
-        version = "1.3.2",
-        license = "CDDL 1.0 / GPL 2.0 with Classpath Exception",
-        licenseUrl = "https://github.com/javaee/javax.annotation/blob/master/LICENSE",
-        projectUrl = "https://github.com/javaee/javax.annotation"
-    ),
-    LibraryInfo(
-        name = "JUnit",
-        version = "4.13.2",
-        license = "Eclipse Public License 1.0",
-        licenseUrl = "https://www.eclipse.org/legal/epl-v10.html",
-        projectUrl = "https://junit.org/junit4/"
-    )
-)
+fun loadLicenses(context: Context): List<LicenseItem> {
+    return try {
+        val jsonString = context.assets.open("licenses.json").bufferedReader().use { it.readText() }
+        val jsonArray = JSONArray(jsonString)
+        (0 until jsonArray.length()).map { i ->
+            val obj = jsonArray.getJSONObject(i)
+            LicenseItem(
+                group = obj.getString("group"),
+                name = obj.getString("name"),
+                version = obj.getString("version"),
+                fullName = obj.getString("fullName")
+            )
+        }.filter { it.group != "android" && it.name != "app" }
+            .sortedBy { it.displayName }
+    } catch (e: Exception) {
+        android.util.Log.e("OpenSourceLicenses", "Failed to load licenses", e)
+        emptyList()
+    }
+}
 
 @Composable
 fun OpenSourceLicensesScreen(
     context: Context,
     onNavigateBack: () -> Unit = {}
 ) {
-
     val scrollBehavior = MiuixScrollBehavior()
+    var licenses by remember { mutableStateOf<List<LicenseItem>>(emptyList()) }
+    
+    LaunchedEffect(Unit) {
+        licenses = loadLicenses(context)
+    }
 
     Scaffold(
         topBar = {
@@ -398,12 +167,12 @@ fun OpenSourceLicensesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding() + 16.dp, start = 16.dp, end = 16.dp),
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding() + 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(libraries) { library ->
-                LibraryCard(
-                    library = library,
+            items(licenses) { license ->
+                LicenseCard(
+                    license = license,
                     context = context
                 )
             }
@@ -412,8 +181,8 @@ fun OpenSourceLicensesScreen(
 }
 
 @Composable
-fun LibraryCard(
-    library: LibraryInfo,
+fun LicenseCard(
+    license: LicenseItem,
     context: Context
 ) {
     Card(
@@ -423,20 +192,26 @@ fun LibraryCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = library.name,
+                text = license.displayName,
                 style = MiuixTheme.textStyles.body1,
                 color = MiuixTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Version: ${library.version}",
+                text = "Version: ${license.version}",
                 style = MiuixTheme.textStyles.footnote1,
                 color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "License: ${library.license}",
+                text = "License: ${license.license}",
                 style = MiuixTheme.textStyles.body2
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = license.fullName,
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -446,7 +221,7 @@ fun LibraryCard(
                 OutlinedButton(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW, library.licenseUrl.toUri())
+                            val intent = Intent(Intent.ACTION_VIEW, license.licenseUrl.toUri())
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
                         } catch (e: Exception) {
@@ -464,7 +239,7 @@ fun LibraryCard(
                 OutlinedButton(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW, library.projectUrl.toUri())
+                            val intent = Intent(Intent.ACTION_VIEW, license.projectUrl.toUri())
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
                         } catch (e: Exception) {
