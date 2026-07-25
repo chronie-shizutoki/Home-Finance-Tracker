@@ -1,18 +1,6 @@
 name: Go Build & Release
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'server-go/**'
-      - 'client/**'
-      - '.github/workflows/go-build.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'server-go/**'
-      - 'client/**'
-      - '.github/workflows/go-build.yml'
   workflow_dispatch:
 
 jobs:
