@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">กรุณาพิมพ์ข้อความหรือเลือกรูปภาพ</string>
     <string name="ai_expense_no_records">ไม่พบรายการรายจ่าย</string>
     <string name="ai_expense_recognition_failed">การตรวจจับล้มเหลว: %s</string>
+    <string name="ai_expense_ocr_failed">OCR ล้มเหลว: %s</string>
+    <string name="ai_expense_no_text">ไม่มีข้อความให้ประมวลผล</string>
+    <string name="ai_expense_ocr_title">การตรวจจับ OCR</string>
+    <string name="ai_expense_ocr_editing">แก้ไขข้อความที่ตรวจจับได้</string>
+    <string name="ai_expense_ocr_processing">กำลังตรวจจับข้อความ…</string>
+    <string name="ai_expense_ocr_confirm">ยืนยัน</string>
+    <string name="ai_expense_ocr_language">ภาษาที่ต้องการตรวจจับ</string>
+    <string name="ai_expense_language_latin">ภาษาละติน (อังกฤษ, เวียดนาม ฯลฯ)</string>
+    <string name="ai_expense_language_chinese">ภาษาจีน</string>
+    <string name="ai_expense_language_japanese">ภาษาญี่ปุ่น</string>
+    <string name="ai_expense_language_korean">ภาษาเกาหลี</string>
     <string name="ai_expense_save_success">บันทึกสำเร็จ</string>
     <string name="ai_expense_save_failed">บันทึกไม่สำเร็จ: %s</string>
     <string name="ai_expense_no_valid_records">ไม่มีรายการที่ถูกต้อง</string>

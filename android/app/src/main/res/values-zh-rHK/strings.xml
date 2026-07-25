@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">請輸入文字或選擇相片</string>
     <string name="ai_expense_no_records">未辨識到消費記錄</string>
     <string name="ai_expense_recognition_failed">辨識失敗：%s</string>
+    <string name="ai_expense_ocr_failed">OCR辨識失敗：%s</string>
+    <string name="ai_expense_no_text">沒有可處理的文字</string>
+    <string name="ai_expense_ocr_title">OCR辨識</string>
+    <string name="ai_expense_ocr_editing">編輯辨識的文字</string>
+    <string name="ai_expense_ocr_processing">正在辨識文字…</string>
+    <string name="ai_expense_ocr_confirm">確認</string>
+    <string name="ai_expense_ocr_language">辨識語言</string>
+    <string name="ai_expense_language_latin">拉丁語系（英語、越南語等）</string>
+    <string name="ai_expense_language_chinese">中文</string>
+    <string name="ai_expense_language_japanese">日語</string>
+    <string name="ai_expense_language_korean">韓語</string>
     <string name="ai_expense_save_success">儲存成功</string>
     <string name="ai_expense_save_failed">儲存失敗：%s</string>
     <string name="ai_expense_no_valid_records">無有效記錄可儲存</string>

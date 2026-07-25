@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronie.homemoney.R
+import com.chronie.homemoney.data.ocr.OcrHelper
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.repository.AIRecordRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,10 +24,11 @@ import javax.inject.Inject
 class AIExpenseViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val aiRecordRepository: AIRecordRepository,
-    private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler
+    private val syncScheduler: com.chronie.homemoney.data.sync.SyncScheduler,
+    private val ocrHelper: OcrHelper
 ) : ViewModel() {
     
-    private val _uiState = MutableStateFlow(AIExpenseUiState())
+    private val _uiState = MutableStateFlow(AIExpenseUiState(ocrLanguage = ocrHelper.getAutoDetectedLanguage()))
     val uiState: StateFlow<AIExpenseUiState> = _uiState.asStateFlow()
     
     /**
@@ -69,32 +71,125 @@ class AIExpenseViewModel @Inject constructor(
             return
         }
         
+        if (state.selectedImages.isNotEmpty()) {
+            startOcrRecognition()
+        } else {
+            processTextForRecords(state.textInput)
+        }
+    }
+    
+    /**
+     * Start OCR recognition process
+     */
+    private fun startOcrRecognition() {
+        val state = _uiState.value
+        
+        _uiState.update { it.copy(isOcrProcessing = true, showOcrBottomSheet = true, errorMessage = null) }
+        
+        viewModelScope.launch {
+            try {
+                val ocrResult = aiRecordRepository.ocrImagesToText(state.selectedImages, state.ocrLanguage)
+                
+                ocrResult.onSuccess { text ->
+                    _uiState.update {
+                        it.copy(
+                            isOcrProcessing = false,
+                            ocrText = text
+                        )
+                    }
+                }.onFailure { error ->
+                    val errorMessage = error.message ?: "OCR failed"
+                    android.util.Log.e("AIExpenseViewModel", "OCR failed: $errorMessage", error)
+                    _uiState.update {
+                        it.copy(
+                            isOcrProcessing = false,
+                            showOcrBottomSheet = false,
+                            errorMessage = context.getString(R.string.ai_expense_ocr_failed, errorMessage)
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                val errorMessage = e.message ?: "Unknown error"
+                android.util.Log.e("AIExpenseViewModel", "OCR failed: $errorMessage", e)
+                _uiState.update {
+                    it.copy(
+                        isOcrProcessing = false,
+                        showOcrBottomSheet = false,
+                        errorMessage = context.getString(R.string.ai_expense_ocr_failed, errorMessage)
+                    )
+                }
+            }
+        }
+    }
+    
+    /**
+     * Update OCR language
+     */
+    fun updateOcrLanguage(language: OcrHelper.OcrLanguage) {
+        _uiState.update { it.copy(ocrLanguage = language) }
+        
+        val currentState = _uiState.value
+        if (currentState.showOcrBottomSheet && currentState.selectedImages.isNotEmpty()) {
+            startOcrRecognition()
+        }
+    }
+    
+    /**
+     * Update OCR text in UI state
+     */
+    fun updateOcrText(text: String) {
+        _uiState.update { it.copy(ocrText = text) }
+    }
+    
+    /**
+     * Close OCR bottom sheet
+     */
+    fun closeOcrBottomSheet() {
+        _uiState.update { it.copy(showOcrBottomSheet = false) }
+    }
+    
+    /**
+     * Confirm OCR text and process for records
+     */
+    fun confirmOcrText() {
+        val state = _uiState.value
+        
+        if (state.ocrText.isBlank()) {
+            _uiState.update { it.copy(errorMessage = context.getString(R.string.ai_expense_no_text)) }
+            return
+        }
+        
+        _uiState.update { it.copy(showOcrBottomSheet = false) }
+        processTextForRecords(state.ocrText)
+    }
+    
+    /**
+     * Process text for record recognition
+     */
+    private fun processTextForRecords(text: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             
             try {
-                val records = mutableListOf<AIExpenseRecord>()
+                val textResult = aiRecordRepository.parseTextToRecords(text)
                 
-                // Process images if any
-                if (state.selectedImages.isNotEmpty()) {
-                    val imageResult = aiRecordRepository.parseImagesToRecords(state.selectedImages)
-                    imageResult.onSuccess { records.addAll(it) }
-                        .onFailure { throw it }
-                }
-                
-                // Process text if any input
-                if (state.textInput.isNotBlank()) {
-                    val textResult = aiRecordRepository.parseTextToRecords(state.textInput)
-                    textResult.onSuccess { records.addAll(it) }
-                        .onFailure { throw it }
-                }
-                
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        recognizedRecords = records,
-                        errorMessage = if (records.isEmpty()) context.getString(R.string.ai_expense_no_records) else null
-                    )
+                textResult.onSuccess { records ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            recognizedRecords = records,
+                            errorMessage = if (records.isEmpty()) context.getString(R.string.ai_expense_no_records) else null
+                        )
+                    }
+                }.onFailure { error ->
+                    val errorMessage = error.message ?: "Recognition failed"
+                    android.util.Log.e("AIExpenseViewModel", "Recognition failed: $errorMessage", error)
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = context.getString(R.string.ai_expense_recognition_failed, errorMessage)
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 val errorMessage = e.message ?: "Unknown error"
@@ -211,13 +306,17 @@ class AIExpenseViewModel @Inject constructor(
 }
 
 /**
- * AI Expense Record UI State
- */
+     * AI Expense Record UI State
+     */
 data class AIExpenseUiState(
     val selectedImages: List<Uri> = emptyList(),
     val textInput: String = "",
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val recognizedRecords: List<AIExpenseRecord> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val ocrText: String = "",
+    val showOcrBottomSheet: Boolean = false,
+    val isOcrProcessing: Boolean = false,
+    val ocrLanguage: OcrHelper.OcrLanguage = OcrHelper.OcrLanguage.LATIN
 )

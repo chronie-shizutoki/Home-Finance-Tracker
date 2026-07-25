@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">Sila masukkan teks atau pilih gambar</string>
     <string name="ai_expense_no_records">Tiada rekod perbelanjaan dikesan</string>
     <string name="ai_expense_recognition_failed">Pengecaman gagal: %s</string>
+    <string name="ai_expense_ocr_failed">OCR gagal: %s</string>
+    <string name="ai_expense_no_text">Tiada teks untuk diproses</string>
+    <string name="ai_expense_ocr_title">Pengecaman OCR</string>
+    <string name="ai_expense_ocr_editing">Edit teks yang dikenal pasti</string>
+    <string name="ai_expense_ocr_processing">Mengenal pasti teks…</string>
+    <string name="ai_expense_ocr_confirm">Sahkan</string>
+    <string name="ai_expense_ocr_language">Bahasa Pengecaman</string>
+    <string name="ai_expense_language_latin">Latin (Inggeris, Vietnam, dll.)</string>
+    <string name="ai_expense_language_chinese">Cina</string>
+    <string name="ai_expense_language_japanese">Jepun</string>
+    <string name="ai_expense_language_korean">Korea</string>
     <string name="ai_expense_save_success">Berjaya disimpan</string>
     <string name="ai_expense_save_failed">Gagal menyimpan: %s</string>
     <string name="ai_expense_no_valid_records">Tiada rekod sah</string>

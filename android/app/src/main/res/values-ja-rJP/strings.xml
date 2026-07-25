@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">テキストを入力するか、画像を選択してください</string>
     <string name="ai_expense_no_records">支出記録が認識されませんでした</string>
     <string name="ai_expense_recognition_failed">認識に失敗しました：%s</string>
+    <string name="ai_expense_ocr_failed">OCR失敗：%s</string>
+    <string name="ai_expense_no_text">処理するテキストがありません</string>
+    <string name="ai_expense_ocr_title">OCR認識</string>
+    <string name="ai_expense_ocr_editing">認識したテキストを編集</string>
+    <string name="ai_expense_ocr_processing">テキストを認識中…</string>
+    <string name="ai_expense_ocr_confirm">確認</string>
+    <string name="ai_expense_ocr_language">認識言語</string>
+    <string name="ai_expense_language_latin">ラテン語（英語、ベトナム語など）</string>
+    <string name="ai_expense_language_chinese">中国語</string>
+    <string name="ai_expense_language_japanese">日本語</string>
+    <string name="ai_expense_language_korean">韓国語</string>
     <string name="ai_expense_save_success">保存しました</string>
     <string name="ai_expense_save_failed">保存に失敗しました：%s</string>
     <string name="ai_expense_no_valid_records">有効な記録がありません</string>

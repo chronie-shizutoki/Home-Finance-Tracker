@@ -1,6 +1,7 @@
 package com.chronie.homemoney.domain.repository
 
 import android.net.Uri
+import com.chronie.homemoney.data.ocr.OcrHelper
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 
 /**
@@ -16,7 +17,12 @@ interface AIRecordRepository {
     /**
      * Parse Images to Expense Records
      */
-    suspend fun parseImagesToRecords(imageUris: List<Uri>): Result<List<AIExpenseRecord>>
+    suspend fun parseImagesToRecords(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<List<AIExpenseRecord>>
+    
+    /**
+     * Recognize text from images using OCR
+     */
+    suspend fun ocrImagesToText(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<String>
     
     /**
      * Batch Save AI Recognized Records
