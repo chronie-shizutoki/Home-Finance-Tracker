@@ -36,7 +36,7 @@
     "lru-cache": "^11.2.5",
     "marked": "^18.0.0",
     "mathjs": "^15.2.0",
-    "pinia": "^3.0.4",
+    "pinia": "^4.0.0",
     "rimraf": "^6.1.2",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.0.0",
