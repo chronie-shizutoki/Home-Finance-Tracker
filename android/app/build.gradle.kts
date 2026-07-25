@@ -133,6 +133,7 @@ dependencies {
 
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -178,7 +179,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     implementation(libs.security.crypto)
-    implementation("net.zetetic:sqlcipher-android:${libs.versions.sqlcipher.get()}@aar")
+    implementation(libs.sqlcipher)
     implementation(libs.sqlite)
 
     implementation(libs.work.runtime)
@@ -191,6 +192,12 @@ dependencies {
     implementation(libs.xz)
 
     implementation(libs.ucrop)
+
+    implementation(libs.opencv)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.mlkit.text.recognition.chinese)
+    implementation(libs.mlkit.text.recognition.japanese)
+    implementation(libs.mlkit.text.recognition.korean)
 
     implementation(libs.grpc.okhttp)
     implementation(libs.grpc.protobuf.lite)

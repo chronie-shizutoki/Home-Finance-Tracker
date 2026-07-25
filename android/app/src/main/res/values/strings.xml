@@ -222,6 +222,17 @@
     <string name="ai_expense_select_type">Category</string>
     <string name="ai_expense_amount">Amount</string>
     <string name="ai_expense_remark">Notes</string>
+    <string name="ai_expense_ocr_failed">OCR failed: %s</string>
+    <string name="ai_expense_no_text">No text to process</string>
+    <string name="ai_expense_ocr_title">OCR Recognition</string>
+    <string name="ai_expense_ocr_editing">Edit recognized text</string>
+    <string name="ai_expense_ocr_processing">Recognizing text…</string>
+    <string name="ai_expense_ocr_confirm">Confirm</string>
+    <string name="ai_expense_ocr_language">Recognition Language</string>
+    <string name="ai_expense_language_latin">Latin (English, Vietnamese, etc.)</string>
+    <string name="ai_expense_language_chinese">Chinese</string>
+    <string name="ai_expense_language_japanese">Japanese</string>
+    <string name="ai_expense_language_korean">Korean</string>
     <string name="search_category">Search category…</string>
     <string name="search_results_count">%d results</string>
     <string name="no_results_found">No matching results</string>

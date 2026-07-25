@@ -206,6 +206,17 @@
     <string name="ai_expense_select_type">选择分类</string>
     <string name="ai_expense_amount">金额</string>
     <string name="ai_expense_remark">备注</string>
+    <string name="ai_expense_ocr_failed">OCR识别失败：%s</string>
+    <string name="ai_expense_no_text">没有可处理的文本</string>
+    <string name="ai_expense_ocr_title">OCR识别</string>
+    <string name="ai_expense_ocr_editing">编辑识别的文字</string>
+    <string name="ai_expense_ocr_processing">正在识别文字…</string>
+    <string name="ai_expense_ocr_confirm">确认</string>
+    <string name="ai_expense_ocr_language">识别语言</string>
+    <string name="ai_expense_language_latin">拉丁语系（英语、越南语等）</string>
+    <string name="ai_expense_language_chinese">中文</string>
+    <string name="ai_expense_language_japanese">日语</string>
+    <string name="ai_expense_language_korean">韩语</string>
     <string name="search_category">搜索分类…</string>
     <string name="search_results_count">%d 个结果</string>
     <string name="no_results_found">未找到匹配项</string>

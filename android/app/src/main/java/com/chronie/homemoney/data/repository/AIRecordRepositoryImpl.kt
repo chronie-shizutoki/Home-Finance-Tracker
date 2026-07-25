@@ -10,6 +10,7 @@ import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import com.chronie.homemoney.data.mapper.AIRecordMapper
 import com.chronie.homemoney.data.mapper.ExpenseMapper
+import com.chronie.homemoney.data.ocr.OcrHelper
 import com.chronie.homemoney.data.remote.api.AIRecordApi
 import com.chronie.homemoney.data.remote.dto.*
 import com.chronie.homemoney.domain.model.AIExpenseRecord
@@ -32,13 +33,13 @@ class AIRecordRepositoryImpl @Inject constructor(
     private val aiRecordApi: AIRecordApi,
     private val expenseDao: ExpenseDao,
     private val syncQueueDao: SyncQueueDao,
-    private val gson: Gson
+    private val gson: Gson,
+    private val ocrHelper: OcrHelper
 ) : AIRecordRepository {
     
     companion object {
         private const val TAG = "AIRecordRepository"
         private const val TEXT_MODEL = "Qwen/Qwen3-8B"
-        private const val IMAGE_MODEL = "Qwen/Qwen3.5-4B"
     }
     
     override suspend fun parseTextToRecords(text: String): Result<List<AIExpenseRecord>> {
@@ -94,79 +95,44 @@ class AIRecordRepositoryImpl @Inject constructor(
         }
     }
     
-    override suspend fun parseImagesToRecords(imageUris: List<Uri>): Result<List<AIExpenseRecord>> {
+    override suspend fun parseImagesToRecords(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<List<AIExpenseRecord>> {
         return try {
-            Log.d(TAG, "Parsing ${imageUris.size} images to records")
+            Log.d(TAG, "Parsing ${imageUris.size} images to records with language: ${language.code}")
             
-            val base64Images = imageUris.map { uri ->
-                uriToBase64(uri)
+            val ocrText = ocrImagesToText(imageUris, language)
+                .onFailure { throw it }
+                .getOrThrow()
+            
+            if (ocrText.isBlank()) {
+                throw Exception("OCR failed to extract text from images")
             }
             
-            val prompt = buildImagePrompt()
-            val messageContent = mutableListOf<AIMessageContent>()
-            
-            // Add text prompt
-            messageContent.add(
-                AIMessageContent(
-                    type = "text",
-                    text = prompt
-                )
-            )
-            
-            // Add all images
-            base64Images.forEach { base64 ->
-                messageContent.add(
-                    AIMessageContent(
-                        type = "image_url",
-                        imageUrl = AIImageUrl(url = "data:image/jpeg;base64,$base64")
-                    )
-                )
-            }
-            
-            val request = AIRecordRequest(
-                model = IMAGE_MODEL,
-                messages = listOf(
-                    AIMessage(
-                        role = "system",
-                        content = "你是一个智能消费记录解析助手，能够从图片中提取消费信息并格式化输出。"
-                    ),
-                    AIMessage(
-                        role = "user",
-                        content = messageContent
-                    )
-                ),
-                temperature = 0.2,
-                stream = false
-            )
-            
-            val response = aiRecordApi.parseRecord(request)
-
-            if (!response.isSuccessful) {
-                val errorBody = response.errorBody()?.string()
-                val errorMessage = when (response.code()) {
-                    400 -> "请求参数错误 (400): ${errorBody ?: "请检查输入内容"}"
-                    401 -> "API密钥无效或已过期 (401): ${errorBody ?: "请检查API Key设置"}"
-                    403 -> "请求被拒绝 (403): ${errorBody ?: "可能没有权限访问该模型"}"
-                    404 -> "API端点不存在 (404): ${errorBody ?: "请检查API地址配置"}"
-                    429 -> "请求过于频繁 (429): ${errorBody ?: "请稍后再试"}"
-                    500 -> "服务器内部错误 (500): ${errorBody ?: "AI服务暂时不可用"}"
-                    502 -> "网关错误 (502): ${errorBody ?: "服务器维护中"}"
-                    503 -> "服务不可用 (503): ${errorBody ?: "服务器过载或维护中"}"
-                    else -> "HTTP错误 (${response.code()}): ${errorBody ?: "未知错误"}"
-                }
-                Log.e(TAG, "API request failed: $errorMessage")
-                throw Exception(errorMessage)
-            }
-
-            val content = response.body()?.choices?.firstOrNull()?.message?.content
-                ?: throw Exception("Empty response from AI")
-            
-            val records = parseAIResponse(content)
-            Log.d(TAG, "Parsed ${records.size} records from images")
-            
-            Result.success(records)
+            parseTextToRecords(ocrText)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse images", e)
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun ocrImagesToText(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<String> {
+        return try {
+            Log.d(TAG, "Performing OCR on ${imageUris.size} images with language: ${language.code}")
+            
+            val texts = mutableListOf<String>()
+            
+            imageUris.forEach { uri ->
+                val text = ocrHelper.recognizeTextFromUri(uri, language)
+                if (text.isNotBlank()) {
+                    texts.add(text)
+                }
+            }
+            
+            val combinedText = texts.joinToString("\n\n")
+            Log.d(TAG, "OCR completed, extracted ${combinedText.length} characters")
+            
+            Result.success(combinedText)
+        } catch (e: Exception) {
+            Log.e(TAG, "OCR failed", e)
             Result.failure(e)
         }
     }
@@ -213,57 +179,24 @@ class AIRecordRepositoryImpl @Inject constructor(
         val dateStr = today.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         
         return """
-今天是 $dateStr，星期$dayOfWeek。
+今天是 $dateStr，星期$dayOfWeek。请分析以下文本，提取其中的所有消费信息，并尝试修复可能的OCR错别字。文本可能包含任何语言（中文、英文、日语、韩语、越南语、印尼语、马来语等），请根据文本内容智能识别消费信息。
 
-请分析以下文本，提取其中的所有消费信息。如果有多个消费记录，请以JSON数组的形式输出。
-每个记录应包含：
+如果有多个消费记录，请以JSON数组的形式输出。每个记录应包含：
 {
-  "type": "消费类型", // 从预定义列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
+  "type": "消费类型", // 必须从以下中文列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
   "amount": 金额, // 数字类型
   "date": "日期", // 日期格式 YYYY-MM-DD
-  "remark": "备注" // 详细说明，注意：此处必须包含消费物品/服务的名称
+  "remark": "备注" // 消费物品/服务的名称和说明，保留原始语言均可
 }
 
 请注意：
 1. 如果文本中有多个消费记录，请返回JSON数组格式
 2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
-3. 如果文本中没有明确的消费类型，请根据内容选择最合适的预定义类型
+3. 消费类型字段必须是上面列出的中文类型之一，不要使用其他语言或自定义类型
 4. 如果没有明确的日期，请使用今天日期（$dateStr）
 5. 只返回JSON数据，不要添加其他无关内容，不要使用markdown代码块
 
 文本内容：$text
-        """.trimIndent()
-    }
-    
-    /**
-     * Build image prompt for parsing image records
-     */
-    private fun buildImagePrompt(): String {
-        val today = java.time.LocalDate.now()
-        val dayOfWeek = today.dayOfWeek.getDisplayName(
-            java.time.format.TextStyle.FULL,
-            java.util.Locale.SIMPLIFIED_CHINESE
-        )
-        val dateStr = today.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        
-        return """
-今天是 $dateStr，星期$dayOfWeek。
-
-请分析图片中的所有消费信息。如果有多个消费记录，请以JSON数组的形式输出。
-每个记录应包含：
-{
-  "type": "消费类型", // 从预定义列表中选择：日常用品、奢侈品、通讯费用、食品、零食糖果、冷饮、方便食品、纺织品、饮品、调味品、交通出行、餐饮、医疗费用、水果、其他、水产品、乳制品、礼物人情、旅行度假、政务、水电煤气、美容美发、豆制品、个护美妆、电子产品、家用电器、五金、服装
-  "amount": 金额, // 数字类型
-  "date": "日期", // 日期格式 YYYY-MM-DD
-  "remark": "备注" // 详细说明，注意：此处必须包含消费物品/服务的名称
-}
-
-请注意：
-1. 如果图片中有多个消费记录，请返回JSON数组格式
-2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
-3. 如果图片中没有明确的消费类型，请根据内容选择最合适的预定义类型
-4. 如果没有明确的日期，请使用今天日期（$dateStr）
-5. 只返回JSON数据，不要添加其他无关内容，不要使用markdown代码块
         """.trimIndent()
     }
     

@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">Vui lòng nhập văn bản hoặc chọn hình ảnh</string>
     <string name="ai_expense_no_records">Không nhận diện được bản ghi chi tiêu nào</string>
     <string name="ai_expense_recognition_failed">Nhận diện thất bại: %s</string>
+    <string name="ai_expense_ocr_failed">OCR thất bại: %s</string>
+    <string name="ai_expense_no_text">Không có văn bản để xử lý</string>
+    <string name="ai_expense_ocr_title">Nhận diện OCR</string>
+    <string name="ai_expense_ocr_editing">Chỉnh sửa văn bản đã nhận diện</string>
+    <string name="ai_expense_ocr_processing">Đang nhận diện văn bản…</string>
+    <string name="ai_expense_ocr_confirm">Xác nhận</string>
+    <string name="ai_expense_ocr_language">Ngôn ngữ nhận diện</string>
+    <string name="ai_expense_language_latin">Latin (Tiếng Anh, Việt, v.v.)</string>
+    <string name="ai_expense_language_chinese">Tiếng Trung</string>
+    <string name="ai_expense_language_japanese">Tiếng Nhật</string>
+    <string name="ai_expense_language_korean">Tiếng Hàn</string>
     <string name="ai_expense_save_success">Lưu thành công</string>
     <string name="ai_expense_save_failed">Lưu thất bại: %s</string>
     <string name="ai_expense_no_valid_records">Không có bản ghi hợp lệ</string>

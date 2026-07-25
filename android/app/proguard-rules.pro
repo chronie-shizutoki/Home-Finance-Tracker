@@ -125,3 +125,13 @@
 -keepclassmembers class * {
     @kotlinx.serialization.* <fields>;
 }
+
+# OpenCV
+-keep class org.opencv.** { *; }
+-keepclassmembers class org.opencv.** { *; }
+-dontwarn org.opencv.**
+
+# ML Kit Text Recognition
+-keep class com.google.mlkit.** { *; }
+-keepclassmembers class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**

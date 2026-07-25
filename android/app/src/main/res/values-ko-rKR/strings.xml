@@ -200,6 +200,17 @@
     <string name="ai_expense_no_input">텍스트를 입력하거나 이미지를 선택해 주세요</string>
     <string name="ai_expense_no_records">지출 내역을 인식하지 못했습니다</string>
     <string name="ai_expense_recognition_failed">인식 실패：%s</string>
+    <string name="ai_expense_ocr_failed">OCR 실패：%s</string>
+    <string name="ai_expense_no_text">처리할 텍스트가 없습니다</string>
+    <string name="ai_expense_ocr_title">OCR 인식</string>
+    <string name="ai_expense_ocr_editing">인식된 텍스트 수정</string>
+    <string name="ai_expense_ocr_processing">텍스트 인식 중…</string>
+    <string name="ai_expense_ocr_confirm">확인</string>
+    <string name="ai_expense_ocr_language">인식 언어</string>
+    <string name="ai_expense_language_latin">라틴어 (영어, 베트남어 등)</string>
+    <string name="ai_expense_language_chinese">중국어</string>
+    <string name="ai_expense_language_japanese">일본어</string>
+    <string name="ai_expense_language_korean">한국어</string>
     <string name="ai_expense_save_success">저장 성공</string>
     <string name="ai_expense_save_failed">저장 실패：%s</string>
     <string name="ai_expense_no_valid_records">유효한 내역이 없습니다</string>
