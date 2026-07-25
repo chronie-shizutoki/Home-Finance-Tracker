@@ -226,3 +226,66 @@ try {
 } catch (_: Exception) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+tasks.register("generateLicenseJson") {
+    group = "license"
+    description = "Generate license.json from all runtime dependencies"
+    
+    doLast {
+        try {
+            val outputFile = file("$projectDir/src/main/assets/licenses.json")
+            outputFile.parentFile.mkdirs()
+            
+            val dependencies = mutableListOf<Map<String, String>>()
+            val seen = mutableSetOf<String>()
+            
+            val runtimeConfigs = listOf("debugRuntimeClasspath", "releaseRuntimeClasspath")
+            
+            runtimeConfigs.forEach { configName ->
+                try {
+                    val config = configurations.findByName(configName)
+                    if (config != null && config.isCanBeResolved) {
+                        config.resolvedConfiguration.firstLevelModuleDependencies.forEach { dep ->
+                            val key = "${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}"
+                            if (key !in seen && !dep.moduleGroup.startsWith("com.chronie")) {
+                                seen.add(key)
+                                dependencies.add(mapOf(
+                                    "group" to dep.moduleGroup,
+                                    "name" to dep.moduleName,
+                                    "version" to dep.moduleVersion,
+                                    "fullName" to "${dep.moduleGroup}:${dep.moduleName}"
+                                ))
+                            }
+                        }
+                    }
+                } catch (_: Exception) {
+                }
+            }
+            
+            val sorted = dependencies.sortedBy { it["fullName"] }
+            val json = buildString {
+                appendLine("[")
+                sorted.forEachIndexed { index, dep ->
+                    appendLine("  {")
+                    appendLine("    \"group\": \"${dep["group"]}\",")
+                    appendLine("    \"name\": \"${dep["name"]}\",")
+                    appendLine("    \"version\": \"${dep["version"]}\",")
+                    appendLine("    \"fullName\": \"${dep["fullName"]}\"")
+                    appendLine("  }${if (index < sorted.size - 1) "," else ""}")
+                }
+                appendLine("]")
+            }
+            
+            outputFile.writeText(json)
+            println("Generated licenses.json with ${dependencies.size} dependencies")
+        } catch (e: Exception) {
+            logger.warn("Failed to generate licenses.json: ${e.message}")
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named("preBuild") {
+        dependsOn("generateLicenseJson")
+    }
+}
