@@ -1,230 +1,230 @@
 {
   "app": {
-    "title": "Home Finance Tracker",
-    "export": "Export Data",
-    "notFound": "Page Not Found",
-    "pageNotFound": "The page you're looking for doesn't exist",
-    "backToHome": "Back to Home",
-    "firstPage": "First Page",
-    "previousPage": "Previous Page",
-    "page": "Page {page}",
-    "nextPage": "Next Page",
-    "lastPage": "Last Page",
-    "loading": "Loading..."
+    "title": "Sổ thu chi gia đình",
+    "export": "Xuất dữ liệu",
+    "notFound": "Không tìm thấy trang",
+    "pageNotFound": "Trang bạn đang tìm không tồn tại",
+    "backToHome": "Quay lại trang chủ",
+    "firstPage": "Trang đầu",
+    "previousPage": "Trang trước",
+    "page": "Trang {page}",
+    "nextPage": "Trang sau",
+    "lastPage": "Trang cuối",
+    "loading": "Đang tải..."
   },
   "home": {
-    "noDataForExport": "No data available for export"
+    "noDataForExport": "Không có dữ liệu để xuất"
   },
   "expense": {
-    "noRecords": "No expenses found",
-    "record": "Expense Record",
-    "unknownError": "An error occurred",
-    "selectType": "Select Category",
-    "inputAmount": "Enter Amount",
-    "selectDate": "Select Date",
-    "enterRemark": "Add a note (optional)",
-    "confirm": "Confirm",
-    "serverError": "Server error",
-    "type": "Category",
-    "amount": "Amount",
-    "date": "Date",
-    "remark": "Notes",
-    "addSuccess": "Successfully added {count} expenses",
-    "aiAddRecord": "AI Record",
-    "aiReport": "AI Q&A",
-    "edit": "Edit Expense",
-    "updateFailed": "Failed to update expense, please try again later",
-    "updateSuccess": "Expense updated successfully",
-    "deleteConfirm": "Delete Expense",
-    "deleteMessage": "Are you sure you want to delete this expense?",
-    "deleteSuccess": "Expense deleted successfully",
-    "deleteFailed": "Failed to delete expense, please try again later",
-    "dailyExpense": "Daily Spending",
-    "addDialogTitle": "Add Expense",
-    "addRecord": "Add New Record",
-    "amountRequired": "Amount is required",
+    "noRecords": "Không tìm thấy khoản chi nào",
+    "record": "Bản ghi chi tiêu",
+    "unknownError": "Đã xảy ra lỗi",
+    "selectType": "Chọn danh mục",
+    "inputAmount": "Nhập số tiền",
+    "selectDate": "Chọn ngày",
+    "enterRemark": "Thêm ghi chú (không bắt buộc)",
+    "confirm": "Xác nhận",
+    "serverError": "Lỗi máy chủ",
+    "type": "Danh mục",
+    "amount": "Số tiền",
+    "date": "Ngày",
+    "remark": "Ghi chú",
+    "addSuccess": "Đã thêm thành công {count} khoản chi",
+    "aiAddRecord": "Ghi chép AI",
+    "aiReport": "Hỏi đáp AI",
+    "edit": "Chỉnh sửa khoản chi",
+    "updateFailed": "Cập nhật khoản chi thất bại, vui lòng thử lại sau",
+    "updateSuccess": "Cập nhật khoản chi thành công",
+    "deleteConfirm": "Xóa khoản chi",
+    "deleteMessage": "Bạn có chắc chắn muốn xóa khoản chi này không?",
+    "deleteSuccess": "Xóa khoản chi thành công",
+    "deleteFailed": "Xóa khoản chi thất bại, vui lòng thử lại sau",
+    "dailyExpense": "Chi tiêu hàng ngày",
+    "addDialogTitle": "Thêm khoản chi",
+    "addRecord": "Thêm bản ghi mới",
+    "amountRequired": "Số tiền là bắt buộc",
     "empty": {
-      "title": "No Expenses",
-      "description": "Add new expenses or adjust your filters",
-      "reset": "Reset Filters"
+      "title": "Không có khoản chi",
+      "description": "Thêm khoản chi mới hoặc điều chỉnh bộ lọc",
+      "reset": "Đặt lại bộ lọc"
     },
     "search": {
-      "title": "Search Expenses",
-      "minAmountPlaceholder": "Min amount",
-      "maxAmountPlaceholder": "Max amount",
-      "keywordPlaceholder": "Search notes...",
-      "month": "Month",
-      "allMonth": "All Months",
-      "type": "Category",
-      "allType": "All Categories",
-      "sort": "Sort By",
-      "amountRange": "Amount Range",
-      "keyword": "Search",
-      "reset": "Reset"
+      "title": "Tìm kiếm khoản chi",
+      "minAmountPlaceholder": "Số tiền tối thiểu",
+      "maxAmountPlaceholder": "Số tiền tối đa",
+      "keywordPlaceholder": "Tìm kiếm ghi chú...",
+      "month": "Tháng",
+      "allMonth": "Tất cả các tháng",
+      "type": "Danh mục",
+      "allType": "Tất cả danh mục",
+      "sort": "Sắp xếp theo",
+      "amountRange": "Khoảng tiền",
+      "keyword": "Tìm kiếm",
+      "reset": "Đặt lại"
     },
-    "noDataTitle": "No Results",
-    "noDataMessage": "Try adjusting your filters or add new expenses",
+    "noDataTitle": "Không có kết quả",
+    "noDataMessage": "Hãy thử điều chỉnh bộ lọc hoặc thêm khoản chi mới",
     "sort": {
-      "dateAsc": "Date ↑",
-      "dateDesc": "Date ↓",
-      "amountAsc": "Amount ↑",
-      "amountDesc": "Amount ↓"
+      "dateAsc": "Ngày ↑",
+      "dateDesc": "Ngày ↓",
+      "amountAsc": "Số tiền ↑",
+      "amountDesc": "Số tiền ↓"
     },
     "stats": {
-      "rowCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "amountRange": "Amount Range"
+      "rowCount": "Tổng số bản ghi",
+      "totalAmount": "Tổng số tiền",
+      "averageAmount": "Trung bình",
+      "medianAmount": "Trung vị",
+      "amountRange": "Khoảng tiền"
     },
     "largeExpense": {
-      "warning": "Large expense detected. Please confirm this is correct.",
-      "confirm": "I Understand"
+      "warning": "Phát hiện khoản chi lớn. Vui lòng xác nhận thông tin này đúng.",
+      "confirm": "Tôi hiểu"
     },
     "common": {
-      "requestCanceled": "Request cancelled",
-      "networkError": "Network error. Please check your connection"
+      "requestCanceled": "Yêu cầu bị hủy",
+      "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối"
     },
     "columns": {
-      "time": "Time",
-      "name": "Category"
+      "time": "Thời gian",
+      "name": "Danh mục"
     }
   },
   "common": {
-    "action": "Actions",
-    "cancel": "Cancel",
+    "action": "Thao tác",
+    "cancel": "Hủy",
     "confirm": "OK",
-    "submit": "Submit",
-    "loadFailed": "Failed to load data, please try again later",
-    "edit": "Edit",
-    "delete": "Delete",
-    "to": "to",
-    "currency": "USD",
-    "currencySymbol": "$",
-    "sunday": "Sunday",
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "date": "Date",
-    "date_today": "Today",
-    "date_yesterday": "Yesterday",
-    "date_days_ago": "{days} days ago"
+    "submit": "Gửi",
+    "loadFailed": "Tải dữ liệu thất bại, vui lòng thử lại sau",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "to": "đến",
+    "currency": "VND",
+    "currencySymbol": "₫",
+    "sunday": "Chủ Nhật",
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy",
+    "date": "Ngày",
+    "date_today": "Hôm nay",
+    "date_yesterday": "Hôm qua",
+    "date_days_ago": "{days} ngày trước"
   },
   "spending": {
-    "monthlyProgress": "Monthly Spending Progress",
-    "exceeded": "Over Budget",
-    "dailyAverage": "Daily Average",
-    "recommendedDaily": "Recommended Daily",
+    "monthlyProgress": "Tiến độ chi tiêu tháng",
+    "exceeded": "Vượt ngân sách",
+    "dailyAverage": "Trung bình ngày",
+    "recommendedDaily": "Đề xuất chi tiêu hàng ngày",
     "settings": {
-      "title": "Budget Settings",
-      "on": "Enable Budget",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "monthlyLimit": "Monthly Budget",
-      "enterLimit": "Enter monthly budget",
-      "warningThreshold": "Warning Threshold",
-      "enterThreshold": "Enter warning threshold",
-      "disabledNotice": "Enable budget to track your monthly spending",
-      "pleaseSetLimit": "Please set your monthly budget"
+      "title": "Cài đặt ngân sách",
+      "on": "Bật ngân sách",
+      "enabled": "Đã bật",
+      "disabled": "Đã tắt",
+      "monthlyLimit": "Ngân sách tháng",
+      "enterLimit": "Nhập ngân sách tháng",
+      "warningThreshold": "Ngưỡng cảnh báo",
+      "enterThreshold": "Nhập ngưỡng cảnh báo",
+      "disabledNotice": "Bật ngân sách để theo dõi chi tiêu hàng tháng của bạn",
+      "pleaseSetLimit": "Vui lòng thiết lập ngân sách tháng của bạn"
     },
     "status": {
-      "disabled": "Budget disabled",
-      "normal": "On track",
-      "nearLimit": "Approaching budget",
-      "overLimit": "Over budget"
+      "disabled": "Ngân sách tắt",
+      "normal": "Đúng tiến độ",
+      "nearLimit": "Sắp đạt ngân sách",
+      "overLimit": "Vượt ngân sách"
     },
     "alert": {
       "normal": {
-        "title": "On Track",
-        "description": "Remaining: {remaining} ({percentage}% used)"
+        "title": "Đúng tiến độ",
+        "description": "Còn lại: {remaining} (đã dùng {percentage}%)"
       },
       "nearLimit": {
-        "title": "Approaching Budget",
-        "description": "Remaining: {remaining} ({percentage}% used). Consider slowing down."
+        "title": "Sắp đạt ngân sách",
+        "description": "Còn lại: {remaining} (đã dùng {percentage}%). Hãy cân nhắc giảm chi tiêu."
       },
       "overLimit": {
-        "title": "Over Budget",
-        "description": "Over budget by {amount}. Please review your spending."
+        "title": "Vượt ngân sách",
+        "description": "Vượt ngân sách {amount}. Vui lòng xem lại chi tiêu của bạn."
       }
     },
     "enablePrompt": {
-      "title": "Track Monthly Spending",
-      "description": "Set a monthly budget to track your spending and get alerts when you're close to your limit.",
-      "button": "Enable Budget",
-      "enabled": "Budget enabled successfully"
+      "title": "Theo dõi chi tiêu hàng tháng",
+      "description": "Thiết lập ngân sách hàng tháng để theo dõi chi tiêu và nhận cảnh báo khi bạn sắp đạt đến giới hạn.",
+      "button": "Bật ngân sách",
+      "enabled": "Đã bật ngân sách thành công"
     }
   },
   "function": {
-    "primary": "Main Features",
-    "aiFeatures": "AI Features"
+    "primary": "Tính năng chính",
+    "aiFeatures": "Tính năng AI"
   },
   "ai": {
     "report": {
-      "filterTitle": "Data Filter",
-      "statsPreview": "Data Statistics Preview",
-      "totalCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "minAmount": "Min Amount",
-      "maxAmount": "Max Amount",
-      "loading": "Loading..."
+      "filterTitle": "Bộ lọc dữ liệu",
+      "statsPreview": "Xem trước thống kê dữ liệu",
+      "totalCount": "Tổng số bản ghi",
+      "totalAmount": "Tổng số tiền",
+      "averageAmount": "Trung bình",
+      "medianAmount": "Trung vị",
+      "minAmount": "Số tiền nhỏ nhất",
+      "maxAmount": "Số tiền lớn nhất",
+      "loading": "Đang tải..."
     }
   },
   "avatar": {
-    "cropTitle": "Crop Avatar",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "placeholder": "Click to upload avatar",
+    "cropTitle": "Cắt ảnh đại diện",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "placeholder": "Nhấn để tải ảnh đại diện",
     "error": {
-      "sizeLimit": "Avatar size cannot exceed {maxSize}MB",
-      "invalidType": "Please select a valid image file",
-      "uploadFailed": "Avatar upload failed, please try again later"
+      "sizeLimit": "Kích thước ảnh đại diện không được vượt quá {maxSize}MB",
+      "invalidType": "Vui lòng chọn tệp hình ảnh hợp lệ",
+      "uploadFailed": "Tải ảnh đại diện thất bại, vui lòng thử lại sau"
     }
   },
   "membership": {
-    "title": "User Management",
-    "username": "Username",
-    "loginOrRegister": "Login / Register",
-    "logout": "Logout",
-    "usernamePlaceholder": "Enter your username",
+    "title": "Quản lý người dùng",
+    "username": "Tên đăng nhập",
+    "loginOrRegister": "Đăng nhập / Đăng ký",
+    "logout": "Đăng xuất",
+    "usernamePlaceholder": "Nhập tên đăng nhập của bạn",
     "error": {
-      "requiredUsername": "Please enter username",
-      "usernameFormat": "Username can only contain uppercase and lowercase letters",
-      "usernameLength": "Username length should be between 1-20 characters",
-      "loginFailed": "Login failed, please try again later"
+      "requiredUsername": "Vui lòng nhập tên đăng nhập",
+      "usernameFormat": "Tên đăng nhập chỉ có thể chứa chữ cái hoa và thường",
+      "usernameLength": "Tên đăng nhập phải có độ dài từ 1-20 ký tự",
+      "loginFailed": "Đăng nhập thất bại, vui lòng thử lại sau"
     },
     "success": {
-      "login": "Login successful",
-      "logout": "Logged out",
-      "avatarUploaded": "Avatar uploaded successfully"
+      "login": "Đăng nhập thành công",
+      "logout": "Đã đăng xuất",
+      "avatarUploaded": "Tải ảnh đại diện thành công"
     }
   },
   "export": {
-    "monthData": "Export This Month's Data",
-    "failed": "Export failed, please try again later"
+    "monthData": "Xuất dữ liệu tháng này",
+    "failed": "Xuất thất bại, vui lòng thử lại sau"
   },
   "error": {
-    "dataInitializationFailed": "Failed to initialize data, please try again"
+    "dataInitializationFailed": "Khởi tạo dữ liệu thất bại, vui lòng thử lại"
   },
   "chart": {
-    "title": "Spending Analysis",
-    "bar": "Bar Chart",
-    "line": "Line Chart",
-    "doughnut": "Doughnut Chart",
-    "radar": "Radar Chart",
-    "categoryAnalysis": "Spending by Category",
-    "categoryPercentage": "Category Breakdown",
-    "trendAnalysis": "Spending Trend",
-    "weekdayAnalysis": "Spending by Day of Week"
+    "title": "Phân tích chi tiêu",
+    "bar": "Biểu đồ cột",
+    "line": "Biểu đồ đường",
+    "doughnut": "Biểu đồ vòng",
+    "radar": "Biểu đồ radar",
+    "categoryAnalysis": "Chi tiêu theo danh mục",
+    "categoryPercentage": "Tỷ lệ danh mục",
+    "trendAnalysis": "Xu hướng chi tiêu",
+    "weekdayAnalysis": "Chi tiêu theo ngày trong tuần"
   },
   "import": {
-    "title": "Import Data",
-    "success": "Data imported successfully",
-    "failed": "Failed to import data",
-    "refreshNotice": "(Auto-refresh in 3 seconds)"
+    "title": "Nhập dữ liệu",
+    "success": "Nhập dữ liệu thành công",
+    "failed": "Nhập dữ liệu thất bại",
+    "refreshNotice": "(Tự động làm mới sau 3 giây)"
   }
 }

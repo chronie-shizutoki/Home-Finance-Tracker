@@ -1,7 +1,5 @@
 # Home Finance Tracker - Android Native Application
 
-[![Crowdin](https://badges.crowdin.net/home-finance-tracker/localized.svg)](https://crowdin.com/project/home-finance-tracker)
-
 ## Overview
 
 This is the native Android implementation of the Home Money financial tracking application. The app is built using modern Android development practices with Kotlin, Jetpack Compose, and follows Clean Architecture principles. It provides a comprehensive set of features for expense tracking, budget management, data synchronization, and more.
