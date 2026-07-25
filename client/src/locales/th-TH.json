@@ -1,230 +1,230 @@
 {
   "app": {
-    "title": "Home Finance Tracker",
-    "export": "Export Data",
-    "notFound": "Page Not Found",
-    "pageNotFound": "The page you're looking for doesn't exist",
-    "backToHome": "Back to Home",
-    "firstPage": "First Page",
-    "previousPage": "Previous Page",
-    "page": "Page {page}",
-    "nextPage": "Next Page",
-    "lastPage": "Last Page",
-    "loading": "Loading..."
+    "title": "บัญชีครัวเรือน",
+    "export": "ส่งออกข้อมูล",
+    "notFound": "ไม่พบหน้า",
+    "pageNotFound": "หน้าที่คุณค้นหาไม่มีอยู่",
+    "backToHome": "กลับไปหน้าแรก",
+    "firstPage": "หน้าแรก",
+    "previousPage": "หน้าก่อนหน้า",
+    "page": "หน้า {page}",
+    "nextPage": "หน้าถัดไป",
+    "lastPage": "หน้าสุดท้าย",
+    "loading": "กำลังโหลด..."
   },
   "home": {
-    "noDataForExport": "No data available for export"
+    "noDataForExport": "ไม่มีข้อมูลสำหรับส่งออก"
   },
   "expense": {
-    "noRecords": "No expenses found",
-    "record": "Expense Record",
-    "unknownError": "An error occurred",
-    "selectType": "Select Category",
-    "inputAmount": "Enter Amount",
-    "selectDate": "Select Date",
-    "enterRemark": "Add a note (optional)",
-    "confirm": "Confirm",
-    "serverError": "Server error",
-    "type": "Category",
-    "amount": "Amount",
-    "date": "Date",
-    "remark": "Notes",
-    "addSuccess": "Successfully added {count} expenses",
-    "aiAddRecord": "AI Record",
-    "aiReport": "AI Q&A",
-    "edit": "Edit Expense",
-    "updateFailed": "Failed to update expense, please try again later",
-    "updateSuccess": "Expense updated successfully",
-    "deleteConfirm": "Delete Expense",
-    "deleteMessage": "Are you sure you want to delete this expense?",
-    "deleteSuccess": "Expense deleted successfully",
-    "deleteFailed": "Failed to delete expense, please try again later",
-    "dailyExpense": "Daily Spending",
-    "addDialogTitle": "Add Expense",
-    "addRecord": "Add New Record",
-    "amountRequired": "Amount is required",
+    "noRecords": "ไม่พบรายจ่าย",
+    "record": "ประวัติรายจ่าย",
+    "unknownError": "เกิดข้อผิดพลาด",
+    "selectType": "เลือกหมวดหมู่",
+    "inputAmount": "ป้อนจำนวนเงิน",
+    "selectDate": "เลือกวันที่",
+    "enterRemark": "เพิ่มหมายเหตุ (ไม่บังคับ)",
+    "confirm": "ยืนยัน",
+    "serverError": "ข้อผิดพลาดของเซิร์ฟเวอร์",
+    "type": "หมวดหมู่",
+    "amount": "จำนวนเงิน",
+    "date": "วันที่",
+    "remark": "หมายเหตุ",
+    "addSuccess": "เพิ่มรายจ่าย {count} รายการสำเร็จ",
+    "aiAddRecord": "บันทึกด้วย AI",
+    "aiReport": "ถาม-ตอบ AI",
+    "edit": "แก้ไขรายจ่าย",
+    "updateFailed": "อัปเดตรายจ่ายไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "updateSuccess": "อัปเดตรายจ่ายสำเร็จ",
+    "deleteConfirm": "ลบรายจ่าย",
+    "deleteMessage": "คุณแน่ใจหรือไม่ว่าต้องการลบรายจ่ายนี้?",
+    "deleteSuccess": "ลบรายจ่ายสำเร็จ",
+    "deleteFailed": "ลบรายจ่ายไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "dailyExpense": "ค่าใช้จ่ายรายวัน",
+    "addDialogTitle": "เพิ่มรายจ่าย",
+    "addRecord": "เพิ่มรายการใหม่",
+    "amountRequired": "ต้องระบุจำนวนเงิน",
     "empty": {
-      "title": "No Expenses",
-      "description": "Add new expenses or adjust your filters",
-      "reset": "Reset Filters"
+      "title": "ไม่มีรายจ่าย",
+      "description": "เพิ่มรายจ่ายใหม่หรือปรับเปลี่ยนตัวกรอง",
+      "reset": "รีเซ็ตตัวกรอง"
     },
     "search": {
-      "title": "Search Expenses",
-      "minAmountPlaceholder": "Min amount",
-      "maxAmountPlaceholder": "Max amount",
-      "keywordPlaceholder": "Search notes...",
-      "month": "Month",
-      "allMonth": "All Months",
-      "type": "Category",
-      "allType": "All Categories",
-      "sort": "Sort By",
-      "amountRange": "Amount Range",
-      "keyword": "Search",
-      "reset": "Reset"
+      "title": "ค้นหารายจ่าย",
+      "minAmountPlaceholder": "จำนวนเงินขั้นต่ำ",
+      "maxAmountPlaceholder": "จำนวนเงินสูงสุด",
+      "keywordPlaceholder": "ค้นหาหมายเหตุ...",
+      "month": "เดือน",
+      "allMonth": "ทุกเดือน",
+      "type": "หมวดหมู่",
+      "allType": "ทุกหมวดหมู่",
+      "sort": "เรียงตาม",
+      "amountRange": "ช่วงจำนวนเงิน",
+      "keyword": "ค้นหา",
+      "reset": "รีเซ็ต"
     },
-    "noDataTitle": "No Results",
-    "noDataMessage": "Try adjusting your filters or add new expenses",
+    "noDataTitle": "ไม่พบผลลัพธ์",
+    "noDataMessage": "ลองปรับตัวกรองหรือเพิ่มรายจ่ายใหม่",
     "sort": {
-      "dateAsc": "Date ↑",
-      "dateDesc": "Date ↓",
-      "amountAsc": "Amount ↑",
-      "amountDesc": "Amount ↓"
+      "dateAsc": "วันที่ ↑",
+      "dateDesc": "วันที่ ↓",
+      "amountAsc": "จำนวนเงิน ↑",
+      "amountDesc": "จำนวนเงิน ↓"
     },
     "stats": {
-      "rowCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "amountRange": "Amount Range"
+      "rowCount": "จำนวนรายการทั้งหมด",
+      "totalAmount": "ยอดรวม",
+      "averageAmount": "ค่าเฉลี่ย",
+      "medianAmount": "ค่ามัธยฐาน",
+      "amountRange": "ช่วงจำนวนเงิน"
     },
     "largeExpense": {
-      "warning": "Large expense detected. Please confirm this is correct.",
-      "confirm": "I Understand"
+      "warning": "ตรวจพบรายจ่ายจำนวนมาก กรุณายืนยันว่าถูกต้อง",
+      "confirm": "ฉันเข้าใจ"
     },
     "common": {
-      "requestCanceled": "Request cancelled",
-      "networkError": "Network error. Please check your connection"
+      "requestCanceled": "ยกเลิกคำขอแล้ว",
+      "networkError": "ข้อผิดพลาดเครือข่าย กรุณาตรวจสอบการเชื่อมต่อ"
     },
     "columns": {
-      "time": "Time",
-      "name": "Category"
+      "time": "เวลา",
+      "name": "หมวดหมู่"
     }
   },
   "common": {
-    "action": "Actions",
-    "cancel": "Cancel",
-    "confirm": "OK",
-    "submit": "Submit",
-    "loadFailed": "Failed to load data, please try again later",
-    "edit": "Edit",
-    "delete": "Delete",
-    "to": "to",
-    "currency": "USD",
-    "currencySymbol": "$",
-    "sunday": "Sunday",
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "date": "Date",
-    "date_today": "Today",
-    "date_yesterday": "Yesterday",
-    "date_days_ago": "{days} days ago"
+    "action": "การดำเนินการ",
+    "cancel": "ยกเลิก",
+    "confirm": "ตกลง",
+    "submit": "ส่ง",
+    "loadFailed": "โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "to": "ถึง",
+    "currency": "บาท",
+    "currencySymbol": "฿",
+    "sunday": "วันอาทิตย์",
+    "monday": "วันจันทร์",
+    "tuesday": "วันอังคาร",
+    "wednesday": "วันพุธ",
+    "thursday": "วันพฤหัสบดี",
+    "friday": "วันศุกร์",
+    "saturday": "วันเสาร์",
+    "date": "วันที่",
+    "date_today": "วันนี้",
+    "date_yesterday": "เมื่อวาน",
+    "date_days_ago": "{days} วันที่แล้ว"
   },
   "spending": {
-    "monthlyProgress": "Monthly Spending Progress",
-    "exceeded": "Over Budget",
-    "dailyAverage": "Daily Average",
-    "recommendedDaily": "Recommended Daily",
+    "monthlyProgress": "ความคืบหน้าการใช้จ่ายรายเดือน",
+    "exceeded": "เกินงบประมาณ",
+    "dailyAverage": "ค่าเฉลี่ยรายวัน",
+    "recommendedDaily": "แนะนำต่อวัน",
     "settings": {
-      "title": "Budget Settings",
-      "on": "Enable Budget",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "monthlyLimit": "Monthly Budget",
-      "enterLimit": "Enter monthly budget",
-      "warningThreshold": "Warning Threshold",
-      "enterThreshold": "Enter warning threshold",
-      "disabledNotice": "Enable budget to track your monthly spending",
-      "pleaseSetLimit": "Please set your monthly budget"
+      "title": "ตั้งค่างบประมาณ",
+      "on": "เปิดใช้งานงบประมาณ",
+      "enabled": "เปิดใช้งานแล้ว",
+      "disabled": "ปิดใช้งานแล้ว",
+      "monthlyLimit": "งบประมาณรายเดือน",
+      "enterLimit": "ป้อนงบประมาณรายเดือน",
+      "warningThreshold": "เกณฑ์การแจ้งเตือน",
+      "enterThreshold": "ป้อนเกณฑ์การแจ้งเตือน",
+      "disabledNotice": "เปิดใช้งบประมาณเพื่อติดตามการใช้จ่ายรายเดือนของคุณ",
+      "pleaseSetLimit": "กรุณาตั้งงบประมาณรายเดือนของคุณ"
     },
     "status": {
-      "disabled": "Budget disabled",
-      "normal": "On track",
-      "nearLimit": "Approaching budget",
-      "overLimit": "Over budget"
+      "disabled": "ปิดใช้งานงบประมาณ",
+      "normal": "อยู่บนเส้นทาง",
+      "nearLimit": "ใกล้ถึงวงเงิน",
+      "overLimit": "เกินวงเงิน"
     },
     "alert": {
       "normal": {
-        "title": "On Track",
-        "description": "Remaining: {remaining} ({percentage}% used)"
+        "title": "อยู่บนเส้นทาง",
+        "description": "คงเหลือ: {remaining} (ใช้ไป {percentage}%)"
       },
       "nearLimit": {
-        "title": "Approaching Budget",
-        "description": "Remaining: {remaining} ({percentage}% used). Consider slowing down."
+        "title": "ใกล้ถึงวงเงิน",
+        "description": "คงเหลือ: {remaining} (ใช้ไป {percentage}%) ควรลดการใช้จ่ายลง"
       },
       "overLimit": {
-        "title": "Over Budget",
-        "description": "Over budget by {amount}. Please review your spending."
+        "title": "เกินงบประมาณ",
+        "description": "เกินงบประมาณ {amount} กรุณาตรวจสอบการใช้จ่ายของคุณ"
       }
     },
     "enablePrompt": {
-      "title": "Track Monthly Spending",
-      "description": "Set a monthly budget to track your spending and get alerts when you're close to your limit.",
-      "button": "Enable Budget",
-      "enabled": "Budget enabled successfully"
+      "title": "ติดตามการใช้จ่ายรายเดือน",
+      "description": "ตั้งงบประมาณรายเดือนเพื่อติดตามการใช้จ่ายและรับการแจ้งเตือนเมื่อใกล้ถึงวงเงิน",
+      "button": "เปิดใช้งานงบประมาณ",
+      "enabled": "เปิดใช้งานงบประมาณสำเร็จ"
     }
   },
   "function": {
-    "primary": "Main Features",
-    "aiFeatures": "AI Features"
+    "primary": "ฟังก์ชันหลัก",
+    "aiFeatures": "ฟังก์ชัน AI"
   },
   "ai": {
     "report": {
-      "filterTitle": "Data Filter",
-      "statsPreview": "Data Statistics Preview",
-      "totalCount": "Total Records",
-      "totalAmount": "Total Amount",
-      "averageAmount": "Average",
-      "medianAmount": "Median",
-      "minAmount": "Min Amount",
-      "maxAmount": "Max Amount",
-      "loading": "Loading..."
+      "filterTitle": "ตัวกรองข้อมูล",
+      "statsPreview": "ตัวอย่างสถิติข้อมูล",
+      "totalCount": "จำนวนรายการทั้งหมด",
+      "totalAmount": "ยอดรวม",
+      "averageAmount": "ค่าเฉลี่ย",
+      "medianAmount": "ค่ามัธยฐาน",
+      "minAmount": "จำนวนเงินต่ำสุด",
+      "maxAmount": "จำนวนเงินสูงสุด",
+      "loading": "กำลังโหลด..."
     }
   },
   "avatar": {
-    "cropTitle": "Crop Avatar",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "placeholder": "Click to upload avatar",
+    "cropTitle": "ตัดรูปโปรไฟล์",
+    "cancel": "ยกเลิก",
+    "confirm": "ยืนยัน",
+    "placeholder": "คลิกเพื่ออัปโหลดรูปโปรไฟล์",
     "error": {
-      "sizeLimit": "Avatar size cannot exceed {maxSize}MB",
-      "invalidType": "Please select a valid image file",
-      "uploadFailed": "Avatar upload failed, please try again later"
+      "sizeLimit": "ขนาดรูปโปรไฟล์ต้องไม่เกิน {maxSize} MB",
+      "invalidType": "กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง",
+      "uploadFailed": "อัปโหลดรูปโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง"
     }
   },
   "membership": {
-    "title": "User Management",
-    "username": "Username",
-    "loginOrRegister": "Login / Register",
-    "logout": "Logout",
-    "usernamePlaceholder": "Enter your username",
+    "title": "การจัดการผู้ใช้",
+    "username": "ชื่อผู้ใช้",
+    "loginOrRegister": "เข้าสู่ระบบ / ลงทะเบียน",
+    "logout": "ออกจากระบบ",
+    "usernamePlaceholder": "ป้อนชื่อผู้ใช้ของคุณ",
     "error": {
-      "requiredUsername": "Please enter username",
-      "usernameFormat": "Username can only contain uppercase and lowercase letters",
-      "usernameLength": "Username length should be between 1-20 characters",
-      "loginFailed": "Login failed, please try again later"
+      "requiredUsername": "กรุณาป้อนชื่อผู้ใช้",
+      "usernameFormat": "ชื่อผู้ใช้สามารถประกอบด้วยตัวพิมพ์ใหญ่และพิมพ์เล็กเท่านั้น",
+      "usernameLength": "ชื่อผู้ใช้ต้องมีความยาวระหว่าง 1-20 ตัวอักษร",
+      "loginFailed": "เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง"
     },
     "success": {
-      "login": "Login successful",
-      "logout": "Logged out",
-      "avatarUploaded": "Avatar uploaded successfully"
+      "login": "เข้าสู่ระบบสำเร็จ",
+      "logout": "ออกจากระบบแล้ว",
+      "avatarUploaded": "อัปโหลดรูปโปรไฟล์สำเร็จ"
     }
   },
   "export": {
-    "monthData": "Export This Month's Data",
-    "failed": "Export failed, please try again later"
+    "monthData": "ส่งออกข้อมูลเดือนนี้",
+    "failed": "ส่งออกไม่สำเร็จ กรุณาลองอีกครั้ง"
   },
   "error": {
-    "dataInitializationFailed": "Failed to initialize data, please try again"
+    "dataInitializationFailed": "เริ่มต้นข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง"
   },
   "chart": {
-    "title": "Spending Analysis",
-    "bar": "Bar Chart",
-    "line": "Line Chart",
-    "doughnut": "Doughnut Chart",
-    "radar": "Radar Chart",
-    "categoryAnalysis": "Spending by Category",
-    "categoryPercentage": "Category Breakdown",
-    "trendAnalysis": "Spending Trend",
-    "weekdayAnalysis": "Spending by Day of Week"
+    "title": "วิเคราะห์การใช้จ่าย",
+    "bar": "แผนภูมิแท่ง",
+    "line": "แผนภูมิเส้น",
+    "doughnut": "แผนภูมิโดนัท",
+    "radar": "แผนภูมิเรดาร์",
+    "categoryAnalysis": "การใช้จ่ายตามหมวดหมู่",
+    "categoryPercentage": "สัดส่วนหมวดหมู่",
+    "trendAnalysis": "แนวโน้มการใช้จ่าย",
+    "weekdayAnalysis": "การใช้จ่ายตามวันในสัปดาห์"
   },
   "import": {
-    "title": "Import Data",
-    "success": "Data imported successfully",
-    "failed": "Failed to import data",
-    "refreshNotice": "(Auto-refresh in 3 seconds)"
+    "title": "นำเข้าข้อมูล",
+    "success": "นำเข้าข้อมูลสำเร็จ",
+    "failed": "นำเข้าข้อมูลไม่สำเร็จ",
+    "refreshNotice": "(รีเฟรชอัตโนมัติใน 3 วินาที)"
   }
 }

@@ -100,9 +100,17 @@ const switchLanguage = (langCode) => {
 // 定义支持的语言列表
 const languages = [
   { code: 'en-US', label: 'English', shortLabel: 'EN' },
-  { code: 'zh-CN', label: '简体中文', shortLabel: '简体' },
-  { code: 'zh-TW', label: '繁體中文', shortLabel: '繁體' },
-  { code: 'ja-JP', label: '日本語', shortLabel: '日本語' }
+  { code: 'id-ID', label: 'Indonesia', shortLabel: 'ID' },
+  { code: 'ja-JP', label: '日本語', shortLabel: 'JP' },
+  { code: 'ko-KR', label: '한국어', shortLabel: 'KO' },
+  { code: 'ms-MY', label: 'Melayu', shortLabel: 'MS' },
+  { code: 'th-TH', label: 'ไทย', shortLabel: 'TH' },
+  { code: 'vi-VN', label: 'Tiếng Việt', shortLabel: 'VI' },
+  { code: 'zh-CN', label: '简体中文', shortLabel: 'CN' },
+  { code: 'zh-HK', label: '繁體中文(香港)', shortLabel: 'HK' },
+  { code: 'zh-MO', label: '繁體中文(澳門)', shortLabel: 'MO' },
+  { code: 'zh-SG', label: '简体中文(新加坡)', shortLabel: 'SG' },
+  { code: 'zh-TW', label: '繁體中文(台灣)', shortLabel: 'TW' }
 ];
 
 const isDropdownOpen = ref(false);
