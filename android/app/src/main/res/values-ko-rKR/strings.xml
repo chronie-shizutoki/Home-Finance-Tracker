@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">오픈소스 라이선스</string>
     <string name="open_source_licenses_description">타사 컴포넌트 라이선스 보기</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">이미지 편집</string>
+    <string name="image_editor_rotate">회전</string>
+    <string name="image_editor_eraser">지우개</string>
+    <string name="image_editor_reset">초기화</string>
+    <string name="image_editor_brush_size">브러시 크기</string>
+    <string name="image_editor_load_failed">이미지를 불러오지 못했습니다</string>
+
 </resources>

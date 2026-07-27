@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">开源许可证</string>
     <string name="open_source_licenses_description">查看第三方组件许可证</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">编辑图片</string>
+    <string name="image_editor_rotate">旋转</string>
+    <string name="image_editor_eraser">橡皮擦</string>
+    <string name="image_editor_reset">重置</string>
+    <string name="image_editor_brush_size">笔刷大小</string>
+    <string name="image_editor_load_failed">图片加载失败</string>
+
 </resources>

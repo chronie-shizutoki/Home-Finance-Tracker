@@ -53,8 +53,6 @@ xz = "1.12"
 
 charty = "3.0.0-rc01"
 
-ucrop = "2.2.11"
-
 opencv = "5.0.0.1"
 mlkit-text-recognition = "16.0.1"
 mlkit-text-recognition-chinese = "16.0.1"
@@ -141,8 +139,6 @@ fastexcel = { group = "org.dhatim", name = "fastexcel", version.ref = "fastexcel
 fastexcel-reader = { group = "org.dhatim", name = "fastexcel-reader", version.ref = "fastexcel" }
 aalto-xml = { group = "com.fasterxml", name = "aalto-xml", version.ref = "aalto-xml" }
 xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
-
-ucrop = { group = "com.github.yalantis", name = "ucrop", version.ref = "ucrop" }
 
 opencv = { group = "org.opencv", name = "opencv", version.ref = "opencv" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit-text-recognition" }

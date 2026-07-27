@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Lesen Sumber Terbuka</string>
     <string name="open_source_licenses_description">Lihat lesen komponen pihak ketiga</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">Edit Imej</string>
+    <string name="image_editor_rotate">Putar</string>
+    <string name="image_editor_eraser">Pemadam</string>
+    <string name="image_editor_reset">Tetap Semula</string>
+    <string name="image_editor_brush_size">Saiz Berus</string>
+    <string name="image_editor_load_failed">Gagal memuatkan imej</string>
+
 </resources>

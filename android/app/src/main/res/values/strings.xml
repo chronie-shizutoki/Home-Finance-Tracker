@@ -552,4 +552,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Open Source Licenses</string>
     <string name="open_source_licenses_description">View licenses of third-party components</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">Edit Image</string>
+    <string name="image_editor_rotate">Rotate</string>
+    <string name="image_editor_eraser">Eraser</string>
+    <string name="image_editor_reset">Reset</string>
+    <string name="image_editor_brush_size">Brush Size</string>
+    <string name="image_editor_load_failed">Failed to load image</string>
+
 </resources>

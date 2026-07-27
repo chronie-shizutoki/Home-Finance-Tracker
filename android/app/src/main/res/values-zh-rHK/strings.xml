@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">開源許可證</string>
     <string name="open_source_licenses_description">查看第三方組件許可證</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">編輯圖片</string>
+    <string name="image_editor_rotate">旋轉</string>
+    <string name="image_editor_eraser">橡膠擦</string>
+    <string name="image_editor_reset">重置</string>
+    <string name="image_editor_brush_size">筆刷大小</string>
+    <string name="image_editor_load_failed">圖片載入失敗</string>
+
 </resources>

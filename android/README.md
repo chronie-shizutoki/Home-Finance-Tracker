@@ -20,7 +20,7 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Data Visualization**: Interactive charts with weekday radar chart and spending trend analysis
 - **Membership Management**: User profile with avatar upload via server API
 - **Excel Import/Export**: Import expenses from Excel files and export data for backup using fastExcel
-- **Image Cropping**: Built-in uCrop integration for AI expense recognition image preprocessing
+- **Image Cropping**: Built-in custom image editor (crop, rotate, eraser) for AI expense recognition and avatar preprocessing, built with miuix + coil (no third-party cropping library)
 - **Error Reporting**: Automatic crash reporting, error logging, and log file management with server upload
 - **Health Check Service**: Server health monitoring via `/api/health/lite` endpoint
 
@@ -105,7 +105,6 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Gson**: JSON serialization
 - **DataStore**: Preferences storage (1.2.1)
 - **fastExcel**: Excel file handling (0.20.2) with aalto-xml (1.4.0) and XZ (1.12)
-- **uCrop**: Image cropping (2.2.11)
 - **m3color**: Material 3 color utilities (2026.1)
 - **Protobuf**: Protocol Buffers (4.35.1) with protobuf-javalite
 - **gRPC**: gRPC-Java (1.82.1) with okhttp and protobuf-lite
@@ -298,7 +297,7 @@ Daily Goods, Luxury, Communication, Food, Snacks, Cold Drinks, Convenience Food,
 #### AI Recognition
 - Tap the AI icon in the add expense screen
 - Select images from gallery or camera, or enter text description
-- Crop images using uCrop if needed
+- Crop and edit images in the built-in image editor (square crop + rotate + eraser) if needed
 - Images are sent as base64-encoded data URIs to SiliconFlow API
 - Review and edit recognized expenses
 - Save all records at once
@@ -668,6 +667,6 @@ For issues, questions, or contributions, please refer to the main project reposi
 - Built with Jetpack Compose and Material Design 3
 - Uses SiliconFlow API for AI expense recognition
 - Uses fastExcel for Excel file handling
-- Uses uCrop for image cropping
+- Built-in custom image editor (miuix + coil) for cropping, rotating, and erasing
 - Uses gRPC and Protocol Buffers for LAN device sync
 - Native C++ sync engine via JNI

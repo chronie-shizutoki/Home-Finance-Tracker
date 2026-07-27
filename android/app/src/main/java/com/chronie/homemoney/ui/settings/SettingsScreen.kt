@@ -34,12 +34,14 @@ import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.*
+import com.chronie.homemoney.ui.components.imageeditor.CropShape
+import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
 import com.chronie.homemoney.ui.util.TransitionSpecs
 import com.chronie.homemoney.ui.util.predictiveBackEffect
-import com.yalantis.ucrop.UCrop
+import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
@@ -1084,36 +1086,10 @@ fun AccountSection(
 
     LaunchedEffect(Unit) { viewModel.logoutEvent.collect { onLogout() } }
 
-    val cropLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            UCrop.getOutput(result.data ?: Intent())?.let { uri ->
-                try {
-                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-                        val byteArrayOutputStream = java.io.ByteArrayOutputStream()
-                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-                        val base64String = android.util.Base64.encodeToString(byteArrayOutputStream.toByteArray(), android.util.Base64.DEFAULT)
-                        viewModel.updateAvatar("data:image/png;base64,$base64String")
-                        File(uri.path ?: "").delete()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, context.getString(R.string.crop_image_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
+    var avatarEditUri by remember { mutableStateOf<Uri?>(null) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            val outputUri = Uri.fromFile(File(context.cacheDir, "cropped_avatar_${System.currentTimeMillis()}.png"))
-            val options = UCrop.Options().apply {
-                setCircleDimmedLayer(true)
-                setToolbarColor("#6750A4".toColorInt())
-                setToolbarWidgetColor(android.graphics.Color.WHITE)
-                setShowCropGrid(false)
-            }
-            cropLauncher.launch(UCrop.of(it, outputUri).withAspectRatio(1f, 1f).withMaxResultSize(256, 256).withOptions(options).getIntent(context))
-        }
+        if (uri != null) avatarEditUri = uri
     }
 
     Card(
@@ -1170,4 +1146,22 @@ fun AccountSection(
             TextButton(text = context.getString(R.string.confirm), onClick = { viewModel.logout(); showLogoutDialog = false }, colors = ButtonDefaults.textButtonColors(textColor = MiuixTheme.colorScheme.error))
         }
     }
+
+    ImageEditorDialog(
+        uri = avatarEditUri,
+        cropShape = CropShape.CIRCLE,
+        enableEraser = false,
+        maxResultSize = 256,
+        onDismiss = { avatarEditUri = null },
+        onConfirm = { bmp ->
+            try {
+                val bytes = compressBitmapToBytes(bmp, 10 * 1024 * 1024, android.graphics.Bitmap.CompressFormat.PNG, 100)
+                val base64String = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+                viewModel.updateAvatar("data:image/png;base64,$base64String")
+            } catch (e: Exception) {
+                Toast.makeText(context, context.getString(R.string.crop_image_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+            }
+            avatarEditUri = null
+        }
+    )
 }

@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">オープンソースライセンス</string>
     <string name="open_source_licenses_description">サードパーティコンポーネントのライセンスを表示します</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">画像を編集</string>
+    <string name="image_editor_rotate">回転</string>
+    <string name="image_editor_eraser">消しゴム</string>
+    <string name="image_editor_reset">リセット</string>
+    <string name="image_editor_brush_size">ブラシサイズ</string>
+    <string name="image_editor_load_failed">画像の読み込みに失敗しました</string>
+
 </resources>
