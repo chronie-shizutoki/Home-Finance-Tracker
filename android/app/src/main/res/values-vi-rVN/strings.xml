@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Giấy phép mã nguồn mở</string>
     <string name="open_source_licenses_description">Xem giấy phép của các thành phần bên thứ ba</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">Chỉnh sửa ảnh</string>
+    <string name="image_editor_rotate">Xoay</string>
+    <string name="image_editor_eraser">Tẩy</string>
+    <string name="image_editor_reset">Đặt lại</string>
+    <string name="image_editor_brush_size">Kích thước bút</string>
+    <string name="image_editor_load_failed">Tải ảnh thất bại</string>
+
 </resources>

@@ -511,4 +511,13 @@
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">ไลเซนส์โอเพนซอร์ส</string>
     <string name="open_source_licenses_description">ดูไลเซนส์ของส่วนประกอบจากบุคคลที่สาม</string>
+
+    <!-- Image Editor -->
+    <string name="image_editor_title">แก้ไขรูปภาพ</string>
+    <string name="image_editor_rotate">หมุน</string>
+    <string name="image_editor_eraser">ยางลบ</string>
+    <string name="image_editor_reset">รีเซ็ต</string>
+    <string name="image_editor_brush_size">ขนาดแปรง</string>
+    <string name="image_editor_load_failed">โหลดรูปภาพล้มเหลว</string>
+
 </resources>

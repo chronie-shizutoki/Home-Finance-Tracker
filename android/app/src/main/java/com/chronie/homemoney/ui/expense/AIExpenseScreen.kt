@@ -35,9 +35,13 @@ import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import java.io.File
 import java.io.IOException
+import android.graphics.Bitmap
+import java.io.FileOutputStream
+import com.chronie.homemoney.ui.components.imageeditor.CropShape
+import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
+import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.yalantis.ucrop.UCrop
 import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -75,41 +79,9 @@ fun AIExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    // Crop Image Launcher
-    val cropLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == android.app.Activity.RESULT_OK) {
-            // Get cropped image URI from uCrop
-            val outputUri = UCrop.getOutput(it.data ?: Intent())
-            outputUri?.let { uri ->
-                viewModel.addImages(listOf(uri))
-                // Delete temporary file
-                val file = File(uri.path ?: "")
-                if (file.exists()) {
-                    file.delete()
-                }
-            }
-        }
-    }
+    // Image editor state (replaces uCrop)
+    var editorUri by remember { mutableStateOf<Uri?>(null) }
     
-    // Crop Existing Image Launcher
-    val existingImageCropLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == android.app.Activity.RESULT_OK) {
-            // Get cropped image URI from uCrop
-            val outputUri = UCrop.getOutput(it.data ?: Intent())
-            outputUri?.let { uri ->
-                viewModel.addImages(listOf(uri))
-                // Delete temporary file
-                val file = File(uri.path ?: "")
-                if (file.exists()) {
-                    file.delete()
-                }
-            }
-        }
-    }
     
     // Image Picker Launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -126,42 +98,7 @@ fun AIExpenseScreen(
         }
         
         if (uris.size == 1) {
-            val uri = uris.first()
-            try {
-                val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
-                val imageFileName = "CROP_${timeStamp}_"
-                val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                val image = File(storageDir, "$imageFileName.jpg")
-                val outputUri = androidx.core.content.FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    image
-                )
-                // Configure uCrop options
-                val options = UCrop.Options()
-                options.setCompressionQuality(90)
-                options.setHideBottomControls(false)
-                options.setFreeStyleCropEnabled(true)
-                // Set toolbar and status bar colors to avoid overlap
-                options.setToolbarColor("#6750A4".toColorInt())
-                options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-                // Ensure crop interface correctly handles status bar space
-                options.setToolbarTitle("")
-                options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-                // Add extra padding to top toolbar to avoid overlapping status bar space
-                options.setDimmedLayerColor("#80000000".toColorInt())
-                options.setShowCropGrid(false)
-                options.setShowCropFrame(true)
-                // Start cropping
-                val uCrop = UCrop.of(uri, outputUri)
-                    .withAspectRatio(1f, 1f)
-                    .withMaxResultSize(1080, 1080)
-                    .withOptions(options)
-                cropLauncher.launch(uCrop.getIntent(context))
-            } catch (e: Exception) {
-                Log.e("AIExpenseScreen", "Failed to start crop", e)
-                viewModel.addImages(uris.toList())
-            }
+            editorUri = uris.first()
         } else {
             viewModel.addImages(uris.toList())
         }
@@ -175,86 +112,16 @@ fun AIExpenseScreen(
         contract = ActivityResultContracts.TakePicture()
     ) {
         if (it) {
-            // Capture successful, add image to selection list
-            cameraImageUri?.let { uri ->
-                // Start cropping
-                try {
-                    // Create temporary file to store cropped result
-                    val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
-                    val imageFileName = "CROP_${timeStamp}_"
-                    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                    val image = File(storageDir, "$imageFileName.jpg")
-                    val outputUri = androidx.core.content.FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.fileprovider",
-                        image
-                    )
-                    // Configure uCrop options
-                    val options = UCrop.Options()
-                    options.setCompressionQuality(90)
-                    options.setHideBottomControls(false)
-                    options.setFreeStyleCropEnabled(true)
-                    // Set toolbar and status bar colors to avoid overlap
-                    options.setToolbarColor("#6750A4".toColorInt())
-                    options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-                    // Ensure crop interface correctly handles status bar space
-                    options.setToolbarTitle("")
-                    options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-                    // Add extra padding to top toolbar to avoid overlapping status bar space
-                    options.setDimmedLayerColor("#80000000".toColorInt())
-                    options.setShowCropGrid(false)
-                    options.setShowCropFrame(true)
-                    // Start cropping
-                    val uCrop = UCrop.of(uri, outputUri)
-                        .withAspectRatio(1f, 1f)
-                        .withMaxResultSize(1080, 1080)
-                        .withOptions(options)
-                    cropLauncher.launch(uCrop.getIntent(context))
-                } catch (e: Exception) {
-                    Log.e("AIExpenseScreen", "Failed to start crop", e)
-                }
-            }
+            // Capture successful, open the image editor
+            cameraImageUri?.let { uri -> editorUri = uri }
         }
     }
     
-    // Handle existing image cropping request
+    // Handle existing image cropping request via the custom editor
     fun handleCropExistingImage(uri: Uri) {
-        try {
-            // Remove old image from selection list
-            viewModel.removeImage(uri)
-            // Create temporary file to store cropped result
-            val timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
-            val imageFileName = "CROP_${timeStamp}_"
-            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val image = File(storageDir, "$imageFileName.jpg")
-            val outputUri = androidx.core.content.FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                image
-            )
-            // Configure uCrop options
-            val options = UCrop.Options()
-            options.setCompressionQuality(90)
-                options.setHideBottomControls(false)
-                options.setFreeStyleCropEnabled(true)
-                options.setToolbarColor("#6750A4".toColorInt())
-                options.setActiveControlsWidgetColor(android.graphics.Color.WHITE)
-            // Ensure crop interface correctly handles status bar space
-            options.setToolbarTitle("")
-            options.setToolbarWidgetColor(android.graphics.Color.WHITE)
-            // Add extra padding to top toolbar to avoid overlapping status bar space
-            options.setDimmedLayerColor("#80000000".toColorInt())
-            options.setShowCropGrid(false)
-            options.setShowCropFrame(true)
-            // Start cropping
-            val uCrop = UCrop.of(uri, outputUri)
-                .withAspectRatio(1f, 1f)
-                .withMaxResultSize(1080, 1080)
-                .withOptions(options)
-            existingImageCropLauncher.launch(uCrop.getIntent(context))
-        } catch (e: Exception) {
-            Log.e("AIExpenseScreen", "Failed to start crop", e)
-        }
+        // Remove old image from selection list and open the editor
+        viewModel.removeImage(uri)
+        editorUri = uri
     }
 
     // Create temporary file for camera capture
@@ -453,6 +320,31 @@ fun AIExpenseScreen(
         onLanguageChange = viewModel::updateOcrLanguage,
         onConfirm = viewModel::confirmOcrText,
         onDismiss = viewModel::closeOcrBottomSheet
+    )
+
+    // Save a cropped bitmap to a JPEG file (<= 2MB) and return its content Uri
+    fun saveCroppedBitmap(bmp: Bitmap): Uri? {
+        return try {
+            val bytes = compressBitmapToBytes(bmp, 2 * 1024 * 1024, android.graphics.Bitmap.CompressFormat.JPEG, 90)
+            val image = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "CROP_${System.currentTimeMillis()}.jpg")
+            FileOutputStream(image).use { it.write(bytes) }
+            androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", image)
+        } catch (e: Exception) {
+            Log.e("AIExpenseScreen", "Failed to save cropped image", e)
+            null
+        }
+    }
+
+    ImageEditorDialog(
+        uri = editorUri,
+        cropShape = CropShape.SQUARE,
+        enableEraser = true,
+        maxResultSize = 1080,
+        onDismiss = { editorUri = null },
+        onConfirm = { bmp ->
+            saveCroppedBitmap(bmp)?.let { viewModel.addImages(listOf(it)) }
+            editorUri = null
+        }
     )
 }
 

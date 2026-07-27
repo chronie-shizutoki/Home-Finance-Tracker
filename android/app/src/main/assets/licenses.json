@@ -168,12 +168,6 @@
     "fullName": "com.github.Kyant0:m3color"
   },
   {
-    "group": "com.github.yalantis",
-    "name": "ucrop",
-    "version": "2.2.11",
-    "fullName": "com.github.yalantis:ucrop"
-  },
-  {
     "group": "com.google.android.material",
     "name": "material",
     "version": "1.14.0",
