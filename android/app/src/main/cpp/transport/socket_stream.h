@@ -86,10 +86,16 @@ void configureTcpSocket(int fd);
 /**
  * Connects with a real timeout.
  *
+ * @param netHandle the Android network the socket must use, or 0 for "system default".
+ *        A socket created here inherits the app's *default* network, which on a phone whose
+ *        Wi-Fi has no internet is the cellular one - and cellular has no route to a LAN peer,
+ *        so connect() fails with ENETUNREACH before a single byte is sent. Passing the Wi-Fi
+ *        network handle pins the fd to wlan0's routing table and makes the peer reachable.
  * @param outError set to the reason on failure.
  * @return a connected fd in non-blocking mode, or -1.
  */
-int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError);
+int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError,
+                       std::uint64_t netHandle = 0);
 
 /// Creates a listening socket bound to @p port. Returns -1 on failure.
 int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outError);

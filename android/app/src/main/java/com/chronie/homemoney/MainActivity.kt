@@ -35,6 +35,8 @@ import com.chronie.homemoney.ui.main.MainScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
 import com.chronie.homemoney.ui.settings.OpenSourceLicensesScreen
 import com.chronie.homemoney.ui.sync.LanSyncScreen
+import com.chronie.homemoney.ui.sync.IncomingSyncRequestDialog
+import com.chronie.homemoney.data.sync.SyncRequestBus
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
@@ -377,5 +379,20 @@ fun HomeMoneyApp(
                 )
             }
         }
+    }
+
+    // App-wide incoming LAN sync confirmation.
+    // The responder runs on a native worker thread and, when no screen-bound callback is
+    // installed, posts the request to SyncRequestBus. Observing it here (at the always-mounted
+    // app root) means a sync request arriving on ANY screen still prompts the user instead of
+    // being silently rejected - the original "B does nothing, A shows 100% failed" symptom.
+    val busRequest by SyncRequestBus.request.collectAsState()
+    if (busRequest != null) {
+        IncomingSyncRequestDialog(
+            context = context,
+            requestInfo = busRequest!!,
+            onAccept = { SyncRequestBus.resolve(true) },
+            onReject = { SyncRequestBus.resolve(false) }
+        )
     }
 }

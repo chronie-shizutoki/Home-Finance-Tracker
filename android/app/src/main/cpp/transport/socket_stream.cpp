@@ -10,6 +10,15 @@
 #include <sys/socket.h>
 #include <ctime>
 #include <unistd.h>
+#include <android/log.h>
+#include <android/multinetwork.h>
+
+#ifndef ALOGE
+#define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, "HomeMoneySync", __VA_ARGS__)
+#endif
+#ifndef ALOGI
+#define ALOGI(...) __android_log_print(ANDROID_LOG_INFO, "HomeMoneySync", __VA_ARGS__)
+#endif
 
 namespace homemoney::sync {
 namespace {
@@ -178,13 +187,19 @@ void configureTcpSocket(int fd) {
     ::setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &probes, sizeof(probes));
 }
 
-int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError) {
+int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError,
+                       std::uint64_t netHandle) {
     outError = SyncErrorCode::kOk;
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     if (::inet_pton(AF_INET, ipv4, &addr.sin_addr) != 1) {
+        // This branch never touches the network, yet it reports the same code as a real
+        // routing failure. Logging the raw string and its length is what separates "the peer
+        // is unreachable" from "the peer's address arrived with a stray space in it".
+        ALOGE("inet_pton rejected address '%s' (len=%zu) for port %u - not an IPv4 literal",
+              ipv4, ipv4 == nullptr ? 0u : strlen(ipv4), port);
         outError = SyncErrorCode::kNetworkUnreachable;
         return -1;
     }
@@ -201,6 +216,24 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
     }
     configureTcpSocket(fd);
 
+    // Pin the socket to the caller's network *before* connect: the routing decision is made
+    // when the SYN is sent, so binding afterwards is too late. Without this the fd carries
+    // the app's default-network mark, and a phone that keeps cellular as the default because
+    // the Wi-Fi has no internet will fail every LAN connect with ENETUNREACH.
+    if (netHandle != 0) {
+        if (::android_setsocknetwork(static_cast<net_handle_t>(netHandle), fd) != 0) {
+            // Best effort: a stale handle should degrade to the old behaviour, not abort the
+            // sync. The log is what tells us which of the two failed on a real device.
+            ALOGE("android_setsocknetwork(%llu) failed for %s:%u: errno=%d (%s)",
+                  static_cast<unsigned long long>(netHandle), ipv4, port, errno, strerror(errno));
+        } else {
+            ALOGI("socket for %s:%u bound to network %llu", ipv4, port,
+                  static_cast<unsigned long long>(netHandle));
+        }
+    } else {
+        ALOGI("socket for %s:%u uses the default network (no handle supplied)", ipv4, port);
+    }
+
     // A blocking connect() ignores SO_SNDTIMEO on Linux and can sit in SYN retransmit for
     // over two minutes. Non-blocking + poll is the only way to bound it.
     int rc = ::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
@@ -211,6 +244,8 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
         return fd;
     }
     if (errno != EINPROGRESS && errno != EALREADY) {
+        ALOGE("connect(%s:%u) immediate failure: errno=%d (%s)", ipv4, port, errno,
+              strerror(errno));
         closeQuietly(fd);
         outError = errno == ETIMEDOUT ? SyncErrorCode::kConnectTimeout
                                       : SyncErrorCode::kNetworkUnreachable;
@@ -235,6 +270,7 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
             return -1;
         }
         if (ready < 0) {
+            ALOGE("connect(%s:%u) poll error: errno=%d (%s)", ipv4, port, errno, strerror(errno));
             closeQuietly(fd);
             outError = SyncErrorCode::kNetworkUnreachable;
             return -1;
@@ -247,6 +283,8 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
     int soError = 0;
     socklen_t len = sizeof(soError);
     if (::getsockopt(fd, SOL_SOCKET, SO_ERROR, &soError, &len) != 0 || soError != 0) {
+        ALOGE("connect(%s:%u) completed with error: soError=%d (%s)", ipv4, port, soError,
+              soError != 0 ? strerror(soError) : strerror(errno));
         closeQuietly(fd);
         outError = soError == ETIMEDOUT ? SyncErrorCode::kConnectTimeout
                                         : SyncErrorCode::kNetworkUnreachable;
@@ -273,6 +311,7 @@ int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outErr
     addr.sin_port = htons(port);
 
     if (::bind(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
+        ALOGE("listen socket bind(%u) failed: errno=%d (%s)", port, errno, strerror(errno));
         closeQuietly(fd);
         outError = SyncErrorCode::kNetworkUnreachable;
         return -1;

@@ -1121,10 +1121,15 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
  * Kotlin owns the lifetime from here: every handle must be given back to
  * closeSyncConnection, including on the failure paths, or the fd leaks for the life of
  * the process.
+ *
+ * @param netHandle Network.getNetworkHandle() for the Wi-Fi network, or 0 to use the app's
+ *        default network. Only Kotlin can see ConnectivityManager, so the choice of network
+ *        is made there and carried down as an opaque 64-bit value.
  */
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_openSyncConnection(
-        JNIEnv* env, jobject /*obj*/, jstring address, jint port, jint connectTimeoutMs) {
+        JNIEnv* env, jobject /*obj*/, jstring address, jint port, jint connectTimeoutMs,
+        jlong netHandle) {
     t_last_error = static_cast<std::int32_t>(SyncErrorCode::kOk);
 
     if (address == nullptr) {
@@ -1149,11 +1154,11 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_openSyncConnection(
 
     SyncErrorCode error = SyncErrorCode::kOk;
     const int fd = connectWithTimeout(addressCopy.c_str(), static_cast<std::uint16_t>(port),
-                                      timeout, error);
+                                      timeout, error, static_cast<std::uint64_t>(netHandle));
     if (fd < 0) {
         recordError(error);
-        LOGE("openSyncConnection to %s:%d failed: %s", addressCopy.c_str(), port,
-             errorName(error));
+        LOGE("openSyncConnection to %s:%d (net=%llu) failed: %s", addressCopy.c_str(), port,
+             static_cast<unsigned long long>(netHandle), errorName(error));
         return 0;
     }
 
