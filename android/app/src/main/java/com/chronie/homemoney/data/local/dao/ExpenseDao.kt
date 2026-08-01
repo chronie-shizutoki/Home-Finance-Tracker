@@ -28,6 +28,31 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE updated_at > :lastSyncTime ORDER BY updated_at ASC")
     suspend fun getChangesSince(lastSyncTime: Long): List<ExpenseEntity>
     
+    /**
+     * Snapshot of every row including soft-deleted tombstones.
+     *
+     * Device-to-device sync must see tombstones, otherwise a deletion performed on one
+     * device can never propagate to the other and the two databases diverge permanently.
+     * Regular UI queries must keep using [getAllExpenses].
+     */
+    @Query("SELECT * FROM expenses ORDER BY updated_at ASC")
+    suspend fun getAllExpensesForSync(): List<ExpenseEntity>
+    
+    /**
+     * Changes since a watermark including soft-deleted tombstones, for incremental sync.
+     */
+    @Query("SELECT * FROM expenses WHERE updated_at > :lastSyncTime ORDER BY updated_at ASC")
+    suspend fun getChangesSinceForSync(lastSyncTime: Long): List<ExpenseEntity>
+    
+    /**
+     * Lookup that also returns soft-deleted rows.
+     *
+     * [getExpenseById] hides tombstones, which makes a locally deleted record look absent
+     * and lets an incoming stale record resurrect it. Merge logic must use this variant.
+     */
+    @Query("SELECT * FROM expenses WHERE id = :id")
+    suspend fun getExpenseByIdForSync(id: String): ExpenseEntity?
+    
     @Query("SELECT id FROM expenses")
     suspend fun getAllIds(): List<String>
     
