@@ -46,8 +46,8 @@ class SettingsViewModel @Inject constructor(
     private val _useDynamicColor = MutableStateFlow(true)
     val useDynamicColor: StateFlow<Boolean> = _useDynamicColor.asStateFlow()
 
-    // Manual primary color selection
-    private val _primaryColor = MutableStateFlow(0xFF6750A4.toInt()) // Default purple
+    // Manual primary color selection (0 = use Miuix default)
+    private val _primaryColor = MutableStateFlow(0)
 
     // Palette style selection
     private val _paletteStyle = MutableStateFlow(PaletteStyle.Expressive)
@@ -461,7 +461,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("theme_settings", android.content.Context.MODE_PRIVATE)
             _useDynamicColor.value = prefs.getBoolean("use_dynamic_color", true)
-            _primaryColor.value = prefs.getInt("primary_color", 0xFF6750A4.toInt())
+            _primaryColor.value = prefs.getInt("primary_color", 0)
             val paletteStyleValue = prefs.getInt("palette_style", PaletteStyle.Expressive.ordinal)
             val paletteStyle = PaletteStyle.entries.toTypedArray().getOrElse(paletteStyleValue) { PaletteStyle.Expressive }
             _paletteStyle.value = paletteStyle

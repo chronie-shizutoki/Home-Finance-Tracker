@@ -1,6 +1,7 @@
 package com.chronie.homemoney.ui.components
 
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -184,7 +185,8 @@ private fun ColorItem(
             Surface(
                 shape = CircleShape,
                 color = colorOption.color,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
+                border = if (colorOption.isDefault) BorderStroke(2.dp, MiuixTheme.colorScheme.onSurfaceSecondary.copy(alpha = 0.5f)) else null
             ) {}
 
             if (isSelected) {

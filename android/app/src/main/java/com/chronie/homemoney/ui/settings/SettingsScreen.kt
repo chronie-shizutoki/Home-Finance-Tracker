@@ -513,7 +513,7 @@ fun AppearanceSettingsPage(
                     endActions = {
                         Surface(
                             shape = CircleShape,
-                            color = Color(themeSettings.value.primaryColor),
+                            color = if (themeSettings.value.primaryColor == 0) Color(0xFF3482FF) else Color(themeSettings.value.primaryColor),
                             modifier = Modifier.size(24.dp),
                             border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
                         ) {}
