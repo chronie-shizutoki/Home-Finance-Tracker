@@ -87,6 +87,14 @@ android {
         compose = true
     }
 
+    testOptions {
+        unitTests {
+            // Sync classes log through android.util.Log. Returning defaults keeps the
+            // merge/dedup logic testable on the JVM without pulling in Robolectric.
+            isReturnDefaultValues = true
+        }
+    }
+
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
