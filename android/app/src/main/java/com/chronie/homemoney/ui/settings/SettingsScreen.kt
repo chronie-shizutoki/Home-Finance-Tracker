@@ -191,7 +191,6 @@ private fun MainSettingsPage(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MiuixTheme.colorScheme.background)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -391,7 +390,6 @@ private fun SettingsSubPage(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MiuixTheme.colorScheme.background)
                     .padding(horizontal = 16.dp)
                     .predictiveBackEffect(scope)
             ) {
