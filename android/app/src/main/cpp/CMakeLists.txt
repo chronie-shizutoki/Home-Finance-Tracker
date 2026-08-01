@@ -42,7 +42,12 @@ target_compile_options(sync_engine PRIVATE
 )
 
 find_library(log-lib log)
+# libandroid provides android_setsocknetwork, which pins a sync socket to the Wi-Fi network
+# instead of the app's default one. Without it a LAN connect fails with ENETUNREACH whenever
+# the system default route is cellular or a VPN.
+find_library(android-lib android)
 
 target_link_libraries(sync_engine
         ${log-lib}
+        ${android-lib}
 )

@@ -142,8 +142,19 @@ class NativeSyncEngine {
      * or the file descriptor leaks for the life of the process.
      *
      * @param connectTimeoutMs 0 or less means "use the value from [configureTransport]".
+     * @param netHandle `Network.getNetworkHandle()` of the network the socket must use, or 0
+     *   for the app's default network. This is not a nicety: a socket opened natively
+     *   inherits the process default network, and a phone that stays on cellular because its
+     *   Wi-Fi has no internet has no route to a LAN peer, so `connect()` fails with
+     *   ENETUNREACH before the handshake starts. `ConnectivityManager` is only visible from
+     *   Kotlin, so the decision is made there and passed down as an opaque value.
      */
-    external fun openSyncConnection(address: String, port: Int, connectTimeoutMs: Int): Long
+    external fun openSyncConnection(
+        address: String,
+        port: Int,
+        connectTimeoutMs: Int,
+        netHandle: Long
+    ): Long
 
     /**
      * Sends one frame and returns the reply as a flat `header || payload` buffer, decodable

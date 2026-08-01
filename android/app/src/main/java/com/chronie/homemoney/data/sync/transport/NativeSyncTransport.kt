@@ -3,6 +3,7 @@ package com.chronie.homemoney.data.sync.transport
 import android.util.Log
 import com.chronie.homemoney.data.sync.NativeSyncEngine
 import com.chronie.homemoney.data.sync.protocol.FrameDecodeResult
+import com.chronie.homemoney.data.sync.protocol.SyncErrorCode
 import com.chronie.homemoney.data.sync.protocol.SyncFrameFlags
 import com.chronie.homemoney.data.sync.protocol.SyncOpcode
 import com.chronie.homemoney.data.sync.protocol.SyncWireProtocol
@@ -19,23 +20,41 @@ import com.chronie.homemoney.data.sync.protocol.SyncWireProtocol
  * The reply opcode is whatever the native rebuilt from the request (the ack of the opcode we
  * sent), so the initiator validates it against the expected ack rather than assuming.
  */
+/**
+ * @param netHandle the `Network.getNetworkHandle()` the socket should be pinned to, or 0 for
+ *   the app's default network. LAN peers are only reachable over Wi-Fi, and Wi-Fi is not
+ *   always the default network, so the caller resolves it and passes it through.
+ */
 class NativeSyncTransport(
     engine: NativeSyncEngine,
     address: String,
     port: Int,
     connectTimeoutMs: Int = 0,
+    netHandle: Long = 0L,
     private val defaultAckTimeoutMs: Int = DEFAULT_ACK_TIMEOUT_MS
 ) : SyncTransport {
 
     /** `ip:port`, kept for the log only - the peer's real identity comes from HELLO_ACK. */
     private val peer = "$address:$port"
-    private val handle = engine.openSyncConnection(address, port, connectTimeoutMs)
+    private val handle = engine.openSyncConnection(address, port, connectTimeoutMs, netHandle)
     private val engineRef = engine
     private var closed = false
 
+    /**
+     * Why the connection could not be opened, or null when it opened fine.
+     *
+     * Read here and not later: [NativeSyncEngine.lastErrorCode] is thread-local and reflects
+     * the most recent native call, so a subsequent call on this thread would overwrite it.
+     * Without this, a failed connect reached the user as "transport closed before HELLO_ACK",
+     * which describes the symptom and hides every cause - a peer that is not listening, an
+     * unreachable subnet and a malformed address all looked identical.
+     */
+    val connectError: SyncErrorCode? =
+        if (handle == 0L) SyncErrorCode.fromCode(engine.lastErrorCode()) else null
+
     init {
         if (handle == 0L) {
-            Log.w(TAG, "openSyncConnection to $peer returned 0 (connection failed)")
+            Log.w(TAG, "openSyncConnection to $peer failed: $connectError (net=$netHandle)")
         }
     }
 

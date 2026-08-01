@@ -2,6 +2,7 @@ package com.chronie.homemoney.data.sync
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -17,6 +18,7 @@ import com.chronie.homemoney.data.sync.engine.RoomSyncEntityStore
 import com.chronie.homemoney.data.sync.engine.SyncIdentity
 import com.chronie.homemoney.data.sync.engine.SyncInitiator
 import com.chronie.homemoney.data.sync.engine.SyncResponder
+import com.chronie.homemoney.data.sync.protocol.SyncErrorCode
 import com.chronie.homemoney.data.sync.transport.NativeSyncTransport
 import com.chronie.homemoney.data.sync.telemetry.LogcatSyncLogSink
 import com.chronie.homemoney.data.sync.telemetry.MetricsDiscoveryTelemetry
@@ -323,10 +325,11 @@ class LanDeviceSyncManager(
         ): SyncAuthorizer.Decision {
             val callback = syncRequestCallback
             if (callback == null) {
-                // The app is not on a screen that can ask. Refusing is the honest answer;
-                // the peer is told so rather than being left on a socket that never replies.
-                Log.w(tag, "No sync request callback installed, refusing ${request.deviceName}")
-                return SyncAuthorizer.Decision.REJECTED
+                // No screen is mounted that can ask. Fall back to an app-wide prompt so the
+                // request is not silently refused - that silent refusal is exactly the
+                // "B shows nothing, A fails" symptom.
+                Log.i(tag, "No sync request callback installed; using app-wide prompt for ${request.deviceName}")
+                return confirmViaBus(request, timeoutMs)
             }
 
             val accepted = AtomicBoolean(false)
@@ -364,6 +367,33 @@ class LanDeviceSyncManager(
             return if (accepted.get()) {
                 SyncAuthorizer.Decision.ACCEPTED
             } else {
+                SyncAuthorizer.Decision.REJECTED
+            }
+        }
+
+        /**
+         * Screen-independent fallback used when no UI screen has installed a
+         * [syncRequestCallback]. Publishes the request on [SyncRequestBus] (observed by the
+         * app root in [com.chronie.homemoney.MainActivity]) and blocks this native worker
+         * thread until the user decides or the responder's deadline elapses. This is what
+         * lets B confirm an incoming sync from any screen, not just the LAN-sync settings page.
+         */
+        private fun confirmViaBus(
+            request: SyncAuthorizer.Request,
+            timeoutMs: Long
+        ): SyncAuthorizer.Decision {
+            val info = SyncRequestInfo(request.deviceId, request.deviceName, request.peerAddress)
+            val future = SyncRequestBus.post(info)
+            return try {
+                val accepted = future.get(timeoutMs, TimeUnit.MILLISECONDS)
+                if (accepted) SyncAuthorizer.Decision.ACCEPTED else SyncAuthorizer.Decision.REJECTED
+            } catch (e: java.util.concurrent.TimeoutException) {
+                SyncRequestBus.cancel()
+                Log.w(tag, "App-wide sync prompt timed out for ${request.deviceName}")
+                SyncAuthorizer.Decision.TIMED_OUT
+            } catch (e: Exception) {
+                SyncRequestBus.cancel()
+                Log.e(tag, "App-wide sync prompt failed for ${request.deviceName}", e)
                 SyncAuthorizer.Decision.REJECTED
             }
         }
@@ -443,6 +473,64 @@ class LanDeviceSyncManager(
         discovery.registry.get(device.deviceId, System.currentTimeMillis())?.syncPort
             ?: GRPC_SYNC_PORT
 
+    /**
+     * The Wi-Fi [Network], or null when Wi-Fi is not currently an active transport.
+     *
+     * Deliberately *not* `activeNetwork`: the whole point is that Wi-Fi is often connected
+     * without being active. Android keeps cellular as the default network whenever the
+     * Wi-Fi it is attached to fails the internet-validation probe - which is the normal
+     * state of a router with no uplink, a guest network behind a captive portal, or simply a
+     * phone that has decided the Wi-Fi is "poor". So we ask for the Wi-Fi transport by name.
+     */
+    @Suppress("DEPRECATION")  // allNetworks: the callback-based replacement answers
+    // asynchronously, and this is called on the synchronous path right before connect().
+    // Still supported on every API level this app targets; revisit if that changes.
+    private fun wifiNetwork(): Network? {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return null
+        return try {
+            cm.allNetworks.firstOrNull { net ->
+                cm.getNetworkCapabilities(net)?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+            }
+        } catch (e: Exception) {
+            Log.w(tag, "could not enumerate networks; sync will use the default route", e)
+            null
+        }
+    }
+
+    /**
+     * The opaque handle the native transport needs to pin its socket to Wi-Fi, or 0 for
+     * "use the default network".
+     *
+     * Why a socket-level bind rather than [ConnectivityManager.bindProcessToNetwork]: the
+     * process-wide call would drag every other socket in the app onto Wi-Fi for the duration
+     * of a sync - including whatever the rest of the app is doing on cellular at the time -
+     * and it is global mutable state that two overlapping callers can trample. Pinning the
+     * one socket that needs the LAN keeps the blast radius at exactly that socket.
+     */
+    private fun wifiNetworkHandle(): Long {
+        val handle = wifiNetwork()?.networkHandle ?: 0L
+        if (handle == 0L) {
+            // Worth a log: the sync is about to attempt the connect that has been failing.
+            Log.w(tag, "no Wi-Fi network available; LAN connect will use the default route")
+        }
+        return handle
+    }
+
+    /**
+     * Turns a connect failure into something a user can act on.
+     *
+     * The native layer collapses several kernel errors into NETWORK_UNREACHABLE, so the
+     * wording stays honest about the two things it can actually mean rather than inventing a
+     * precision the code does not have. The exact errno is in logcat under HomeMoneySync.
+     */
+    private fun describeConnectFailure(error: SyncErrorCode): String = when (error) {
+        SyncErrorCode.CONNECT_TIMEOUT ->
+            "Peer did not answer. Check both devices are on the same Wi-Fi."
+        SyncErrorCode.NETWORK_UNREACHABLE ->
+            "Could not reach the peer. Open Home Money on the other device and keep it on the same Wi-Fi."
+        else -> "Connection failed ($error)"
+    }
+
     fun startSyncServer() {
         // compareAndSet, not get-then-set: searchDevices and the UI can both call this, and
         // the v1 gap between the two let a second discovery responder bind the same port.
@@ -497,38 +585,55 @@ class LanDeviceSyncManager(
         }
         return try {
             withContext(Dispatchers.IO) {
-                updateSyncProgress(0.1f, "Connecting...", true)
-                val port = resolveSyncPort(device)
-                val transport = NativeSyncTransport(nativeSyncEngine, device.address, port, connectTimeoutMs = 10_000)
-                try {
-                    val outcome = syncInitiator.sync(transport, device.address) { progress, message ->
-                        updateSyncProgress(progress, message, true)
-                    }
-                    if (!outcome.success) {
-                        val reason = outcome.errorMessage ?: "sync failed"
-                        Log.w(tag, "v2 sync with ${device.deviceName} failed: $reason")
-                        updateSyncProgress(1f, "Sync failed: $reason", false)
-                        return@withContext createFailedSyncResult(reason)
-                    }
-                    updateSyncProgress(1f, "Done", false)
-                    com.chronie.homemoney.domain.model.SyncResult(
-                        success = true,
-                        uploadResult = com.chronie.homemoney.domain.model.UploadResult(
-                            totalItems = outcome.uploadedEntities,
-                            successCount = outcome.uploadedEntities,
-                            failedCount = 0
-                        ),
-                        downloadResult = com.chronie.homemoney.domain.model.DownloadResult(
-                            totalItems = outcome.downloadedEntities,
-                            newItems = outcome.inserted,
-                            updatedItems = outcome.updated,
-                            conflicts = outcome.conflicts.map { toDomainConflict(it) }
-                        ),
-                        conflicts = outcome.conflicts.map { toDomainConflict(it) }
-                    )
-                } finally {
-                    transport.close()
+            updateSyncProgress(0.1f, "Connecting...", true)
+            val port = resolveSyncPort(device)
+            // Pin the socket to Wi-Fi. The peer is on the Wi-Fi subnet, but the app's default
+            // network is whatever Android validated as having internet - typically cellular
+            // when the Wi-Fi router has no uplink. An unpinned connect() to a LAN IP then
+            // fails with ENETUNREACH before the first frame, which is the "discoverable but
+            // not connectable" report: the peer is found over inbound UDP, yet nothing we
+            // send ever leaves the phone.
+            val netHandle = wifiNetworkHandle()
+            val transport = NativeSyncTransport(
+                nativeSyncEngine,
+                device.address,
+                port,
+                connectTimeoutMs = 10_000,
+                netHandle = netHandle
+            )
+            val outcome = try {
+                syncInitiator.sync(transport, device.address) { progress, message ->
+                    updateSyncProgress(progress, message, true)
                 }
+            } finally {
+                transport.close()
+            }
+            if (!outcome.success) {
+                // Prefer the connect error when there is one: the initiator can only report
+                // that the transport never answered, which is true of every possible cause.
+                val reason = transport.connectError?.let { describeConnectFailure(it) }
+                    ?: outcome.errorMessage
+                    ?: "sync failed"
+                Log.w(tag, "v2 sync with ${device.deviceName} failed: $reason")
+                updateSyncProgress(1f, "Sync failed: $reason", false)
+                return@withContext createFailedSyncResult(reason)
+            }
+            updateSyncProgress(1f, "Done", false)
+            com.chronie.homemoney.domain.model.SyncResult(
+                success = true,
+                uploadResult = com.chronie.homemoney.domain.model.UploadResult(
+                    totalItems = outcome.uploadedEntities,
+                    successCount = outcome.uploadedEntities,
+                    failedCount = 0
+                ),
+                downloadResult = com.chronie.homemoney.domain.model.DownloadResult(
+                    totalItems = outcome.downloadedEntities,
+                    newItems = outcome.inserted,
+                    updatedItems = outcome.updated,
+                    conflicts = outcome.conflicts.map { toDomainConflict(it) }
+                ),
+                conflicts = outcome.conflicts.map { toDomainConflict(it) }
+            )
             }
         } catch (e: Exception) {
             createFailedSyncResult(e.message ?: "Error")
