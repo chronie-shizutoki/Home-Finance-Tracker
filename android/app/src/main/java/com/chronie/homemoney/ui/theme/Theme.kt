@@ -15,19 +15,9 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
 import top.yukonga.miuix.kmp.theme.ThemePaletteStyle
 
-/**
- * App-level palette style. Mirrors Miuix [ThemePaletteStyle] for use in settings persistence.
- */
 enum class PaletteStyle {
-    TonalSpot,
-    Neutral,
-    Vibrant,
-    Expressive,
-    Rainbow,
-    FruitSalad,
-    Monochrome,
-    Fidelity,
-    Content,
+    TonalSpot, Neutral, Vibrant, Expressive, Rainbow,
+    FruitSalad, Monochrome, Fidelity, Content,
 }
 
 val LocalThemeSettings = staticCompositionLocalOf<MutableState<ThemeSettings>> {
@@ -49,8 +39,21 @@ fun loadThemeSettings(context: Context): ThemeSettings {
     return ThemeSettings(useDynamicColor, primaryColor, paletteStyle)
 }
 
-/** Map app [PaletteStyle] to Miuix [ThemePaletteStyle]. Ordinals match by design. */
 private fun PaletteStyle.toThemePaletteStyle(): ThemePaletteStyle = ThemePaletteStyle.entries[ordinal]
+
+/** Safely convert a stored ARGB Int to Compose Color, handling sign-extension. */
+private fun Int.toComposeColor(): Color {
+    val a = (this ushr 24) and 0xFF
+    val r = (this ushr 16) and 0xFF
+    val g = (this ushr 8) and 0xFF
+    val b = this and 0xFF
+    return Color(r / 255f, g / 255f, b / 255f, a / 255f)
+}
+
+private fun maybeKeyColor(primaryColor: Int): Color? {
+    if (primaryColor == 0) return null
+    return primaryColor.toComposeColor()
+}
 
 @Composable
 fun HomeMoneyTheme(
@@ -77,11 +80,8 @@ fun HomeMoneyTheme(
     val settings = themeSettings.value
     val controller = remember(settings) {
         val (mode, keyColor) = when {
-            // Android system dynamic colors (Monet) — wallpaper-based
             settings.useDynamicColor -> ColorSchemeMode.MonetSystem to null
-            // User-selected custom seed color
-            settings.primaryColor != 0 -> ColorSchemeMode.MonetSystem to Color(settings.primaryColor)
-            // Miuix default blue (#3482FF light / #277AF7 dark)
+            settings.primaryColor != 0 -> ColorSchemeMode.MonetSystem to maybeKeyColor(settings.primaryColor)
             else -> ColorSchemeMode.System to null
         }
         ThemeController(
