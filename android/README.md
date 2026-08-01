@@ -26,7 +26,7 @@ This is the native Android implementation of the Home Money financial tracking a
 
 ### Technical Features
 - **Encrypted Database**: SQLCipher-encrypted Room database with hardware-backed key storage via EncryptedSharedPreferences
-- **Material Design 3**: Modern UI with dynamic color support and manual color picker customization
+- **Miuix UI Framework**: Modern UI with dynamic color support and manual color picker customization
 - **Edge-to-Edge Display**: Immersive full-screen experience with transparent system bars
 - **Developer Mode**: Built-in database testing and debugging tools
 - **Customizable Theme**: Manual color picker and dynamic color from wallpaper
@@ -75,7 +75,6 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Jetpack Compose**: Modern declarative UI framework
 - **ViewModels**: UI state management with Kotlin StateFlow
 - **Navigation Component**: Type-safe navigation with animated transitions
-- **Material 3**: Material Design 3 components with window size classes
 - **Custom Components**: ExpressiveLinearProgressIndicator, ExpressiveLoadingIndicator, ExpressiveSwitch, CircularIconButton, ColorPickerBottomSheet, LanguageSelectorBottomSheet
 
 #### Native Layer
@@ -96,7 +95,6 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Async**: Kotlin Coroutines 1.11.0 + Flow
 
 ### Key Libraries
-- **Material Design 3**: Modern UI components (1.5.0-alpha23) with window-size-class
 - **Material (MDC)**: Material Components for Android (1.14.0)
 - **Navigation Compose**: Type-safe navigation (2.9.8)
 - **Paging 3**: Efficient data loading with Compose integration (3.5.0)
@@ -105,7 +103,7 @@ This is the native Android implementation of the Home Money financial tracking a
 - **Gson**: JSON serialization
 - **DataStore**: Preferences storage (1.2.1)
 - **fastExcel**: Excel file handling (0.20.2) with aalto-xml (1.4.0) and XZ (1.12)
-- **m3color**: Material 3 color utilities (2026.1)
+- **Miuix**: HyperOS Compose Multiplatform UI components (0.9.3)
 - **Protobuf**: Protocol Buffers (4.35.1) with protobuf-javalite
 - **gRPC**: gRPC-Java (1.82.1) with okhttp and protobuf-lite
 
@@ -664,7 +662,7 @@ For issues, questions, or contributions, please refer to the main project reposi
 
 ## Acknowledgments
 
-- Built with Jetpack Compose and Material Design 3
+- Built with Jetpack Compose and Miuix UI Framework
 - Uses SiliconFlow API for AI expense recognition
 - Uses fastExcel for Excel file handling
 - Built-in custom image editor (miuix + coil) for cropping, rotating, and erasing

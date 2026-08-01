@@ -7,11 +7,9 @@ import androidx.compose.ui.unit.sp
 import top.yukonga.miuix.kmp.theme.defaultTextStyles
 
 /**
- * Miuix text styles. The three styles the app previously customized via MD3
- * Typography (bodyLarge / titleLarge / labelSmall) are mapped onto Miuix
- * textStyles body1 / title3 / footnote2 respectively (same sizes).
+ * Miuix text styles with custom overrides for body1, title3, and footnote2.
  *
- * MD3 -> Miuix textStyle call-site mapping:
+ * App usage to Miuix textStyle mapping:
  *   bodyMedium -> body2, titleMedium -> body1, bodySmall -> footnote1,
  *   titleLarge -> title3, bodyLarge -> body1, titleSmall -> body2,
  *   labelLarge -> body2, headlineSmall -> title2, labelSmall -> footnote2,

@@ -92,7 +92,6 @@ data class LicenseItem(
             group.startsWith("io.mockk") -> "https://mockk.io/"
             group.startsWith("org.dhatim") -> "https://github.com/dhatim/fastexcel"
             group.startsWith("org.tukaani") -> "https://tukaani.org/xz/"
-            group.startsWith("com.github.Kyant0") -> "https://github.com/Kyant0/M3Color"
             group.startsWith("top.yukonga") -> "https://github.com/mizure/miuix-kmp"
             group.startsWith("com.himanshoe") -> "https://github.com/himanshoe/charty"
             group.startsWith("org.opencv") -> "https://opencv.org/"

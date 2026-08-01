@@ -8,7 +8,8 @@ data class ColorOption(
     val value: Int,
     @param:StringRes val nameResId: Int
 ) {
-    val color: Color get() = Color(value.toLong() and 0xFFFFFFFFL)
+    val isDefault: Boolean get() = value == 0
+    val color: Color get() = if (isDefault) Color(0xFF3482FF) else Color(value.toLong() and 0xFFFFFFFFL)
 }
 
 data class ColorGroup(
@@ -20,7 +21,7 @@ fun getColorGroups(): List<ColorGroup> = listOf(
     ColorGroup(
         nameResId = R.string.color_group_default,
         colors = listOf(
-            ColorOption(0xFF6750A4.toInt(), R.string.color_group_default)
+            ColorOption(0, R.string.color_group_default)
         )
     ),
     ColorGroup(

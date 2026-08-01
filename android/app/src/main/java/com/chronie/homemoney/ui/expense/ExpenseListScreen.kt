@@ -75,7 +75,7 @@ fun ExpenseListScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     var budgetRefreshTrigger by remember { mutableIntStateOf(0) }
 
-    // Use screen width to decide table layout (replaces material3 WindowSizeClass)
+    // Use screen width to decide table layout
     val configuration = LocalConfiguration.current
     val useTableLayout = configuration.screenWidthDp.dp >= 600.dp
 
