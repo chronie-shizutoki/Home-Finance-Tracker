@@ -14,7 +14,7 @@
   {
     "group": "androidx.compose.material3",
     "name": "material3",
-    "version": "1.5.0-alpha24",
+    "version": "1.5.0-alpha25",
     "fullName": "androidx.compose.material3:material3"
   },
   {
@@ -248,19 +248,19 @@
   {
     "group": "io.grpc",
     "name": "grpc-okhttp",
-    "version": "1.83.0",
+    "version": "1.83.1",
     "fullName": "io.grpc:grpc-okhttp"
   },
   {
     "group": "io.grpc",
     "name": "grpc-protobuf-lite",
-    "version": "1.83.0",
+    "version": "1.83.1",
     "fullName": "io.grpc:grpc-protobuf-lite"
   },
   {
     "group": "io.grpc",
     "name": "grpc-stub",
-    "version": "1.83.0",
+    "version": "1.83.1",
     "fullName": "io.grpc:grpc-stub"
   },
   {
