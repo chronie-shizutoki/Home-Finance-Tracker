@@ -130,6 +130,50 @@ class NativeSyncEngine {
     external fun performSync(address: String, port: Int, data: ByteArray): ByteArray?
 
     /**
+     * Opens a client connection to a peer and returns an opaque handle, or 0 on failure.
+     *
+     * [performSync] is a one-shot - connect, send one frame, hang up - which is all a
+     * legacy v1 peer needs. The v2 handshake is five request/response pairs that share one
+     * session, and a session only exists for as long as the responder holds the socket
+     * open, so the initiator needs a connection it can keep. Session semantics stay in
+     * Kotlin because that is where the protobuf schema lives; native only moves frames.
+     *
+     * Every non-zero handle must reach [closeSyncConnection], including on failure paths,
+     * or the file descriptor leaks for the life of the process.
+     *
+     * @param connectTimeoutMs 0 or less means "use the value from [configureTransport]".
+     */
+    external fun openSyncConnection(address: String, port: Int, connectTimeoutMs: Int): Long
+
+    /**
+     * Sends one frame and returns the reply as a flat `header || payload` buffer, decodable
+     * with `SyncWireProtocol.decodeHeader`.
+     *
+     * A transport failure comes back as a locally generated ERROR frame rather than null,
+     * so there is exactly one shape to handle and the reason is always a `SyncErrorCode`
+     * in the body. Null is reserved for a malformed call: an unknown handle, an opcode
+     * outside the protocol, or a body over the frame cap.
+     *
+     * Once an exchange fails the connection is retired natively - the stream is out of
+     * step mid-frame - and every later call on that handle answers PEER_CLOSED.
+     *
+     * @param timeoutMs deadline for this exchange alone. AUTH needs a long one because it
+     *   blocks on the remote user tapping "accept"; a CHUNK does not.
+     */
+    external fun syncExchange(
+        handle: Long,
+        opcode: Int,
+        flags: Int,
+        sessionId: Long,
+        seq: Int,
+        payload: ByteArray,
+        timeoutMs: Int
+    ): ByteArray?
+
+    /** Closes a client connection. Idempotent, and harmless on an unknown handle. */
+    external fun closeSyncConnection(handle: Long)
+
+    /**
      * Tunes the client transport. Values are clamped natively, so a nonsensical argument
      * degrades the timeout rather than wedging a worker.
      */

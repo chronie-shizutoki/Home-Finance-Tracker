@@ -825,6 +825,123 @@ ClientOutcome performSyncWithRetry(const std::string& address,
     }
 }
 
+// ------------------------------------------------------- persistent client connections
+
+/**
+ * A client socket that outlives a single frame.
+ *
+ * performSync above is a one-shot: connect, send one frame, read one reply, hang up. That
+ * is enough for a legacy v1 peer but it cannot express the v2 handshake, which is five
+ * request/response pairs that must share one session - and one socket, because the session
+ * id only means anything for as long as the responder keeps the session open.
+ *
+ * The session semantics live in Kotlin (that is where the protobuf schema is; the NDK
+ * build deliberately links no protobuf runtime), so what native owes it is exactly this:
+ * a connection it can hold open and push individual frames through. Nothing here knows
+ * what an opcode means.
+ */
+struct ClientConnection {
+    int fd = -1;
+    std::string peerKey;
+    /// Serialises exchanges. The protocol is strictly request/response, so two concurrent
+    /// exchanges on one socket would interleave frames and desynchronise both ends.
+    std::mutex io;
+    /// Set once the link is known to be unusable, so later calls fail fast instead of
+    /// blocking on a socket that will never answer.
+    bool broken = false;
+};
+
+std::mutex g_client_mutex;
+std::unordered_map<std::int64_t, std::shared_ptr<ClientConnection>> g_client_conns;
+/// Handles start at 1 so that 0 can mean "no connection" on the Kotlin side.
+std::atomic<std::int64_t> g_next_client_handle{1};
+
+std::shared_ptr<ClientConnection> findClientConnection(std::int64_t handle) {
+    std::lock_guard<std::mutex> lock(g_client_mutex);
+    const auto it = g_client_conns.find(handle);
+    return it == g_client_conns.end() ? nullptr : it->second;
+}
+
+/**
+ * One request/response over an already open client connection.
+ *
+ * Framing only: the opcode, flags, session id and body all come from the caller, and the
+ * reply is handed back exactly as it arrived. The deadline is per exchange rather than per
+ * connection because the AUTH round trip legitimately blocks for as long as the user on
+ * the other phone takes to tap "accept", while a CHUNK that stalls for a minute is dead.
+ */
+SyncErrorCode exchangeOnConnection(ClientConnection& conn,
+                                   Opcode opcode,
+                                   std::uint16_t flags,
+                                   std::uint64_t sessionId,
+                                   std::uint32_t seq,
+                                   const std::uint8_t* payload,
+                                   std::size_t payloadLen,
+                                   int timeoutMs,
+                                   Frame& reply) {
+    FdStream stream(conn.fd, Deadline::afterMs(timeoutMs));
+
+    FrameHeader header{};
+    header.opcode = opcode;
+    header.flags = flags;
+    header.sessionId = sessionId;
+    header.seq = seq;
+
+    const SyncErrorCode written = writeFrame(stream, header, payload, payloadLen);
+    if (written != SyncErrorCode::kOk) {
+        return written;
+    }
+    g_metrics.framesOut.fetch_add(1, std::memory_order_relaxed);
+    g_metrics.bytesOut.fetch_add(kFrameHeaderSize + payloadLen, std::memory_order_relaxed);
+
+    const SyncErrorCode read = readFrame(stream, reply);
+    if (read != SyncErrorCode::kOk) {
+        return read;
+    }
+    g_metrics.framesIn.fetch_add(1, std::memory_order_relaxed);
+    g_metrics.bytesIn.fetch_add(kFrameHeaderSize + reply.payload.size(),
+                                std::memory_order_relaxed);
+    return SyncErrorCode::kOk;
+}
+
+/// Serialises a frame into the flat `header || payload` form Kotlin decodes.
+std::vector<std::uint8_t> flattenFrame(const FrameHeader& header,
+                                       const std::uint8_t* payload,
+                                       std::size_t payloadLen) {
+    FrameHeader copy = header;
+    copy.version = kProtocolVersion;
+    copy.payloadLen = static_cast<std::uint32_t>(payloadLen);
+    copy.payloadCrc32 = payloadLen == 0 ? 0u : crc32c(payload, payloadLen);
+
+    const FrameHeaderBytes encoded = encodeFrameHeader(copy);
+    std::vector<std::uint8_t> out;
+    out.reserve(kFrameHeaderSize + payloadLen);
+    out.insert(out.end(), encoded.begin(), encoded.end());
+    if (payloadLen > 0) {
+        out.insert(out.end(), payload, payload + payloadLen);
+    }
+    return out;
+}
+
+/**
+ * A locally generated ERROR frame.
+ *
+ * A transport failure is reported to Kotlin as a frame rather than as null so that the
+ * caller has exactly one shape to handle. It reads the four byte code out of an ERROR
+ * body the same way whether the peer sent it or the socket died on the way there, which
+ * is what stops "sync failed" from collapsing back into an untyped null.
+ */
+std::vector<std::uint8_t> localErrorFrame(SyncErrorCode code,
+                                          std::uint64_t sessionId,
+                                          std::uint32_t seq) {
+    const std::vector<std::uint8_t> body = errorPayload(code);
+    FrameHeader header{};
+    header.opcode = Opcode::kError;
+    header.sessionId = sessionId;
+    header.seq = seq;
+    return flattenFrame(header, body.data(), body.size());
+}
+
 }  // namespace
 
 // ------------------------------------------------------------------------ JNI surface
@@ -996,6 +1113,177 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
                                 reinterpret_cast<const jbyte*>(outcome.response.data()));
     }
     return result;
+}
+
+/**
+ * Opens a client connection and returns an opaque handle, or 0.
+ *
+ * Kotlin owns the lifetime from here: every handle must be given back to
+ * closeSyncConnection, including on the failure paths, or the fd leaks for the life of
+ * the process.
+ */
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_chronie_homemoney_data_sync_NativeSyncEngine_openSyncConnection(
+        JNIEnv* env, jobject /*obj*/, jstring address, jint port, jint connectTimeoutMs) {
+    t_last_error = static_cast<std::int32_t>(SyncErrorCode::kOk);
+
+    if (address == nullptr) {
+        recordError(SyncErrorCode::kInternal);
+        return 0;
+    }
+    const char* nativeAddress = env->GetStringUTFChars(address, nullptr);
+    if (nativeAddress == nullptr) {
+        recordError(SyncErrorCode::kInternal);
+        return 0;
+    }
+    const std::string addressCopy(nativeAddress);
+    env->ReleaseStringUTFChars(address, nativeAddress);
+
+    const int configured = g_connect_timeout_ms.load(std::memory_order_relaxed);
+    // A non-positive value means "use whatever configureTransport set"; anything else is
+    // clamped for the same reason configureTransport clamps.
+    const int timeout = connectTimeoutMs <= 0 ? configured
+                        : (connectTimeoutMs < 500 ? 500
+                                                  : (connectTimeoutMs > 60000 ? 60000
+                                                                              : connectTimeoutMs));
+
+    SyncErrorCode error = SyncErrorCode::kOk;
+    const int fd = connectWithTimeout(addressCopy.c_str(), static_cast<std::uint16_t>(port),
+                                      timeout, error);
+    if (fd < 0) {
+        recordError(error);
+        LOGE("openSyncConnection to %s:%d failed: %s", addressCopy.c_str(), port,
+             errorName(error));
+        return 0;
+    }
+
+    auto conn = std::make_shared<ClientConnection>();
+    conn->fd = fd;
+    conn->peerKey = addressCopy + ":" + std::to_string(port);
+
+    const std::int64_t handle = g_next_client_handle.fetch_add(1, std::memory_order_relaxed);
+    {
+        std::lock_guard<std::mutex> lock(g_client_mutex);
+        g_client_conns.emplace(handle, std::move(conn));
+    }
+    g_metrics.v2Sessions.fetch_add(1, std::memory_order_relaxed);
+    LOGD("openSyncConnection %s -> handle %lld", addressCopy.c_str(),
+         static_cast<long long>(handle));
+    return static_cast<jlong>(handle);
+}
+
+/**
+ * Sends one frame on an open connection and returns the reply as `header || payload`.
+ *
+ * Returns null only when the call itself is malformed - an unknown handle, an unknown
+ * opcode, an oversized body. Every transport failure comes back as a locally generated
+ * ERROR frame instead, so the caller decodes one shape and reads the reason out of it.
+ */
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_chronie_homemoney_data_sync_NativeSyncEngine_syncExchange(
+        JNIEnv* env, jobject /*obj*/, jlong handle, jint opcode, jint flags, jlong sessionId,
+        jint seq, jbyteArray payload, jint timeoutMs) {
+    t_last_error = static_cast<std::int32_t>(SyncErrorCode::kOk);
+
+    const auto rawOpcode = static_cast<std::uint8_t>(opcode & 0xFF);
+    if (!isKnownOpcode(rawOpcode)) {
+        recordError(SyncErrorCode::kUnknownOpcode);
+        LOGE("syncExchange: opcode 0x%02X is not part of the protocol",
+             static_cast<unsigned>(rawOpcode));
+        return nullptr;
+    }
+
+    std::vector<std::uint8_t> body;
+    if (payload != nullptr) {
+        const jsize length = env->GetArrayLength(payload);
+        body.resize(static_cast<std::size_t>(length));
+        if (length > 0) {
+            env->GetByteArrayRegion(payload, 0, length, reinterpret_cast<jbyte*>(body.data()));
+        }
+    }
+    if (body.size() > kMaxPayloadSize) {
+        recordError(SyncErrorCode::kPayloadTooLarge);
+        LOGE("syncExchange: body of %zu bytes exceeds the frame cap", body.size());
+        return nullptr;
+    }
+
+    const std::shared_ptr<ClientConnection> conn = findClientConnection(handle);
+    if (!conn) {
+        recordError(SyncErrorCode::kInternal);
+        LOGE("syncExchange: handle %lld is not open", static_cast<long long>(handle));
+        return nullptr;
+    }
+
+    const int configured = g_io_timeout_ms.load(std::memory_order_relaxed);
+    const int deadlineMs = timeoutMs <= 0 ? configured
+                           : (timeoutMs < 1000 ? 1000
+                                               : (timeoutMs > 300000 ? 300000 : timeoutMs));
+
+    std::vector<std::uint8_t> flat;
+    {
+        std::lock_guard<std::mutex> lock(conn->io);
+        if (conn->broken) {
+            flat = localErrorFrame(SyncErrorCode::kPeerClosed,
+                                   static_cast<std::uint64_t>(sessionId),
+                                   static_cast<std::uint32_t>(seq));
+        } else {
+            Frame reply;
+            const SyncErrorCode result = exchangeOnConnection(
+                    *conn, static_cast<Opcode>(rawOpcode),
+                    static_cast<std::uint16_t>(flags & 0xFFFF),
+                    static_cast<std::uint64_t>(sessionId), static_cast<std::uint32_t>(seq),
+                    body.empty() ? nullptr : body.data(), body.size(), deadlineMs, reply);
+            if (result == SyncErrorCode::kOk) {
+                flat = flattenFrame(reply.header, reply.payload.data(), reply.payload.size());
+            } else {
+                // The stream is out of step once an exchange fails mid frame, so the
+                // connection is retired rather than reused for the next opcode.
+                conn->broken = true;
+                recordError(result);
+                LOGW("syncExchange %s op=0x%02X failed: %s", conn->peerKey.c_str(),
+                     static_cast<unsigned>(rawOpcode), errorName(result));
+                flat = localErrorFrame(result, static_cast<std::uint64_t>(sessionId),
+                                       static_cast<std::uint32_t>(seq));
+            }
+        }
+    }
+
+    jbyteArray result = env->NewByteArray(static_cast<jsize>(flat.size()));
+    if (result == nullptr) {
+        env->ExceptionClear();
+        recordError(SyncErrorCode::kInternal);
+        return nullptr;
+    }
+    env->SetByteArrayRegion(result, 0, static_cast<jsize>(flat.size()),
+                            reinterpret_cast<const jbyte*>(flat.data()));
+    return result;
+}
+
+/// Closes a client connection. Safe to call twice and safe to call with an unknown handle.
+extern "C" JNIEXPORT void JNICALL
+Java_com_chronie_homemoney_data_sync_NativeSyncEngine_closeSyncConnection(JNIEnv* /*env*/,
+                                                                          jobject /*obj*/,
+                                                                          jlong handle) {
+    std::shared_ptr<ClientConnection> conn;
+    {
+        std::lock_guard<std::mutex> lock(g_client_mutex);
+        const auto it = g_client_conns.find(handle);
+        if (it == g_client_conns.end()) {
+            return;
+        }
+        conn = it->second;
+        g_client_conns.erase(it);
+    }
+
+    // Taking the io lock means a close that races an in-flight exchange waits for it
+    // rather than pulling the fd out from under a blocking read.
+    std::lock_guard<std::mutex> lock(conn->io);
+    conn->broken = true;
+    const int fd = conn->fd;
+    conn->fd = -1;
+    shutdownQuietly(fd);
+    closeQuietly(fd);
+    LOGD("closeSyncConnection %lld", static_cast<long long>(handle));
 }
 
 extern "C" JNIEXPORT void JNICALL

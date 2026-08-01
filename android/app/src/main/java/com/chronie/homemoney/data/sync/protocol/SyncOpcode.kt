@@ -69,6 +69,26 @@ enum class SyncOpcode(val value: Int) {
         /** Returns null for an opcode this build does not know, never throws. */
         fun fromValue(value: Int): SyncOpcode? = BY_VALUE[value]
     }
+
+    /**
+     * The reply opcode the responder answers with for this request opcode.
+     *
+     * Mirrors the `ackOpcodeFor` table the native transport applies when it rebuilds a reply
+     * header. Both the live [com.chronie.homemoney.data.sync.transport.NativeSyncTransport]
+     * and the in-memory test transport reconstruct the reply opcode from this, so keeping the
+     * mapping in exactly one place is what stops a refactor from silently answering a
+     * MANIFEST with a COMMIT_ACK.
+     */
+    fun ackOpcode(): SyncOpcode = when (this) {
+        HELLO -> HELLO_ACK
+        AUTH -> AUTH_ACK
+        MANIFEST -> MANIFEST_ACK
+        CHUNK -> CHUNK_ACK
+        PULL -> PULL_ACK
+        COMMIT -> COMMIT_ACK
+        PING -> PONG
+        else -> this
+    }
 }
 
 /**

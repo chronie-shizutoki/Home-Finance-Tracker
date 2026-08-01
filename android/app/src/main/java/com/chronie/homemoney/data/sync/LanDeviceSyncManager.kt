@@ -15,7 +15,9 @@ import com.chronie.homemoney.data.sync.discovery.LanDiscoveryService
 import com.chronie.homemoney.data.sync.discovery.MulticastGate
 import com.chronie.homemoney.data.sync.engine.RoomSyncEntityStore
 import com.chronie.homemoney.data.sync.engine.SyncIdentity
+import com.chronie.homemoney.data.sync.engine.SyncInitiator
 import com.chronie.homemoney.data.sync.engine.SyncResponder
+import com.chronie.homemoney.data.sync.transport.NativeSyncTransport
 import com.chronie.homemoney.data.sync.telemetry.LogcatSyncLogSink
 import com.chronie.homemoney.data.sync.telemetry.MetricsDiscoveryTelemetry
 import com.chronie.homemoney.data.sync.telemetry.MetricsResponderObserver
@@ -25,6 +27,7 @@ import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.domain.sync.DeviceSyncData
 import com.chronie.homemoney.domain.sync.SyncProgressInfo
 import com.chronie.homemoney.domain.sync.SyncRequestInfo
+import com.chronie.homemoney.data.sync.generated.ConflictSummary
 import com.chronie.homemoney.data.sync.generated.DeviceSyncData as ProtoSyncData
 import com.google.gson.Gson
 import kotlinx.coroutines.*
@@ -256,6 +259,26 @@ class LanDeviceSyncManager(
     // ------------------------------------------------------------------ v2 responder
 
     /**
+     * Drives the client half of the v2 handshake.
+     *
+     * Built lazily because it captures [deviceId] / [deviceName], which are themselves lazy
+     * over SharedPreferences and must not be touched during construction. It reuses this
+     * manager's [PromptingSyncAuthorizer] so the initiator advertises the same pairing code
+     * the responder enforces and, when the peer is known, skips the human prompt.
+     */
+    private val syncInitiator: SyncInitiator by lazy {
+        SyncInitiator(
+            store = RoomSyncEntityStore(expenseDao),
+            identity = SyncIdentity(
+                deviceId = deviceId,
+                deviceName = deviceName,
+                deviceType = "ANDROID"
+            ),
+            authorizer = PromptingSyncAuthorizer()
+        )
+    }
+
+    /**
      * Handles v2 frames. Built lazily because it captures [deviceId] and [deviceName], which
      * are themselves lazy over SharedPreferences and must not be touched during construction.
      *
@@ -474,16 +497,38 @@ class LanDeviceSyncManager(
         }
         return try {
             withContext(Dispatchers.IO) {
-                updateSyncProgress(0.1f, "Native Sync...", true)
-                val localData = prepareLocalData()
+                updateSyncProgress(0.1f, "Connecting...", true)
                 val port = resolveSyncPort(device)
-                val responseBytes = nativeSyncEngine.performSync(device.address, port, SyncProtoConverter.toProto(localData).toByteArray())
-                if (responseBytes == null) return@withContext createFailedSyncResult("Fail")
-
-                val deviceData = SyncProtoConverter.toDomain(ProtoSyncData.parseFrom(responseBytes))
-                val downloadResult = processDeviceData(deviceData)
-                updateSyncProgress(1f, "Done", false)
-                com.chronie.homemoney.domain.model.SyncResult(true, com.chronie.homemoney.domain.model.UploadResult(localData.entities.size, localData.entities.size, 0), downloadResult, downloadResult.conflicts)
+                val transport = NativeSyncTransport(nativeSyncEngine, device.address, port, connectTimeoutMs = 10_000)
+                try {
+                    val outcome = syncInitiator.sync(transport, device.address) { progress, message ->
+                        updateSyncProgress(progress, message, true)
+                    }
+                    if (!outcome.success) {
+                        val reason = outcome.errorMessage ?: "sync failed"
+                        Log.w(tag, "v2 sync with ${device.deviceName} failed: $reason")
+                        updateSyncProgress(1f, "Sync failed: $reason", false)
+                        return@withContext createFailedSyncResult(reason)
+                    }
+                    updateSyncProgress(1f, "Done", false)
+                    com.chronie.homemoney.domain.model.SyncResult(
+                        success = true,
+                        uploadResult = com.chronie.homemoney.domain.model.UploadResult(
+                            totalItems = outcome.uploadedEntities,
+                            successCount = outcome.uploadedEntities,
+                            failedCount = 0
+                        ),
+                        downloadResult = com.chronie.homemoney.domain.model.DownloadResult(
+                            totalItems = outcome.downloadedEntities,
+                            newItems = outcome.inserted,
+                            updatedItems = outcome.updated,
+                            conflicts = outcome.conflicts.map { toDomainConflict(it) }
+                        ),
+                        conflicts = outcome.conflicts.map { toDomainConflict(it) }
+                    )
+                } finally {
+                    transport.close()
+                }
             }
         } catch (e: Exception) {
             createFailedSyncResult(e.message ?: "Error")
@@ -493,6 +538,21 @@ class LanDeviceSyncManager(
             clearSyncProgress()
         }
     }
+
+    /** Maps a wire [ConflictSummary] onto the domain [com.chronie.homemoney.domain.model.SyncConflict]. */
+    private fun toDomainConflict(c: ConflictSummary): com.chronie.homemoney.domain.model.SyncConflict =
+        com.chronie.homemoney.domain.model.SyncConflict(
+            entityType = c.entityType,
+            entityId = c.entityId,
+            conflictType = com.chronie.homemoney.domain.model.ConflictType.UPDATE_CONFLICT,
+            localTimestamp = c.localUpdatedAt,
+            serverTimestamp = c.remoteUpdatedAt,
+            resolution = if (c.keptLocal) {
+                com.chronie.homemoney.domain.model.ConflictResolution.USE_LOCAL
+            } else {
+                com.chronie.homemoney.domain.model.ConflictResolution.USE_SERVER
+            }
+        )
 
     fun cleanup() {
         stopSyncServer()
