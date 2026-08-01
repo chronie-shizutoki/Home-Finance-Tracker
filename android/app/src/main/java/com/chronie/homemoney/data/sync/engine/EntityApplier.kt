@@ -162,7 +162,14 @@ class EntityApplier(
 
         // ---- Commit, then remember. Order matters: recording first and failing second
         // would suppress a revision that never made it to disk.
-        store.writeAll(pendingWrites)
+        //
+        // The empty case is skipped rather than passed through: a sync where the peer sent
+        // nothing new is the common case once two devices are in step, and opening a write
+        // transaction to store zero rows would wake Room's invalidation tracker - and every
+        // Flow observing the ledger - for no reason.
+        if (pendingWrites.isNotEmpty()) {
+            store.writeAll(pendingWrites)
+        }
         for ((id, updatedAt, hash) in pendingKeys) {
             guard.recordEntityApplied(id, updatedAt, hash)
         }
