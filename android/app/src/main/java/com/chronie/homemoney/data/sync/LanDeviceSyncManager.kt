@@ -508,11 +508,17 @@ class LanDeviceSyncManager(
      * one socket that needs the LAN keeps the blast radius at exactly that socket.
      */
     private fun wifiNetworkHandle(): Long {
-        val handle = wifiNetwork()?.networkHandle ?: 0L
-        if (handle == 0L) {
-            // Worth a log: the sync is about to attempt the connect that has been failing.
-            Log.w(tag, "no Wi-Fi network available; LAN connect will use the default route")
-        }
+        val net = wifiNetwork()
+        val handle = net?.networkHandle ?: 0L
+        // One line that describes everything the native layer will see, so a single
+        // logcat grep yields both the handle and the IP space it covers.
+        val caps = if (net != null) {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val nc = cm?.getNetworkCapabilities(net)
+            val lp = cm?.getLinkProperties(net)
+            "transport=${nc?.transportInfo} link=${lp?.interfaceName} addrs=${lp?.linkAddresses}"
+        } else "none"
+        Log.i(tag, "wifiNetwork: handle=$handle $caps")
         return handle
     }
 
@@ -538,8 +544,19 @@ class LanDeviceSyncManager(
         // Install before listening. The handler is volatile so a late install would still be
         // seen, but a peer that connects in that window would be refused for no good reason.
         nativeSyncEngine.setFrameHandler(syncResponder)
-        discoveryScope.launch { nativeSyncEngine.startServer(GRPC_SYNC_PORT) }
-        responderJob = discoveryScope.launch { discovery.runResponder() }
+        discoveryScope.launch {
+            val ok = nativeSyncEngine.startServer(GRPC_SYNC_PORT)
+            if (ok) {
+                Log.i(tag, "native TCP server started on port $GRPC_SYNC_PORT")
+            } else {
+                Log.e(tag, "native TCP server FAILED to start on port $GRPC_SYNC_PORT" +
+                        " (port busy? permission denied? check logcat HomeMoneySync)")
+            }
+        }
+        responderJob = discoveryScope.launch {
+            discovery.runResponder()
+            Log.i(tag, "UDP discovery responder started on port $DISCOVERY_PORT")
+        }
     }
 
     fun stopSyncServer() {
