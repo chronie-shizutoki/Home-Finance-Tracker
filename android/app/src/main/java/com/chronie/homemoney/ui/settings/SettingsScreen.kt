@@ -791,22 +791,31 @@ fun AISettingsSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Top header with X (cancel) and Check (save) icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = { showApiKeyDialog = false }
-                )
-                TextButton(
-                    text = context.getString(R.string.save),
+                CircularIconButton(onClick = { showApiKeyDialog = false }) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(
                     onClick = {
                         viewModel.setAIApiKey(inputApiKey)
                         showApiKeyDialog = false
                     }
-                )
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.save),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -957,13 +966,29 @@ fun DataImportExportSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Top header with X (cancel) and Check (export) icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(text = context.getString(R.string.cancel), onClick = { showDateRangeDialog = false })
-                TextButton(text = context.getString(R.string.export_data), onClick = { showDateRangeDialog = false; viewModel.exportExpenses(startDate, endDate) }, enabled = startDate != null && endDate != null)
+                CircularIconButton(onClick = { showDateRangeDialog = false }) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(
+                    onClick = { showDateRangeDialog = false; viewModel.exportExpenses(startDate, endDate) },
+                    enabled = startDate != null && endDate != null
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.export_data),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -1137,11 +1162,23 @@ fun AccountSection(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(text = context.getString(R.string.cancel), onClick = { showLogoutDialog = false })
-            TextButton(text = context.getString(R.string.confirm), onClick = { viewModel.logout(); showLogoutDialog = false }, colors = ButtonDefaults.textButtonColors(textColor = MiuixTheme.colorScheme.error))
+            CircularIconButton(onClick = { showLogoutDialog = false }) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+            CircularIconButton(onClick = { viewModel.logout(); showLogoutDialog = false }) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.error
+                )
+            }
         }
     }
 

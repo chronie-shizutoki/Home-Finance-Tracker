@@ -488,17 +488,29 @@ fun DeviceNameEditDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Top header with X (cancel) and Check (save) icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
-                TextButton(
-                    text = context.getString(R.string.save),
+                CircularIconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(
                     onClick = { onConfirm(name) },
                     enabled = name.isNotBlank()
-                )
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.save),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -884,24 +896,25 @@ fun SyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Buttons
+                // Top header with X (reject) and Check (accept) icons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
-                        onClick = onReject,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(context.getString(R.string.reject))
+                    CircularIconButton(onClick = onReject) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = context.getString(R.string.reject),
+                            tint = MiuixTheme.colorScheme.onBackground
+                        )
                     }
-
-                    Button(
-                        onClick = onAccept,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColorsPrimary()
-                    ) {
-                        Text(context.getString(R.string.accept))
+                    CircularIconButton(onClick = onAccept) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = context.getString(R.string.accept),
+                            tint = MiuixTheme.colorScheme.primary
+                        )
                     }
                 }
             }
@@ -985,24 +998,25 @@ fun IncomingSyncRequestDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Buttons
+                // Top header with X (reject) and Check (accept) icons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
-                        onClick = onReject,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(context.getString(R.string.reject))
+                    CircularIconButton(onClick = onReject) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = context.getString(R.string.reject),
+                            tint = MiuixTheme.colorScheme.onBackground
+                        )
                     }
-
-                    Button(
-                        onClick = onAccept,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColorsPrimary()
-                    ) {
-                        Text(context.getString(R.string.accept))
+                    CircularIconButton(onClick = onAccept) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = context.getString(R.string.accept),
+                            tint = MiuixTheme.colorScheme.primary
+                        )
                     }
                 }
             }

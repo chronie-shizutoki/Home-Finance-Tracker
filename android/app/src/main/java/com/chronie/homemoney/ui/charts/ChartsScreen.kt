@@ -18,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.TimeRange
+import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
@@ -736,16 +739,27 @@ private fun CustomRangeBottomSheet(
         title = context.getString(R.string.custom_range),
         onDismissRequest = onDismiss,
         startAction = {
-            TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
+            CircularIconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
         },
         endAction = {
-            TextButton(
-                text = context.getString(R.string.confirm),
+            CircularIconButton(
                 onClick = {
                     onConfirm(startDate, endDate)
                 },
                 enabled = !startDate.isAfter(endDate)
-            )
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
         }
     ) {
         Column(

@@ -707,6 +707,39 @@ private fun RecordEditDialog(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Top header with X (cancel) and Check (confirm) icons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularIconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(
+                    onClick = {
+                        val updatedRecord = record.copy(
+                            type = selectedType,
+                            amount = amount.toDoubleOrNull() ?: record.amount,
+                            date = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                            remark = remark,
+                            isEdited = true
+                        )
+                        onConfirm(updatedRecord)
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.confirm),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
+            }
+
             // Type selection
             OutlinedButton(
                 onClick = { showTypePicker = true },
@@ -745,31 +778,6 @@ private fun RecordEditDialog(
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3
             )
-
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = onDismiss
-                )
-                TextButton(
-                    text = context.getString(R.string.confirm),
-                    onClick = {
-                        val updatedRecord = record.copy(
-                            type = selectedType,
-                            amount = amount.toDoubleOrNull() ?: record.amount,
-                            date = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                            remark = remark,
-                            isEdited = true
-                        )
-                        onConfirm(updatedRecord)
-                    }
-                )
-            }
         }
     }
 
@@ -909,6 +917,29 @@ private fun OcrTextBottomSheet(
     WindowBottomSheet(
         show = show,
         title = context.getString(R.string.ai_expense_ocr_title),
+        startAction = {
+            CircularIconButton(onClick = { if (!isProcessing) onDismiss() }) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+        },
+        endAction = {
+            if (!isProcessing) {
+                CircularIconButton(
+                    onClick = onConfirm,
+                    enabled = ocrText.isNotBlank()
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.ai_expense_ocr_confirm),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
+            }
+        },
         onDismissRequest = { if (!isProcessing) onDismiss() }
     ) {
         Column(
@@ -923,7 +954,7 @@ private fun OcrTextBottomSheet(
                 com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.JAPANESE to context.getString(R.string.ai_expense_language_japanese),
                 com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.KOREAN to context.getString(R.string.ai_expense_language_korean)
             )
-            
+
             val languageDropdownEntry = DropdownEntry(
                 items = com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.values().map { language ->
                     DropdownItem(
@@ -932,7 +963,7 @@ private fun OcrTextBottomSheet(
                     )
                 }
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -943,7 +974,7 @@ private fun OcrTextBottomSheet(
                     color = MiuixTheme.colorScheme.onSurfaceSecondary,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 WindowIconDropdownMenu(entry = languageDropdownEntry, enabled = !isProcessing) {
                     Text(
                         text = languageNames[ocrLanguage] ?: ocrLanguage.code,
@@ -952,7 +983,7 @@ private fun OcrTextBottomSheet(
                     )
                 }
             }
-            
+
             if (isProcessing) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -972,7 +1003,7 @@ private fun OcrTextBottomSheet(
                     style = MiuixTheme.textStyles.body2,
                     color = MiuixTheme.colorScheme.onSurfaceSecondary
                 )
-                
+
                 TextField(
                     value = ocrText,
                     onValueChange = onTextChange,
@@ -983,24 +1014,6 @@ private fun OcrTextBottomSheet(
                     useLabelAsPlaceholder = false,
                     maxLines = 10
                 )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        text = context.getString(R.string.cancel),
-                        onClick = onDismiss
-                    )
-                    Button(
-                        onClick = onConfirm,
-                        enabled = ocrText.isNotBlank(),
-                        colors = ButtonDefaults.buttonColorsPrimary()
-                    ) {
-                        Text(context.getString(R.string.ai_expense_ocr_confirm))
-                    }
-                }
             }
         }
     }
