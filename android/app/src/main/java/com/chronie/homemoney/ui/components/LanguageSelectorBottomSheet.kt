@@ -127,7 +127,7 @@ private fun LanguageItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         color = if (isSelected) {
-            MiuixTheme.colorScheme.primaryContainer
+            MiuixTheme.colorScheme.surfaceVariant
         } else {
             MiuixTheme.colorScheme.surface
         },

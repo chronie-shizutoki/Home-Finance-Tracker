@@ -156,6 +156,12 @@
     "fullName": "com.fasterxml:aalto-xml"
   },
   {
+    "group": "com.github.Kyant0",
+    "name": "m3color",
+    "version": "2026.1",
+    "fullName": "com.github.Kyant0:m3color"
+  },
+  {
     "group": "com.google.android.material",
     "name": "material",
     "version": "1.14.0",

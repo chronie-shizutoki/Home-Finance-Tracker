@@ -72,7 +72,7 @@ fun WeekdayDetailScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.defaultColors(
-                    color = MiuixTheme.colorScheme.primaryContainer
+                    color = MiuixTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
