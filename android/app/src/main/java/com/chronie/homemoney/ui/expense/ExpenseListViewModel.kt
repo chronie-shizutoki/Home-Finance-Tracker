@@ -18,7 +18,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Expense List ViewModel
+ * ViewModel for the expense list screen.
+ *
+ * Manages paginated loading, filtering, sorting, grouping by date,
+ * and deletion of expense records. Also computes aggregate statistics
+ * for the current filter criteria.
+ *
+ * The UI observes [uiState] which contains both the flat and
+ * date-grouped expense lists suitable for a grouped LazyColumn.
  */
 @HiltViewModel
 class ExpenseListViewModel @Inject constructor(
@@ -36,7 +43,15 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     /**
-     * Group expenses by date, first globally sort then group
+     * Groups expenses by date string, applying the given sort order.
+     *
+     * First sorts the entire list globally, then groups into a
+     * [LinkedHashMap] to preserve insertion order. When sorting by date,
+     * the groups are returned as a sorted map.
+     *
+     * @param expenses The flat list of expense records to group.
+     * @param sortBy The active sort option from the current filters.
+     * @return A map of date string -> list of expenses for that date.
      */
     private fun groupExpensesByDate(expenses: List<Expense>, sortBy: SortOption): Map<String, List<Expense>> {
         // Globally sort expenses by date
@@ -73,6 +88,10 @@ class ExpenseListViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Loads the first page of expenses based on current filters.
+     * @param refresh If true, resets to page 1 and clears existing data.
+     */
     fun loadExpenses(refresh: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -120,6 +139,10 @@ class ExpenseListViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Loads the next page of expenses (infinite scroll).
+     * Deduplicates by expense ID to prevent key conflicts in LazyColumn.
+     */
     fun loadMore() {
         val currentState = _uiState.value
         if (!currentState.isLoading && currentState.hasMore) {
@@ -164,6 +187,7 @@ class ExpenseListViewModel @Inject constructor(
         }
     }
     
+    /** Loads aggregate statistics for the current filter criteria. */
     fun loadStatistics() {
         viewModelScope.launch {
             val filters = _uiState.value.filters
@@ -178,6 +202,10 @@ class ExpenseListViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Applies new filters and reloads from page 1.
+     * Clears existing data before reloading.
+     */
     fun updateFilters(filters: ExpenseFilters) {
         _uiState.update {
             it.copy(
@@ -241,6 +269,7 @@ class ExpenseListViewModel @Inject constructor(
         }
     }
     
+    /** Pull-to-refresh: resets to page 1 and reloads. */
     fun refresh() {
         _uiState.update { it.copy(currentPage = 1, expenses = emptyList()) }
         loadExpenses(refresh = true)
@@ -248,7 +277,8 @@ class ExpenseListViewModel @Inject constructor(
     }
     
     /**
-     * Delete expense record
+     * Deletes an expense record.
+     * Optimistically removes it from the local list and refreshes statistics.
      */
     fun deleteExpense(expense: Expense) {
         viewModelScope.launch {
@@ -281,7 +311,18 @@ class ExpenseListViewModel @Inject constructor(
 }
 
 /**
- * Expense List UI State
+ * Complete UI state for the expense list screen.
+ *
+ * @property expenses Flat list of all loaded expense records.
+ * @property groupedExpenses Expenses grouped by date for the grouped list view.
+ * @property statistics Aggregate statistics for the current filter set.
+ * @property filters Active filter/sort criteria.
+ * @property currentPage Current pagination page (1-based).
+ * @property pageSize Number of items per page for pagination.
+ * @property totalItems Total number of matching items.
+ * @property hasMore Whether there are more pages to load.
+ * @property isLoading Whether a data load is in progress.
+ * @property error Error message to display, or null.
  */
 data class ExpenseListUiState(
     val expenses: List<Expense> = emptyList(),
@@ -304,7 +345,12 @@ data class ExpenseListUiState(
 )
 
 /**
- * Expense Date Group Data
+ * Summary data for a single date group in the expense list.
+ *
+ * @property date The date string (YYYY-MM-DD) for this group.
+ * @property expenses All expense records on this date.
+ * @property totalAmount Sum of all expense amounts on this date.
+ * @property count Number of expense records on this date.
  */
 data class ExpenseDateGroup(
     val date: String,

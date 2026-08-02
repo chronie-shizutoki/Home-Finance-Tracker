@@ -52,8 +52,17 @@ import top.yukonga.miuix.kmp.window.WindowDialog
 import com.chronie.homemoney.ui.components.OutlinedButton
 
 /**
- * Local Sync Screen
- * A redesigned sync interface with modern design aesthetics
+ * LAN-based device-to-device sync screen.
+ *
+ * Provides a full sync workflow:
+ * 1. Shows the local device name (editable).
+ * 2. Allows searching for nearby devices on the same Wi-Fi network.
+ * 3. Handles outgoing sync requests and incoming sync requests.
+ * 4. Displays sync progress via a bottom sheet.
+ *
+ * @param context Android context for string resources.
+ * @param onNavigateBack Callback to navigate back from this screen.
+ * @param viewModel The SettingsViewModel (Hilt-injected by default).
  */
 @Composable
 fun LanSyncScreen(

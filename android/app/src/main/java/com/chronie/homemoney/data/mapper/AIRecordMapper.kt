@@ -8,18 +8,29 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * AI Record Data Mapper
+ * Mapper for converting AI-recognized expense records from the server DTO
+ * to the domain model.
+ *
+ * AI records come from the OCR/recognition pipeline and may need user
+ * validation before being saved as regular expenses.
  */
 object AIRecordMapper {
     
     /**
-     * DTO -> Domain Model
+     * Converts an AI expense record DTO to a domain model.
+     *
+     * The resulting record is marked as not yet edited ([isEdited] = false)
+     * and its validity is determined by whether the amount is positive
+     * and the remark is non-empty.
+     *
+     * @param dto The raw AI recognition result from the server.
+     * @return An [AIExpenseRecord] ready for user review and editing.
      */
     fun toDomain(dto: AIExpenseRecordDto): AIExpenseRecord {
         return AIExpenseRecord(
             type = parseExpenseType(dto.type),
             amount = dto.amount,
-            date = dto.date, // Direct use of date string
+            date = dto.date,
             remark = dto.remark,
             isEdited = false,
             isValid = validateRecord(dto)
@@ -27,7 +38,8 @@ object AIRecordMapper {
     }
     
     /**
-     * Parse expense type from string
+     * Maps a Chinese type name string to an [ExpenseType] enum.
+     * Falls back to [ExpenseType.OTHER] for unrecognized types.
      */
     private fun parseExpenseType(typeStr: String): ExpenseType {
         return when (typeStr) {
@@ -56,26 +68,26 @@ object AIRecordMapper {
     }
     
     /**
-     * Parse date time from string
+     * Parses a date/datetime string into a [LocalDateTime].
+     * Tries ISO datetime format first, then ISO date format,
+     * falling back to the current time if all parsing fails.
      */
     private fun parseDateTime(dateStr: String): LocalDateTime {
         return try {
-            // Try to parse ISO format
             LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME)
         } catch (e: Exception) {
             try {
-                // Try to parse date format
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE)
                 date.atStartOfDay()
             } catch (e2: Exception) {
-                // Default to current time if parsing fails
                 LocalDateTime.now()
             }
         }
     }
     
     /**
-     * Validate record validity
+     * Validates whether an AI-recognized record is usable.
+     * A valid record must have a positive amount and a non-blank remark.
      */
     private fun validateRecord(dto: AIExpenseRecordDto): Boolean {
         return dto.amount > 0 && dto.remark.isNotBlank()

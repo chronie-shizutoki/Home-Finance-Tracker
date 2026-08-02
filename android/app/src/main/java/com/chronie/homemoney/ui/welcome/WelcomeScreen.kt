@@ -18,6 +18,20 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+/**
+ * Welcome / Login screen composable.
+ *
+ * Renders different UI based on the [WelcomeViewModel.uiState]:
+ * - [WelcomeUiState.CheckingLogin] → loading indicator
+ * - [WelcomeUiState.NotLoggedIn] → login form with skip option
+ * - [WelcomeUiState.Loading] → loading with "Logging in..." text
+ * - [WelcomeUiState.LoggedIn] → welcome back + "Get Started" button
+ * - [WelcomeUiState.Error] → error message with retry form
+ *
+ * @param context Android context for string resources.
+ * @param onGetStartedClick Callback to navigate to the main screen.
+ * @param viewModel The WelcomeViewModel (Hilt-injected by default).
+ */
 @Composable
 fun WelcomeScreen(
     context: Context,
@@ -126,6 +140,15 @@ fun WelcomeScreen(
     }
 }
 
+/**
+ * Login form with username text field, login button, and skip option.
+ *
+ * @param username Current username input value.
+ * @param onUsernameChange Callback when the username text changes.
+ * @param onLoginClick Callback when the login button is pressed.
+ * @param onSkipLogin Callback when the skip-login button is pressed.
+ * @param context Android context for string resources.
+ */
 @Composable
 private fun LoginForm(
     username: String,

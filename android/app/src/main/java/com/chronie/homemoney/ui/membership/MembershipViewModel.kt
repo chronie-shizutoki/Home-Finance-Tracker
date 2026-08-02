@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Membership / Profile screen.
+ *
+ * Displays the current user's member information (username, avatar, etc.)
+ * and provides logout functionality.
+ */
 @HiltViewModel
 class MembershipViewModel @Inject constructor(
     private val checkLoginStatusUseCase: CheckLoginStatusUseCase,
@@ -26,6 +32,10 @@ class MembershipViewModel @Inject constructor(
         loadMembershipData()
     }
 
+    /**
+     * Loads the current member's data from the repository.
+     * Requires the user to be logged in; shows an error state otherwise.
+     */
     fun loadMembershipData() {
         viewModelScope.launch {
             _uiState.value = MembershipUiState.Loading
@@ -37,7 +47,7 @@ class MembershipViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 获取会员信息
+                // Fetch member info from the server
                 val memberResult = memberRepository.getMemberInfo(username)
                 if (memberResult.isSuccess) {
                     _uiState.value = MembershipUiState.Success(
@@ -56,6 +66,11 @@ class MembershipViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Updates the user's avatar on the server.
+     *
+     * @param avatar Base64-encoded avatar image data.
+     */
     fun updateAvatar(avatar: String) {
         viewModelScope.launch {
             try {
@@ -84,16 +99,27 @@ class MembershipViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Logs the user out by clearing local preferences.
+     *
+     * @param onLogout Callback to navigate back to the welcome screen.
+     */
     fun logout(onLogout: () -> Unit) {
         preferencesManager.clearUsername()
         onLogout()
     }
 }
 
+/**
+ * Sealed class representing the membership screen UI states.
+ */
 sealed class MembershipUiState {
+    /** Loading member data from the server. */
     object Loading : MembershipUiState()
+    /** Member data loaded successfully. */
     data class Success(
         val member: Member?
     ) : MembershipUiState()
+    /** Failed to load member data. */
     data class Error(val message: String) : MembershipUiState()
 }
