@@ -69,7 +69,8 @@ The Go server automatically serves the frontend static files from `client/dist` 
   - `pkg/`: Shared packages
     - `database/`: Database connection and migration
     - `utils/`: Utility functions and response helpers
-- `android/`: Android native application (Kotlin)
+- `android/`: Android native application (Kotlin) — [Android README](android/README.md)
+  - `app/src/main/cpp/`: Native C++ sync engine — [C++ README](android/app/src/main/cpp/README.md)
   - `app/`: Main Android app module
   - `gradle/`: Gradle wrapper configuration
 - `.github/`: GitHub Actions workflows
@@ -121,10 +122,11 @@ The Go server automatically serves the frontend static files from `client/dist` 
   - gopsutil (system monitoring)
   - uuid (unique ID generation)
 - **Android**:
-  - Kotlin
-  - Capacitor
+  - Kotlin 2.4
+  - Jetpack Compose
   - Hilt (dependency injection)
   - WorkManager (background sync)
+  - C++23 via NDK — [native sync engine](android/app/src/main/cpp/README.md)
 - **Dev Tools**:
   - ESLint (code quality)
   - Jest (testing)
