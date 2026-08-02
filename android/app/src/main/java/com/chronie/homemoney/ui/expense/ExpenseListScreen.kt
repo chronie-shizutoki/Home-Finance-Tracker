@@ -320,7 +320,8 @@ fun ExpenseListScreen(
                                     context = context,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp)
+                                        .padding(16.dp),
+                                    useSingleRow = useTableLayout
                                 )
                             }
                             
@@ -464,7 +465,8 @@ fun ExpenseDateHeader(
 fun ExpenseStatisticsCard(
     statistics: com.chronie.homemoney.domain.model.ExpenseStatistics,
     context: android.content.Context,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    useSingleRow: Boolean = false
 ) {
     Card(
         modifier = modifier,
@@ -472,13 +474,12 @@ fun ExpenseStatisticsCard(
             color = MiuixTheme.colorScheme.primaryContainer
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        if (useSingleRow) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_count),
@@ -488,11 +489,6 @@ fun ExpenseStatisticsCard(
                     label = context.getString(R.string.expense_stats_total),
                     value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.totalAmount)
                 )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
                 StatisticItem(
                     label = context.getString(R.string.expense_stats_average),
                     value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.averageAmount)
@@ -501,6 +497,38 @@ fun ExpenseStatisticsCard(
                     label = context.getString(R.string.expense_stats_median),
                     value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.medianAmount)
                 )
+            }
+        } else {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    StatisticItem(
+                        label = context.getString(R.string.expense_stats_count),
+                        value = statistics.count.toString()
+                    )
+                    StatisticItem(
+                        label = context.getString(R.string.expense_stats_total),
+                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.totalAmount)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    StatisticItem(
+                        label = context.getString(R.string.expense_stats_average),
+                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.averageAmount)
+                    )
+                    StatisticItem(
+                        label = context.getString(R.string.expense_stats_median),
+                        value = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), statistics.medianAmount)
+                    )
+                }
             }
         }
     }
@@ -865,6 +893,10 @@ fun ExpenseTableItems(
     onDelete: (Expense) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var pendingDeleteExpense by remember { mutableStateOf<Expense?>(null) }
+    val showFirstConfirm = remember { mutableStateOf(false) }
+    val showSecondConfirm = remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -962,7 +994,10 @@ fun ExpenseTableItems(
                             )
                         }
                         IconButton(
-                            onClick = { onDelete(expense) },
+                            onClick = {
+                                pendingDeleteExpense = expense
+                                showFirstConfirm.value = true
+                            },
                             modifier = Modifier.size(36.dp)
                         ) {
                             Icon(
@@ -981,6 +1016,92 @@ fun ExpenseTableItems(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
+            }
+        }
+    }
+
+    // Delete Confirm Dialogs (same as LongPressExpenseItem)
+    // First Confirmation Dialog
+    WindowDialog(
+        show = showFirstConfirm.value,
+        title = context.getString(R.string.delete_confirm_title),
+        summary = context.getString(R.string.delete_confirm_message),
+        onDismissRequest = {
+            showFirstConfirm.value = false
+            pendingDeleteExpense = null
+        }
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularIconButton(
+                onClick = {
+                    showFirstConfirm.value = false
+                    pendingDeleteExpense = null
+                }
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+            CircularIconButton(
+                onClick = {
+                    showFirstConfirm.value = false
+                    showSecondConfirm.value = true
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+
+    // Second Confirmation Dialog
+    WindowDialog(
+        show = showSecondConfirm.value,
+        title = context.getString(R.string.delete_second_confirm_title),
+        summary = context.getString(R.string.delete_second_confirm_message),
+        onDismissRequest = {
+            showSecondConfirm.value = false
+            pendingDeleteExpense = null
+        }
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularIconButton(
+                onClick = {
+                    showSecondConfirm.value = false
+                    pendingDeleteExpense = null
+                }
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+            CircularIconButton(
+                onClick = {
+                    showSecondConfirm.value = false
+                    pendingDeleteExpense?.let { onDelete(it) }
+                    pendingDeleteExpense = null
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.delete),
+                    tint = MiuixTheme.colorScheme.error
+                )
             }
         }
     }

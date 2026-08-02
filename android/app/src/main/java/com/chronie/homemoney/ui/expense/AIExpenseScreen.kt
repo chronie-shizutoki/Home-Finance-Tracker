@@ -1009,10 +1009,10 @@ private fun OcrTextBottomSheet(
                     onValueChange = onTextChange,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .heightIn(min = 280.dp, max = 400.dp),
                     label = "",
                     useLabelAsPlaceholder = false,
-                    maxLines = 10
+                    maxLines = 20
                 )
             }
         }

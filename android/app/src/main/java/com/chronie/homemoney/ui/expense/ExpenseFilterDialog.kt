@@ -14,10 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseType
@@ -29,18 +27,18 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Checkbox
-import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
-import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
- * Expense Filter Dialog
+ * Expense Filter BottomSheet
+ * Uses WindowBottomSheet for a native bottom-up sliding experience.
+ * Height is optimized via the sheet's natural max-height behavior.
  */
 @Composable
 fun ExpenseFilterDialog(
@@ -58,170 +56,149 @@ fun ExpenseFilterDialog(
     var showTypeSelector by remember { mutableStateOf(false) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
-    
+
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(500.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = MiuixTheme.colorScheme.surface
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Title bar with X (cancel) and Check (apply) icons
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CircularIconButton(onClick = onDismiss) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = context.getString(R.string.cancel),
-                            tint = MiuixTheme.colorScheme.onBackground
-                        )
-                    }
-                    Text(
-                        text = context.getString(R.string.expense_list_filter_title),
-                        style = MiuixTheme.textStyles.title3
-                    )
-                    CircularIconButton(
-                        onClick = {
-                            val filters = ExpenseFilters(
-                                keyword = keyword.ifBlank { null },
-                                type = selectedTypes.firstOrNull(),
-                                minAmount = minAmount.toDoubleOrNull(),
-                                maxAmount = maxAmount.toDoubleOrNull(),
-                                startDate = startDate,
-                                endDate = endDate,
-                                sortBy = currentFilters.sortBy
-                            )
-                            onApplyFilters(filters)
-                            onDismiss()
-                        }
-                    ) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = context.getString(R.string.expense_list_apply_filters),
-                            tint = MiuixTheme.colorScheme.primary
-                        )
-                    }
-                }
 
-                HorizontalDivider(Modifier, 0.5.dp, MiuixTheme.colorScheme.dividerLine)
-
-                // Filter content area
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Search keyword
-                    TextField(
-                        value = keyword,
-                        onValueChange = { keyword = it },
-                        label = context.getString(R.string.common_search),
-                        useLabelAsPlaceholder = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-                    
-                    // Expense Type Selection
-                    Button(
-                        onClick = { showTypeSelector = true },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors()
-                    ) {
-                        Text(
-                            text = if (selectedTypes.isEmpty()) {
-                                context.getString(R.string.expense_list_filter_all_types)
-                            } else {
-                                context.getString(R.string.expense_list_filter_select_types) + " (${selectedTypes.size})"
-                            }
-                        )
-                    }
-                    
-                    // Date range
-                    Text(
-                        text = context.getString(R.string.expense_list_filter_date_range),
-                        style = MiuixTheme.textStyles.body2
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = { showStartDatePicker = true },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors()
-                        ) {
-                            Text(
-                                text = startDate?.format(dateFormatter) 
-                                    ?: context.getString(R.string.expense_list_filter_start_date)
-                            )
-                        }
-                        
-                        Button(
-                            onClick = { showEndDatePicker = true },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors()
-                        ) {
-                            Text(
-                                text = endDate?.format(dateFormatter) 
-                                    ?: context.getString(R.string.expense_list_filter_end_date)
-                            )
-                        }
-                    }
-                    
-                    // Amount range
-                    Text(
-                        text = context.getString(R.string.expense_list_filter_amount_range),
-                        style = MiuixTheme.textStyles.body2
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        TextField(
-                            value = minAmount,
-                            onValueChange = { minAmount = it },
-                            label = context.getString(R.string.expense_list_filter_min_amount),
-                            useLabelAsPlaceholder = true,
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            singleLine = true
-                        )
-
-                    TextField(
-                        value = maxAmount,
-                        onValueChange = { maxAmount = it },
-                        label = context.getString(R.string.expense_list_filter_max_amount),
-                        useLabelAsPlaceholder = true,
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true
-                    )
-                }
-
+    WindowBottomSheet(
+        show = true,
+        title = context.getString(R.string.expense_list_filter_title),
+        startAction = {
+            CircularIconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
             }
+        },
+        endAction = {
+            CircularIconButton(
+                onClick = {
+                    val filters = ExpenseFilters(
+                        keyword = keyword.ifBlank { null },
+                        type = selectedTypes.firstOrNull(),
+                        minAmount = minAmount.toDoubleOrNull(),
+                        maxAmount = maxAmount.toDoubleOrNull(),
+                        startDate = startDate,
+                        endDate = endDate,
+                        sortBy = currentFilters.sortBy
+                    )
+                    onApplyFilters(filters)
+                    onDismiss()
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.expense_list_apply_filters),
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        },
+        onDismissRequest = onDismiss,
+        insideMargin = DpSize(16.dp, 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Search keyword
+            TextField(
+                value = keyword,
+                onValueChange = { keyword = it },
+                label = context.getString(R.string.common_search),
+                useLabelAsPlaceholder = true,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // Expense Type Selection
+            Button(
+                onClick = { showTypeSelector = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors()
+            ) {
+                Text(
+                    text = if (selectedTypes.isEmpty()) {
+                        context.getString(R.string.expense_list_filter_all_types)
+                    } else {
+                        context.getString(R.string.expense_list_filter_select_types) + " (${selectedTypes.size})"
+                    }
+                )
+            }
+
+            // Date range
+            Text(
+                text = context.getString(R.string.expense_list_filter_date_range),
+                style = MiuixTheme.textStyles.body2
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showStartDatePicker = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors()
+                ) {
+                    Text(
+                        text = startDate?.format(dateFormatter)
+                            ?: context.getString(R.string.expense_list_filter_start_date)
+                    )
+                }
+
+                Button(
+                    onClick = { showEndDatePicker = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors()
+                ) {
+                    Text(
+                        text = endDate?.format(dateFormatter)
+                            ?: context.getString(R.string.expense_list_filter_end_date)
+                    )
+                }
+            }
+
+            // Amount range
+            Text(
+                text = context.getString(R.string.expense_list_filter_amount_range),
+                style = MiuixTheme.textStyles.body2
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = minAmount,
+                    onValueChange = { minAmount = it },
+                    label = context.getString(R.string.expense_list_filter_min_amount),
+                    useLabelAsPlaceholder = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true
+                )
+
+                TextField(
+                    value = maxAmount,
+                    onValueChange = { maxAmount = it },
+                    label = context.getString(R.string.expense_list_filter_max_amount),
+                    useLabelAsPlaceholder = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true
+                )
+            }
+
+            // Bottom spacing for safe area
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
-    }
-    
-    // Expense Type Selection Dialog Box
+
+    // Expense Type Selection Dialog
     ExpenseTypeSelector(
         show = showTypeSelector,
         context = context,
@@ -232,7 +209,7 @@ fun ExpenseFilterDialog(
             showTypeSelector = false
         }
     )
-    
+
     // Start Date Picker
     MiuixDatePickerSheet(
         context = context,
@@ -268,7 +245,6 @@ fun ExpenseTypeSelector(
     var tempSelectedTypes by remember(show) { mutableStateOf(selectedTypes) }
     var searchQuery by remember(show) { mutableStateOf("") }
 
-    // Filter types based on search query
     val filteredTypes = remember(searchQuery) {
         if (searchQuery.isBlank()) {
             ExpenseType.entries
@@ -281,13 +257,33 @@ fun ExpenseTypeSelector(
         }
     }
 
-    WindowDialog(
+    WindowBottomSheet(
         show = show,
         title = context.getString(R.string.expense_list_filter_select_types),
+        startAction = {
+            CircularIconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = context.getString(R.string.cancel),
+                    tint = MiuixTheme.colorScheme.onBackground
+                )
+            }
+        },
+        endAction = {
+            CircularIconButton(onClick = { onConfirm(tempSelectedTypes) }) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = context.getString(R.string.confirm),
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        },
         onDismissRequest = onDismiss
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (filteredTypes.size != ExpenseType.entries.size) {
@@ -319,22 +315,12 @@ fun ExpenseTypeSelector(
                     },
                     singleLine = true
                 )
-                
-                IconButton(
-                    onClick = { /* Search is already filtering in real-time */ }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = context.getString(R.string.common_search),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                }
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 300.dp)
+                    .heightIn(max = 320.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -375,27 +361,41 @@ fun ExpenseTypeSelector(
                 }
             }
 
-            // Top header with X (cancel) and Check (confirm) icons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularIconButton(onClick = onDismiss) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = context.getString(R.string.cancel),
-                        tint = MiuixTheme.colorScheme.onBackground
-                    )
-                }
-                CircularIconButton(onClick = { onConfirm(tempSelectedTypes) }) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = context.getString(R.string.confirm),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+/**
+ * Compress bitmap helper for avatar editor usage
+ */
+fun compressBitmapToBytes(
+    bitmap: android.graphics.Bitmap,
+    maxBytes: Int,
+    format: android.graphics.Bitmap.CompressFormat,
+    quality: Int = 90
+): ByteArray {
+    var q = quality.coerceIn(1, 100)
+    var scale = 1f
+    var result: ByteArray
+    while (true) {
+        val target = if (scale >= 1f) bitmap else android.graphics.Bitmap.createScaledBitmap(
+            bitmap,
+            (bitmap.width * scale).toInt().coerceAtLeast(1),
+            (bitmap.height * scale).toInt().coerceAtLeast(1),
+            true
+        )
+        val out = java.io.ByteArrayOutputStream()
+        target.compress(format, if (format == android.graphics.Bitmap.CompressFormat.PNG) 100 else q, out)
+        result = out.toByteArray()
+        if (result.size <= maxBytes) break
+        if (format != android.graphics.Bitmap.CompressFormat.PNG && q > 30) {
+            q -= 10
+        } else if (scale > 0.2f) {
+            scale -= 0.1f
+        } else {
+            break
+        }
+    }
+    return result
 }
