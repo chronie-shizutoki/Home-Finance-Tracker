@@ -166,16 +166,15 @@ fun HomeMoneyTheme(content: @Composable () -> Unit) {
     val settings = themeSettings.value
     val isCustom = !settings.useDynamicColor && settings.primaryColor != 0
 
-    // System bars: matched to Miuix defaults (#242424 dark / #FFFFFF light)
+    // Only control bar icon colours; scrims are transparent (set in MainActivity)
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as android.app.Activity).window
-            val insets = WindowCompat.getInsetsController(window, view)
+            val insets = WindowCompat.getInsetsController(
+                (view.context as android.app.Activity).window, view
+            )
             insets.isAppearanceLightStatusBars = !darkTheme
             insets.isAppearanceLightNavigationBars = !darkTheme
-            window.statusBarColor = if (darkTheme) 0xFF242424.toInt() else 0xFFFFFFFF.toInt()
-            window.navigationBarColor = android.graphics.Color.TRANSPARENT
         }
     }
 
