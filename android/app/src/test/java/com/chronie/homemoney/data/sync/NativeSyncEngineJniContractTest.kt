@@ -81,22 +81,6 @@ class NativeSyncEngineJniContractTest {
         assertEquals("(Ljava/lang/String;IJI[B)[B", method.descriptor())
     }
 
-    @Test
-    fun `the legacy v1 upcall is still bound`() {
-        // v1 peers keep working until the adapter is retired; losing this silently would
-        // strand every un-upgraded phone.
-        assertEquals(
-            "(Ljava/lang/String;Ljava/lang/String;[B)[B",
-            bindings()["handleIncomingSyncRequest"]
-        )
-        val method = NativeSyncEngine::class.java.getDeclaredMethod(
-            "handleIncomingSyncRequest",
-            String::class.java,
-            String::class.java,
-            ByteArray::class.java
-        )
-        assertEquals("(Ljava/lang/String;Ljava/lang/String;[B)[B", method.descriptor())
-    }
 
     // ------------------------------------------------------------------ downcalls
 

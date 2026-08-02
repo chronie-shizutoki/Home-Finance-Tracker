@@ -315,16 +315,13 @@ class SyncObservabilityTest {
     }
 
     @Test
-    fun `replies are counted silently, by dialect`() {
-        discovery.onReplied("192.168.1.20:41234", legacy = false)
-        discovery.onReplied("192.168.1.21:41235", legacy = true)
+    fun `replies are counted silently`() {
+        discovery.onReplied("192.168.1.20:41234")
 
-        // Answering a query is the happy path; a line per reply would be pure noise. The
-        // v2-vs-v1 split is what we actually need, and that is a counter.
+        // Answering a query is the happy path; a line per reply would be pure noise.
         assertTrue(sink.lines.toString(), sink.lines.isEmpty())
         val snapshot = metrics.snapshot()
         assertEquals(1, snapshot.discoveryRepliesV2)
-        assertEquals(1, snapshot.discoveryRepliesLegacy)
     }
 
     @Test

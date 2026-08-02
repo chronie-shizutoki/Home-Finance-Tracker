@@ -548,9 +548,7 @@ fun DeviceSearchDialog(
         
         // Device search
         viewModel.searchDevices().collect { device ->
-            if (!discoveredDevices.any { it.deviceId == device.deviceId }) {
-                discoveredDevices = discoveredDevices + device
-            }
+            discoveredDevices = discoveredDevices.filterNot { it.deviceId == device.deviceId } + device
         }
         
         progressJob.cancel()

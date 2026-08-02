@@ -41,7 +41,7 @@ fun interface MulticastGate {
 interface DiscoveryTelemetry {
     fun onIgnored(reason: IgnoreReason, detail: String) = Unit
     fun onRecorded(update: DiscoveryRegistry.Update, device: DiscoveredDevice) = Unit
-    fun onReplied(to: String, legacy: Boolean) = Unit
+    fun onReplied(to: String) = Unit
     fun onError(stage: String, error: Throwable) = Unit
 
     companion object {
@@ -79,10 +79,6 @@ class LanDiscoveryService(
     private val discoveryPort: Int = DEFAULT_DISCOVERY_PORT,
     val registry: DiscoveryRegistry = DiscoveryRegistry(),
     private val multicastGate: MulticastGate = MulticastGate.NONE,
-    /** Also broadcast the v1 line, so installs that predate v2 still find us. */
-    private val emitLegacy: Boolean = true,
-    /** Also parse the v1 line, so we still find them. */
-    private val acceptLegacy: Boolean = true,
     private val clock: () -> Long = System::currentTimeMillis,
     private val telemetry: DiscoveryTelemetry = DiscoveryTelemetry.NONE
 ) {
@@ -212,7 +208,7 @@ class LanDiscoveryService(
         val decider = newDecider(nics, self)
 
         val sender = launch {
-            broadcastQuery(socket, self, nonce, nics, broadcasts, queryBursts, burstIntervalMs)
+            broadcastQuery(socket, self, nonce, broadcasts, queryBursts, burstIntervalMs)
         }
 
         try {
@@ -242,7 +238,6 @@ class LanDiscoveryService(
         socket: DatagramSocket,
         self: DiscoveryIdentity,
         nonce: Long,
-        nics: List<LocalNetworkAddresses.Nic>,
         broadcasts: List<String>,
         bursts: Int,
         intervalMs: Long
@@ -264,23 +259,12 @@ class LanDiscoveryService(
             null
         }
 
-        val legacy = if (emitLegacy) {
-            DiscoveryWire.encodeLegacy(
-                self.deviceId,
-                self.deviceName,
-                LocalNetworkAddresses.preferredLocalIpv4(nics).orEmpty(),
-                clock()
-            )
-        } else {
-            null
-        }
-        if (query == null && legacy == null) return
+        if (query == null) return
 
         val targets = broadcasts.mapNotNull { runCatching { InetAddress.getByName(it) }.getOrNull() }
         repeat(bursts) { round ->
             targets.forEach { target ->
-                query?.let { sendDatagram(socket, it, target, discoveryPort, STAGE_QUERY) }
-                legacy?.let { sendDatagram(socket, it, target, discoveryPort, STAGE_QUERY) }
+                query.let { sendDatagram(socket, it, target, discoveryPort, STAGE_QUERY) }
             }
             if (round < bursts - 1) delay(intervalMs)
         }
@@ -335,17 +319,8 @@ class LanDiscoveryService(
     private fun respond(socket: DatagramSocket, reply: DiscoveryAction.Reply) {
         val self = identity()
         val payload = runCatching {
-            if (reply.legacy) {
-                DiscoveryWire.encodeLegacy(
-                    self.deviceId,
-                    self.deviceName,
-                    LocalNetworkAddresses.preferredLocalIpv4(LocalNetworkAddresses.enumerate()).orEmpty(),
-                    clock()
-                )
-            } else {
-                // Echo the querier's nonce so it can tell our reply from a straggler.
-                encodeAnnounce(self, reply.nonce)
-            }
+            // Echo the querier's nonce so it can tell our reply from a straggler.
+            encodeAnnounce(self, reply.nonce)
         }.getOrElse {
             telemetry.onError(STAGE_REPLY, it)
             return
@@ -353,14 +328,14 @@ class LanDiscoveryService(
 
         val target = runCatching { InetAddress.getByName(reply.to) }.getOrNull() ?: return
         if (sendDatagram(socket, payload, target, reply.port, STAGE_REPLY)) {
-            telemetry.onReplied(reply.to, reply.legacy)
+            telemetry.onReplied(reply.to)
         }
     }
 
     private fun newDecider(
         nics: List<LocalNetworkAddresses.Nic> = LocalNetworkAddresses.enumerate(),
         self: DiscoveryIdentity = identity()
-    ) = DiscoveryDecider(self, LocalNetworkAddresses.selectLocalIpv4(nics), acceptLegacy)
+    ) = DiscoveryDecider(self, LocalNetworkAddresses.selectLocalIpv4(nics))
 
     private fun encodeAnnounce(self: DiscoveryIdentity, nonce: Long): ByteArray =
         DiscoveryWire.encode(

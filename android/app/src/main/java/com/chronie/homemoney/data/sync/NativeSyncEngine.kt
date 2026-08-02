@@ -5,64 +5,17 @@ import androidx.annotation.Keep
 import com.chronie.homemoney.data.sync.protocol.SyncOpcode
 import com.chronie.homemoney.data.sync.transport.SyncFrameHandler
 
-/**
- * The JNI seam between Kotlin and the native transport.
- *
- * Two dialects live here on purpose. `startServer` sniffs each connection and routes it to
- * either the v1 or the v2 handler, so a phone still running the old build keeps working
- * while the other end has already moved on. The two paths share nothing but this class.
- *
- * Both upcalls are resolved by name and signature from `startServer` in native-lib.cpp. A
- * rename, a reordered parameter or a changed return type will not fail the build - it fails
- * at runtime with "handleIncomingFrame is missing" in logcat and a server that silently
- * refuses every v2 frame. Keep the signatures in step with the `GetMethodID` strings.
- */
 @Keep
 class NativeSyncEngine {
 
-    /** v1 upcall contract. Superseded by [SyncFrameHandler]; kept until the old peers are gone. */
-    interface SyncRequestListener {
-        /**
-         * Callback when a sync request is received from a remote device
-         * @param deviceId Remote device ID
-         * @param deviceName Remote device name
-         * @param data Remote Protobuf data
-         * @return Local Protobuf data to sync to the remote device, or null to reject sync
-         */
-        fun onSyncDataReceived(deviceId: String, deviceName: String, data: ByteArray): ByteArray?
-    }
-
     // Both are read from native pool threads and written from the main thread, so neither
-    // can be a plain field: without volatile a worker may never observe the installed
-    // handler and would answer perfectly good frames with "no handler".
-    @Volatile
-    private var listener: SyncRequestListener? = null
-
+    // can be a plain field.
     @Volatile
     private var frameHandler: SyncFrameHandler? = null
 
-    fun setSyncRequestListener(listener: SyncRequestListener) {
-        this.listener = listener
-    }
 
-    /**
-     * Installs the v2 frame handler, or clears it with null.
-     *
-     * Safe to call while the server is running. Until this is set every v2 frame is
-     * refused, which is the correct failure: answering frames with no engine behind them
-     * would let a peer drive a handshake that can never apply anything.
-     */
     fun setFrameHandler(handler: SyncFrameHandler?) {
         frameHandler = handler
-    }
-
-    /**
-     * Handle incoming sync requests from remote devices via JNI
-     */
-    @Keep
-    fun handleIncomingSyncRequest(deviceId: String, deviceName: String, data: ByteArray): ByteArray? {
-        Log.d(TAG, "JNI: Incoming sync data from $deviceName ($deviceId)")
-        return listener?.onSyncDataReceived(deviceId, deviceName, data)
     }
 
     /**

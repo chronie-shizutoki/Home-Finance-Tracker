@@ -240,8 +240,8 @@ class MetricsDiscoveryTelemetry(
         )
     }
 
-    override fun onReplied(to: String, legacy: Boolean) {
-        metrics.recordDiscoveryReply(legacy)
+    override fun onReplied(to: String) {
+        metrics.recordDiscoveryReply()
     }
 
     override fun onError(stage: String, error: Throwable) {

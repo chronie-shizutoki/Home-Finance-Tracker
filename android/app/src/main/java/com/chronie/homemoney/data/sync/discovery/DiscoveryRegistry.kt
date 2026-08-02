@@ -94,6 +94,11 @@ class DiscoveryRegistry(
         entries.size
     }
 
+    fun remove(deviceId: String) = synchronized(lock) {
+        entries.remove(deviceId)
+        Unit
+    }
+
     fun clear() = synchronized(lock) { entries.clear() }
 
     private fun expireLocked(nowMs: Long): List<DiscoveredDevice> {

@@ -28,7 +28,6 @@ sealed interface DiscoveryAction {
         val to: String,
         val port: Int,
         val nonce: Long,
-        val legacy: Boolean,
         val querier: DiscoveredDevice
     ) : DiscoveryAction
 
@@ -69,14 +68,10 @@ enum class IgnoreReason {
  * All the discovery bugs worth fixing live in this decision — who is me, is this reply mine,
  * do I answer this — and none of them need a socket to reproduce. Keeping the decision here
  * means they can be tested directly instead of by standing up two devices on a real LAN.
- *
- * @param acceptLegacy parse v1 plain text as well. Scheduled to be turned off once the
- *   migration window closes; see the v1 retirement plan.
  */
 class DiscoveryDecider(
     private val self: DiscoveryIdentity,
-    private val localAddresses: Set<String>,
-    private val acceptLegacy: Boolean = true
+    private val localAddresses: Set<String>
 ) {
 
     /**
@@ -97,16 +92,10 @@ class DiscoveryDecider(
             return DiscoveryAction.Ignore(IgnoreReason.SELF_ADDRESS, senderIp)
         }
 
-        var legacy = false
         val packet = when (val parsed = DiscoveryWire.parse(data, length)) {
             is DiscoveryParse.Ok -> parsed.packet
             is DiscoveryParse.Rejected -> {
-                if (!acceptLegacy) {
-                    return DiscoveryAction.Ignore(IgnoreReason.LEGACY_DISABLED, parsed.reason.name)
-                }
-                legacy = true
-                DiscoveryWire.parseLegacy(data, length, self.syncPort)
-                    ?: return DiscoveryAction.Ignore(IgnoreReason.MALFORMED, parsed.reason.name)
+                return DiscoveryAction.Ignore(IgnoreReason.MALFORMED, parsed.reason.name)
             }
         }
 
@@ -129,22 +118,12 @@ class DiscoveryDecider(
             protocolVersion = packet.version
         )
 
-        if (legacy) {
-            // v1 has no query/announce split: every message is both. On the discovery port
-            // that means "answer it"; on a search socket it is a reply to us.
-            return if (expectedNonce == null) {
-                DiscoveryAction.Reply(senderIp, senderPort, nonce = 0L, legacy = true, querier = device)
-            } else {
-                DiscoveryAction.Record(device)
-            }
-        }
-
         return when (packet.type) {
             DiscoveryType.QUERY ->
                 if (expectedNonce != null) {
                     DiscoveryAction.Ignore(IgnoreReason.UNEXPECTED_QUERY, packet.deviceId)
                 } else {
-                    DiscoveryAction.Reply(senderIp, senderPort, packet.nonce, legacy = false, querier = device)
+                    DiscoveryAction.Reply(senderIp, senderPort, packet.nonce, querier = device)
                 }
 
             DiscoveryType.ANNOUNCE ->

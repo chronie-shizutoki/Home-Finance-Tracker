@@ -118,7 +118,6 @@ object DiscoveryWire {
 
     const val VERSION = 2
 
-    /** Anything below this is v1 plain text and must go through [encodeLegacy]/[parseLegacy]. */
     const val MIN_COMPATIBLE_VERSION = 2
 
     /** magic(4) + version(1) + type(1) + flags(2) + port(2) + minVersion(2) + caps(4) + nonce(8) */
@@ -134,8 +133,6 @@ object DiscoveryWire {
     const val MAX_DEVICE_ID_BYTES = 64
     const val MAX_DEVICE_NAME_BYTES = 96
     const val MAX_DEVICE_TYPE_BYTES = 16
-
-    const val LEGACY_PREFIX = "DISCOVERY"
 
     fun encode(packet: DiscoveryPacket): ByteArray {
         val id = packet.deviceId.toByteArray(StandardCharsets.UTF_8)
@@ -233,42 +230,6 @@ object DiscoveryWire {
                 version = version,
                 minSupportedVersion = minSupported
             )
-        )
-    }
-
-    /**
-     * The v1 plain-text form, kept so this build stays discoverable by installs that predate
-     * v2. Per the migration plan both forms go out on the wire for two releases; this is the
-     * half that is scheduled for deletion, not the half worth improving.
-     */
-    fun encodeLegacy(deviceId: String, deviceName: String, ip: String, timestampMs: Long): ByteArray =
-        "$LEGACY_PREFIX|$deviceId|$deviceName|$ip|$timestampMs".toByteArray(StandardCharsets.UTF_8)
-
-    /**
-     * Parses the v1 form. Returns null rather than a typed rejection: v1 has no way to tell
-     * "malformed" from "not ours", so every failure is the same non-event.
-     *
-     * [defaultSyncPort] is the caller's own port — v1 carried none, and assuming the peer
-     * matches us is the best guess available. That guess is the entire reason v2 has a port
-     * field.
-     */
-    fun parseLegacy(data: ByteArray, length: Int = data.size, defaultSyncPort: Int): DiscoveryPacket? {
-        if (length <= 0 || length > MAX_PACKET_SIZE) return null
-        val text = String(data, 0, length, StandardCharsets.UTF_8)
-        val parts = text.split("|")
-        if (parts.size < 4 || parts[0] != LEGACY_PREFIX) return null
-        val id = parts[1]
-        if (id.isEmpty() || id.toByteArray(StandardCharsets.UTF_8).size > MAX_DEVICE_ID_BYTES) return null
-        return DiscoveryPacket(
-            type = DiscoveryType.ANNOUNCE,
-            deviceId = id,
-            deviceName = parts[2],
-            deviceType = "ANDROID",
-            syncPort = defaultSyncPort,
-            capabilities = 0,                               // v1 advertises nothing
-            nonce = 0L,
-            version = 1,
-            minSupportedVersion = 1
         )
     }
 

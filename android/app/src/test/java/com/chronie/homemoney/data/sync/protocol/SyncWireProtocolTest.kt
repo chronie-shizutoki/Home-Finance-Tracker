@@ -209,14 +209,6 @@ class SyncWireProtocolTest {
     // ------------------------------------------------------- version detection
 
     @Test
-    fun `a legacy v1 length prefix is not mistaken for a v2 frame`() {
-        // v1 framing is a bare big endian length; 1024 bytes looks like 00 00 04 00.
-        val v1Prefix = byteArrayOf(0x00, 0x00, 0x04, 0x00)
-        assertFalse(SyncWireProtocol.looksLikeV2Frame(v1Prefix))
-        assertTrue(SyncWireProtocol.looksLikeV2Frame(SyncWireProtocol.encodeHeader(header())))
-    }
-
-    @Test
     fun `version detection tolerates a short buffer`() {
         assertFalse(SyncWireProtocol.looksLikeV2Frame(byteArrayOf(0x48, 0x46, 0x53)))
     }
