@@ -70,15 +70,13 @@ import kotlinx.coroutines.runBlocking
  */
 class SyncResponder(
     private val store: SyncEntityStore,
-    private val identity: SyncIdentity,
+    private val identity: () -> SyncIdentity,
     private val authorizer: SyncAuthorizer = SyncAuthorizer.DENY_ALL,
     private val registry: SyncSessionRegistry = SyncSessionRegistry(),
     private val guard: IdempotencyGuard = IdempotencyGuard(),
     private val observer: SyncResponderObserver = SyncResponderObserver.NONE,
     private val clock: () -> Long = System::currentTimeMillis
 ) : SyncFrameHandler {
-
-    private val applier = EntityApplier(store, guard, identity.deviceId)
 
     /** Live sessions, for diagnostics and for the manager's shutdown path. */
     val sessions: SyncSessionRegistry get() = registry
@@ -234,8 +232,8 @@ class SyncResponder(
 
             HelloAckPayload.newBuilder()
                 .setNegotiatedVersion(negotiated)
-                .setDeviceId(identity.deviceId)
-                .setDeviceName(identity.deviceName)
+                .setDeviceId(identity().deviceId)
+                .setDeviceName(identity().deviceName)
                 .setCapabilities(LOCAL_CAPABILITIES)
                 .setSessionId(sessionId)
                 .setRequiresUserConfirmation(needsAuthPhase)
@@ -715,7 +713,9 @@ class SyncResponder(
             observer.onPhaseChanged(session, session.machine.state)
 
             val report = try {
-                runBlocking { applier.apply(received, session.peerDeviceId) }
+                runBlocking { 
+                    EntityApplier(store, guard, identity().deviceId).apply(received, session.peerDeviceId) 
+                }
             } catch (e: Exception) {
                 // A write failure is local and non-retryable from the peer's point of view;
                 // telling it to retry would just repeat the same failing transaction.
@@ -811,8 +811,8 @@ class SyncResponder(
         observer.onRejected(peerAddress, SyncOpcode.HELLO, code, detail)
         return HelloAckPayload.newBuilder()
             .setNegotiatedVersion(SyncWireProtocol.PROTOCOL_VERSION)
-            .setDeviceId(identity.deviceId)
-            .setDeviceName(identity.deviceName)
+            .setDeviceId(identity().deviceId)
+            .setDeviceName(identity().deviceName)
             .setCapabilities(LOCAL_CAPABILITIES)
             .setError(SyncErrorMapping.toProto(code))
             .setErrorMessage(detail)

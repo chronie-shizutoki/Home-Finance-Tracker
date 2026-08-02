@@ -51,10 +51,8 @@ import java.security.SecureRandom
  */
 class SyncInitiator(
     private val store: SyncEntityStore,
-    private val identity: SyncIdentity,
-    private val localDeviceId: String = identity.deviceId,
+    private val identity: () -> SyncIdentity,
     private val guard: IdempotencyGuard = IdempotencyGuard(),
-    private val applier: EntityApplier = EntityApplier(store, guard, localDeviceId),
     private val authorizer: SyncAuthorizer = SyncAuthorizer.DENY_ALL,
     private val clock: () -> Long = System::currentTimeMillis
 ) {
@@ -86,12 +84,13 @@ class SyncInitiator(
         try {
             // ---------------------------------------------------------- 1. HELLO
             onProgress(machine.state.progress, "Negotiating...")
+            val self = identity()
             val hello = HelloPayload.newBuilder()
                 .setProtocolVersion(SyncWireProtocol.PROTOCOL_VERSION)
                 .setMinSupportedVersion(SyncWireProtocol.MIN_SUPPORTED_VERSION)
-                .setDeviceId(identity.deviceId)
-                .setDeviceName(identity.deviceName)
-                .setDeviceType(identity.deviceType)
+                .setDeviceId(self.deviceId)
+                .setDeviceName(self.deviceName)
+                .setDeviceType(self.deviceType)
                 .setCapabilities(localCapabilities())
                 .setTraceId(sessionId.hex())
                 .build()
@@ -282,7 +281,7 @@ class SyncInitiator(
                 }
                 pullIndex++
             }
-            val pullReport = applier.apply(pulled, peerDeviceId)
+            val pullReport = EntityApplier(store, guard, identity().deviceId).apply(pulled, peerDeviceId)
 
             onProgress(SyncState.COMPLETED.progress, "Sync complete")
             return InitiatorOutcome(
@@ -352,7 +351,7 @@ class SyncInitiator(
     }
 
     private fun buildAuth(code: String?, serverNonce: ByteArray, sessionId: Long): AuthPayload {
-        val b = AuthPayload.newBuilder().setDeviceId(identity.deviceId)
+        val b = AuthPayload.newBuilder().setDeviceId(identity().deviceId)
         if (SyncPairing.isUsableCode(code)) {
             val clientNonce = SyncPairing.newNonce()
             val proof = SyncPairing.clientProof(code!!, clientNonce, serverNonce, sessionId)
