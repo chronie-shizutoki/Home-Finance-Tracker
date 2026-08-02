@@ -9,6 +9,17 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 
+/**
+ * Shared navigation transition specifications for Compose Navigation.
+ *
+ * Provides four transitions:
+ * - **enter** / **exit**: Forward navigation — slides in from right, fades in.
+ *   Exits with a scale-down + fade-out for a card-stack feel.
+ * - **popEnter** / **popExit**: Back navigation — a subtle slide from left
+ *   with a slightly stronger scale-down on exit.
+ *
+ * All transitions use 300ms [FastOutSlowInEasing] curves for a polished feel.
+ */
 object TransitionSpecs {
     private const val DURATION = 300
 

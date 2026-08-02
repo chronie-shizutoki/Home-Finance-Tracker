@@ -18,6 +18,19 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Responds to system memory-pressure broadcasts (TRIM / KILL) on Android.
+ *
+ * On TRIM: clears the Coil image memory cache, empties the error queue,
+ * and suggests a GC pass to free heap memory.
+ *
+ * On KILL: triggers an immediate sync to push unsynced data before the
+ * process is terminated. Room data is already persisted to disk, so only
+ * in-flight sync data is at risk.
+ *
+ * Implements [IBinder.DeathRecipient] to detect when the callback binder
+ * from the system server dies, cleaning up the remote reference.
+ */
 @Singleton
 class FairMemoryManager @Inject constructor(
     @ApplicationContext private val context: Context,

@@ -30,6 +30,13 @@ import top.yukonga.miuix.kmp.theme.ThemeController
 import top.yukonga.miuix.kmp.theme.darkColorScheme
 import top.yukonga.miuix.kmp.theme.lightColorScheme
 
+/**
+ * Available palette styles for the Material 3 dynamic color system.
+ *
+ * Each style produces a different color scheme from the same key color,
+ * ranging from subtle (Monochrome) to highly saturated (Rainbow).
+ * The style is persisted in SharedPreferences and can be changed in Settings.
+ */
 enum class PaletteStyle {
     TonalSpot, Neutral, Vibrant, Expressive, Rainbow,
     FruitSalad, Monochrome, Fidelity, Content,
@@ -147,6 +154,18 @@ object MiuixTransitions {
 
 // ── Theme ──
 
+/**
+ * The main theme composable for the HomeMoney app.
+ *
+ * Supports two modes:
+ * 1. **Monet System** — Material You dynamic color from the device wallpaper
+ *    (when [ThemeSettings.useDynamicColor] is true).
+ * 2. **Custom** — User-selected key color with one of 9 palette styles,
+ *    rendered via the m3color library's HCT color space.
+ *
+ * Theme changes are reactive: a SharedPreferences listener detects
+ * setting changes and recomposes immediately without restart.
+ */
 @Composable
 fun HomeMoneyTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current

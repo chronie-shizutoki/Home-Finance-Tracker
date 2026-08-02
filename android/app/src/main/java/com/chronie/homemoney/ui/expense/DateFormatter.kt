@@ -7,6 +7,19 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+/**
+ * Formats date strings for display in the UI, supporting 12 languages.
+ *
+ * Formats provided:
+ * - [formatDateShort] — Compact numeric format (locale-specific).
+ * - [formatRelativeDate] — Human-friendly relative dates ("Today", "Yesterday", "3 days ago").
+ * - [formatDateByLocale] — Full date with month names in the user's language.
+ * - [formatMonthLabelByLocale] — Month + year only, for chart labels and headers.
+ *
+ * Special handling:
+ * - Thai locale: years are displayed in Buddhist calendar (year + 543).
+ * - All formats gracefully fall back to the raw date string on parse errors.
+ */
 @SuppressLint("DefaultLocale")
 fun formatDateShort(dateString: String, locale: String): String {
     try {

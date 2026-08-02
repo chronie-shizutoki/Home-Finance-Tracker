@@ -2,6 +2,15 @@ package com.chronie.homemoney.core.common
 
 import java.util.Locale
 
+/**
+ * Supported app languages with their locale mappings.
+ *
+ * Each entry maps to a specific Android [Locale] which controls number
+ * formatting, date display, and string resource selection.
+ *
+ * Chinese is split into simplified (CN, SG) and traditional (HK, MO, TW)
+ * variants to respect regional differences.
+ */
 enum class Language(
     val code: String,
     val englishName: String,

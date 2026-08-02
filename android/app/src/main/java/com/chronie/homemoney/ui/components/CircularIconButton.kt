@@ -13,8 +13,17 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
- * Circular IconButton Component *  for circular icon buttons
- * Used in top bars and other places where circular backgrounds are needed
+ * A circular icon button with a subtle surface background.
+ *
+ * Intended for use in top app bars, dialogs, and other places where
+ * a floating circular action button is needed. Uses Miuix theming
+ * for consistent color integration.
+ *
+ * @param onClick Called when the button is pressed.
+ * @param modifier Modifier for the outer surface container.
+ * @param enabled Whether the button responds to clicks.
+ * @param size Diameter of the circular button (default: 40dp).
+ * @param content The icon or content to display inside the button.
  */
 @Composable
 fun CircularIconButton(
