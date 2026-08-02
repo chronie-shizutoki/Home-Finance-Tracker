@@ -26,6 +26,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
+/**
+ * Configuration for an inner shadow effect drawn inside a shape's boundary.
+ *
+ * Unlike a standard drop shadow that extends outward, an inner shadow is clipped
+ * to the shape itself — creating the illusion that the content is recessed or inset.
+ *
+ * @param radius    Blur radius applied to the shadow. 0.dp produces a sharp edge.
+ * @param offset    Offset of the shadow relative to the shape origin.
+ * @param color     The shadow color (typically semi-transparent black).
+ * @param alpha     Opacity multiplier applied to the shadow.
+ * @param blendMode Blend mode used when compositing the shadow onto the content.
+ */
 @Immutable
 data class InnerShadow(
     val radius: Dp = 24.dp,
@@ -40,6 +52,16 @@ data class InnerShadow(
     }
 }
 
+/**
+ * Applies an inner shadow to a composable, clipped to the given [shape].
+ *
+ * The shadow is rendered in an offscreen graphics layer with a blur effect,
+ * then composited inside the shape boundary. A null [shadow] lambda disables
+ * the effect entirely (no-op draw pass).
+ *
+ * @param shape  The shape that defines the clipping boundary for the shadow.
+ * @param shadow Lambda returning the [InnerShadow] configuration, or null to disable.
+ */
 fun Modifier.innerShadow(
     shape: Shape,
     shadow: () -> InnerShadow?,

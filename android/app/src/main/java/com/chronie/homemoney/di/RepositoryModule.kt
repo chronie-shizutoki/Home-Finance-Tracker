@@ -16,6 +16,18 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Dagger Hilt module that binds repository interfaces to their concrete implementations.
+ *
+ * Provides singleton bindings:
+ * - [ExpenseRepository] → [ExpenseRepositoryImpl] (backed by Room + Retrofit)
+ * - [BudgetRepository] → [BudgetRepositoryImpl] (backed by Room)
+ * - [MemberRepository] → [MemberRepositoryImpl] (backed by Retrofit)
+ *
+ * This module is the single point of dependency wiring for the domain layer.
+ * Use cases receive properly injected repositories without knowing about
+ * the underlying data sources (Room, Retrofit, etc.).
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {

@@ -69,6 +69,25 @@ enum class SettingsPage {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
 }
 
+/**
+ * The top-level settings hub that delegates to sub-pages via an internal [NavHost].
+ *
+ * Connects to [SettingsViewModel] and renders the following sections:
+ * - **Main** — profile card, theme, features, sync, and about entry points.
+ * - **Account** — avatar upload, username display, logout/login.
+ * - **Appearance** — language selection, dynamic color toggle, manual color picker.
+ * - **Features** — AI API key configuration and monthly budget settings.
+ * - **Data Sync** — cloud/LAN sync status, manual trigger, data export/import.
+ * - **About** — feedback link, open-source licenses, developer options, version info.
+ *
+ * @param context Android [Context] for string resources and external intents.
+ * @param viewModel the Hilt-provided [SettingsViewModel].
+ * @param onNavigateToDatabaseTest navigates to the database debug screen (developer mode only).
+ * @param onNavigateToLanSync navigates to the LAN sync management screen.
+ * @param onNavigateToOpenSourceLicenses navigates to the OSS licenses list.
+ * @param onLogout callback invoked after a successful logout.
+ * @param onRequireLogin callback when authentication is required (e.g., for logged-out users).
+ */
 @SuppressLint("NoCollectCallFound")
 @Composable
 fun SettingsScreen(

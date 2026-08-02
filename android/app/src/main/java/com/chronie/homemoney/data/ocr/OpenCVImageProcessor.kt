@@ -10,6 +10,18 @@ import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 
+/**
+ * Performs image preprocessing using OpenCV to improve OCR accuracy.
+ *
+ * Pipeline:
+ * 1. Loads a bitmap from a URI via the content resolver.
+ * 2. Scales the image to a minimum dimension of [MIN_IMAGE_SIZE] pixels.
+ * 3. Converts to grayscale, applies CLAHE contrast enhancement, and denoises
+ *    with Gaussian blur.
+ *
+ * Falls back to a scaled-only bitmap if OpenCV fails to initialize.
+ * Call [initialize] once before use to load the OpenCV native library.
+ */
 class OpenCVImageProcessor(private val context: Context) {
 
     companion object {

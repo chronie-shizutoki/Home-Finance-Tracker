@@ -23,6 +23,19 @@ import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+/**
+ * Displays the current user's membership profile and provides logout functionality.
+ *
+ * Connects to [MembershipViewModel] to observe [MembershipUiState]:
+ * - **Loading** — shows an [ExpressiveLoadingIndicator].
+ * - **Success** — renders a user card with the member's username and a logout button.
+ * - **Error** — displays the error message with a retry button.
+ *
+ * @param context Android [Context] for string resources.
+ * @param viewModel the Hilt-provided [MembershipViewModel] that manages member data.
+ * @param onNavigateBack callback to pop the back stack and return to the previous screen.
+ * @param onLogout callback invoked after a successful logout to navigate to the welcome screen.
+ */
 @Composable
 fun MembershipScreen(
     context: Context,

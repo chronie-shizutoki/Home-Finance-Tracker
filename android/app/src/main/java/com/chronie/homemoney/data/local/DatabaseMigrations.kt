@@ -3,6 +3,18 @@ package com.chronie.homemoney.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Defines all Room database migration steps from version 1 to version 6.
+ *
+ * Each migration handles schema changes incrementally:
+ * - 1→2: Creates the budgets table
+ * - 2→3: Adds a date column to expenses and populates it from the timestamp
+ * - 3→4: Creates a unique index on server_id for server-side deduplication
+ * - 4→5: Adds version, updated_at, and deleted_at columns for soft-delete sync
+ * - 5→6: Rebuilds the expenses table with id as TEXT PRIMARY KEY, dropping server_id
+ *
+ * Use [getAllMigrations] to retrieve the full migration array for Room's database builder.
+ */
 object DatabaseMigrations {
     
     val MIGRATION_1_2 = object : Migration(1, 2) {

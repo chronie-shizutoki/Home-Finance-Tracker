@@ -11,6 +11,18 @@ import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.MemberEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 
+/**
+ * Room database class for the Home Finance Tracker application.
+ *
+ * Manages the local SQLite database containing four tables:
+ * - [ExpenseEntity]: expense records
+ * - [MemberEntity]: household member profiles
+ * - [SyncQueueEntity]: offline sync queue for pending server operations
+ * - [BudgetEntity]: monthly budget configuration
+ *
+ * Exposes DAO interfaces for each table to enable type-safe database access.
+ * Current schema version: 6.
+ */
 @Database(
     entities = [
         ExpenseEntity::class,

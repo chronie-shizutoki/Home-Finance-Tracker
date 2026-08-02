@@ -27,6 +27,22 @@ import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+/**
+ * Displays a detailed breakdown of expenses for a specific day of the week.
+ *
+ * Shows a summary card with total amount, record count, and percentage of weekly spending,
+ * followed by a scrollable list of category breakdowns with progress bars.
+ * Connects to [WeekdayDetailViewModel] to load per-category data filtered by the selected
+ * weekday and the time range carried from the charts screen.
+ *
+ * @param context Android [Context] for string resources and locale formatting.
+ * @param dayOfWeek the day index (0 = Sunday … 6 = Saturday) being analysed.
+ * @param amount the total expense amount for this weekday in the selected range.
+ * @param count the total number of expense records for this weekday.
+ * @param percentage the share of total weekly spending represented by this day.
+ * @param onNavigateBack callback to pop the back stack.
+ * @param viewModel the Hilt-provided [WeekdayDetailViewModel].
+ */
 @SuppressLint("DefaultStringFormat", "DefaultLocale")
 @Composable
 fun WeekdayDetailScreen(

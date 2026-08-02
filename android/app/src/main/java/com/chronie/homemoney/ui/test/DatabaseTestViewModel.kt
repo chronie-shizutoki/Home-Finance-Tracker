@@ -13,6 +13,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
+/**
+ * ViewModel backing the [DatabaseTestScreen]. Observes all expense records via a Room
+ * [Flow], exposes summary statistics, and provides one-shot actions for inserting
+ * test data or clearing the table.
+ */
 @HiltViewModel
 class DatabaseTestViewModel @Inject constructor(
     private val expenseDao: ExpenseDao,
@@ -20,6 +25,9 @@ class DatabaseTestViewModel @Inject constructor(
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(DatabaseTestUiState())
+    /**
+     * Observable UI state stream consumed by [DatabaseTestScreen].
+     */
     val uiState: StateFlow<DatabaseTestUiState> = _uiState.asStateFlow()
     
     init {
@@ -56,6 +64,10 @@ class DatabaseTestViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Inserts a single [ExpenseEntity] with randomised type, remark, and amount
+     * (10–200) into the database. Automatically reloads the expense list.
+     */
     fun addTestExpense() {
         viewModelScope.launch {
             try {
@@ -89,6 +101,10 @@ class DatabaseTestViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Deletes all expense records from the database. The expense list is automatically
+     * refreshed by the active [Flow] collection.
+     */
     fun clearAllExpenses() {
         viewModelScope.launch {
             try {
@@ -107,11 +123,17 @@ class DatabaseTestViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Clears the one-shot status / error message shown in the UI.
+     */
     fun clearMessage() {
         _uiState.update { it.copy(message = null) }
     }
 }
 
+/**
+ * Immutable snapshot of the database test screen UI state.
+ */
 data class DatabaseTestUiState(
     val expenses: List<ExpenseEntity> = emptyList(),
     val expenseCount: Int = 0,

@@ -31,6 +31,11 @@ import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.DropdownDefaults
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+/**
+ * A diagnostic screen that lists all expense records stored in the local database.
+ * Displays summary statistics (count and total amount) and provides actions for
+ * adding test data or clearing the entire dataset.
+ */
 @Composable
 fun DatabaseTestScreen(
     context: android.content.Context,
@@ -183,6 +188,10 @@ fun DatabaseTestScreen(
     }
 }
 
+/**
+ * Renders a single expense record as a [Card] showing its type, amount, remark,
+ * date, and sync status.
+ */
 @Composable
 fun ExpenseItem(
     context: android.content.Context,
@@ -258,6 +267,9 @@ private fun ExpenseEntity.toUiModel(): ExpenseItemUiModel {
     )
 }
 
+/**
+ * Lightweight UI model for the expense list item, decoupled from the Room entity.
+ */
 data class ExpenseItemUiModel(
     val id: String,
     val type: String,

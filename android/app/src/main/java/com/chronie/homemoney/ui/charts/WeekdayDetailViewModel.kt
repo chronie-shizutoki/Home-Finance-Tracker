@@ -13,6 +13,17 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
+/**
+ * ViewModel that loads category-level expense breakdown for a specific weekday.
+ *
+ * Reads the target [dayOfWeek] and the date range ([startDate], [endDate]) from
+ * [SavedStateHandle] (passed via navigation arguments). Fetches all expenses in the
+ * range, filters to those that fall on the target day, groups them by expense type,
+ * and emits [WeekdayDetailUiState.Success] with a sorted list of [CategoryChartData].
+ *
+ * Exposes [uiState] as a [StateFlow] of [WeekdayDetailUiState] (Loading, Success, Error)
+ * and provides a [refresh] method to re-trigger the data load.
+ */
 @HiltViewModel
 class WeekdayDetailViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,

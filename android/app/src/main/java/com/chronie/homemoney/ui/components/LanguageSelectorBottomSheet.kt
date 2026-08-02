@@ -31,6 +31,19 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import androidx.compose.foundation.shape.RoundedCornerShape
 
+/**
+ * A bottom-sheet list that lets the user select an app language from all [Language] entries.
+ *
+ * Displays each language with its English name and native name. A search field filters
+ * the list by either name. The currently selected language is highlighted, and tapping
+ * a row invokes [onLanguageSelected] and dismisses the sheet.
+ *
+ * @param show whether the bottom sheet is visible.
+ * @param currentLanguage the currently active [Language].
+ * @param onLanguageSelected callback invoked with the newly chosen [Language].
+ * @param onDismiss callback to hide the bottom sheet.
+ * @param context Android [Context] for string resources.
+ */
 @Composable
 fun LanguageSelectorBottomSheet(
     show: Boolean,

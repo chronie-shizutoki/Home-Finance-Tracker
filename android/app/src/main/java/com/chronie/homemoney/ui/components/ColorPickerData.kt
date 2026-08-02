@@ -4,14 +4,28 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import com.chronie.homemoney.R
 
+/**
+ * A single selectable color in the picker.
+ *
+ * @property value ARGB integer representing the color, or 0 for the default theme color.
+ * @property nameResId string resource ID for the human-readable color name.
+ */
 data class ColorOption(
     val value: Int,
     @param:StringRes val nameResId: Int
 ) {
+    /** Returns true if this represents the default (system) color. */
     val isDefault: Boolean get() = value == 0
+    /** Resolves the ARGB value to a [Color]; uses #2E5FA1 for the default entry. */
     val color: Color get() = if (isDefault) Color(0xFF2E5FA1) else Color(value.toLong() and 0xFFFFFFFFL)
 }
 
+/**
+ * A named group of related [ColorOption] entries (e.g. "Red", "Blue").
+ *
+ * @property nameResId string resource ID for the group title.
+ * @property colors the list of color options belonging to this group.
+ */
 data class ColorGroup(
     @param:StringRes val nameResId: Int,
     val colors: List<ColorOption>
