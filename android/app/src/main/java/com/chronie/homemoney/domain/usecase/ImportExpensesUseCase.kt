@@ -15,19 +15,42 @@ import java.util.*
 import javax.inject.Inject
 
 /**
- * Import Expenses Use Case
+ * Imports expense records from an Excel (.xlsx) file into the local database.
+ *
+ * Supports multi-language headers (Chinese, English) and automatically maps
+ * expense type names to the corresponding [ExpenseType] enum values.
+ *
+ * @param expenseRepository Repository for persisting imported expenses.
+ * @param context Application context for content resolver access and string resources.
  */
 class ImportExpensesUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     @param:ApplicationContext private val context: Context
 ) {
     
+    /**
+     * Result summary after completing an import operation.
+     *
+     * @property successCount Number of expenses successfully imported.
+     * @property failedCount Number of expenses that failed to import.
+     * @property errors Human-readable error messages for failed rows.
+     */
     data class ImportResult(
         val successCount: Int,
         val failedCount: Int,
         val errors: List<String>
     )
     
+    /**
+     * Imports expenses from the Excel file at the given [Uri].
+     *
+     * The file must contain columns for date, type, and amount at minimum.
+     * An optional remark column is also supported.
+     *
+     * @param uri Content URI pointing to the Excel file.
+     * @return [Result.success] with an [ImportResult] summary on successful parse,
+     *         or [Result.failure] if the file cannot be read or is empty.
+     */
     suspend operator fun invoke(uri: Uri): Result<ImportResult> {
         return try {
             val expenses = parseExcelFile(uri)
@@ -36,7 +59,7 @@ class ImportExpensesUseCase @Inject constructor(
                 return Result.failure(Exception("No valid records found in file"))
             }
             
-            // Import data
+            // Import each parsed record into the repository
             var successCount = 0
             var failedCount = 0
             val errors = mutableListOf<String>()
@@ -47,6 +70,7 @@ class ImportExpensesUseCase @Inject constructor(
                     successCount++
                 } else {
                     failedCount++
+                    // Row index + 2 because row 1 is the header and index is 0-based
                     errors.add("Row ${index + 2}: ${result.exceptionOrNull()?.message}")
                 }
             }
@@ -57,6 +81,12 @@ class ImportExpensesUseCase @Inject constructor(
         }
     }
     
+    /**
+     * Parses an Excel file from the given [Uri] into a list of [Expense] domain objects.
+     *
+     * Automatically detects column positions from header labels (supports Chinese and English).
+     * Skips rows with unparseable dates, missing amounts, or invalid expense types.
+     */
     private fun parseExcelFile(uri: Uri): List<Expense> {
         val expenses = mutableListOf<Expense>()
         
@@ -69,6 +99,7 @@ class ImportExpensesUseCase @Inject constructor(
                     throw Exception("Empty file")
                 }
                 
+                // Parse header row to locate columns by name
                 val headerRow = rows[0]
                 val headers = mutableMapOf<String, Int>()
                 
@@ -79,15 +110,18 @@ class ImportExpensesUseCase @Inject constructor(
                     }
                 }
                 
+                // Find column indices for required and optional columns
                 val dateColIndex = findColumnIndex(headers, "date")
                 val typeColIndex = findColumnIndex(headers, "type")
                 val amountColIndex = findColumnIndex(headers, "amount")
                 val remarkColIndex = findColumnIndex(headers, "remark")
                 
+                // Date, type, and amount are mandatory
                 if (dateColIndex == -1 || typeColIndex == -1 || amountColIndex == -1) {
                     throw Exception(context.getString(R.string.import_validation_error, "Missing required columns"))
                 }
                 
+                // Parse each data row (skip header at row 0)
                 for (i in 1 until rows.size) {
                     val row = rows[i]
                     
@@ -102,6 +136,7 @@ class ImportExpensesUseCase @Inject constructor(
                         val amountCell = row.getCell(amountColIndex)
                         val amount = parseAmountCell(amountCell) ?: continue
                         
+                        // Skip zero or negative amounts
                         if (amount <= 0) continue
                         
                         val remarkCell = row.getCell(remarkColIndex)
@@ -127,11 +162,17 @@ class ImportExpensesUseCase @Inject constructor(
         return expenses
     }
     
+    /**
+     * Parses a cell value as a date string in "YYYY-MM-DD" format.
+     * Handles both date-only strings and datetime strings with time components.
+     * Returns null if the cell is empty or the value cannot be parsed as a date.
+     */
     private fun parseDateCell(cell: Cell?): String? {
         if (cell == null) return null
         
         return try {
             val cellValue = cell.asString()
+            // Strip time portion if present (e.g., "2024-01-15T12:00:00" -> "2024-01-15")
             val datePart = if (cellValue.contains('T') || cellValue.contains(' ')) {
                 cellValue.substringBefore('T').substringBefore(' ')
             } else {
@@ -144,6 +185,11 @@ class ImportExpensesUseCase @Inject constructor(
         }
     }
     
+    /**
+     * Parses a cell value as a double amount.
+     * Tries numeric parsing first, then falls back to string-to-number parsing.
+     * Returns null if the cell is empty or the value is unparseable.
+     */
     private fun parseAmountCell(cell: Cell?): Double? {
         if (cell == null) return null
         
@@ -154,8 +200,15 @@ class ImportExpensesUseCase @Inject constructor(
         }
     }
     
+    /**
+     * Finds the column index for a given logical column key by matching
+     * against multiple possible header labels in different languages (Chinese, English).
+     *
+     * @param headers Map of header label to column index.
+     * @param columnKey Logical key ("date", "type", "amount", "remark").
+     * @return The 0-based column index, or -1 if not found.
+     */
     private fun findColumnIndex(headers: Map<String, Int>, columnKey: String): Int {
-        // Try to match multiple language headers
         val possibleHeaders = when (columnKey) {
             "date" -> listOf(
                 context.getString(R.string.excel_header_date),
@@ -184,9 +237,13 @@ class ImportExpensesUseCase @Inject constructor(
         return -1
     }
     
+    /**
+     * Parses an expense type string into the corresponding [ExpenseType] enum value.
+     * First tries to match against localized display names using Android resources,
+     * then falls back to [ExpenseType.fromString] for Chinese name matching.
+     */
     @SuppressLint("DiscouragedApi")
     private fun parseExpenseType(typeStr: String): ExpenseType {
-        // Try to match multiple language type names
         return ExpenseType.entries.find { type ->
             val resourceId = context.resources.getIdentifier(
                 type.displayNameKey,

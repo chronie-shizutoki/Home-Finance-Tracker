@@ -15,6 +15,16 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Manages the app's display language with support for 12 languages.
+ *
+ * Language can be set manually by the user or follow the system locale.
+ * When the user hasn't explicitly chosen a language, the manager listens
+ * for system locale changes and updates automatically.
+ *
+ * Persists the selected language to SharedPreferences for survival
+ * across app restarts.
+ */
 @Singleton
 class LanguageManager @Inject constructor(
     @param:ApplicationContext private val context: Context
@@ -37,6 +47,11 @@ class LanguageManager @Inject constructor(
         registerLocaleChangeReceiver()
     }
 
+    /**
+     * Sets the app language to the specified [Language] value.
+     * Persists the choice and marks that the user explicitly set it,
+     * preventing system locale from overriding the selection.
+     */
     fun setLanguage(language: Language) {
         prefs.edit {
             putString(KEY_LANGUAGE, language.code)

@@ -15,6 +15,16 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Add / Edit expense screen.
+ *
+ * Handles form state management (type, amount, date, remark), validation,
+ * and saving. Supports both creating new expenses and editing existing ones
+ * (determined by whether [expenseId] is set).
+ *
+ * After saving, triggers an immediate sync via [SyncScheduler] so the
+ * new/updated expense is pushed to the server promptly.
+ */
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
@@ -25,6 +35,7 @@ class AddExpenseViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddExpenseUiState())
     val uiState: StateFlow<AddExpenseUiState> = _uiState.asStateFlow()
     
+    /** Sets the expense category type for the form. */
     fun setType(type: ExpenseType) {
         _uiState.update { it.copy(
             selectedType = type,
@@ -32,6 +43,7 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
+    /** Sets the amount as a raw string (for text field binding). */
     fun setAmount(amount: String) {
         _uiState.update { it.copy(
             amount = amount,
@@ -39,6 +51,7 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
+    /** Sets the transaction date. */
     fun setDate(date: LocalDate) {
         _uiState.update { it.copy(
             selectedDate = date,
@@ -46,10 +59,16 @@ class AddExpenseViewModel @Inject constructor(
         ) }
     }
     
+    /** Sets the optional remark/note text. */
     fun setRemark(remark: String) {
         _uiState.update { it.copy(remark = remark) }
     }
     
+    /**
+     * Loads an existing expense into the form for editing.
+     *
+     * @param expenseId The ID of the expense to edit.
+     */
     fun loadExpenseForEdit(expenseId: String) {
         _uiState.update { it.copy(isSaving = true) }
         
@@ -88,6 +107,15 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Validates the form and saves the expense.
+     *
+     * If [expenseId] is set, performs an update; otherwise creates a new record.
+     * On success, triggers an immediate sync and calls [onSuccess].
+     *
+     * @param onSuccess Callback invoked after a successful save.
+     * @param onError Callback invoked with the error message on failure.
+     */
     fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
         if (!validateForm()) {
             return
@@ -101,6 +129,7 @@ class AddExpenseViewModel @Inject constructor(
             try {
                 val dateStr = state.selectedDate.toString()
                 
+                // Generate a new UUID for new expenses, or reuse the existing ID for edits
                 val expenseId = state.expenseId ?: UUID.randomUUID().toString()
                 
                 val expense = Expense(
@@ -112,6 +141,7 @@ class AddExpenseViewModel @Inject constructor(
                     isSynced = false
                 )
                 
+                // Choose add or update based on whether we're editing
                 val result = if (state.expenseId != null) {
                     expenseRepository.updateExpense(expense)
                 } else {
@@ -121,6 +151,7 @@ class AddExpenseViewModel @Inject constructor(
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isSaving = false) }
                     
+                    // Trigger a sync so the new expense reaches the server
                     try {
                         syncScheduler.triggerImmediateSync()
                     } catch (e: Exception) {
@@ -147,6 +178,15 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Validates the form fields before saving.
+     *
+     * Checks:
+     * - Type is selected (not null).
+     * - Amount is non-blank and parses to a positive number.
+     *
+     * @return True if all validations pass.
+     */
     private fun validateForm(): Boolean {
         val state = _uiState.value
         var isValid = true
@@ -170,11 +210,26 @@ class AddExpenseViewModel @Inject constructor(
         return isValid
     }
     
+    /** Resets the form state to defaults (for new expense). */
     fun resetState() {
         _uiState.value = AddExpenseUiState()
     }
 }
 
+/**
+ * UI state for the Add/Edit expense form.
+ *
+ * @property expenseId Non-null when editing an existing expense; null for new.
+ * @property selectedType The selected expense category.
+ * @property amount Raw text of the amount field.
+ * @property selectedDate The transaction date (defaults to today).
+ * @property remark Optional note about the expense.
+ * @property isSaving Whether a save operation is in progress.
+ * @property saveError Error message from the last failed save attempt.
+ * @property typeError Validation error for the type field.
+ * @property amountError Validation error for the amount field.
+ * @property dateError Validation error for the date field.
+ */
 data class AddExpenseUiState(
     val expenseId: String? = null,
     val selectedType: ExpenseType? = null,

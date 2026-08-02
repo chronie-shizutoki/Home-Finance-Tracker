@@ -27,6 +27,23 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.core.content.edit
 
+/**
+ * ViewModel for the Settings screen.
+ *
+ * The most feature-rich ViewModel in the app — manages:
+ * - Language switching
+ * - Developer mode toggle
+ * - Dynamic color / palette theme settings
+ * - Manual and device-to-device LAN sync
+ * - AI API key management
+ * - Expense export/import
+ * - Avatar management
+ * - Device name configuration
+ * - User logout
+ *
+ * Implements [SyncRequestCallback] to handle incoming sync requests
+ * from other devices on the local network.
+ */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val languageManager: LanguageManager,
@@ -277,6 +294,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Triggers a manual sync with the server, showing a success/failure message.
+     */
     fun manualSync() {
         viewModelScope.launch {
             try {
@@ -312,7 +332,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Sync with a device
+     * Synchronizes with a specific device discovered on the local network.
+     * Shows a progress dialog during the sync operation.
+     *
+     * @param deviceInfo The target device's discovery information.
      */
     fun deviceSync(deviceInfo: DeviceInfo) {
         viewModelScope.launch {
@@ -511,6 +534,11 @@ class SettingsViewModel @Inject constructor(
         return sdf.format(Date(timestamp))
     }
 
+    /**
+     * Exports expenses to an Excel file.
+     * @param startDate Optional export range start (inclusive).
+     * @param endDate Optional export range end (inclusive).
+     */
     fun exportExpenses(startDate: LocalDate? = null, endDate: LocalDate? = null) {
         viewModelScope.launch {
             try {
@@ -536,6 +564,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Imports expenses from an Excel file via content URI.
+     * @param uri Content URI pointing to the .xlsx file to import.
+     */
     fun importExpenses(uri: Uri) {
         viewModelScope.launch {
             try {

@@ -6,8 +6,22 @@ import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseType
 import java.util.UUID
 
+/**
+ * Bidirectional mapper for converting between the three Expense representations:
+ * - [ExpenseEntity] — Room database entity (type stored as Chinese string)
+ * - [ExpenseDto] — Network/API data transfer object
+ * - [Expense] — Domain model (type stored as [ExpenseType] enum)
+ *
+ * The key mapping concern is the [ExpenseType] ↔ Chinese name conversion,
+ * since the database and API use Chinese display names while the domain layer
+ * uses the typed enum for type safety.
+ */
 object ExpenseMapper {
     
+    /**
+     * Converts a database entity to a domain model.
+     * Resolves the stored Chinese type name back to an [ExpenseType] enum.
+     */
     fun toDomain(entity: ExpenseEntity): Expense {
         return Expense(
             id = entity.id,
@@ -22,6 +36,10 @@ object ExpenseMapper {
         )
     }
     
+    /**
+     * Converts a domain model to a database entity for local persistence.
+     * Maps the [ExpenseType] enum to its Chinese display name.
+     */
     fun toEntity(expense: Expense): ExpenseEntity {
         return ExpenseEntity(
             id = expense.id,
@@ -36,6 +54,14 @@ object ExpenseMapper {
         )
     }
     
+    /**
+     * Converts a server DTO to a domain model.
+     *
+     * Handles date format normalization — server dates may include time
+     * components (e.g., "2024-01-15T12:00:00Z") which are stripped to
+     * "YYYY-MM-DD" format. Falls back to the current date if parsing fails.
+     * Missing IDs are assigned a random UUID.
+     */
     fun toDomain(dto: ExpenseDto): Expense {
         val dateStr = try {
             if (dto.date.contains('T') || dto.date.contains(' ')) {
@@ -47,6 +73,7 @@ object ExpenseMapper {
                 dto.date
             }
         } catch (_: Exception) {
+            // Fallback to today's date if the server date is unparseable
             java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         }
         
@@ -59,10 +86,15 @@ object ExpenseMapper {
             version = dto.version,
             updatedAt = dto.updatedAt,
             deletedAt = dto.deletedAt,
+            // Mark as synced since it came from the server
             isSynced = true
         )
     }
     
+    /**
+     * Converts a domain model to a server DTO for API requests.
+     * Maps the [ExpenseType] enum to its Chinese display name.
+     */
     fun toDto(expense: Expense): ExpenseDto {
         return ExpenseDto(
             id = expense.id,
@@ -76,6 +108,10 @@ object ExpenseMapper {
         )
     }
     
+    /**
+     * Maps an [ExpenseType] enum value to its corresponding Chinese display name.
+     * This is the canonical mapping used for both database storage and API communication.
+     */
     private fun getChineseTypeName(type: ExpenseType): String {
         return when (type) {
             ExpenseType.DAILY_GOODS -> "日常用品"

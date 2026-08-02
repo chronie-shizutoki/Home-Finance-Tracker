@@ -14,7 +14,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Budget Management ViewModel
+ * ViewModel for the Budget management screen.
+ *
+ * Manages the budget configuration (monthly limit, warning threshold, enabled state),
+ * tracks current month spending vs. the budget, and exposes the computed
+ * [BudgetStatus] for visual indicators.
+ *
+ * Budget data is observed reactively via [GetBudgetUseCase] which emits a [Flow].
  */
 @HiltViewModel
 class BudgetViewModel @Inject constructor(
@@ -30,6 +36,11 @@ class BudgetViewModel @Inject constructor(
         loadBudget()
     }
     
+    /**
+     * Observes the budget configuration reactively.
+     * When a budget is found and enabled, usage data is recalculated.
+     * When disabled, the usage display is cleared.
+     */
     private fun loadBudget() {
         viewModelScope.launch {
             try {
@@ -38,7 +49,7 @@ class BudgetViewModel @Inject constructor(
                     if (budget?.isEnabled == true) {
                         loadBudgetUsage()
                     } else {
-                        // Clear budget usage when disabled
+                        // Clear usage data when budget tracking is turned off
                         _uiState.update { it.copy(budgetUsage = null) }
                     }
                 }
@@ -49,6 +60,7 @@ class BudgetViewModel @Inject constructor(
         }
     }
     
+    /** Fetches the current month's spending vs. budget. */
     fun loadBudgetUsage() {
         viewModelScope.launch {
             try {
@@ -63,6 +75,13 @@ class BudgetViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Saves a new budget configuration.
+     *
+     * @param monthlyLimit The maximum monthly spending limit.
+     * @param warningThreshold Ratio (0-1) that triggers a budget warning.
+     * @param isEnabled Whether budget tracking is active.
+     */
     fun saveBudget(monthlyLimit: Double, warningThreshold: Double, isEnabled: Boolean) {
         viewModelScope.launch {
             try {
@@ -84,6 +103,9 @@ class BudgetViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Toggles budget enabled/disabled, preserving existing limit and threshold.
+     */
     fun toggleBudgetEnabled(enabled: Boolean) {
         viewModelScope.launch {
             try {
@@ -106,6 +128,13 @@ class BudgetViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Computes the current budget status for UI indicators.
+     *
+     * @return [BudgetStatus.OVER_LIMIT] if spending exceeds limit,
+     *         [BudgetStatus.WARNING] if approaching threshold,
+     *         [BudgetStatus.NORMAL] otherwise.
+     */
     fun getBudgetStatus(): BudgetStatus {
         val usage = _uiState.value.budgetUsage ?: return BudgetStatus.NORMAL
         return when {
@@ -115,13 +144,18 @@ class BudgetViewModel @Inject constructor(
         }
     }
     
+    /** Refreshes current month budget usage. */
     fun refresh() {
         loadBudgetUsage()
     }
 }
 
 /**
- * Budget UI State
+ * UI state for the Budget screen.
+ *
+ * @property budget The current budget configuration (null if not yet set).
+ * @property budgetUsage Computed spending snapshot for the current month.
+ * @property error Error message to display, or null.
  */
 data class BudgetUiState(
     val budget: Budget? = null,

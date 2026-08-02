@@ -19,7 +19,14 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 /**
- * Charts Screen ViewModel
+ * ViewModel for the Charts / Statistics screen.
+ *
+ * Generates three types of chart data for the selected time range:
+ * 1. **Daily breakdown** — spending per day.
+ * 2. **Category breakdown** — spending by expense type.
+ * 3. **Weekday breakdown** — spending by day of the week with per-category drill-down.
+ *
+ * Supports all [TimeRange] presets plus a custom date range.
  */
 @HiltViewModel
 class ChartsViewModel @Inject constructor(
@@ -44,12 +51,14 @@ class ChartsViewModel @Inject constructor(
         loadStatistics()
     }
     
+    /** Selects a time range preset and triggers a data reload. */
     fun selectTimeRange(timeRange: TimeRange) {
         android.util.Log.d("ChartsViewModel", "Time range changed to: $timeRange")
         _selectedTimeRange.value = timeRange
         loadStatistics()
     }
     
+    /** Applies a custom date range and switches to [TimeRange.CUSTOM] mode. */
     fun setCustomDateRange(startDate: LocalDate, endDate: LocalDate) {
         _customStartDate.value = startDate
         _customEndDate.value = endDate
@@ -57,18 +66,26 @@ class ChartsViewModel @Inject constructor(
         loadStatistics()
     }
     
+    /** Updates the custom range start date without triggering a reload. */
     fun setCustomStartDate(startDate: LocalDate) {
         _customStartDate.value = startDate
     }
     
+    /** Updates the custom range end date without triggering a reload. */
     fun setCustomEndDate(endDate: LocalDate) {
         _customEndDate.value = endDate
     }
     
+    /** Pull-to-refresh: reloads all chart data. */
     fun refresh() {
         loadStatistics()
     }
     
+    /**
+     * Loads expense data and generates all three chart datasets.
+     * Fetches up to 10,000 expenses for the selected time range to ensure
+     * complete coverage for accurate statistics.
+     */
     private fun loadStatistics() {
         viewModelScope.launch {
             _uiState.value = ChartsUiState.Loading
@@ -80,29 +97,25 @@ class ChartsViewModel @Inject constructor(
                     endDate = endDate
                 )
                 
-                // Load statistics data
+                // Load aggregate statistics
                 val statisticsResult = getStatisticsUseCase(filters)
                 
                 if (statisticsResult.isSuccess) {
                     val statistics = statisticsResult.getOrNull()!!
                     
-                    // Load detailed expense list for chart data
+                    // Load the full expense list for chart data generation
                     val expensesResult = expenseRepository.getExpensesList(
                         page = 1,
-                        limit = 10000, // Load all data
+                        limit = 10000,
                         filters = filters
                     )
                     
                     if (expensesResult.isSuccess) {
                         val expenses = expensesResult.getOrNull()!!
                         
-                        // Generate daily data
+                        // Generate all three chart datasets
                         val dailyData = generateDailyData(expenses, startDate, endDate)
-                        
-                        // Generate category data
                         val categoryData = generateCategoryData(expenses)
-                        
-                        // Generate weekday data
                         val weekdayData = generateWeekdayData(expenses)
                         
                         android.util.Log.d("ChartsViewModel", "Loaded data: expenses=${expenses.size}, dailyData=${dailyData.size}, categoryData=${categoryData.size}, weekdayData=${weekdayData.size}, stats=${statistics.totalAmount}")
@@ -131,6 +144,16 @@ class ChartsViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Computes the start and end dates based on the selected [TimeRange].
+     *
+     * - THIS_WEEK: Monday to Sunday of the current week.
+     * - THIS_MONTH: First to last day of the current month.
+     * - LAST_MONTH: First to last day of the previous month.
+     * - THIS_QUARTER: First day of the current quarter to the last day.
+     * - THIS_YEAR: January 1 to December 31.
+     * - CUSTOM: Uses [_customStartDate] and [_customEndDate].
+     */
     private fun getDateRange(): Pair<LocalDate, LocalDate> {
         val today = LocalDate.now()
         
@@ -174,15 +197,17 @@ class ChartsViewModel @Inject constructor(
         return range
     }
     
+    /**
+     * Generates daily spending data — one entry per day in the date range.
+     * Days with no expenses show zero amounts.
+     */
     private fun generateDailyData(
         expenses: List<Expense>,
         startDate: LocalDate,
         endDate: LocalDate
     ): List<DailyChartData> {
-        // Group expenses by date
         val expensesByDate = expenses.groupBy { LocalDate.parse(it.date) }
         
-        // Generate all dates in the range range
         val dailyData = mutableListOf<DailyChartData>()
         var currentDate = startDate
         
@@ -204,10 +229,14 @@ class ChartsViewModel @Inject constructor(
         return dailyData
     }
     
+    /**
+     * Generates category spending data grouped by expense type.
+     * Includes the percentage of total spending for each category.
+     * Results are sorted by amount descending.
+     */
     private fun generateCategoryData(expenses: List<Expense>): List<CategoryChartData> {
         if (expenses.isEmpty()) return emptyList()
         
-        // Group expenses by type
         val expensesByType = expenses.groupBy { it.type }
         val totalAmount = expenses.sumOf { it.amount }
         
@@ -222,9 +251,14 @@ class ChartsViewModel @Inject constructor(
         }.sortedByDescending { it.amount }
     }
     
+    /**
+     * Generates weekday spending data — one entry per day of the week (Sunday–Saturday).
+     * Each weekday includes a per-category breakdown for drill-down analysis.
+     * Java's DayOfWeek maps Sunday=7, so we convert to 0=Sunday for easier indexing.
+     */
     private fun generateWeekdayData(expenses: List<Expense>): List<WeekdayChartData> {
         if (expenses.isEmpty()) {
-            // Return empty data for each weekday (Sunday to Saturday)
+            // Return empty entries for all 7 days
             return (0..6).map { dayOfWeek ->
                 WeekdayChartData(
                     dayOfWeek = dayOfWeek,
@@ -236,20 +270,20 @@ class ChartsViewModel @Inject constructor(
             }
         }
         
-        // Group expenses by weekday (0=Sunday, 1=Monday, ..., 6=Saturday)
+        // Group by weekday: DayOfWeek.value % 7 maps Sunday (7) to 0, Monday (1) stays 1, etc.
         val expensesByWeekday = expenses.groupBy { expense ->
-            val dayOfWeek = LocalDate.parse(expense.date).dayOfWeek.value % 7 // Convert to 0-6, Sunday is 0
+            val dayOfWeek = LocalDate.parse(expense.date).dayOfWeek.value % 7
             dayOfWeek
         }
         
         val totalAmount = expenses.sumOf { it.amount }
         
-        // Generate data for each weekday (Sunday to Saturday)
+        // Generate one entry per weekday (0=Sunday through 6=Saturday)
         return (0..6).map { dayOfWeek ->
             val dayExpenses = expensesByWeekday[dayOfWeek] ?: emptyList()
             val dayAmount = dayExpenses.sumOf { it.amount }
             
-            // Generate category breakdown for this weekday
+            // Build per-category breakdown for this weekday
             val categoryBreakdown = if (dayExpenses.isNotEmpty()) {
                 val expensesByType = dayExpenses.groupBy { it.type }
                 expensesByType.map { (type, typeExpenses) ->
@@ -277,10 +311,12 @@ class ChartsViewModel @Inject constructor(
 }
 
 /**
- * Charts UI State
+ * Sealed class representing the charts screen UI state.
  */
 sealed class ChartsUiState {
+    /** Initial loading state while data is being fetched. */
     object Loading : ChartsUiState()
+    /** Charts data loaded successfully. */
     data class Success(
         val statistics: ExpenseStatistics,
         val dailyData: List<DailyChartData>,
@@ -289,11 +325,16 @@ sealed class ChartsUiState {
         val startDate: LocalDate,
         val endDate: LocalDate
     ) : ChartsUiState()
+    /** Data loading failed with an error message. */
     data class Error(val message: String) : ChartsUiState()
 }
 
 /**
- * Daily Chart Data
+ * Data for a single day in the daily spending chart.
+ *
+ * @property date The calendar date.
+ * @property amount Total spending on this day.
+ * @property count Number of expense records on this day.
  */
 data class DailyChartData(
     val date: LocalDate,
@@ -302,7 +343,12 @@ data class DailyChartData(
 )
 
 /**
- * Category Chart Data
+ * Data for a single category in the category breakdown chart.
+ *
+ * @property type The expense type/category name (enum string).
+ * @property amount Total spending in this category.
+ * @property count Number of expense records in this category.
+ * @property percentage Percentage of total spending this category represents.
  */
 data class CategoryChartData(
     val type: String,
@@ -312,12 +358,18 @@ data class CategoryChartData(
 )
 
 /**
- * Weekday Chart Data
+ * Data for a single weekday in the weekday spending chart.
+ *
+ * @property dayOfWeek Day index: 0=Sunday, 1=Monday, ..., 6=Saturday.
+ * @property amount Total spending on this weekday.
+ * @property count Number of expense records on this weekday.
+ * @property percentage Percentage of total spending on this weekday.
+ * @property categoryBreakdown Per-category breakdown for drill-down analysis on this weekday.
  */
 data class WeekdayChartData(
-    val dayOfWeek: Int, // 0=Sunday, 1=Monday, ..., 6=Saturday
+    val dayOfWeek: Int,
     val amount: Double,
     val count: Int,
     val percentage: Float,
-    val categoryBreakdown: List<CategoryChartData> // Category breakdown for this weekday
+    val categoryBreakdown: List<CategoryChartData>
 )
