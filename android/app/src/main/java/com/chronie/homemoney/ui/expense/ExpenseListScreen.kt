@@ -53,6 +53,7 @@ import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
 import top.yukonga.miuix.kmp.menu.WindowIconCascadingDropdownMenu
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -789,7 +790,8 @@ fun ExpenseListItem(
     
     
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        pressFeedbackType = PressFeedbackType.Sink
     ) {
         Row(
             modifier = Modifier
