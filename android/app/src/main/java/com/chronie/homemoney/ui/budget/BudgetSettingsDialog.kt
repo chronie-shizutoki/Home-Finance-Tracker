@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,7 +18,6 @@ import com.chronie.homemoney.ui.components.ExpressiveSwitch
 import com.chronie.homemoney.ui.components.CircularIconButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowDialog
@@ -167,18 +168,20 @@ fun BudgetSettingsDialog(
                     )
                 }
 
-                // Action buttons
+                // Top header with X (cancel) and Check (save) icons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(
-                        text = context.getString(R.string.common_cancel),
-                        onClick = onDismiss
-                    )
-                    TextButton(
-                        text = context.getString(R.string.common_save),
+                    CircularIconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = context.getString(R.string.common_cancel),
+                            tint = MiuixTheme.colorScheme.onBackground
+                        )
+                    }
+                    CircularIconButton(
                         onClick = {
                             // Validate input
                             val limit = monthlyLimit.toDoubleOrNull()
@@ -202,7 +205,13 @@ fun BudgetSettingsDialog(
                                 }
                             }
                         }
-                    )
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = context.getString(R.string.common_save),
+                            tint = MiuixTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         }

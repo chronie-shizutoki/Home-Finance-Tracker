@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
@@ -27,6 +29,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.ui.budget.BudgetCard
+import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -689,19 +692,24 @@ fun LongPressExpenseItem(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = { cancelDelete() }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { handleFirstConfirm() },
-                    colors = ButtonDefaults.buttonColorsPrimary()
+                CircularIconButton(onClick = { cancelDelete() }) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(
+                    onClick = { handleFirstConfirm() }
                 ) {
-                    Text(text = context.getString(R.string.confirm))
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.confirm),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
                 }
             }
         }
@@ -715,22 +723,24 @@ fun LongPressExpenseItem(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    text = context.getString(R.string.cancel),
-                    onClick = { cancelDelete() }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { handleSecondConfirm() },
-                    colors = ButtonDefaults.buttonColors(
-                        color = MiuixTheme.colorScheme.errorContainer,
-                        contentColor = MiuixTheme.colorScheme.onErrorContainer
+                CircularIconButton(onClick = { cancelDelete() }) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
                     )
+                }
+                CircularIconButton(
+                    onClick = { handleSecondConfirm() }
                 ) {
-                    Text(text = context.getString(R.string.delete))
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.delete),
+                        tint = MiuixTheme.colorScheme.error
+                    )
                 }
             }
         }

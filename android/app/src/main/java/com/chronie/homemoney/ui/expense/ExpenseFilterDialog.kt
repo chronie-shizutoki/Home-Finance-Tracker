@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -20,6 +21,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseType
+import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -73,7 +75,7 @@ fun ExpenseFilterDialog(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Title bar
+                // Title bar with X (cancel) and Check (apply) icons
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -81,12 +83,37 @@ fun ExpenseFilterDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    CircularIconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = context.getString(R.string.cancel),
+                            tint = MiuixTheme.colorScheme.onBackground
+                        )
+                    }
                     Text(
                         text = context.getString(R.string.expense_list_filter_title),
                         style = MiuixTheme.textStyles.title3
                     )
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel))
+                    CircularIconButton(
+                        onClick = {
+                            val filters = ExpenseFilters(
+                                keyword = keyword.ifBlank { null },
+                                type = selectedTypes.firstOrNull(),
+                                minAmount = minAmount.toDoubleOrNull(),
+                                maxAmount = maxAmount.toDoubleOrNull(),
+                                startDate = startDate,
+                                endDate = endDate,
+                                sortBy = currentFilters.sortBy
+                            )
+                            onApplyFilters(filters)
+                            onDismiss()
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = context.getString(R.string.expense_list_apply_filters),
+                            tint = MiuixTheme.colorScheme.primary
+                        )
                     }
                 }
 
@@ -178,65 +205,20 @@ fun ExpenseFilterDialog(
                             singleLine = true
                         )
 
-                        TextField(
-                            value = maxAmount,
-                            onValueChange = { maxAmount = it },
-                            label = context.getString(R.string.expense_list_filter_max_amount),
-                            useLabelAsPlaceholder = true,
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            singleLine = true
-                        )
-                    }
-                    
-                    }
-
-                HorizontalDivider(Modifier, 0.5.dp, MiuixTheme.colorScheme.dividerLine)
-
-                // Bottom buttons area
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            keyword = ""
-                            selectedTypes = emptySet()
-                            minAmount = ""
-                            maxAmount = ""
-                            startDate = null
-                            endDate = null
-                        },
+                    TextField(
+                        value = maxAmount,
+                        onValueChange = { maxAmount = it },
+                        label = context.getString(R.string.expense_list_filter_max_amount),
+                        useLabelAsPlaceholder = true,
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors()
-                    ) {
-                        Text(context.getString(R.string.expense_list_clear_filters))
-                    }
-                    
-                    Button(
-                        onClick = {
-                            val filters = ExpenseFilters(
-                                keyword = keyword.ifBlank { null },
-                                type = selectedTypes.firstOrNull(),
-                                minAmount = minAmount.toDoubleOrNull(),
-                                maxAmount = maxAmount.toDoubleOrNull(),
-                                startDate = startDate,
-                                endDate = endDate,
-                                sortBy = currentFilters.sortBy
-                            )
-                            onApplyFilters(filters)
-                            onDismiss()
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColorsPrimary()
-                    ) {
-                        Text(context.getString(R.string.expense_list_apply_filters))
-                    }
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true
+                    )
                 }
+
             }
         }
+    }
     }
     
     // Expense Type Selection Dialog Box
@@ -393,14 +375,26 @@ fun ExpenseTypeSelector(
                 }
             }
 
-            // Action buttons
+            // Top header with X (cancel) and Check (confirm) icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(text = context.getString(R.string.cancel), onClick = onDismiss)
-                TextButton(text = context.getString(R.string.confirm), onClick = { onConfirm(tempSelectedTypes) })
+                CircularIconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cancel),
+                        tint = MiuixTheme.colorScheme.onBackground
+                    )
+                }
+                CircularIconButton(onClick = { onConfirm(tempSelectedTypes) }) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = context.getString(R.string.confirm),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
