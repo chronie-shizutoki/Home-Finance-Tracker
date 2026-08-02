@@ -65,7 +65,9 @@ constexpr FrameHeader headerOf(const vectors::FrameVector& vector) {
 
 // ------------------------------------------------------- writeFrame matches the vectors
 
-/// writeFrame must reproduce the golden bytes exactly, including the derived checksums.
+/// Verifies that writeFrame reproduces the exact bytes from a golden vector.
+/// @param maxChunk    artificial write limit per call (0 = unlimited, 1 = one byte at a time)
+/// @param transientEvery  inject EAGAIN/EINTR every N calls to exercise the retry loop
 constexpr bool writeMatchesGolden(const vectors::FrameVector& vector,
                                   std::size_t maxChunk,
                                   std::uint32_t transientEvery) {
@@ -87,6 +89,10 @@ constexpr bool allWritesMatchGolden(std::size_t maxChunk, std::uint32_t transien
     return true;
 }
 
+// ---- writeFrame round-trip: every golden vector must be reproducible ----
+// A failure here means the C++ codec produces bytes that differ from the independently
+// generated golden vectors. The Kotlin side validates against the same vectors, so this
+// assertion is what keeps the two implementations byte-for-byte identical.
 static_assert(allWritesMatchGolden(0, 0), "writeFrame does not match the golden vectors");
 // A socket that accepts one byte per call must still produce identical bytes.
 static_assert(allWritesMatchGolden(1, 0), "writeExact mishandles short writes");
@@ -97,6 +103,10 @@ static_assert(allWritesMatchGolden(0, 2), "writeExact mishandles EAGAIN/EINTR");
 
 // ------------------------------------------------------------------ readFrame recovery
 
+/// Verifies that readFrame correctly parses a golden vector's wire image back into
+/// the original fields and payload. The maxChunk and transientEvery parameters inject
+/// the same hostile conditions as the write side: single-byte reads, split headers,
+/// and interleaved EAGAIN/EINTR.
 constexpr bool readMatchesGolden(const vectors::FrameVector& vector,
                                  std::size_t maxChunk,
                                  std::uint32_t transientEvery) {
@@ -147,6 +157,7 @@ constexpr bool allReadsMatchGolden(std::size_t maxChunk, std::uint32_t transient
     return true;
 }
 
+// ---- readFrame must accept every golden vector, even under hostile network conditions ----
 static_assert(allReadsMatchGolden(0, 0), "readFrame does not accept the golden vectors");
 // One byte per read is the worst case a lossy Wi-Fi link produces; it must be transparent.
 static_assert(allReadsMatchGolden(1, 0), "readExact mishandles single byte reads");
@@ -159,6 +170,8 @@ static_assert(allReadsMatchGolden(7, 5), "readExact mishandles EAGAIN/EINTR");
 
 // ------------------------------------------------------------------------- truncation
 
+/// Reads a truncated version of a golden vector (only the first @p keep bytes are available)
+/// and verifies the error code. A peer that vanishes mid-frame must be reported as kPeerClosed.
 constexpr SyncErrorCode readTruncated(const vectors::FrameVector& vector, std::size_t keep) {
     const WireImage image = wireImageOf(vector);
     MemoryReader reader(image.bytes.data(), keep);
@@ -181,9 +194,10 @@ constexpr std::size_t kBodyVector = indexOfVectorWithPayload();
 static_assert(vectors::kFrameVectors[kBodyVector].payloadLen > 8,
               "expected at least one golden vector with a body");
 
-// A peer that vanishes must be reported as kPeerClosed, never as success with a short
-// buffer. The old code returned false for all three cases and the caller could not tell
-// them apart.
+// ---- Truncation must always be reported as kPeerClosed, never as success ----
+// The old code returned false for all three truncation cases and the caller couldn't tell
+// them apart. kPeerClosed is distinct from kCrcMismatch (corruption) and kIoTimeout (stall),
+// which lets the retry policy treat each case differently.
 static_assert(readTruncated(vectors::kFrameVectors[kBodyVector], 0) == SyncErrorCode::kPeerClosed,
               "empty stream must be kPeerClosed");
 static_assert(readTruncated(vectors::kFrameVectors[kBodyVector], 3) == SyncErrorCode::kPeerClosed,
@@ -199,6 +213,9 @@ static_assert(readTruncated(vectors::kFrameVectors[kBodyVector], kFrameHeaderSiz
 
 // ------------------------------------------------------------------------- corruption
 
+/// Returns the error from reading a corrupted golden vector where byte @p index was
+/// flipped by @p mask. Used to verify that every byte of the frame is protected by
+/// either the magic check or the CRC.
 constexpr SyncErrorCode readCorrupted(const vectors::FrameVector& vector,
                                       std::size_t index,
                                       std::uint8_t mask) {
@@ -227,6 +244,7 @@ constexpr bool everyHeaderByteIsProtected(const vectors::FrameVector& vector) {
     return true;
 }
 
+// ---- Every byte of the header and body must be integrity-checked ----
 static_assert(everyHeaderByteIsProtected(vectors::kFrameVectors[kBodyVector]),
               "a single bit flip in the header must never be accepted");
 
@@ -247,6 +265,8 @@ static_assert(everyBodyByteIsProtected(vectors::kFrameVectors[kBodyVector]),
 // ------------------------------------------------------------- hostile header values
 
 /// Builds a well-formed, correctly checksummed header that claims an absurd body size.
+/// Used to verify that the payload cap is enforced *before* any allocation, which is the
+/// bug the old server had: it would call vector::resize(claimedLen) before checking the cap.
 constexpr SyncErrorCode readWithClaimedLength(std::uint32_t claimedLen,
                                               std::uint32_t claimedCrc = 0) {
     FrameHeader header{};
@@ -259,9 +279,10 @@ constexpr SyncErrorCode readWithClaimedLength(std::uint32_t claimedLen,
     return readFrame(reader, frame);
 }
 
-// The header checksum is valid here, so this is not corruption - it is a peer, or an
-// attacker, asking the receiver to allocate. The cap must reject it before any allocation
-// happens. The old server would have called vector::resize with this value.
+// ---- The payload size cap must reject oversized claims before allocating ----
+// The header checksum is valid, so this simulates a peer (or attacker) asking the
+// receiver to allocate an absurd amount of memory. The cap must reject it before any
+// allocation happens.
 static_assert(readWithClaimedLength(kMaxPayloadSize + 1) == SyncErrorCode::kPayloadTooLarge,
               "a body one byte over the cap must be rejected");
 static_assert(readWithClaimedLength(0xFFFFFFFFu) == SyncErrorCode::kPayloadTooLarge,
@@ -290,6 +311,9 @@ static_assert(writeOversizedBody() == SyncErrorCode::kPayloadTooLarge,
 
 // --------------------------------------------------------------------- version checks
 
+/// Builds a header with custom version and opcode bytes, re-checksumming so the codec
+/// reaches the semantic checks rather than failing at the CRC stage. Used to verify that
+/// version/opcode boundaries are enforced correctly regardless of checksum validity.
 constexpr SyncErrorCode readWithRawHeader(std::uint8_t versionByte, std::uint8_t opcodeByte) {
     FrameHeader header{};
     header.opcode = Opcode::kPing;
@@ -319,7 +343,9 @@ static_assert(readWithRawHeader(2, 0x30) == SyncErrorCode::kOk,
 
 // ------------------------------------------------------------------ transient spinning
 
-/// A stream that is permanently transient must terminate, not spin a worker thread.
+/// A stream that is permanently transient must eventually give up — not spin a worker
+/// thread forever. readExact has a safety counter (kMaxConsecutiveTransients = 4096)
+/// that breaks out of the retry loop when the stream keeps returning EAGAIN/EINTR.
 constexpr SyncErrorCode readFromPermanentlyBlockedStream() {
     const std::uint8_t data[8] = {};
     MemoryReader reader(data, sizeof(data), 0, 1);  // transientEvery == 1: never delivers
@@ -429,6 +455,9 @@ static_assert(isKnownOpcode(static_cast<std::uint8_t>(Opcode::kPullAck)));
 
 // ------------------------------------------------------------------------ retry policy
 
+/// Verifies that the C++ backoff implementation matches the independently generated
+/// golden vectors from retry_vectors.txt. Each vector encodes a specific (baseDelayMs,
+/// retryIndex, randomValue) tuple and the expected jittered delay.
 constexpr bool retryVectorsMatch() {
     for (std::size_t i = 0; i < vectors::kRetryVectorCount; ++i) {
         const vectors::RetryVector& v = vectors::kRetryVectors[i];
