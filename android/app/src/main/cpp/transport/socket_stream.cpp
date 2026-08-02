@@ -127,7 +127,8 @@ IoResult FdStream::readSome(std::uint8_t* dst, std::size_t size) {
         return IoResult{IoStatus::kInterrupted, 0};
     }
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        return IoResult{awaitReadiness(fd_, POLLIN, deadline_), 0};
+        const IoStatus status = awaitReadiness(fd_, POLLIN, deadline_);
+        return IoResult{status == IoStatus::kOk ? IoStatus::kWouldBlock : status, 0};
     }
     if (errno == ECONNRESET || errno == EPIPE) {
         return IoResult{IoStatus::kClosed, 0};
@@ -156,7 +157,8 @@ IoResult FdStream::writeSome(const std::uint8_t* src, std::size_t size) {
         return IoResult{IoStatus::kInterrupted, 0};
     }
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        return IoResult{awaitReadiness(fd_, POLLOUT, deadline_), 0};
+        const IoStatus status = awaitReadiness(fd_, POLLOUT, deadline_);
+        return IoResult{status == IoStatus::kOk ? IoStatus::kWouldBlock : status, 0};
     }
     if (errno == EPIPE || errno == ECONNRESET) {
         return IoResult{IoStatus::kClosed, 0};

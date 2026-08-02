@@ -363,13 +363,28 @@ class LanDeviceSyncManager(
             updateSyncProgress(0.1f, "Connecting...", true)
             val port = resolveSyncPort(device)
             val netHandle = wifiNetworkHandle()
-            val transport = NativeSyncTransport(
+            var transport = NativeSyncTransport(
                 nativeSyncEngine,
                 device.address,
                 port,
                 connectTimeoutMs = 10_000,
                 netHandle = netHandle
             )
+
+            // Fallback: if pinning to Wi-Fi fails with NETWORK_UNREACHABLE, retry once without pinning.
+            // This handles cases where android_setsocknetwork is blocked by the OS (EPERM).
+            if (transport.connectError == SyncErrorCode.NETWORK_UNREACHABLE && netHandle != 0L) {
+                Log.i(TAG, "Network pinning failed (EPERM?); retrying with default route")
+                transport.close()
+                transport = NativeSyncTransport(
+                    nativeSyncEngine,
+                    device.address,
+                    port,
+                    connectTimeoutMs = 10_000,
+                    netHandle = 0L
+                )
+            }
+
             val outcome = try {
                 syncInitiator.sync(transport, device.address) { progress, message ->
                     updateSyncProgress(progress, message, true)

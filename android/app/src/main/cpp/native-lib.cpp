@@ -278,6 +278,7 @@ bool callKotlinFrame(JNIEnv* env,
 struct ServerInstance {
     std::atomic<bool> running{true};
     std::atomic<int> listenFd{-1};
+    std::atomic<int> listenPort{0};
     std::mutex connMutex;
     std::vector<int> activeConns;
     std::unique_ptr<ThreadPool> pool;
@@ -778,7 +779,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
     {
         std::lock_guard<std::mutex> lock(g_server_mutex);
         if (g_server && g_server->running.load(std::memory_order_relaxed)) {
-            return static_cast<jint>(g_server->listenFd.load()); // Should really return the port, but for now jint is enough to indicate success
+            return static_cast<jint>(g_server->listenPort.load());
         }
     }
 
@@ -825,6 +826,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
 
     auto instance = std::make_shared<ServerInstance>();
     instance->listenFd = listenFd;
+    instance->listenPort = static_cast<int>(actualPort);
     instance->pool = std::make_unique<ThreadPool>(
             kServerWorkerThreads, kServerQueueCapacity,
             []() {
