@@ -203,16 +203,12 @@ class SyncMetricsTest {
     }
 
     @Test
-    fun `discovery replies are split by dialect`() {
-        metrics.recordDiscoveryReply(legacy = false)
-        metrics.recordDiscoveryReply(legacy = true)
-        metrics.recordDiscoveryReply(legacy = true)
+    fun `discovery replies are counted`() {
+        metrics.recordDiscoveryReply()
+        metrics.recordDiscoveryReply()
 
         val snapshot = metrics.snapshot()
-        // This ratio is the retirement signal for the v1 adapter: once it is 0 legacy
-        // across a release, the dual-send can go.
-        assertEquals(1, snapshot.discoveryRepliesV2)
-        assertEquals(2, snapshot.discoveryRepliesLegacy)
+        assertEquals(2, snapshot.discoveryRepliesV2)
     }
 
     @Test
@@ -263,7 +259,7 @@ class SyncMetricsTest {
         )
         metrics.recordDiscoveryIgnored(IgnoreReason.MALFORMED)
         metrics.recordDeviceSeen(isNew = true, moved = false)
-        metrics.recordDiscoveryReply(legacy = true)
+        metrics.recordDiscoveryReply()
         metrics.recordError("bind")
 
         metrics.reset()

@@ -95,56 +95,6 @@ class LanDeviceSyncManager(
         )
     }
 
-    init {
-        nativeSyncEngine.setSyncRequestListener(object : NativeSyncEngine.SyncRequestListener {
-            override fun onSyncDataReceived(deviceId: String, deviceName: String, data: ByteArray): ByteArray? {
-                Log.d(TAG, "v1: Received sync data request from $deviceName ($deviceId)")
-                
-                val remoteProto = try {
-                    if (data.isEmpty()) return null
-                    com.chronie.homemoney.data.sync.generated.DeviceSyncData.parseFrom(data)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to parse v1 remote proto from $deviceName", e)
-                    return null
-                }
-
-                val realName = if (remoteProto.deviceName.isNotEmpty()) remoteProto.deviceName else deviceName
-                val realId = if (remoteProto.deviceId.isNotEmpty()) remoteProto.deviceId else deviceId
-                
-                val info = SyncRequestInfo(realId, realName, "Remote LAN (v1)")
-                val accepted = runBlocking { confirmRequest(info, 60_000) } ?: false
-                
-                if (!accepted) {
-                    Log.d(TAG, "v1: Sync request rejected or timed out")
-                    return null
-                }
-
-                Log.d(TAG, "v1: User accepted, processing data from $realName")
-                return runBlocking(Dispatchers.IO) {
-                    try {
-                        updateSyncProgress(0.4f, "Processing remote $realName data...", true)
-                        val domainData = SyncProtoConverter.toDomain(remoteProto as com.chronie.homemoney.data.sync.generated.DeviceSyncData)
-                        processDeviceData(domainData)
-                        
-                        updateSyncProgress(0.7f, "Syncing local data to $realName...", true)
-                        val localData = prepareLocalData()
-                        val responseBytes = SyncProtoConverter.toProto(localData).toByteArray()
-                        
-                        updateSyncProgress(1.0f, "Sync completed!", false)
-                        delay(1000)
-                        clearSyncProgress()
-                        responseBytes
-                    } catch (e: Exception) {
-                        Log.e(TAG, "v1: Error processing sync on B-side", e)
-                        updateSyncProgress(1.0f, "Sync failed: ${e.message}", false)
-                        delay(2000)
-                        clearSyncProgress()
-                        null
-                    }
-                }
-            }
-        })
-    }
     
     private val syncLock = Any()
     @Volatile
@@ -432,6 +382,15 @@ class LanDeviceSyncManager(
                     ?: outcome.errorMessage
                     ?: "sync failed"
                 Log.w(TAG, "v2 sync with ${device.deviceName} failed: $reason")
+                
+                // If the peer is unreachable or times out, it's likely our discovery info is stale.
+                // Clear it so the user doesn't keep retrying the same broken address.
+                if (transport.connectError == SyncErrorCode.NETWORK_UNREACHABLE || 
+                    transport.connectError == SyncErrorCode.CONNECT_TIMEOUT) {
+                    Log.i(TAG, "Invalidating stale registry entry for ${device.deviceId}")
+                    discovery.registry.remove(device.deviceId)
+                }
+
                 updateSyncProgress(1f, "Sync failed: $reason", false)
                 return@withContext createFailedSyncResult(reason)
             }

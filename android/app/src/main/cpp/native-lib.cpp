@@ -88,7 +88,6 @@ JavaVM* g_jvm = nullptr;
 jobject g_engine_obj = nullptr;
 jclass g_engine_cls = nullptr;
 jmethodID g_mid_handle_frame = nullptr;
-jmethodID g_mid_handle_legacy = nullptr;
 std::mutex g_engine_mutex;
 
 /// JNIEnv for the current worker thread, set by the pool's start hook.
@@ -112,15 +111,10 @@ struct Metrics {
     std::atomic<std::uint64_t> protocolErrors{0};
     std::atomic<std::uint64_t> timeouts{0};
     std::atomic<std::uint64_t> clientRetries{0};
-    std::atomic<std::uint64_t> legacySessions{0};
     std::atomic<std::uint64_t> v2Sessions{0};
 };
 
 Metrics g_metrics;
-
-/// Remembers which dialect each peer speaks so the fallback probe happens at most once.
-std::mutex g_peer_mutex;
-std::unordered_map<std::string, std::uint8_t> g_peer_version;
 
 // ----------------------------------------------------------------------- small utils
 
@@ -198,19 +192,6 @@ RetryPolicy currentRetryPolicy() {
     return policy;
 }
 
-std::uint8_t knownPeerVersion(const std::string& key) {
-    std::lock_guard<std::mutex> lock(g_peer_mutex);
-    const auto it = g_peer_version.find(key);
-    return it == g_peer_version.end() ? 0 : it->second;
-}
-
-void rememberPeerVersion(const std::string& key, std::uint8_t version) {
-    std::lock_guard<std::mutex> lock(g_peer_mutex);
-    // A phone can be reinstalled with a newer build, so this is a hint, not a contract:
-    // it only decides which dialect to try first.
-    g_peer_version[key] = version;
-}
-
 // -------------------------------------------------------------- Kotlin upcall helpers
 
 /// Converts a Kotlin byte[] result into a vector, or reports that it was null.
@@ -284,59 +265,6 @@ bool callKotlinFrame(JNIEnv* env,
     }
     env->DeleteLocalRef(jpayload);
     env->DeleteLocalRef(jpeer);
-    return ok;
-}
-
-/// Legacy v1 upcall, kept byte-for-byte compatible with the old contract.
-bool callKotlinLegacy(JNIEnv* env,
-                      const std::string& peer,
-                      const std::vector<std::uint8_t>& data,
-                      std::vector<std::uint8_t>& out) {
-    jobject engine = nullptr;
-    jmethodID mid = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(g_engine_mutex);
-        engine = g_engine_obj;
-        mid = g_mid_handle_legacy;
-    }
-    if (engine == nullptr || mid == nullptr) {
-        LOGE("callKotlinLegacy: engine not bound");
-        return false;
-    }
-
-    jstring jid = env->NewStringUTF(peer.c_str());
-    jstring jname = env->NewStringUTF("Remote Device");
-    jbyteArray jdata = env->NewByteArray(static_cast<jsize>(data.size()));
-    if (jid == nullptr || jname == nullptr || jdata == nullptr) {
-        env->ExceptionClear();
-        if (jid != nullptr) env->DeleteLocalRef(jid);
-        if (jname != nullptr) env->DeleteLocalRef(jname);
-        if (jdata != nullptr) env->DeleteLocalRef(jdata);
-        return false;
-    }
-    if (!data.empty()) {
-        env->SetByteArrayRegion(jdata, 0, static_cast<jsize>(data.size()),
-                                reinterpret_cast<const jbyte*>(data.data()));
-    }
-
-    auto response = static_cast<jbyteArray>(
-            env->CallObjectMethod(engine, mid, jid, jname, jdata));
-
-    bool ok = false;
-    if (env->ExceptionCheck()) {
-        LOGE("callKotlinLegacy: Kotlin threw");
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-    } else {
-        ok = takeByteArray(env, response, out);
-    }
-
-    if (response != nullptr) {
-        env->DeleteLocalRef(response);
-    }
-    env->DeleteLocalRef(jdata);
-    env->DeleteLocalRef(jname);
-    env->DeleteLocalRef(jid);
     return ok;
 }
 
@@ -519,46 +447,6 @@ void serveV2(FdStream& stream,
     }
 }
 
-/// Serves one legacy v1 connection: a single length-prefixed request and response.
-void serveV1(FdStream& stream,
-             const std::string& peer,
-             const std::uint8_t (&prefix)[4],
-             JNIEnv* env) {
-    g_metrics.legacySessions.fetch_add(1, std::memory_order_relaxed);
-    LOGI("[%s] legacy v1 peer", peer.c_str());
-
-    std::vector<std::uint8_t> request;
-    stream.setDeadline(Deadline::afterMs(kFirstFrameTimeoutMs));
-    const SyncErrorCode read = readLegacyBody(stream, prefix, request);
-    if (read != SyncErrorCode::kOk) {
-        LOGW("[%s] legacy read failed: %s", peer.c_str(), errorName(read));
-        recordError(read);
-        return;
-    }
-    g_metrics.bytesIn.fetch_add(4 + request.size(), std::memory_order_relaxed);
-
-    std::vector<std::uint8_t> response;
-    stream.setDeadline(Deadline::afterMs(kHandlerTimeoutMs));
-    const bool accepted = callKotlinLegacy(env, peer, request, response);
-
-    stream.setDeadline(Deadline::afterMs(kReplyTimeoutMs));
-    if (!accepted) {
-        // The old protocol has no error frame; a zero length reply is the only "no" it
-        // understands, and the old client already handles it.
-        LOGI("[%s] legacy request declined", peer.c_str());
-        writeLegacyMessage(stream, nullptr, 0);
-        return;
-    }
-    const SyncErrorCode written =
-            writeLegacyMessage(stream, response.data(), response.size());
-    if (written != SyncErrorCode::kOk) {
-        LOGW("[%s] legacy reply failed: %s", peer.c_str(), errorName(written));
-        recordError(written);
-        return;
-    }
-    g_metrics.bytesOut.fetch_add(4 + response.size(), std::memory_order_relaxed);
-}
-
 /// Full lifecycle of one accepted connection, run on a pool worker.
 void handleConnection(const std::shared_ptr<ServerInstance>& instance, int fd,
                       std::string peer) {
@@ -580,7 +468,7 @@ void handleConnection(const std::shared_ptr<ServerInstance>& instance, int fd,
     } else if (looksLikeV2Frame(prefix)) {
         serveV2(stream, peer, prefix, env);
     } else {
-        serveV1(stream, peer, prefix, env);
+        LOGW("[%s] rejecting legacy v1 peer", peer.c_str());
     }
 
     instance->unregisterConn(fd);
@@ -694,38 +582,9 @@ SyncErrorCode exchangeV2(FdStream& stream,
     return SyncErrorCode::kOk;
 }
 
-/// One legacy v1 exchange over an already connected socket.
-SyncErrorCode exchangeV1(FdStream& stream,
-                         const std::vector<std::uint8_t>& request,
-                         std::vector<std::uint8_t>& response) {
-    const SyncErrorCode written =
-            writeLegacyMessage(stream, request.data(), request.size());
-    if (written != SyncErrorCode::kOk) {
-        return written;
-    }
-    g_metrics.bytesOut.fetch_add(4 + request.size(), std::memory_order_relaxed);
-
-    std::uint8_t prefix[4] = {};
-    const SyncErrorCode prefixResult = readPrefix(stream, prefix);
-    if (prefixResult != SyncErrorCode::kOk) {
-        return prefixResult;
-    }
-    const SyncErrorCode read = readLegacyBody(stream, prefix, response);
-    if (read != SyncErrorCode::kOk) {
-        return read;
-    }
-    g_metrics.bytesIn.fetch_add(4 + response.size(), std::memory_order_relaxed);
-    if (response.empty()) {
-        // The v1 "no" - the remote user declined. Not retryable.
-        return SyncErrorCode::kCancelled;
-    }
-    return SyncErrorCode::kOk;
-}
-
-/// Connects and performs one exchange in the requested dialect.
+/// Connects and performs one exchange.
 SyncErrorCode attemptOnce(const std::string& address,
                           int port,
-                          std::uint8_t dialect,
                           const std::vector<std::uint8_t>& request,
                           std::vector<std::uint8_t>& response) {
     SyncErrorCode error = SyncErrorCode::kOk;
@@ -737,8 +596,7 @@ SyncErrorCode attemptOnce(const std::string& address,
     }
 
     FdStream stream(fd, Deadline::afterMs(g_io_timeout_ms.load(std::memory_order_relaxed)));
-    const SyncErrorCode result = dialect == 1 ? exchangeV1(stream, request, response)
-                                              : exchangeV2(stream, request, response);
+    const SyncErrorCode result = exchangeV2(stream, request, response);
     shutdownQuietly(fd);
     closeQuietly(fd);
     return result;
@@ -758,48 +616,21 @@ ClientOutcome performSyncWithRetry(const std::string& address,
     const RetryPolicy policy = currentRetryPolicy();
     const std::string peerKey = address + ":" + std::to_string(port);
 
-    std::uint8_t dialect = knownPeerVersion(peerKey);
-    if (dialect == 0) {
-        dialect = kProtocolVersion;
-    }
-    bool triedFallback = false;
     std::uint32_t randomState =
             static_cast<std::uint32_t>(monotonicNowMs()) ^ 0xA5A5A5A5u;
 
     for (std::uint32_t attempt = 1;; ++attempt) {
         outcome.response.clear();
         const SyncErrorCode result =
-                attemptOnce(address, port, dialect, request, outcome.response);
+                attemptOnce(address, port, request, outcome.response);
         if (result == SyncErrorCode::kOk) {
-            rememberPeerVersion(peerKey, dialect);
             outcome.error = SyncErrorCode::kOk;
             return outcome;
         }
 
-        LOGW("sync attempt %u to %s failed: %s (dialect v%u)", attempt, peerKey.c_str(),
-             errorName(result), static_cast<unsigned>(dialect));
+        LOGW("sync attempt %u to %s failed: %s", attempt, peerKey.c_str(),
+             errorName(result));
         outcome.error = result;
-
-        // Dialect probe: only worth doing once, and only for the failures a legacy server
-        // actually produces. Anything else is a genuine transport problem.
-        const bool looksLikeLegacyServer = result == SyncErrorCode::kBadMagic ||
-                                           result == SyncErrorCode::kPeerClosed ||
-                                           result == SyncErrorCode::kProtocolMismatch;
-        if (dialect != 1 && !triedFallback && looksLikeLegacyServer) {
-            LOGI("%s does not speak v2, falling back to legacy framing", peerKey.c_str());
-            triedFallback = true;
-            dialect = 1;
-            rememberPeerVersion(peerKey, 1);
-            continue;  // immediate retry, no backoff: this is a negotiation, not a failure
-        }
-        // A v1 peer that was upgraded will start rejecting legacy frames; re-probe v2 once.
-        if (dialect == 1 && !triedFallback && result == SyncErrorCode::kPayloadTooLarge) {
-            LOGI("%s appears upgraded, retrying with v2 framing", peerKey.c_str());
-            triedFallback = true;
-            dialect = kProtocolVersion;
-            rememberPeerVersion(peerKey, kProtocolVersion);
-            continue;
-        }
 
         if (!shouldRetry(policy, result, attempt)) {
             return outcome;
@@ -979,13 +810,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
             env->ExceptionClear();
             LOGE("startServer: handleIncomingFrame is missing");
         }
-        g_mid_handle_legacy = env->GetMethodID(g_engine_cls, "handleIncomingSyncRequest",
-                                               "(Ljava/lang/String;Ljava/lang/String;[B)[B");
-        if (g_mid_handle_legacy == nullptr) {
-            env->ExceptionClear();
-            LOGE("startServer: handleIncomingSyncRequest is missing");
-        }
-        if (g_mid_handle_frame == nullptr && g_mid_handle_legacy == nullptr) {
+        if (g_mid_handle_frame == nullptr) {
             return 0;
         }
     }
@@ -1334,7 +1159,6 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_transportStats(JNIEnv* env
     append("protocolErrors", g_metrics.protocolErrors.load());
     append("timeouts", g_metrics.timeouts.load());
     append("clientRetries", g_metrics.clientRetries.load());
-    append("legacySessions", g_metrics.legacySessions.load());
     append("v2Sessions", g_metrics.v2Sessions.load(), true);
     json += "}";
     return env->NewStringUTF(json.c_str());

@@ -78,7 +78,6 @@ class SyncMetrics(private val clock: () -> Long = System::currentTimeMillis) {
     private val devicesMoved = AtomicLong()
     private val devicesRefreshed = AtomicLong()
     private val discoveryRepliesV2 = AtomicLong()
-    private val discoveryRepliesLegacy = AtomicLong()
     private val errorsByStage = ConcurrentHashMap<String, AtomicLong>()
 
     // ------------------------------------------------------------------ recording
@@ -139,8 +138,8 @@ class SyncMetrics(private val clock: () -> Long = System::currentTimeMillis) {
         }.incrementAndGet()
     }
 
-    fun recordDiscoveryReply(legacy: Boolean) {
-        (if (legacy) discoveryRepliesLegacy else discoveryRepliesV2).incrementAndGet()
+    fun recordDiscoveryReply() {
+        discoveryRepliesV2.incrementAndGet()
     }
 
     fun recordError(stage: String) {
@@ -181,7 +180,6 @@ class SyncMetrics(private val clock: () -> Long = System::currentTimeMillis) {
             devicesMoved = devicesMoved.get(),
             devicesRefreshed = devicesRefreshed.get(),
             discoveryRepliesV2 = discoveryRepliesV2.get(),
-            discoveryRepliesLegacy = discoveryRepliesLegacy.get(),
             errorsByStage = errorsByStage.entries
                 .mapNotNull { (key, value) -> value.get().takeIf { it > 0 }?.let { key to it } }
                 .toMap()
@@ -195,7 +193,7 @@ class SyncMetrics(private val clock: () -> Long = System::currentTimeMillis) {
             retryableRejections, commitsApplied, entitiesReceived, entitiesInserted,
             entitiesUpdated, entitiesSkipped, entitiesRejected, conflictsResolved,
             devicesFirstSeen, devicesMoved, devicesRefreshed,
-            discoveryRepliesV2, discoveryRepliesLegacy
+            discoveryRepliesV2
         ).forEach { it.set(0) }
 
         listOf(
@@ -251,7 +249,6 @@ data class SyncMetricsSnapshot(
     val devicesMoved: Long,
     val devicesRefreshed: Long,
     val discoveryRepliesV2: Long,
-    val discoveryRepliesLegacy: Long,
     val errorsByStage: Map<String, Long>
 ) {
 
@@ -301,7 +298,7 @@ data class SyncMetricsSnapshot(
 
         appendLine(
             "discovery: new=$devicesFirstSeen moved=$devicesMoved refreshed=$devicesRefreshed " +
-                "replies=$discoveryRepliesV2/v2 $discoveryRepliesLegacy/v1"
+                "replies=$discoveryRepliesV2/v2"
         )
         discoveryIgnored.forEachLine(this, "  dropped")
         errorsByStage.forEachLine(this, "  error")

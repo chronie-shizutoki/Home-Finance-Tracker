@@ -24,9 +24,8 @@ class DiscoveryDeciderTest {
 
     private fun decider(
         identity: DiscoveryIdentity = self,
-        addresses: Set<String> = localAddresses,
-        acceptLegacy: Boolean = true
-    ) = DiscoveryDecider(identity, addresses, acceptLegacy)
+        addresses: Set<String> = localAddresses
+    ) = DiscoveryDecider(identity, addresses)
 
     private fun packet(
         type: DiscoveryType = DiscoveryType.ANNOUNCE,
@@ -117,16 +116,6 @@ class DiscoveryDeciderTest {
         assertEquals(3000, ignored)
     }
 
-    @Test
-    fun `a v1 line is refused when legacy support is off`() {
-        val legacy = DiscoveryWire.encodeLegacy("peer-1", "Peer", "192.168.1.55", 1L)
-        val action = decider(acceptLegacy = false)
-            .decide(legacy, legacy.size, "192.168.1.55", 40000, null)
-
-        assertTrue(action is DiscoveryAction.Ignore)
-        assertEquals(IgnoreReason.LEGACY_DISABLED, (action as DiscoveryAction.Ignore).reason)
-    }
-
     // ------------------------------------------------------------------ queries
 
     @Test
@@ -142,7 +131,6 @@ class DiscoveryDeciderTest {
         assertEquals(41234, action.port)
         assertNotEquals(LanDiscoveryService.DEFAULT_DISCOVERY_PORT, action.port)
         assertEquals(99L, action.nonce)
-        assertEquals(false, action.legacy)
     }
 
     @Test
@@ -207,10 +195,8 @@ class DiscoveryDeciderTest {
 
     @Test
     fun `the address comes from the socket, not from the payload`() {
-        // v1 believed the sender's self-reported IP, which was wrong exactly on the
-        // multi-homed devices where it mattered.
-        val legacy = DiscoveryWire.encodeLegacy("peer-1", "Peer", "10.9.9.9", 1L)
-        val action = decider().decide(legacy, legacy.size, "192.168.1.55", 12345, expectedNonce = 1L)
+        val data = packet(deviceId = "peer-1")
+        val action = decider().decide(data, data.size, "192.168.1.55", 12345, expectedNonce = 0L)
 
         assertEquals("192.168.1.55", (action as DiscoveryAction.Record).device.address)
     }
@@ -224,16 +210,6 @@ class DiscoveryDeciderTest {
     }
 
     @Test
-    fun `a v1 peer falls back to our own sync port`() {
-        // v1 carried no port. Assuming the peer matches us is the best guess available, and
-        // is exactly why v2 has the field.
-        val legacy = DiscoveryWire.encodeLegacy("peer-1", "Peer", "192.168.1.55", 1L)
-        val action = decider().decide(legacy, legacy.size, "192.168.1.55", 40000, expectedNonce = 1L)
-
-        assertEquals(self.syncPort, (action as DiscoveryAction.Record).device.syncPort)
-    }
-
-    @Test
     fun `capabilities survive the round trip`() {
         val caps = DiscoveryCapability.FRAME_V2 or DiscoveryCapability.COMPRESSION
         val data = packet(capabilities = caps)
@@ -241,52 +217,6 @@ class DiscoveryDeciderTest {
 
         assertEquals(caps, device.capabilities)
         assertTrue(device.supportsFrameV2)
-    }
-
-    @Test
-    fun `a v1 peer advertises no capabilities`() {
-        val legacy = DiscoveryWire.encodeLegacy("peer-1", "Peer", "192.168.1.55", 1L)
-        val device = (decider().decide(legacy, legacy.size, "192.168.1.55", 40000, 1L) as DiscoveryAction.Record).device
-
-        assertEquals(0, device.capabilities)
-        assertEquals(false, device.supportsFrameV2)
-        assertEquals(1, device.protocolVersion)
-    }
-
-    // ------------------------------------------------------------------ v1 interop
-
-    @Test
-    fun `the responder answers a v1 peer in v1 dialect`() {
-        // v1 has no query/announce split, so anything arriving on the discovery port is a
-        // question. Replying in v2 would leave that peer unable to find us.
-        val legacy = DiscoveryWire.encodeLegacy("old-peer", "Old Phone", "192.168.1.60", 1L)
-        val action = decider().decide(legacy, legacy.size, "192.168.1.60", 43210, expectedNonce = null)
-
-        assertTrue(action is DiscoveryAction.Reply)
-        action as DiscoveryAction.Reply
-        assertEquals(true, action.legacy)
-        assertEquals(0L, action.nonce)
-        assertEquals(43210, action.port)
-    }
-
-    @Test
-    fun `a v1 reply during our search is recorded, not answered`() {
-        val legacy = DiscoveryWire.encodeLegacy("old-peer", "Old Phone", "192.168.1.60", 1L)
-        val action = decider().decide(legacy, legacy.size, "192.168.1.60", 12345, expectedNonce = 777L)
-
-        assertTrue(action is DiscoveryAction.Record)
-    }
-
-    @Test
-    fun `our own v1 broadcast coming back is still filtered`() {
-        val legacy = DiscoveryWire.encodeLegacy(self.deviceId, self.deviceName, "192.168.1.10", 1L)
-        val action = decider(addresses = emptySet())
-            .decide(legacy, legacy.size, "192.168.1.10", 40000, expectedNonce = null)
-
-        assertEquals(
-            DiscoveryAction.Ignore(IgnoreReason.SELF_DEVICE_ID, self.deviceId),
-            action
-        )
     }
 
     // ------------------------------------------------------------------ invariants

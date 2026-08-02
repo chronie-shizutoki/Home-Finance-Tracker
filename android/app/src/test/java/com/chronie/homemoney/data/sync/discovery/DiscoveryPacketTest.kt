@@ -128,12 +128,6 @@ class DiscoveryPacketTest {
     }
 
     @Test
-    fun `the v1 plain text form is not accepted by the v2 parser`() {
-        val legacy = DiscoveryWire.encodeLegacy("device-a", "Pixel", "192.168.1.5", 1_700_000_000L)
-        assertEquals(DiscoveryParse.Reason.BAD_MAGIC, rejection(legacy).reason)
-    }
-
-    @Test
     fun `an empty datagram is rejected`() {
         assertEquals(DiscoveryParse.Reason.TOO_SHORT, rejection(ByteArray(0)).reason)
     }
@@ -297,42 +291,6 @@ class DiscoveryPacketTest {
         )
         assertEquals("capability bits collide", bits.size, bits.toSet().size)
         assertEquals("a capability bit is not a single bit", bits.sum(), bits.reduce { a, b -> a or b })
-    }
-
-    // ---------------------------------------------------------------- v1 compatibility
-
-    @Test
-    fun `the legacy form round trips through the legacy parser`() {
-        val encoded = DiscoveryWire.encodeLegacy("device-a", "Pixel 8", "192.168.1.5", 1_700_000_000L)
-        val parsed = DiscoveryWire.parseLegacy(encoded, defaultSyncPort = 50051)
-        assertEquals("device-a", parsed?.deviceId)
-        assertEquals("Pixel 8", parsed?.deviceName)
-        assertEquals(1, parsed?.version)
-        assertEquals("v1 advertises no capabilities", 0, parsed?.capabilities)
-        assertEquals("v1 carries no port, so ours is assumed", 50051, parsed?.syncPort)
-    }
-
-    @Test
-    fun `the legacy parser rejects a v2 datagram`() {
-        // Both forms share the wire during migration, so each parser must decline the other's
-        // packets rather than half-reading them.
-        assertNull(DiscoveryWire.parseLegacy(DiscoveryWire.encode(sample()), defaultSyncPort = 50051))
-    }
-
-    @Test
-    fun `the legacy parser rejects unrelated text`() {
-        for (text in listOf("", "hello", "DISCOVERY", "DISCOVERY|", "OTHER|a|b|c", "|||")) {
-            assertNull(
-                "accepted: '$text'",
-                DiscoveryWire.parseLegacy(text.toByteArray(StandardCharsets.UTF_8), defaultSyncPort = 50051)
-            )
-        }
-    }
-
-    @Test
-    fun `the legacy parser rejects an empty device id`() {
-        val encoded = DiscoveryWire.encodeLegacy("", "Pixel", "192.168.1.5", 1L)
-        assertNull(DiscoveryWire.parseLegacy(encoded, defaultSyncPort = 50051))
     }
 
     @Test
