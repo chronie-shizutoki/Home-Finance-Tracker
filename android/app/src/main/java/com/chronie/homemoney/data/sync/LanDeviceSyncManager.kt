@@ -60,6 +60,7 @@ class LanDeviceSyncManager(
     
     private val nativeSyncEngine = NativeSyncEngine()
     private var isServerRunning = AtomicBoolean(false)
+    private var assignedPort = 0
     val metrics = SyncMetrics()
     private val logSink = LogcatSyncLogSink()
     private val discoveryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -85,7 +86,7 @@ class LanDeviceSyncManager(
                     deviceId = localDeviceId,
                     deviceName = localDeviceName,
                     deviceType = "ANDROID",
-                    syncPort = GRPC_SYNC_PORT
+                    syncPort = if (assignedPort > 0) assignedPort else GRPC_SYNC_PORT
                 )
             },
             discoveryPort = DISCOVERY_PORT,
@@ -359,12 +360,13 @@ class LanDeviceSyncManager(
         
         nativeSyncEngine.setFrameHandler(syncResponder)
         discoveryScope.launch {
-            val ok = nativeSyncEngine.startServer(GRPC_SYNC_PORT)
-            if (ok) {
-                Log.i(TAG, "native TCP server started on port $GRPC_SYNC_PORT")
+            // Passing 0 tells the kernel to assign a random available port.
+            val port = nativeSyncEngine.startServer(0)
+            if (port > 0) {
+                assignedPort = port
+                Log.i(TAG, "native TCP server started on port $port")
             } else {
-                Log.e(TAG, "native TCP server FAILED to start on port $GRPC_SYNC_PORT" +
-                        " (port busy? permission denied?)")
+                Log.e(TAG, "native TCP server FAILED to start (port busy? permission denied?)")
                 isServerRunning.set(false)
             }
         }
