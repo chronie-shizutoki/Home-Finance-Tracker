@@ -1,6 +1,8 @@
 package com.chronie.homemoney.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -13,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
-import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
@@ -31,22 +32,14 @@ fun OutlinedButton(
     contentColor: Color = MiuixTheme.colorScheme.primary,
     content: @Composable RowScope.() -> Unit
 ) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        shape = RoundedCornerShape(16.dp),
-        color = Color.Transparent,
-        contentColor = contentColor,
-        border = BorderStroke(1.dp, contentColor)
-    ) {
-        Row(
-            modifier = Modifier
-                .defaultMinSize(minWidth = ButtonDefaults.MinWidth, minHeight = ButtonDefaults.MinHeight)
-                .padding(ButtonDefaults.InsideMargin),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
-    }
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick, enabled = enabled)
+            .border(BorderStroke(1.dp, contentColor), shape = RoundedCornerShape(16.dp))
+            .defaultMinSize(minWidth = ButtonDefaults.MinWidth, minHeight = ButtonDefaults.MinHeight)
+            .padding(ButtonDefaults.InsideMargin),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        content = content
+    )
 }

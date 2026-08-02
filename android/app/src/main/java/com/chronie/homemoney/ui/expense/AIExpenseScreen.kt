@@ -200,7 +200,7 @@ fun AIExpenseScreen(
                 actions = {
                     Box(modifier = Modifier.padding(end = 8.dp))
                 },
-                color = MiuixTheme.colorScheme.background
+                color = MiuixTheme.colorScheme.surface
             )
         }
     ) { paddingValues ->

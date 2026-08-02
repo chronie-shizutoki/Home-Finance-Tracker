@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -43,7 +42,7 @@ import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
-import com.chronie.homemoney.ui.util.TransitionSpecs
+import com.chronie.homemoney.ui.theme.MiuixTransitions
 import com.chronie.homemoney.ui.util.predictiveBackEffect
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -93,11 +92,10 @@ class MainActivity : ComponentActivity() {
         // Clear splash screen background, set to transparent background
         window.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Enable edge-to-edge display
-        enableEdgeToEdge()
-
-        // Make sure the window draws behind system bars
+        // Manual edge-to-edge (no scrim override from enableEdgeToEdge)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
 
         // Start health check service
         healthCheckService.start()
@@ -167,10 +165,10 @@ fun HomeMoneyApp(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        enterTransition = { TransitionSpecs.enterTransition() },
-        exitTransition = { TransitionSpecs.exitTransition() },
-        popEnterTransition = { TransitionSpecs.popEnterTransition() },
-        popExitTransition = { TransitionSpecs.popExitTransition() }
+        enterTransition = { MiuixTransitions.enter() },
+        exitTransition = { MiuixTransitions.exit() },
+        popEnterTransition = { MiuixTransitions.popEnter() },
+        popExitTransition = { MiuixTransitions.popExit() }
     ) {
         composable("welcome") {
             Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {

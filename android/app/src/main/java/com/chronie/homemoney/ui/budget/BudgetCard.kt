@@ -185,10 +185,7 @@ fun BudgetUsageCard(
     }
     
     Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.defaultColors(
-            color = MiuixTheme.colorScheme.primaryContainer
-        )
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -237,7 +234,7 @@ fun BudgetUsageCard(
                         Text(
                             text = formatMonthLabelByLocale(usage.currentMonth + "-01", context.resources.configuration.locales[0].toLanguageTag()),
                             style = MiuixTheme.textStyles.footnote1,
-                            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                     }
                 }
@@ -283,7 +280,7 @@ fun BudgetUsageCard(
                         Text(
                             text = "/ " + context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.monthlyLimit),
                             style = MiuixTheme.textStyles.body1,
-                            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary
                         )
                         Text(
                             text = "(${String.format(LocalLocale.current.platformLocale, "%.0f", usage.spendingPercentage)}%)",
@@ -336,8 +333,8 @@ fun BudgetUsageCard(
                                     context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), usage.remainingAmount),
                                     100 - usage.spendingPercentage
                                 ),
-                                containerColor = MiuixTheme.colorScheme.secondaryContainer,
-                                contentColor = MiuixTheme.colorScheme.onSecondaryContainer
+                                containerColor = MiuixTheme.colorScheme.primaryContainer,
+                                contentColor = MiuixTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
@@ -412,14 +409,14 @@ fun AlertCard(
 fun DetailItem(
     label: String,
     value: String,
-    valueColor: androidx.compose.ui.graphics.Color = MiuixTheme.colorScheme.onPrimaryContainer,
+    valueColor: androidx.compose.ui.graphics.Color = MiuixTheme.colorScheme.onSurface,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Text(
             text = label,
             style = MiuixTheme.textStyles.footnote1,
-            color = MiuixTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            color = MiuixTheme.colorScheme.onSurfaceSecondary
         )
         Text(
             text = value,

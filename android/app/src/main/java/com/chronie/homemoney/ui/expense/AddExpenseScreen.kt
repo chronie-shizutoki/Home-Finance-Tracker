@@ -100,7 +100,7 @@ fun AddExpenseScreen(
                         }
                     }
                 },
-                color = MiuixTheme.colorScheme.background
+                color = MiuixTheme.colorScheme.surface
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -325,7 +325,7 @@ fun ExpenseTypeDropdown(
                                     showPicker = false
                                 },
                             color = if (type == selectedType) {
-                                MiuixTheme.colorScheme.primaryContainer
+                                MiuixTheme.colorScheme.surfaceVariant
                             } else {
                                 MiuixTheme.colorScheme.surface
                             },

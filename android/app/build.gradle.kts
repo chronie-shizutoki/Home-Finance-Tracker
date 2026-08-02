@@ -154,6 +154,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
 
     implementation(libs.material)
+    implementation(libs.m3color)
     implementation(libs.material.icons.extended)
     implementation(libs.miuix.ui)
     implementation(libs.miuix.preference)

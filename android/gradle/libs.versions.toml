@@ -20,6 +20,7 @@ androidx-core = "1.19.0"
 androidx-splashscreen = "1.2.0"
 
 compose-bom = "2026.06.01"
+m3color = "2026.1"
 material = "1.14.0"
 miuix = "0.9.3"
 lifecycle = "2.11.0"
@@ -92,6 +93,8 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+m3color = { group = "com.github.Kyant0", name = "m3color", version.ref = "m3color" }
 
 miuix-ui = { group = "top.yukonga.miuix.kmp", name = "miuix-ui-android", version.ref = "miuix" }
 miuix-preference = { group = "top.yukonga.miuix.kmp", name = "miuix-preference-android", version.ref = "miuix" }

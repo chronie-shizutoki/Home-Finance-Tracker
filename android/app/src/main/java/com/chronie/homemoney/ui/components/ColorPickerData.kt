@@ -9,7 +9,7 @@ data class ColorOption(
     @param:StringRes val nameResId: Int
 ) {
     val isDefault: Boolean get() = value == 0
-    val color: Color get() = if (isDefault) Color(0xFF3482FF) else Color(value.toLong() and 0xFFFFFFFFL)
+    val color: Color get() = if (isDefault) Color(0xFF2E5FA1) else Color(value.toLong() and 0xFFFFFFFFL)
 }
 
 data class ColorGroup(

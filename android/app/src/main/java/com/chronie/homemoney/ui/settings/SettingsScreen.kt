@@ -39,7 +39,7 @@ import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
-import com.chronie.homemoney.ui.util.TransitionSpecs
+import com.chronie.homemoney.ui.theme.MiuixTransitions
 import com.chronie.homemoney.ui.util.predictiveBackEffect
 import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import top.yukonga.miuix.kmp.basic.Button
@@ -86,10 +86,10 @@ fun SettingsScreen(
         navController = navController,
         startDestination = SettingsPage.MAIN.name,
         modifier = Modifier.fillMaxSize(),
-        enterTransition = { TransitionSpecs.enterTransition() },
-        exitTransition = { TransitionSpecs.exitTransition() },
-        popEnterTransition = { TransitionSpecs.popEnterTransition() },
-        popExitTransition = { TransitionSpecs.popExitTransition() }
+        enterTransition = { MiuixTransitions.enter() },
+        exitTransition = { MiuixTransitions.exit() },
+        popEnterTransition = { MiuixTransitions.popEnter() },
+        popExitTransition = { MiuixTransitions.popExit() }
     ) {
         composable(SettingsPage.MAIN.name) {
             MainSettingsPage(
@@ -211,7 +211,7 @@ private fun MainSettingsPage(
                                 .fillMaxWidth()
                                 .padding(top = 16.dp)
                                 .clickable { onNavigate(SettingsPage.ACCOUNT) },
-                            color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                            color = MiuixTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Row(
@@ -511,7 +511,7 @@ fun AppearanceSettingsPage(
                     endActions = {
                         Surface(
                             shape = CircleShape,
-                            color = if (themeSettings.value.primaryColor == 0) Color(0xFF3482FF) else Color(themeSettings.value.primaryColor),
+                            color = if (themeSettings.value.primaryColor == 0) Color(0xFF2E5FA1) else Color(themeSettings.value.primaryColor),
                             modifier = Modifier.size(24.dp),
                             border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
                         ) {}
@@ -1097,8 +1097,8 @@ fun AccountSection(
     ) {
         Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.padding(bottom = 20.dp), contentAlignment = Alignment.Center) {
-                Surface(modifier = Modifier.size(140.dp), shape = CircleShape, color = MiuixTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), shadowElevation = 4.dp) {}
-                Surface(modifier = Modifier.size(132.dp), shape = CircleShape, color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f), border = BorderStroke(3.dp, MiuixTheme.colorScheme.primary.copy(alpha = 0.3f))) {}
+                Surface(modifier = Modifier.size(140.dp), shape = CircleShape, color = MiuixTheme.colorScheme.surfaceVariant, shadowElevation = 4.dp) {}
+                Surface(modifier = Modifier.size(132.dp), shape = CircleShape, color = MiuixTheme.colorScheme.surface, border = BorderStroke(3.dp, MiuixTheme.colorScheme.outline)) {}
                 Box(modifier = Modifier.size(120.dp).clickable { imagePickerLauncher.launch("image/*") }) {
                     if (avatarLoading) ExpressiveLoadingIndicator(containerVisible = false)
                     else if (avatar != null) {
