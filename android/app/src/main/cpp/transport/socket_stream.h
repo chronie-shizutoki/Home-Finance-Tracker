@@ -97,8 +97,9 @@ void configureTcpSocket(int fd);
 int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError,
                        std::uint64_t netHandle = 0);
 
-/// Creates a listening socket bound to @p port. Returns -1 on failure.
-int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outError);
+/// Creates a listening socket bound to @p port. If @p port is 0, the kernel assigns a
+/// random port and updates the parameter. Returns -1 on failure.
+int createListeningSocket(std::uint16_t& port, int backlog, SyncErrorCode& outError);
 
 /**
  * Waits for an incoming connection, giving up after @p timeoutMs so the caller can check

@@ -293,7 +293,7 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
     return fd;
 }
 
-int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outError) {
+int createListeningSocket(std::uint16_t& port, int backlog, SyncErrorCode& outError) {
     outError = SyncErrorCode::kOk;
 
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -304,6 +304,9 @@ int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outErr
 
     int on = 1;
     ::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    // SO_REUSEPORT allows multiple processes to bind to the same port, and is often
+    // more robust in handling stale sockets on Android/Linux.
+    ::setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
@@ -311,11 +314,22 @@ int createListeningSocket(std::uint16_t port, int backlog, SyncErrorCode& outErr
     addr.sin_port = htons(port);
 
     if (::bind(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
-        ALOGE("listen socket bind(%u) failed: errno=%d (%s)", port, errno, strerror(errno));
+        ALOGE("listen socket bind(%u) failed: errno=%d (%s)", static_cast<unsigned>(port), errno, strerror(errno));
         closeQuietly(fd);
-        outError = SyncErrorCode::kNetworkUnreachable;
+        outError = errno == EPERM ? SyncErrorCode::kInternal : SyncErrorCode::kNetworkUnreachable;
         return -1;
     }
+
+    // If port 0 was requested, find out what the kernel actually assigned.
+    if (port == 0) {
+        struct sockaddr_in assigned{};
+        socklen_t len = sizeof(assigned);
+        if (::getsockname(fd, reinterpret_cast<struct sockaddr*>(&assigned), &len) == 0) {
+            port = ntohs(assigned.sin_port);
+            ALOGI("kernel assigned dynamic port %u", static_cast<unsigned>(port));
+        }
+    }
+
     if (::listen(fd, backlog) < 0) {
         closeQuietly(fd);
         outError = SyncErrorCode::kInternal;

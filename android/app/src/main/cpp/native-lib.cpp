@@ -596,18 +596,8 @@ void rejectBusy(int fd) {
     closeQuietly(fd);
 }
 
-void acceptLoop(std::shared_ptr<ServerInstance> instance, int port) {
-    SyncErrorCode error = SyncErrorCode::kOk;
-    const int listenFd = createListeningSocket(static_cast<std::uint16_t>(port),
-                                               kListenBacklog, error);
-    if (listenFd < 0) {
-        LOGE("failed to listen on %d: %s", port, errorName(error));
-        instance->running = false;
-        return;
-    }
-    instance->listenFd = listenFd;
-    LOGI("sync server listening on %d (workers=%zu queue=%zu)", port, kServerWorkerThreads,
-         kServerQueueCapacity);
+void acceptLoop(std::shared_ptr<ServerInstance> instance, int listenFd, int port) {
+    LOGI("sync server accept loop started on port %d", port);
 
     while (instance->running.load(std::memory_order_relaxed)) {
         std::string peer;
@@ -641,8 +631,7 @@ void acceptLoop(std::shared_ptr<ServerInstance> instance, int port) {
         }
     }
 
-    const int fd = instance->listenFd.exchange(-1);
-    closeQuietly(fd);
+    closeQuietly(listenFd);
     LOGI("sync server accept loop exited");
 }
 
@@ -951,20 +940,19 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* /*reserved*/) {
     return JNI_VERSION_1_6;
 }
 
-extern "C" JNIEXPORT jboolean JNICALL
+extern "C" JNIEXPORT jint JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
                                                                   jobject obj,
                                                                   jint port) {
     {
         std::lock_guard<std::mutex> lock(g_server_mutex);
         if (g_server && g_server->running.load(std::memory_order_relaxed)) {
-            return JNI_TRUE;
+            return static_cast<jint>(g_server->listenFd.load()); // Should really return the port, but for now jint is enough to indicate success
         }
     }
 
     // Bind the Kotlin engine and resolve the upcalls once, here, where we still have a
-    // guaranteed-valid JNIEnv and class loader. Worker threads attached later cannot see
-    // application classes through FindClass, which is a classic JNI trap.
+    // guaranteed-valid JNIEnv and class loader.
     {
         std::lock_guard<std::mutex> lock(g_engine_mutex);
         if (g_engine_obj != nullptr) {
@@ -979,7 +967,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
         jclass localCls = env->GetObjectClass(obj);
         if (localCls == nullptr) {
             LOGE("startServer: cannot resolve the engine class");
-            return JNI_FALSE;
+            return 0;
         }
         g_engine_cls = static_cast<jclass>(env->NewGlobalRef(localCls));
         env->DeleteLocalRef(localCls);
@@ -998,11 +986,20 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
             LOGE("startServer: handleIncomingSyncRequest is missing");
         }
         if (g_mid_handle_frame == nullptr && g_mid_handle_legacy == nullptr) {
-            return JNI_FALSE;
+            return 0;
         }
     }
 
+    std::uint16_t actualPort = static_cast<std::uint16_t>(port);
+    SyncErrorCode error = SyncErrorCode::kOk;
+    const int listenFd = createListeningSocket(actualPort, kListenBacklog, error);
+    if (listenFd < 0) {
+        LOGE("failed to listen on %d: %s", port, errorName(error));
+        return 0;
+    }
+
     auto instance = std::make_shared<ServerInstance>();
+    instance->listenFd = listenFd;
     instance->pool = std::make_unique<ThreadPool>(
             kServerWorkerThreads, kServerQueueCapacity,
             []() {
@@ -1022,13 +1019,13 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
                 }
             });
 
-    instance->acceptThread = std::thread(acceptLoop, instance, static_cast<int>(port));
+    instance->acceptThread = std::thread(acceptLoop, instance, listenFd, static_cast<int>(actualPort));
 
     {
         std::lock_guard<std::mutex> lock(g_server_mutex);
         g_server = instance;
     }
-    return JNI_TRUE;
+    return static_cast<jint>(actualPort);
 }
 
 extern "C" JNIEXPORT void JNICALL

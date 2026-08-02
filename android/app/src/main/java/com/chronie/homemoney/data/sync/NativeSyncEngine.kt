@@ -125,7 +125,7 @@ class NativeSyncEngine {
         }
     }
 
-    external fun startServer(port: Int): Boolean
+    external fun startServer(port: Int): Int
     external fun stopServer()
     external fun performSync(address: String, port: Int, data: ByteArray): ByteArray?
 
