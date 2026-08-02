@@ -21,8 +21,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.foundation.clickable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -116,8 +120,14 @@ fun AIExpenseScreen(
         }
     }
     
+    // Track thumbnail positions for shared-element transitions
+    val thumbnailBoundsMap = remember { mutableStateMapOf<Uri, Rect>() }
+    var editorThumbnailBounds by remember { mutableStateOf<Rect?>(null) }
+
     // Handle existing image cropping request via the custom editor
     fun handleCropExistingImage(uri: Uri) {
+        // Save thumbnail bounds for animation
+        editorThumbnailBounds = thumbnailBoundsMap[uri]
         // Remove old image from selection list and open the editor
         viewModel.removeImage(uri)
         editorUri = uri
@@ -185,9 +195,6 @@ fun AIExpenseScreen(
         }
     }
 
-    // Control display of image source selection dialog box
-    var showImageSourceDialog by remember { mutableStateOf(false) }
-    
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -214,9 +221,26 @@ fun AIExpenseScreen(
             ImageSelectionSection(
                 context = context,
                 selectedImages = uiState.selectedImages,
-                onAddImages = { showImageSourceDialog = true },
+                onAddImages = { source -> 
+                    when (source) {
+                        "camera" -> {
+                            val hasCameraPermission = ContextCompat.checkSelfPermission(
+                                context, android.Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (hasCameraPermission) {
+                                cameraImageUri = createImageFile(context)
+                                cameraImageUri?.let { cameraLauncher.launch(it) }
+                            } else {
+                                permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                            }
+                        }
+                        "gallery" -> imagePickerLauncher.launch("image/*")
+                    }
+                },
                 onRemoveImage = viewModel::removeImage,
-                onCropImage = ::handleCropExistingImage
+                onCropImage = ::handleCropExistingImage,
+                thumbnailBoundsMap = thumbnailBoundsMap,
+                onEditorThumbnailBounds = { editorThumbnailBounds = it }
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -277,37 +301,6 @@ fun AIExpenseScreen(
         }
     }
 
-    // Image source selection BottomSheet
-    ImageSourceSelectionBottomSheet(
-        show = showImageSourceDialog,
-        context = context,
-        onDismiss = { showImageSourceDialog = false },
-        onCameraSelected = {
-            // Check camera permission
-            val hasCameraPermission = ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (hasCameraPermission) {
-                // If permission granted, launch camera directly
-                cameraImageUri = createImageFile(context)
-                cameraImageUri?.let {
-                    cameraLauncher.launch(it)
-                }
-            } else {
-                // Request camera permission
-                permissionLauncher.launch(android.Manifest.permission.CAMERA)
-            }
-            showImageSourceDialog = false
-        },
-        onGallerySelected = {
-            // Launch gallery picker launcher
-            imagePickerLauncher.launch("image/*")
-            showImageSourceDialog = false
-        }
-    )
-
     // OCR Text Edit BottomSheet
     OcrTextBottomSheet(
         show = uiState.showOcrBottomSheet,
@@ -339,79 +332,17 @@ fun AIExpenseScreen(
         cropShape = CropShape.SQUARE,
         enableEraser = true,
         maxResultSize = 1080,
-        onDismiss = { editorUri = null },
+        thumbnailBounds = editorThumbnailBounds,
+        onDismiss = { 
+            editorUri = null
+            editorThumbnailBounds = null
+        },
         onConfirm = { bmp ->
             saveCroppedBitmap(bmp)?.let { viewModel.addImages(listOf(it)) }
             editorUri = null
+            editorThumbnailBounds = null
         }
     )
-}
-
-/**
- * Image source selection BottomSheet
- */
-@Composable
-private fun ImageSourceSelectionBottomSheet(
-    show: Boolean,
-    context: Context,
-    onDismiss: () -> Unit,
-    onCameraSelected: () -> Unit,
-    onGallerySelected: () -> Unit
-) {
-    WindowBottomSheet(
-        show = show,
-        title = context.getString(R.string.ai_expense_select_image_source),
-        onDismissRequest = onDismiss
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Camera option
-            OutlinedButton(
-                onClick = onCameraSelected,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.CameraAlt,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = context.getString(R.string.ai_expense_take_photo))
-                }
-            }
-
-            // Gallery option
-            OutlinedButton(
-                onClick = onGallerySelected,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.PhotoLibrary,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = context.getString(R.string.ai_expense_choose_from_gallery))
-                }
-            }
-        }
-    }
 }
 
 /**
@@ -421,10 +352,30 @@ private fun ImageSourceSelectionBottomSheet(
 private fun ImageSelectionSection(
     context: Context,
     selectedImages: List<Uri>,
-    onAddImages: () -> Unit,
+    onAddImages: (String) -> Unit,
     onRemoveImage: (Uri) -> Unit,
-    onCropImage: (Uri) -> Unit
+    onCropImage: (Uri) -> Unit,
+    thumbnailBoundsMap: MutableMap<Uri, Rect>,
+    onEditorThumbnailBounds: (Rect?) -> Unit
 ) {
+    // Dropdown menu for image source selection
+    val imageSourceEntry = remember {
+        DropdownEntry(
+            items = listOf(
+                DropdownItem(
+                    text = context.getString(R.string.ai_expense_take_photo),
+                    icon = { modifier -> Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = modifier.size(24.dp), tint = MiuixTheme.colorScheme.primary) },
+                    onClick = { onAddImages("camera") }
+                ),
+                DropdownItem(
+                    text = context.getString(R.string.ai_expense_choose_from_gallery),
+                    icon = { modifier -> Icon(Icons.Default.PhotoLibrary, contentDescription = null, modifier = modifier.size(24.dp), tint = MiuixTheme.colorScheme.primary) },
+                    onClick = { onAddImages("gallery") }
+                )
+            )
+        )
+    }
+
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -435,10 +386,22 @@ private fun ImageSelectionSection(
                 text = context.getString(R.string.ai_expense_select_images),
                 style = MiuixTheme.textStyles.body1
             )
-            TextButton(
-                text = context.getString(R.string.ai_expense_add_images),
-                onClick = onAddImages
-            )
+            WindowIconDropdownMenu(entry = imageSourceEntry) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MiuixTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = context.getString(R.string.ai_expense_add_images),
+                        style = MiuixTheme.textStyles.body1,
+                        color = MiuixTheme.colorScheme.primary
+                    )
+                }
+            }
         }
         
         if (selectedImages.isNotEmpty()) {
@@ -450,31 +413,37 @@ private fun ImageSelectionSection(
                     ImagePreviewCard(
                         imageUri = selectedImages[index],
                         onRemove = { onRemoveImage(selectedImages[index]) },
-                        onCrop = { onCropImage(selectedImages[index]) }
+                        onCrop = { 
+                            onEditorThumbnailBounds(thumbnailBoundsMap[selectedImages[index]])
+                            onCropImage(selectedImages[index])
+                        },
+                        onPositioned = { bounds ->
+                            thumbnailBoundsMap[selectedImages[index]] = bounds
+                        }
                     )
                 }
             }
         } else {
-            Surface(
-                onClick = onAddImages,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = MiuixTheme.colorScheme.surfaceVariant,
-                border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+            WindowIconDropdownMenu(entry = imageSourceEntry) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = MiuixTheme.colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MiuixTheme.colorScheme.onSurfaceSecondary
-                        )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MiuixTheme.colorScheme.onSurfaceSecondary
+                            )
                         Text(
                             context.getString(R.string.ai_expense_click_to_add),
                             style = MiuixTheme.textStyles.body2,
@@ -482,6 +451,7 @@ private fun ImageSelectionSection(
                         )
                     }
                 }
+            }
             }
         }
     }
@@ -494,10 +464,17 @@ private fun ImageSelectionSection(
 private fun ImagePreviewCard(
     imageUri: Uri,
     onRemove: () -> Unit,
-    onCrop: () -> Unit
+    onCrop: () -> Unit,
+    onPositioned: (Rect) -> Unit = {}
 ) {
     Card(
-        modifier = Modifier.size(100.dp)
+        modifier = Modifier
+            .size(100.dp)
+            .onGloballyPositioned { coordinates ->
+                val pos = coordinates.positionInWindow()
+                val size = coordinates.size.toSize()
+                onPositioned(Rect(pos, size))
+            }
     ) {
         Box {
             AsyncImage(

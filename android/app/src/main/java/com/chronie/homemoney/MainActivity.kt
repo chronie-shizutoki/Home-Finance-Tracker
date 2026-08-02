@@ -93,15 +93,18 @@ class MainActivity : ComponentActivity() {
         // Clear splash screen background, set to transparent background
         window.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Edge-to-edge with transparent scrims (no overlay on system bars)
+        // Edge-to-edge with proper status bar icon colors based on theme
+        // detectDarkMode ensures light mode → dark icons, dark mode → light icons
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.auto(
                 lightScrim = android.graphics.Color.TRANSPARENT,
                 darkScrim = android.graphics.Color.TRANSPARENT,
+                detectDarkMode = { resources.configuration.isNightModeActive }
             ),
             navigationBarStyle = androidx.activity.SystemBarStyle.auto(
                 lightScrim = android.graphics.Color.TRANSPARENT,
                 darkScrim = android.graphics.Color.TRANSPARENT,
+                detectDarkMode = { resources.configuration.isNightModeActive }
             )
         )
 
