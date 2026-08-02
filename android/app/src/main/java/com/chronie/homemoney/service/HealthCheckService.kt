@@ -20,6 +20,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * Server health-check daemon that periodically pings the backend.
+ *
+ * Polls the server every 5 seconds (2-second timeout per request).
+ * When network is unavailable, skips the health check to avoid
+ * unnecessary failures. After 3 consecutive failures, shows a Toast
+ * to alert the user that the server may be down.
+ *
+ * Uses a lightweight Retrofit client with shorter timeouts (2s vs 5s)
+ * so health checks never block for long.
+ */
 @Singleton
 class HealthCheckService @Inject constructor(
     @param:ApplicationContext private val context: Context,

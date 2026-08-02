@@ -10,8 +10,14 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 /**
- * Background Sync Worker
- * Uses WorkManager to periodically sync data with the server
+ * WorkManager-backed background sync worker.
+ *
+ * Scheduled by [SyncScheduler] to run periodically (default: every 1 hour)
+ * or on-demand when network connectivity is restored. Uses HiltWorker
+ * for automatic dependency injection.
+ *
+ * On failure, returns [Result.retry] so WorkManager applies exponential
+ * backoff before retrying. The retry policy is configured in [SyncScheduler].
  */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(

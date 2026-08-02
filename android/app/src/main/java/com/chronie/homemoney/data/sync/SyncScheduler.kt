@@ -18,8 +18,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Sync Scheduler
- * Schedules background sync tasks and monitors network status
+ * Orchestrates periodic and event-driven synchronization.
+ *
+ * Responsibilities:
+ * - Schedules periodic background sync via WorkManager (every 1 hour).
+ * - Monitors network connectivity — triggers an immediate sync when the
+ *   device regains network access after being offline.
+ * - Provides manual and immediate sync triggers for user-initiated actions.
+ *
+ * Uses exponential backoff for failed sync attempts to avoid overwhelming
+ * the server during temporary outages.
  */
 @Singleton
 class SyncScheduler @Inject constructor(

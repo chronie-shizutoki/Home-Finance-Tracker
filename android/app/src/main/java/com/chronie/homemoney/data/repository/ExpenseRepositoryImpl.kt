@@ -20,6 +20,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * Implementation of [ExpenseRepository] with a network-first, local-fallback strategy.
+ *
+ * For list queries:
+ * 1. Attempts a network request with a 3-second timeout.
+ * 2. On success, caches results locally and returns them.
+ * 3. On timeout/error, falls back to the local Room database.
+ *
+ * Write operations (add, update, delete) always go to the local database first
+ * and are marked as unsynced, waiting for the sync engine to push them.
+ *
+ * Deletion uses soft-delete (sets [deletedAt]) rather than hard-delete to
+ * support reliable sync conflict resolution.
+ */
 @Singleton
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
@@ -42,6 +56,15 @@ class ExpenseRepositoryImpl @Inject constructor(
         ).flow
     }
     
+    /**
+     * Network-first expense list query with local fallback.
+     *
+     * Strategy:
+     * 1. Attempt network fetch with 3s timeout.
+     * 2. If network succeeds: cache results locally, return network data.
+     * 3. If network fails/times out: load from local DB, apply filters + sort
+     *    in memory, and paginate manually.
+     */
     override suspend fun getExpensesList(
         page: Int,
         limit: Int,
@@ -168,6 +191,11 @@ class ExpenseRepositoryImpl @Inject constructor(
         }
     }
     
+    /**
+     * Adds a new expense to the local database.
+     * Generates a UUID if no ID is provided, increments version,
+     * and marks the record as unsynced so the sync engine can push it.
+     */
     override suspend fun addExpense(expense: Expense): Result<Expense> {
         return try {
             val id = expense.id.ifEmpty { UUID.randomUUID().toString() }
@@ -210,6 +238,11 @@ class ExpenseRepositoryImpl @Inject constructor(
         }
     }
     
+    /**
+     * Soft-deletes an expense by setting [deletedAt] and bumping the version.
+     * The record remains in the database for sync propagation; UI queries
+     * filter it out via the `deleted_at IS NULL` SQL condition.
+     */
     override suspend fun deleteExpense(id: String): Result<Unit> {
         return try {
             val entity = expenseDao.getExpenseById(id)
@@ -230,6 +263,10 @@ class ExpenseRepositoryImpl @Inject constructor(
         }
     }
     
+    /**
+     * Computes aggregate statistics from local expenses matching the given filters.
+     * Calculates count, total, average, median, min, and max amounts.
+     */
     override suspend fun getStatistics(filters: ExpenseFilters): Result<ExpenseStatistics> {
         return try {
             val allExpenses = expenseDao.getAllExpenses().first()

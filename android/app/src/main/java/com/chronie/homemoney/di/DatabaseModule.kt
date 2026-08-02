@@ -20,7 +20,16 @@ import javax.inject.Singleton
 import androidx.core.content.edit
 
 /**
- * Database Module Dependency Injection
+ * Hilt DI module for database dependencies.
+ *
+ * Provides:
+ * - SQLCipher-encrypted Room database with auto-generated passphrases
+ *   stored in EncryptedSharedPreferences for defense-in-depth.
+ * - All DAO instances (Expense, Member, SyncQueue, Budget).
+ *
+ * The passphrase is generated once on first launch (32 random chars),
+ * stored securely via Android Keystore-backed encryption, and reused
+ * across app restarts.
  */
 @Module
 @InstallIn(SingletonComponent::class)

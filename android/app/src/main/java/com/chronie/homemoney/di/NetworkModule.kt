@@ -20,8 +20,17 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * Network Module Dependency Injection
- * Provides Retrofit and API interface instances
+ * Hilt DI module providing networking dependencies.
+ *
+ * Configures two OkHttp/Retrofit stacks:
+ * 1. **Default** — 5s timeouts, connection retries enabled. Used for all CRUD APIs.
+ * 2. **HealthCheck** — 2s timeouts, no retries. Used for lightweight server health pings
+ *    that must fail fast to avoid blocking.
+ *
+ * Interceptors are chained in a specific order:
+ * - ErrorHandlingInterceptor (innermost: catches and wraps network errors)
+ * - AuthInterceptor (adds Bearer token)
+ * - LoggingInterceptor (outermost: logs full request/response)
  */
 @Module
 @InstallIn(SingletonComponent::class)

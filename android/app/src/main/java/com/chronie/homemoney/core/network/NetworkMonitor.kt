@@ -15,8 +15,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Network Monitor class
- * Observes network connection status and emits network status updates
+ * Reactive network connectivity monitor.
+ *
+ * Uses Android's [ConnectivityManager.NetworkCallback] to emit [NetworkStatus]
+ * updates as a Flow. Only considers a network "available" when both
+ * INTERNET and VALIDATED capabilities are present — this prevents treating
+ * a captive portal or a Wi-Fi network without internet as available.
+ *
+ * The flow uses [distinctUntilChanged] to avoid redundant emissions when
+ * network capabilities change but availability status remains the same.
  */
 @Singleton
 class NetworkMonitor @Inject constructor(

@@ -2,6 +2,10 @@ package com.chronie.homemoney.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * Expense data transfer object for server communication.
+ * Maps to/from the JSON fields expected by the backend API.
+ */
 data class ExpenseDto(
     @SerializedName("id")
     val id: String? = null,

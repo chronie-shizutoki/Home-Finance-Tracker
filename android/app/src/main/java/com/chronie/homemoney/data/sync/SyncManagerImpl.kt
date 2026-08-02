@@ -19,6 +19,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
 
+/**
+ * Implementation of [SyncManager] for server-based synchronization.
+ *
+ * Performs a full bidirectional sync by:
+ * 1. Collecting local pending changes (including soft-deleted tombstones).
+ * 2. Sending changes + local ID list to the server.
+ * 3. Applying server-side changes to the local database.
+ * 4. Marking successfully synced local records.
+ * 5. Reporting conflicts for entities modified on both sides.
+ *
+ * Sync status is exposed as a reactive [Flow] for real-time UI updates.
+ */
 @Singleton
 class SyncManagerImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
