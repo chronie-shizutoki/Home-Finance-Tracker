@@ -1,3 +1,20 @@
+/**
+ * Socket stream implementation — the only file in the transport layer that performs
+ * actual system calls.
+ *
+ * Every byte sent or received by the sync engine passes through this file. The rest of
+ * the transport (frame_codec, retry_policy) is pure C++ and testable at compile time;
+ * this file is where the real-world POSIX complexity lives: non-blocking connect with a
+ * deadline, TCP_NODELAY for low-latency request/response, aggressive keepalive for
+ * detecting peers that walk out of Wi-Fi range, and Android-specific network binding
+ * so the socket uses the Wi-Fi interface even when cellular is the system default.
+ *
+ * Error handling philosophy: every system call result is checked. EINTR is retried.
+ * EAGAIN/EWOULDBLOCK defers to poll() with a deadline. The old implementation treated
+ * all three as "failure" and aborted the sync; this one treats them as "try again"
+ * until the deadline expires.
+ */
+
 #include "transport/socket_stream.h"
 
 #include <arpa/inet.h>
@@ -23,13 +40,29 @@
 namespace homemoney::sync {
 namespace {
 
+// ------------------------------------------------------------- keepalive constants
+
 /// Idle time before the first keepalive probe. Short, because a phone that leaves the
 /// network gives no FIN and we would otherwise hold the socket until the app is killed.
+/// The kernel default is 7200 seconds (2 hours), which on a phone that changes networks
+/// several times an hour means the socket is essentially never cleaned up by the OS.
 constexpr int kKeepAliveIdleSec = 15;
+/// Interval between successive probes once keepalive is triggered.
 constexpr int kKeepAliveIntervalSec = 5;
+/// Number of unacknowledged probes before the kernel declares the connection dead.
 constexpr int kKeepAliveProbes = 3;
 
-/// Waits for readiness. Returns >0 ready, 0 timeout, -1 interrupted, -2 error.
+// ------------------------------------------------------------- polling primitives
+
+/// Waits for the socket to become ready for the requested operation.
+///
+/// poll() is the only portable way to do timed I/O readiness checks on a non-blocking
+/// socket. select() has an fd_set size limit; epoll is overkill for a handful of fds.
+///
+/// @return  1  the fd is ready for @p events
+///          0  timeout expired with no readiness
+///         -1  poll() was interrupted by a signal (EINTR), caller should retry
+///         -2  unrecoverable error (EBADF, ENOMEM, etc.)
 int waitReady(int fd, short events, int timeoutMs) {
     struct pollfd pfd{};
     pfd.fd = fd;
@@ -46,7 +79,15 @@ int waitReady(int fd, short events, int timeoutMs) {
     return errno == EINTR ? -1 : -2;
 }
 
-/// Deadline-aware readiness wait shared by read and write.
+/// Polls for readiness in bounded slices, respecting an absolute deadline.
+///
+/// The deadline is absolute rather than per-call so that a peer dribbling one byte every
+/// few seconds cannot keep a worker alive indefinitely. Each poll slice is capped at 250ms
+/// so that even an infinite deadline yields the CPU periodically — the caller can then
+/// check its own shutdown flag.
+///
+/// @return kOk when ready, kWouldBlock when not ready but the deadline hasn't expired,
+///         kTimeout when the deadline has passed, kInterrupted/kError on failure.
 IoStatus awaitReadiness(int fd, short events, const Deadline& deadline) {
     // A bounded deadline that has already passed must not be turned into an infinite poll.
     const int remaining = deadline.remainingMs();
@@ -72,6 +113,12 @@ IoStatus awaitReadiness(int fd, short events, const Deadline& deadline) {
 
 // ------------------------------------------------------------------------------ clock
 
+/// Returns the current value of CLOCK_MONOTONIC in milliseconds.
+///
+/// CLOCK_MONOTONIC is used instead of gettimeofday() or System.currentTimeMillis() because
+/// it is unaffected by the user changing the device clock or by NTP adjustments. A sync
+/// that started at 3:00 PM must not have its deadline jump forward by an hour if the user
+/// manually corrects the time. Returns 0 on the (vanishingly unlikely) failure path.
 std::int64_t monotonicNowMs() {
     struct timespec ts{};
     if (::clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
@@ -81,10 +128,16 @@ std::int64_t monotonicNowMs() {
            static_cast<std::int64_t>(ts.tv_nsec) / 1000000;
 }
 
+/// Creates a deadline that expires after @p millis milliseconds from now.
+/// Negative values are clamped to 0 (immediate expiry) rather than producing a deadline
+/// in the past that would confuse the polling loop.
 Deadline Deadline::afterMs(std::int64_t millis) {
     return Deadline{monotonicNowMs() + (millis < 0 ? 0 : millis)};
 }
 
+/// Returns true when the deadline has passed. An infinite deadline (bounded_ == false)
+/// never expires — it represents "wait forever" and is used by the server's idle read
+/// where we want to hold the connection open until data arrives or the peer disconnects.
 bool Deadline::expired() const {
     if (!bounded_) {
         return false;
@@ -92,6 +145,12 @@ bool Deadline::expired() const {
     return monotonicNowMs() >= at_;
 }
 
+/// Milliseconds remaining, clamped to [0, INT32_MAX].
+///
+/// Returns -1 for an infinite deadline so that callers can distinguish "no deadline" from
+/// "deadline just expired". The upper clamp prevents overflow when converting to the int
+/// that poll() expects — a multi-week deadline would otherwise wrap to a negative number
+/// and be treated as "wait forever".
 int Deadline::remainingMs() const {
     if (!bounded_) {
         return -1;
@@ -106,6 +165,18 @@ int Deadline::remainingMs() const {
 
 // -------------------------------------------------------------------------- FdStream
 
+// -------------------------------------------------------------------------- FdStream
+
+/// Reads up to @p size bytes from the non-blocking socket.
+///
+/// Handles every errno the kernel can return on a TCP socket:
+///   - EINTR: signal interrupted the syscall; reported as kInterrupted so the caller retries.
+///   - EAGAIN/EWOULDBLOCK: no data available yet; defers to awaitReadiness with the deadline.
+///   - ECONNRESET/EPIPE: peer hung up; reported as kClosed so the caller stops cleanly.
+///   - recv() returns 0: peer performed an orderly shutdown; also kClosed.
+///
+/// A return of kWouldBlock with 0 bytes transferred means the socket was not ready within
+/// the poll slice but the deadline has not expired yet. The caller (readExact) loops.
 IoResult FdStream::readSome(std::uint8_t* dst, std::size_t size) {
     if (fd_ < 0) {
         return IoResult{IoStatus::kError, 0};
@@ -136,6 +207,15 @@ IoResult FdStream::readSome(std::uint8_t* dst, std::size_t size) {
     return IoResult{IoStatus::kError, 0};
 }
 
+/// Writes up to @p size bytes to the non-blocking socket.
+///
+/// Uses MSG_NOSIGNAL to prevent SIGPIPE from killing the process when the peer has already
+/// closed its end. On Android, a SIGPIPE that is not explicitly handled by a signal handler
+/// terminates the entire app with no chance to log or unwind — it looks like a random crash.
+///
+/// The errno handling mirrors readSome: EINTR → retry, EAGAIN → poll with deadline,
+/// EPIPE/ECONNRESET → kClosed. A send() that returns 0 (kernel buffer full) maps to
+/// kWouldBlock so the caller polls for writability.
 IoResult FdStream::writeSome(const std::uint8_t* src, std::size_t size) {
     if (fd_ < 0) {
         return IoResult{IoStatus::kError, 0};
@@ -168,6 +248,12 @@ IoResult FdStream::writeSome(const std::uint8_t* src, std::size_t size) {
 
 // -------------------------------------------------------------------- socket helpers
 
+/// Switches the fd to non-blocking mode. Every socket created by this transport must be
+/// non-blocking so that connect(), readSome() and writeSome() can enforce deadlines via
+/// poll() rather than blocking indefinitely inside a kernel call.
+///
+/// Returns false if fcntl() fails, which typically means the fd is invalid — the caller
+/// should treat the socket as unusable.
 bool setNonBlocking(int fd) {
     const int flags = ::fcntl(fd, F_GETFL, 0);
     if (flags < 0) {
@@ -176,6 +262,15 @@ bool setNonBlocking(int fd) {
     return ::fcntl(fd, F_SETFL, flags | O_NONBLOCK) == 0;
 }
 
+/// Applies TCP options tuned for a phone-to-phone LAN sync:
+///   1. TCP_NODELAY disables Nagle's algorithm. Our frames are small (~64 KiB chunks) and
+///      request/response shaped, so Nagle would add up to 40ms of latency per exchange
+///      with no benefit from batching. On a 5-round-trip handshake, that is 200ms of
+///      unnecessary delay.
+///   2. SO_KEEPALIVE with aggressive idle/interval/probe counts means a peer that walks
+///      out of Wi-Fi range is detected within ~30 seconds instead of the kernel default
+///      of 2+ hours. Without this, a socket to a departed phone stays ESTABLISHED until
+///      the app is killed, consuming a worker thread the whole time.
 void configureTcpSocket(int fd) {
     int on = 1;
     ::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
@@ -189,10 +284,37 @@ void configureTcpSocket(int fd) {
     ::setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &probes, sizeof(probes));
 }
 
+/// Performs a TCP connect with a hard deadline.
+///
+/// A blocking connect() on Linux ignores SO_SNDTIMEO and can sit in SYN retransmission
+/// for over two minutes — on a phone this looks like the app has frozen. The solution is
+/// three-phase:
+///
+///   Phase 1 — Parse and validate: inet_pton() rejects malformed addresses before the
+///   first system call. A stray space in the IP string is logged with the exact byte
+///   and length so it can be distinguished from a real routing failure.
+///
+///   Phase 2 — Non-blocking connect: the socket is set to O_NONBLOCK before connect().
+///   A successful immediate connect returns the fd; EINPROGRESS means the handshake is
+///   in flight and we proceed to phase 3.
+///
+///   Phase 3 — Poll with deadline: poll() on POLLOUT waits for the handshake to complete
+///   or the deadline to expire. On success, getsockopt(SO_ERROR) reads the pending error
+///   because POLLOUT alone does not distinguish "connected" from "refused".
+///
+/// @param netHandle Android network handle from ConnectivityManager, or 0 for the system
+///        default. The socket is bound to this network *before* connect() so the routing
+///        table for that interface is used. Without this, a phone whose Wi-Fi has no
+///        internet keeps cellular as the default network, and every LAN connect fails with
+///        ENETUNREACH because the cellular interface has no route to 192.168.x.x.
+/// @param outError set to the specific SyncErrorCode on failure so the caller can decide
+///        whether to retry.
+/// @return a connected, non-blocking fd, or -1 on failure.
 int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, SyncErrorCode& outError,
                        std::uint64_t netHandle) {
     outError = SyncErrorCode::kOk;
 
+    // ---- Phase 1: validate the address before touching the network ----
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -206,6 +328,7 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
         return -1;
     }
 
+    // ---- Phase 2: create and configure the socket ----
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
         outError = SyncErrorCode::kInternal;
@@ -218,7 +341,7 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
     }
     configureTcpSocket(fd);
 
-    // Pin the socket to the caller's network *before* connect: the routing decision is made
+    // Bind the socket to the caller's network *before* connect: the routing decision is made
     // when the SYN is sent, so binding afterwards is too late. Without this the fd carries
     // the app's default-network mark, and a phone that keeps cellular as the default because
     // the Wi-Fi has no internet will fail every LAN connect with ENETUNREACH.
@@ -236,6 +359,7 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
         ALOGI("socket for %s:%u uses the default network (no handle supplied)", ipv4, port);
     }
 
+    // ---- Phase 3: non-blocking connect with a poll-based deadline ----
     // A blocking connect() ignores SO_SNDTIMEO on Linux and can sit in SYN retransmit for
     // over two minutes. Non-blocking + poll is the only way to bound it.
     int rc = ::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
@@ -295,6 +419,16 @@ int connectWithTimeout(const char* ipv4, std::uint16_t port, int timeoutMs, Sync
     return fd;
 }
 
+/// Creates a listening TCP socket bound to INADDR_ANY:@p port.
+///
+/// If @p port is 0, the kernel assigns a random ephemeral port and the parameter is
+/// updated in-place so the caller can advertise it. SO_REUSEADDR and SO_REUSEPORT are
+/// both set: the former avoids "address in use" on restart, the latter allows multiple
+/// processes (or multiple restarts of the same process in rapid succession) to bind the
+/// same port without error.
+///
+/// The returned socket is non-blocking so that acceptWithTimeout() can poll with a
+/// deadline rather than blocking indefinitely.
 int createListeningSocket(std::uint16_t& port, int backlog, SyncErrorCode& outError) {
     outError = SyncErrorCode::kOk;
 
@@ -345,6 +479,16 @@ int createListeningSocket(std::uint16_t& port, int backlog, SyncErrorCode& outEr
     return fd;
 }
 
+/// Accepts one connection with a poll-based timeout.
+///
+/// @return the accepted fd in non-blocking mode, -1 on timeout or EINTR (the caller should
+///         check its shutdown flag and retry), -2 on a fatal error (the listener should
+///         stop). ECONNABORTED is treated as -1 because it means the specific client
+///         vanished between poll and accept — the listener itself is healthy.
+///
+/// @param outPeer filled with the remote address as "ip:port", or "unknown" if name
+///        resolution fails. This string is used for logging and for the confirmation
+///        dialog shown to the user.
 int acceptWithTimeout(int listenFd, int timeoutMs, std::string& outPeer) {
     if (listenFd < 0) {
         return -2;
@@ -386,6 +530,12 @@ int acceptWithTimeout(int listenFd, int timeoutMs, std::string& outPeer) {
     return fd;
 }
 
+/// Closes a socket fd, retrying on EINTR.
+///
+/// On Linux, close() always releases the fd even when it returns EINTR — the fd is
+/// invalid from that moment regardless of the return value. The retry loop exists only
+/// because POSIX leaves the behaviour unspecified and the loop costs nothing. A negative
+/// fd is silently ignored so callers can unconditionally pass "the fd we might have".
 void closeQuietly(int fd) {
     if (fd < 0) {
         return;
@@ -396,6 +546,9 @@ void closeQuietly(int fd) {
     }
 }
 
+/// Performs a bidirectional shutdown (SHUT_RDWR) so the peer sees an orderly close
+/// rather than a TCP RST. Best-effort: failures are silently ignored because the socket
+/// is being closed anyway.
 void shutdownQuietly(int fd) {
     if (fd >= 0) {
         ::shutdown(fd, SHUT_RDWR);

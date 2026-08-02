@@ -76,6 +76,11 @@ constexpr bool allVectorsRoundTrip() {
 
 // ------------------------------------------------------------- rejection checks
 
+/// Corrupts a single byte of a golden frame header by flipping bits with @p delta.
+/// Only golden vector #1 (index 1) is used because it has a representative set of field
+/// values and the checks are about the codec's detection of corruption, not about the
+/// specific values in any one vector.
+///
 /// Returns the first golden frame with the byte at @p offset flipped by @p delta.
 constexpr FrameHeaderBytes corrupt(std::size_t offset, std::uint8_t delta) {
     FrameHeaderBytes bytes = kFrameVectors[1].expected;
@@ -83,6 +88,9 @@ constexpr FrameHeaderBytes corrupt(std::size_t offset, std::uint8_t delta) {
     return bytes;
 }
 
+/// Decodes a corrupted header and returns the resulting error code.
+/// Used by the compile-time assertions below to verify that every type of corruption
+/// produces the expected error.
 constexpr SyncErrorCode errorFor(const FrameHeaderBytes& bytes) {
     return decodeFrameHeader(bytes.data()).error;
 }
@@ -121,12 +129,16 @@ constexpr std::uint8_t kV1LengthPrefix[4] = {0x00, 0x00, 0x04, 0x00};
 
 // ---------------------------------------------------------------- the assertions
 
+// ---- Round-trip sanity: every golden vector must encode and decode identically ----
 static_assert(kFrameVectorCount >= 10, "the vector set should cover every field boundary");
 static_assert(allVectorsRoundTrip(),
               "C++ frame codec no longer matches protocol/frame_vectors.txt - "
               "regenerate the vectors or fix the codec");
 
-// A single flipped bit anywhere in the header must be caught by the header checksum.
+// ---- Header integrity: a single flipped bit anywhere in the header must be caught ----
+// The magic bytes are checked first (cheapest and catches a v1 peer); every other byte
+// is covered by the header CRC. A failure here means the codec would silently accept a
+// corrupted frame — exactly the bug that caused the old server to allocate 10 MB.
 static_assert(errorFor(corrupt(4, 0x01)) == SyncErrorCode::kCrcMismatch, "version bit flip");
 static_assert(errorFor(corrupt(5, 0x01)) == SyncErrorCode::kCrcMismatch, "opcode bit flip");
 static_assert(errorFor(corrupt(7, 0x01)) == SyncErrorCode::kCrcMismatch, "flags bit flip");
@@ -140,7 +152,10 @@ static_assert(errorFor(corrupt(31, 0x01)) == SyncErrorCode::kCrcMismatch, "heade
 // distinction to fall back to the legacy v1 framing instead of dropping the connection.
 static_assert(errorFor(corrupt(0, 0xFF)) == SyncErrorCode::kBadMagic, "magic must be checked first");
 
-// Semantic validation, all with an intact checksum.
+// ---- Semantic validation: fields that are individually wrong but with an intact checksum ----
+// These tests rebuild the header CRC so the codec passes the integrity check and reaches
+// the semantic checks. If any of these fail, a deliberately malformed but checksum-correct
+// frame would be accepted.
 static_assert(errorFor(withField(4, 1)) == SyncErrorCode::kProtocolMismatch, "version too old");
 static_assert(errorFor(withField(4, 99)) == SyncErrorCode::kProtocolMismatch, "version too new");
 static_assert(errorFor(withField(5, 0x7F)) == SyncErrorCode::kUnknownOpcode, "unknown opcode");
@@ -151,11 +166,18 @@ static_assert(errorFor(withPayloadLen(kMaxPayloadSize + 1)) == SyncErrorCode::kP
 static_assert(errorFor(withPayloadLen(0xFFFFFFFFu)) == SyncErrorCode::kPayloadTooLarge,
               "the 10 MB allocation bug must stay fixed");
 
-// Version negotiation helper: a legacy length prefix must never be mistaken for a frame.
+// ---- Version negotiation: a legacy v1 length prefix must never be mistaken for a v2 frame ----
+// This is critical for the dual-dialect server: the first 4 bytes are all it reads before
+// deciding which framing to use. A false positive here would send v1 raw bytes through the
+// v2 codec, producing an unreadable error instead of a clean fallback.
 static_assert(!looksLikeV2Frame(kV1LengthPrefix), "v1 stream misdetected as v2");
 static_assert(looksLikeV2Frame(kFrameVectors[0].expected.data()), "v2 stream misdetected as v1");
 
-// Retry classification is part of the contract with the Kotlin backoff policy.
+// ---- Retry classification: the Kotlin backoff policy depends on these being correct ----
+// isRetryable is a single source of truth shared by both peers. If a transient error is
+// classified as terminal, a flaky Wi-Fi link makes sync permanently fail. If a terminal
+// error is classified as transient, the client burns its retry budget and the user waits
+// tens of seconds before seeing the real error message.
 static_assert(isRetryable(SyncErrorCode::kIoTimeout), "io timeout must be retryable");
 static_assert(isRetryable(SyncErrorCode::kPeerClosed), "peer closed must be retryable");
 static_assert(isRetryable(SyncErrorCode::kCrcMismatch), "crc mismatch must be retryable");

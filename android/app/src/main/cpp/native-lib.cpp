@@ -162,7 +162,9 @@ void recordError(SyncErrorCode code) {
     }
 }
 
-/// Four byte big endian error body, so the peer can act on the code without a parser.
+/// Encodes a SyncErrorCode into a 4-byte big-endian error body suitable for an ERROR frame.
+/// The peer reads these four bytes and can act on the code without needing a protocol parser —
+/// this is what makes a transport-level failure diagnosable by the other phone's log.
 std::vector<std::uint8_t> errorPayload(SyncErrorCode code) {
     const std::uint32_t value = static_cast<std::uint32_t>(static_cast<std::int32_t>(code));
     return {
@@ -173,7 +175,15 @@ std::vector<std::uint8_t> errorPayload(SyncErrorCode code) {
     };
 }
 
-/// Session ids only need to be unlikely to collide between two phones on one LAN.
+/// Generates a session id that is unlikely to collide between two phones on the same LAN.
+///
+/// The id combines a monotonic sequence counter with the current nanosecond timestamp,
+/// then mixes them with a multiplicative hash (golden ratio phi^-1 * 2^64). The shift
+/// by 12 bits spreads the counter across the id so that two sessions created in the same
+/// nanosecond still produce different ids.
+///
+/// @note Not cryptographically random. For a home LAN sync, collision probability is low
+/// enough that adding a UUID dependency is not worth the APK size increase.
 std::uint64_t newSessionId() {
     static std::atomic<std::uint64_t> counter{0};
     const std::uint64_t seq = counter.fetch_add(1, std::memory_order_relaxed);
@@ -184,6 +194,9 @@ std::uint64_t newSessionId() {
     return (now << 12) ^ (seq * 0x9E3779B97F4A7C15ULL);
 }
 
+/// Builds a RetryPolicy from the current atomic globals. Called at the start of each
+/// sync attempt so that a reconfigureTransport() call mid-sync takes effect on the next
+/// retry, not on the current one — avoiding a TOCTOU race on the retry parameters.
 RetryPolicy currentRetryPolicy() {
     RetryPolicy policy;
     policy.maxAttempts = g_max_attempts.load(std::memory_order_relaxed);
@@ -485,6 +498,18 @@ void rejectBusy(int fd) {
     closeQuietly(fd);
 }
 
+/// The accept loop runs on its own thread for the lifetime of the server.
+///
+/// It polls the listening socket every kAcceptPollMs (200ms). The short poll interval is
+/// a deliberate trade-off: it means stopServer() is observed within 200ms instead of
+/// blocking for seconds, while the CPU cost of a 200ms poll() on an idle socket is zero
+/// (the kernel puts the thread to sleep until data arrives or the timeout fires).
+///
+/// Each accepted connection is handed to the worker pool via tryPost(). If the pool is
+/// saturated, the connection is answered with an explicit BUSY frame rather than being
+/// silently dropped — BUSY is retryable and tells the client to back off, which is
+/// infinitely better than the old behaviour of letting the connection sit in the backlog
+/// until the client's own timeout fired with no explanation.
 void acceptLoop(std::shared_ptr<ServerInstance> instance, int listenFd, int port) {
     LOGI("sync server accept loop started on port %d", port);
 
@@ -526,12 +551,24 @@ void acceptLoop(std::shared_ptr<ServerInstance> instance, int listenFd, int port
 
 // ------------------------------------------------------------------- client transport
 
+/// Bundles the result of a sync attempt: either success with a response payload, or
+/// failure with a structured error code that tells the caller whether retrying is sensible.
 struct ClientOutcome {
     SyncErrorCode error = SyncErrorCode::kOk;
     std::vector<std::uint8_t> response;
 };
 
-/// One v2 request/response exchange over an already connected socket.
+/// Performs one complete v2 request/response exchange over an already-connected socket.
+///
+/// The exchange is a single COMMIT frame followed by a COMMIT_ACK (or ERROR) reply.
+/// Chunking support is planned for phase 4; until then the entire sync payload is sent
+/// as one frame. The session id is generated fresh per exchange so that the server can
+/// distinguish separate sync attempts even from the same client.
+///
+/// Error propagation: if the peer replies with an ERROR frame, the 4-byte body is decoded
+/// and returned as the SyncErrorCode so the caller sees the peer's reason, not a generic
+/// "something went wrong". A mismatched session id in the reply is treated as a protocol
+/// error because it means frames from different exchanges are being interleaved.
 SyncErrorCode exchangeV2(FdStream& stream,
                          const std::vector<std::uint8_t>& request,
                          std::vector<std::uint8_t>& response) {
@@ -583,7 +620,11 @@ SyncErrorCode exchangeV2(FdStream& stream,
     return SyncErrorCode::kOk;
 }
 
-/// Connects and performs one exchange.
+/// Connects to a peer and performs exactly one exchange. Returns the fd to the caller.
+///
+/// This is the lowest-level client primitive: connect, exchange, disconnect. It does not
+/// retry — retry logic lives in performSyncWithRetry above. Separating connect+exchange
+/// from retry means the retry policy can be tested independently of the socket layer.
 SyncErrorCode attemptOnce(const std::string& address,
                           int port,
                           const std::vector<std::uint8_t>& request,
@@ -677,6 +718,9 @@ std::unordered_map<std::int64_t, std::shared_ptr<ClientConnection>> g_client_con
 /// Handles start at 1 so that 0 can mean "no connection" on the Kotlin side.
 std::atomic<std::int64_t> g_next_client_handle{1};
 
+/// Looks up a client connection by its opaque handle. Returns nullptr when the handle
+/// is unknown (already closed, or never opened). The caller must hold its own lock if
+/// it needs to prevent the connection from being closed between lookup and use.
 std::shared_ptr<ClientConnection> findClientConnection(std::int64_t handle) {
     std::lock_guard<std::mutex> lock(g_client_mutex);
     const auto it = g_client_conns.find(handle);
@@ -725,7 +769,12 @@ SyncErrorCode exchangeOnConnection(ClientConnection& conn,
     return SyncErrorCode::kOk;
 }
 
-/// Serialises a frame into the flat `header || payload` form Kotlin decodes.
+/// Serialises a frame header and payload into a single contiguous buffer.
+///
+/// Produces the canonical wire format: 32-byte header followed by the payload bytes.
+/// The header's version, payload length, and payload CRC are filled in here rather than
+/// relying on the caller to have populated them correctly — this is the single point
+/// where a logical frame becomes an immutable sequence of bytes.
 std::vector<std::uint8_t> flattenFrame(const FrameHeader& header,
                                        const std::uint8_t* payload,
                                        std::size_t payloadLen) {
@@ -767,11 +816,20 @@ std::vector<std::uint8_t> localErrorFrame(SyncErrorCode code,
 
 // ------------------------------------------------------------------------ JNI surface
 
+/// Called by the JVM when the native library is loaded. Caches the JavaVM pointer so
+/// worker threads can attach themselves to the JVM later via AttachCurrentThread.
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* /*reserved*/) {
     g_jvm = vm;
     return JNI_VERSION_1_6;
 }
 
+/// Starts the LAN sync server on @p port (0 means "pick any available port").
+///
+/// If a server is already running, returns its port immediately without restarting.
+/// Otherwise it goes through four phases: bind the Kotlin engine, create the listening
+/// socket, assemble the worker pool, and launch the accept loop.
+///
+/// @return the port the server is listening on, or 0 on failure.
 extern "C" JNIEXPORT jint JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
                                                                   jobject obj,
@@ -783,8 +841,10 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
         }
     }
 
-    // Bind the Kotlin engine and resolve the upcalls once, here, where we still have a
-    // guaranteed-valid JNIEnv and class loader.
+    // ---- Phase 1: bind the Kotlin engine and resolve JNI method ids ----
+    // Done here, where we still have a guaranteed-valid JNIEnv and class loader. The
+    // global refs survive for the lifetime of the server and are used by worker threads
+    // that may be attached to the JVM long after this JNI call returns to Kotlin.
     {
         std::lock_guard<std::mutex> lock(g_engine_mutex);
         if (g_engine_obj != nullptr) {
@@ -816,6 +876,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
         }
     }
 
+    // ---- Phase 2: create the listening socket ----
     std::uint16_t actualPort = static_cast<std::uint16_t>(port);
     SyncErrorCode error = SyncErrorCode::kOk;
     const int listenFd = createListeningSocket(actualPort, kListenBacklog, error);
@@ -824,6 +885,10 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
         return 0;
     }
 
+    // ---- Phase 3: assemble the server instance with its worker pool ----
+    // The pool hooks attach each worker thread to the JVM on start and detach it on
+    // stop. Without this, any JNI call from a native thread crashes with "JNIEnv is
+    // not valid for this thread".
     auto instance = std::make_shared<ServerInstance>();
     instance->listenFd = listenFd;
     instance->listenPort = static_cast<int>(actualPort);
@@ -846,6 +911,10 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
                 }
             });
 
+    // ---- Phase 4: launch the accept loop and publish the server ----
+    // The accept thread runs independently. Publishing g_server last means a concurrent
+    // stopServer() sees either nullptr (server not started) or a fully initialised
+    // instance — never a half-constructed one.
     instance->acceptThread = std::thread(acceptLoop, instance, listenFd, static_cast<int>(actualPort));
 
     {
@@ -855,6 +924,12 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
     return static_cast<jint>(actualPort);
 }
 
+/// Stops the LAN sync server gracefully.
+///
+/// Sets the running flag, closes the listening socket to unblock the accept loop, shuts
+/// down all active connections to unblock any workers sitting in a read(), then detaches
+/// the join — a worker may still be waiting on a user confirmation dialog, and blocking
+/// the UI thread on that for a minute would cause an ANR (Application Not Responding).
 extern "C" JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_stopServer(JNIEnv* /*env*/,
                                                                  jobject /*obj*/) {
@@ -886,6 +961,15 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_stopServer(JNIEnv* /*env*/
     }).detach();
 }
 
+/// Performs a one-shot sync: connect, send the payload, read the reply, disconnect.
+///
+/// This is the legacy-compatible entry point used for v1 peers and for the initial v2
+/// handshake. For persistent v2 sessions, use openSyncConnection / syncExchange instead.
+///
+/// Returns null on any failure. The caller should immediately call lastErrorCode() to
+/// get the structured error and decide whether to retry. The old implementation returned
+/// null for every failure with no way to distinguish "peer is offline" from "peer
+/// rejected the auth token".
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
                                                                   jobject /*obj*/,
@@ -894,6 +978,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
                                                                   jbyteArray data) {
     t_last_error = static_cast<std::int32_t>(SyncErrorCode::kOk);
 
+    // ---- Validate JNI arguments before touching the network ----
     if (address == nullptr || data == nullptr) {
         recordError(SyncErrorCode::kInternal);
         return nullptr;
@@ -918,6 +1003,9 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
         return nullptr;
     }
 
+    // ---- Perform the sync with retry ----
+    // performSyncWithRetry handles the full client lifecycle: connect, negotiate dialect,
+    // exchange frames, retry on transient failures with jittered backoff.
     const ClientOutcome outcome = performSyncWithRetry(addressCopy, port, request);
     if (outcome.error != SyncErrorCode::kOk) {
         recordError(outcome.error);
@@ -926,6 +1014,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_performSync(JNIEnv* env,
         return nullptr;
     }
 
+    // ---- Convert the response back to a Java byte[] ----
     jbyteArray result = env->NewByteArray(static_cast<jsize>(outcome.response.size()));
     if (result == nullptr) {
         env->ExceptionClear();
@@ -1022,6 +1111,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_syncExchange(
         return nullptr;
     }
 
+    // ---- Read the payload from JNI ----
     std::vector<std::uint8_t> body;
     if (payload != nullptr) {
         const jsize length = env->GetArrayLength(payload);
@@ -1048,6 +1138,10 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_syncExchange(
                            : (timeoutMs < 1000 ? 1000
                                                : (timeoutMs > 300000 ? 300000 : timeoutMs));
 
+    // ---- Serialise access and perform the exchange ----
+    // The io mutex ensures exactly one exchange is in flight per connection. If a
+    // previous exchange already broke the connection, we return a local error frame
+    // immediately without touching the socket.
     std::vector<std::uint8_t> flat;
     {
         std::lock_guard<std::mutex> lock(conn->io);
@@ -1088,7 +1182,13 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_syncExchange(
     return result;
 }
 
-/// Closes a client connection. Safe to call twice and safe to call with an unknown handle.
+/// Closes a client connection previously opened by openSyncConnection.
+///
+/// Safe to call with an unknown handle (silently ignored) and safe to call twice on the
+/// same handle (the second call is a no-op). Taking the io lock before closing the fd
+/// ensures that a close that races an in-flight exchange waits for the exchange to
+/// finish rather than pulling the fd out from under a blocking read() — which would
+/// crash the worker thread inside the kernel.
 extern "C" JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_closeSyncConnection(JNIEnv* /*env*/,
                                                                           jobject /*obj*/,
@@ -1115,6 +1215,17 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_closeSyncConnection(JNIEnv
     LOGD("closeSyncConnection %lld", static_cast<long long>(handle));
 }
 
+/// Sets the transport-level timeouts and retry budget.
+///
+/// All three parameters are clamped to safe ranges before being stored:
+///   - connectTimeoutMs: [500ms, 60s] — below 500ms a flaky Wi-Fi link would fail every
+///     connect; above 60s the user would think the app is hung.
+///   - ioTimeoutMs: [1s, 300s] — below 1s a sync of a large database would never
+///     complete; above 300s a stalled peer would pin a worker for five minutes.
+///   - maxAttempts: [1, 10] — at least one attempt, at most ten retries.
+///
+/// Values are stored in atomics so that a reconfigureTransport() call from any thread
+/// takes effect on the next I/O operation without locking.
 extern "C" JNIEXPORT void JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_configureTransport(
         JNIEnv* /*env*/, jobject /*obj*/, jint connectTimeoutMs, jint ioTimeoutMs,
@@ -1131,12 +1242,28 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_configureTransport(
     LOGI("transport configured: connect=%dms io=%dms attempts=%d", connect, io, attempts);
 }
 
+/// Returns the last transport error on the calling thread.
+///
+/// Each worker thread maintains its own t_last_error, so two concurrent syncs on different
+/// threads do not stomp on each other's error state. A SyncErrorCode::kOk (0) means the
+/// last operation succeeded. The Kotlin side calls this after performSync or syncExchange
+/// to produce a user-visible error message.
 extern "C" JNIEXPORT jint JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_lastErrorCode(JNIEnv* /*env*/,
                                                                     jobject /*obj*/) {
     return static_cast<jint>(t_last_error);
 }
 
+/// Returns a flat JSON snapshot of the transport metrics.
+///
+/// Designed for a debug screen or a log line: connections accepted/rejected, frame and
+/// byte counts, CRC errors, protocol errors, timeouts, retries, and v2 session count.
+/// All reads use memory_order_relaxed because these counters are informational — a
+/// slightly stale value is acceptable, and a full memory barrier on every stat read
+/// would be wasteful.
+///
+/// The JSON is built by hand rather than pulling in a JSON library to keep the APK
+/// small and the NDK build free of additional dependencies.
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_chronie_homemoney_data_sync_NativeSyncEngine_transportStats(JNIEnv* env,
                                                                      jobject /*obj*/) {
