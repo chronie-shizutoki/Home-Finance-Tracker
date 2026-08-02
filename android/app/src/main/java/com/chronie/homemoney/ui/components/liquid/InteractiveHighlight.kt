@@ -20,6 +20,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.Language
 
+/**
+ * Renders an interactive radial highlight glow that follows the user's touch position.
+ *
+ * When the user presses or drags on the associated composable, a soft white
+ * radial gradient radiates from the touch point using an AGSL [RuntimeShader].
+ * The effect consists of two layers composited with [BlendMode.Plus]:
+ * - A uniform 6% white overlay that brightens the entire area.
+ * - A smooth radial falloff (12% at centre, fading to 0 at the edge) centered on
+ *   the touch position, creating a localized "spotlight" highlight.
+ *
+ * Both layers fade in/out with a spring animation driven by [pressProgress].
+ * The highlight position follows the finger via [positionAnimation].
+ *
+ * @param animationScope CoroutineScope owning the animation coroutines.
+ * @param position       Optional mapping from (layout size, raw offset) to the
+ *                       highlight centre. Default passes through the raw offset.
+ */
 @SuppressLint("NewApi")
 class InteractiveHighlight(
     val animationScope: CoroutineScope,
@@ -37,6 +54,7 @@ class InteractiveHighlight(
         Animatable(Offset.Zero, Offset.VectorConverter, Offset.VisibilityThreshold)
 
     private var startPosition = Offset.Zero
+    /** Displacement of the highlight centre from its start position. */
     val offset: Offset get() = positionAnimation.value - startPosition
 
     @Language("AGSL")
@@ -55,6 +73,10 @@ class InteractiveHighlight(
     }"""
         )
 
+    /**
+     * Draw modifier that renders the highlight glow when [pressProgress] is above 0.
+     * Attach this before [drawContent] so the highlight is drawn underneath.
+     */
     val modifier: Modifier =
         Modifier.drawWithContent {
             val progress = pressProgressAnimation.value
@@ -83,6 +105,10 @@ class InteractiveHighlight(
             drawContent()
         }
 
+    /**
+     * Pointer-input modifier that drives the highlight animation from drag gestures.
+     * Attach this to the interactive element to respond to touch/mouse input.
+     */
     val gestureModifier: Modifier =
         Modifier.pointerInput(animationScope) {
             inspectDragGestures(

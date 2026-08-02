@@ -7,6 +7,30 @@ import top.yukonga.miuix.kmp.blur.BackdropEffectScope
 import top.yukonga.miuix.kmp.blur.isRuntimeShaderSupported
 import top.yukonga.miuix.kmp.blur.runtimeShaderEffect
 
+/**
+ * Applies a liquid-glass refraction (lens) effect to a [BackdropEffectScope].
+ *
+ * This effect simulates a magnifying glass or curved glass surface over the
+ * backdrop content. Using a rounded-rectangle SDF (signed distance field) in
+ * an AGSL runtime shader, it computes per-pixel refracted UV coordinates that
+ * displace the backdrop content inward near the edges of the shape.
+ *
+ * When [depthEffect] is enabled, the displacement gradient blends toward the
+ * shape centre, creating a subtle 3D depth illusion.
+ *
+ * When [chromaticAberration] is above 0, the shader samples the backdrop at
+ * multiple dispersed offsets (red through purple) and composites them together,
+ * simulating colour fringing at the lens edges.
+ *
+ * @param refractionHeight   The thickness of the refraction band (in pixels)
+ *                           inward from the shape edge. Larger = wider effect.
+ * @param refractionAmount   Maximum pixel displacement at the shape edge.
+ *                           Larger = stronger distortion.
+ * @param depthEffect        When true, adds a centre-directed component to the
+ *                           refraction gradient for a 3D lens feel.
+ * @param chromaticAberration Intensity of colour dispersion / chromatic
+ *                           aberration. 0 = no dispersion.
+ */
 fun BackdropEffectScope.lens(
     refractionHeight: Float,
     refractionAmount: Float,

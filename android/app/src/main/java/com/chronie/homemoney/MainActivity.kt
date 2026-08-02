@@ -55,6 +55,18 @@ val LocalLanguageManager = staticCompositionLocalOf<LanguageManager> {
     error("No LanguageManager provided")
 }
 
+/**
+ * The single-Activity entry point for the Home Finance Tracker app.
+ *
+ * This Activity:
+ * - Initialises the cloud sync scheduler and triggers an immediate sync on launch.
+ * - Configures edge-to-edge rendering with automatic light/dark status bar icons.
+ * - Starts the [HealthCheckService] for periodic background system checks.
+ * - Observes the current language from [LanguageManager] and applies it to the
+ *   [Configuration] so the entire Compose tree uses the correct locale resources.
+ * - Sets [HomeMoneyApp] as the Compose content root, which hosts the
+ *   [NavHost] for all screen navigation (welcome, main, settings, charts, etc.).
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -158,6 +170,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Root composable that owns the app-wide [NavHost] and top-level state.
+ *
+ * Determines the start destination based on login status (welcome vs. main).
+ * Manages cross-screen state such as [shouldRefreshExpenses] and [selectedTab].
+ * Listens for incoming LAN sync requests via [SyncRequestBus] and shows
+ * [IncomingSyncRequestDialog] regardless of which screen is currently displayed.
+ *
+ * @param context the Android [Context] used for navigation callbacks and dialogs.
+ * @param checkLoginStatusUseCase use case to determine whether the user is logged in.
+ */
 @Composable
 fun HomeMoneyApp(
     context: Context,

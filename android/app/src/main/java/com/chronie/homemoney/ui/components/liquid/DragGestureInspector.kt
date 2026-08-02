@@ -12,6 +12,21 @@ import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.util.fastFirstOrNull
 
+/**
+ * A custom drag-gesture detector that listens on [PointerEventPass.Initial] for more
+ * responsive gesture recognition than the default Compose Foundation drag APIs.
+ *
+ * Unlike [androidx.compose.foundation.gestures.detectDragGestures], this detector
+ * captures the initial down event at the Initial pass, enabling gesture handling
+ * before child composables consume the event. It also supports multi-pointer
+ * continuation — when one finger lifts, dragging can continue with the next pressed
+ * pointer.
+ *
+ * @param onDragStart  Called when the drag begins, receiving the touch-down change.
+ * @param onDragEnd    Called when the drag ends normally, receiving the final up change.
+ * @param onDragCancel Called when the drag is cancelled (e.g., gesture consumed elsewhere).
+ * @param onDrag       Called on each drag delta, receiving the current change and displacement.
+ */
 suspend fun PointerInputScope.inspectDragGestures(
     onDragStart: (down: PointerInputChange) -> Unit = {},
     onDragEnd: (change: PointerInputChange) -> Unit = {},

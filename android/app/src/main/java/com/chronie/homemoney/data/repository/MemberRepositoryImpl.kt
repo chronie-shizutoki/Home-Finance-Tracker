@@ -9,6 +9,14 @@ import com.chronie.homemoney.domain.repository.MemberRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Concrete implementation of [MemberRepository] backed by the remote [MemberApi].
+ *
+ * Delegates member registration/lookup, profile retrieval, and avatar updates
+ * to the server API. Maps API DTO responses to domain [Member] models via
+ * [MemberMapper] and wraps each result in Kotlin [Result] for clean error
+ * propagation to the domain layer.
+ */
 @Singleton
 class MemberRepositoryImpl @Inject constructor(
     private val memberApi: MemberApi

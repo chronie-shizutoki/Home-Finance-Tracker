@@ -30,6 +30,20 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
+/**
+ * A bottom-sheet color picker that lets the user browse and search predefined color swatches.
+ *
+ * Colors are organised into groups (red, orange, yellow, green, cyan, blue, indigo, purple,
+ * pink, brown, gray, special) sourced from [ColorPickerData]. A search field filters colors
+ * by name; selecting a color invokes [onColorSelected] with the chosen ARGB integer value
+ * and dismisses the sheet.
+ *
+ * @param show whether the bottom sheet is visible.
+ * @param currentColor the currently selected color value (ARGB int), used to show the check mark.
+ * @param onColorSelected callback invoked with the newly selected color value.
+ * @param onDismiss callback to hide the bottom sheet.
+ * @param context Android [Context] for string resources (color names).
+ */
 @Composable
 fun ColorPickerBottomSheet(
     show: Boolean,

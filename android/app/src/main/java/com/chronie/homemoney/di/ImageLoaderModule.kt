@@ -14,6 +14,18 @@ import dagger.hilt.components.SingletonComponent
 import okio.Path.Companion.toOkioPath
 import javax.inject.Singleton
 
+/**
+ * Dagger Hilt module that provides a singleton [ImageLoader] for Coil 3.
+ *
+ * Configures:
+ * - A custom [DataUriFetcher] factory for rendering data: URI images.
+ * - OkHttp-based network fetching for remote images.
+ * - In-memory cache capped at 25% of the available heap.
+ * - Disk cache limited to 50 MB, stored in the app's cache directory.
+ *
+ * Installed in [SingletonComponent] so the same [ImageLoader] is shared
+ * across the entire application lifecycle.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object ImageLoaderModule {

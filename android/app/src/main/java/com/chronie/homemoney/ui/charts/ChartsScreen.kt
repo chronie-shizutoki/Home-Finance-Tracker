@@ -75,6 +75,21 @@ enum class ChartType {
     TREND, CATEGORY, WEEKDAY
 }
 
+/**
+ * Renders expense statistics and visual charts for the selected time range.
+ *
+ * Connects to [ChartsViewModel] and supports three chart types via [ChartType]:
+ * - **Trend** — a smooth line chart of daily spending over the selected period.
+ * - **Category** — an animated bar chart and progress list breaking down spending by category.
+ * - **Weekday** — a radar/bar representation of spending distribution across days of the week.
+ *
+ * Includes a time range selector (this week, month, quarter, year, or custom date range)
+ * and a statistics summary card showing total, count, average, and median amounts.
+ *
+ * @param context Android [Context] for string resources and locale formatting.
+ * @param viewModel the Hilt-provided [ChartsViewModel].
+ * @param onNavigateToWeekdayDetail callback when a weekday bar is tapped, carrying summary data.
+ */
 @Composable
 fun ChartsScreen(
     context: Context,

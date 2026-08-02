@@ -213,6 +213,28 @@ fun RowScope.FloatingBottomBarItem(
     }
 }
 
+/**
+ * A highly animated bottom navigation bar with glass-morphism (LiquidGlass) and blur effects.
+ *
+ * Supports three visual modes via [FloatingBottomBarMode]:
+ * - **LiquidGlass** — dynamic lens refraction, interactive highlight, and spring-based drag.
+ * - **Blur** — static backdrop blur behind the pill container.
+ * - **None** — solid background without effects.
+ *
+ * The pill-shaped indicator slides between tabs with a spring animation and responds
+ * to horizontal drag gestures for a tactile feel. Tab scaling and content colors
+ * are provided through composition locals [LocalFloatingBottomBarTabScale] and
+ * [LocalFloatingBottomBarContentColor].
+ *
+ * @param modifier modifier applied to the outer container.
+ * @param selectedIndex a lambda returning the currently selected tab index.
+ * @param onSelected callback invoked when a tab is selected (via click or drag snap).
+ * @param backdrop the Miuix [Backdrop] used for the blur and lens backdrop effects.
+ * @param tabsCount total number of tabs displayed in the bar.
+ * @param mode visual rendering mode — [FloatingBottomBarMode.LiquidGlass] by default.
+ * @param colors color configuration for container, indicator, and content.
+ * @param content composable content of the bar, typically [FloatingBottomBarItem] instances.
+ */
 @Composable
 fun FloatingBottomBar(
     modifier: Modifier = Modifier,

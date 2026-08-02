@@ -20,6 +20,23 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Singleton wrapper around Google ML Kit's on-device text recognition.
+ *
+ * Supports Latin, Chinese, Japanese, and Korean scripts. Automatically detects
+ * the device locale to select an appropriate language model via [getAutoDetectedLanguage],
+ * or accepts an explicit [OcrLanguage].
+ *
+ * Recognition strategy:
+ * 1. Attempt OCR on the original (scaled) image.
+ * 2. If the recognized text is too short (fewer than [MIN_EFFECTIVE_TEXT_LENGTH]
+ *    non-whitespace characters), preprocess the image with [OpenCVImageProcessor]
+ *    (CLAHE contrast enhancement + denoising) and retry.
+ * 3. Return the longer result.
+ *
+ * Recognizers are cached per language in a [ConcurrentHashMap] to avoid
+ * repeated client construction.
+ */
 @Singleton
 class OcrHelper @Inject constructor(@param:ApplicationContext private val context: Context) {
 

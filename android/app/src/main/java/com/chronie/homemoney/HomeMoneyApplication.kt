@@ -17,6 +17,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Custom [Application] subclass that serves as the app-wide initialization entry point.
+ *
+ * Responsibilities:
+ * - Configures Hilt dependency injection via [@HiltAndroidApp].
+ * - Initializes the [ErrorReporter] for global crash/error collection.
+ * - Starts [FairMemoryManager] to enforce per-component memory caps.
+ * - Launches the LAN sync server ([DeviceSyncManagerFactory]) in a background coroutine
+ *   so the device is discoverable and connectable regardless of which screen is open.
+ * - Provides the WorkManager [Configuration] through [Configuration.Provider].
+ * - Supplies a shared [ImageLoader] via [SingletonImageLoader.Factory] for Coil image loading.
+ */
 @HiltAndroidApp
 class HomeMoneyApplication : Application(), Configuration.Provider, SingletonImageLoader.Factory {
 

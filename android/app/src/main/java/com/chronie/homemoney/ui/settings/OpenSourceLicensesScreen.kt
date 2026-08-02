@@ -131,6 +131,16 @@ fun loadLicenses(context: Context): List<LicenseItem> {
     }
 }
 
+/**
+ * Displays a scrollable list of open-source libraries used by the app.
+ *
+ * Loads license data from the bundled `licenses.json` asset file via [loadLicenses].
+ * Each entry is rendered as a [LicenseCard] showing the library name, version,
+ * license type, and buttons to open the license text or the project homepage in the browser.
+ *
+ * @param context Android [Context] used to read assets and launch external intents.
+ * @param onNavigateBack callback to pop the back stack.
+ */
 @Composable
 fun OpenSourceLicensesScreen(
     context: Context,

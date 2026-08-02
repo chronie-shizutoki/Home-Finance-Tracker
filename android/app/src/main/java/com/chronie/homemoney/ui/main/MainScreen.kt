@@ -34,6 +34,27 @@ import com.chronie.homemoney.ui.main.components.FloatingBottomBarItem
 import com.chronie.homemoney.ui.main.components.FloatingBottomBarMode
 import com.chronie.homemoney.ui.main.components.LocalFloatingBottomBarContentColor
 
+/**
+ * The main tabbed screen of the app, hosting the three primary sections:
+ * expense list, charts/statistics, and settings.
+ *
+ * Uses [AnimatedContent] for cross-fade transitions between tabs and renders
+ * a [FloatingBottomBar] with LiquidGlass mode for tab switching.
+ *
+ * @param context Android [Context] for string resources and callbacks.
+ * @param shouldRefreshExpenses flag that triggers a data reload in the expense list tab.
+ * @param onRefreshHandled callback invoked once the refresh has been consumed.
+ * @param selectedTab the currently active tab index (0 = expenses, 1 = charts, 2 = settings).
+ * @param onTabChange callback when the user switches tabs via the bottom bar.
+ * @param onNavigateToDatabaseTest navigates to the database debug screen.
+ * @param onNavigateToAddExpense navigates to the add-expense form.
+ * @param onNavigateToAIExpense navigates to the AI-assisted expense entry.
+ * @param onNavigateToEditExpense navigates to the edit-expense form for a given [expenseId].
+ * @param onNavigateToWeekdayDetail navigates to the weekday detail breakdown screen.
+ * @param onNavigateToLanSync navigates to the LAN sync screen.
+ * @param onNavigateToOpenSourceLicenses navigates to the open-source licenses screen.
+ * @param onRequireLogin callback when the user is no longer authenticated and must log in again.
+ */
 @Composable
 fun MainScreen(
     context: Context,
