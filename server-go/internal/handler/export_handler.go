@@ -35,15 +35,25 @@ func (h *ExportHandler) ExportExcel(c *gin.Context) {
 		return
 	}
 
-	// Set headers
+	// Set headers - one entry per supported locale
 	headers := map[string]map[string]string{
-		"zh-CN": {"date": "日期", "type": "分类", "amount": "金额", "remark": "备注"},
 		"en-US": {"date": "Date", "type": "Category", "amount": "Amount", "remark": "Notes"},
+		"id-ID": {"date": "Tanggal", "type": "Kategori", "amount": "Jumlah", "remark": "Catatan"},
+		"ja-JP": {"date": "日付", "type": "カテゴリ", "amount": "金額", "remark": "メモ"},
+		"ko-KR": {"date": "날짜", "type": "카테고리", "amount": "금액", "remark": "메모"},
+		"ms-MY": {"date": "Tarikh", "type": "Kategori", "amount": "Amaun", "remark": "Nota"},
+		"th-TH": {"date": "วันที่", "type": "หมวดหมู่", "amount": "จำนวนเงิน", "remark": "หมายเหตุ"},
+		"vi-VN": {"date": "Ngày", "type": "Danh mục", "amount": "Số tiền", "remark": "Ghi chú"},
+		"zh-CN": {"date": "日期", "type": "分类", "amount": "金额", "remark": "备注"},
+		"zh-HK": {"date": "日期", "type": "分類", "amount": "金額", "remark": "備註"},
+		"zh-MO": {"date": "日期", "type": "分類", "amount": "金額", "remark": "備註"},
+		"zh-SG": {"date": "日期", "type": "分类", "amount": "金额", "remark": "备注"},
 		"zh-TW": {"date": "日期", "type": "分類", "amount": "金額", "remark": "備註"},
 	}
 
 	header, ok := headers[lang]
 	if !ok {
+		// Fall back to zh-CN when an unsupported language is requested
 		header = headers["zh-CN"]
 	}
 
