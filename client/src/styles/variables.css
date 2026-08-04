@@ -26,6 +26,16 @@
   --bg-primary: #f8fafc; /* Main page background */
   --bg-secondary: #ffffff; /* Secondary surface background */
   --bg-card: rgba(255, 255, 255, 0.92); /* Card surface background */
+
+  /* Liquid-glass (SVG displacement) component tint.
+     Stored as a space-separated RGB triplet so it can be used with the
+     rgb() alpha syntax: rgb(var(--glass-rgb) / var(--glass-bg-alpha)). */
+  --glass-rgb: 255 255 255;
+  --glass-bg-alpha: 0.6;
+
+  /* Bottom-nav-bar glass: a dark translucent pill so the white item
+     labels stay readable on the light app background. */
+  --navbar-glass-bg: rgba(15, 23, 42, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,5 +57,8 @@
   --bg-primary: #121212;
   --bg-secondary: #1E1E1E;
   --bg-card: rgba(30, 30, 30, 0.7);
+  --glass-rgb: 0 0 0;
+  --glass-bg-alpha: 0.6;
+  --navbar-glass-bg: rgba(255, 255, 255, 0.24);
 }
 }

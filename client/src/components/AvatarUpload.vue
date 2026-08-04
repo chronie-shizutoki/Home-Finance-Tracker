@@ -29,17 +29,18 @@
             <button class="close-button" @click="closeCropper">&times;</button>
           </div>
 
-          <div class="cropper-content">
-            <canvas ref="canvas" class="cropper-canvas"></canvas>
-            <input
-              type="range"
+        <div class="cropper-content">
+          <canvas ref="canvas" class="cropper-canvas"></canvas>
+          <div class="zoom-slider-wrapper">
+            <LiquidGlassSlider
               v-model="zoomLevel"
-              min="1"
-              max="3"
-              step="0.1"
+              :min="1"
+              :max="3"
+              size="small"
               class="zoom-slider"
             />
           </div>
+        </div>
 
           <div class="cropper-footer">
             <button class="cancel-button" @click="closeCropper">{{ $t('avatar.cancel') }}</button>
@@ -56,6 +57,7 @@
 import { ref, watch, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { updateUserAvatar } from '@/api/membership'
+import LiquidGlassSlider from '../liquid-glass/LiquidGlassSlider.vue'
 
 const { t } = useI18n()
 
@@ -591,35 +593,19 @@ watch(
   touch-action: none; /* Disable the browser's default touch behaviour */
 }
 
-.zoom-slider {
+.zoom-slider-wrapper {
   margin-top: 20px;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.3);
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
+  padding: 14px 18px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
 }
 
-.zoom-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.zoom-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: none;
+.zoom-slider {
+  width: 100%;
 }
 
 .cropper-footer {
@@ -758,16 +744,9 @@ watch(
     background: rgba(32, 32, 32, 0.9);
   }
 
-  .zoom-slider {
-    background: rgba(64, 64, 64, 0.8);
-  }
-
-  .zoom-slider::-webkit-slider-thumb {
-    background: rgba(128, 128, 128, 0.8);
-  }
-
-  .zoom-slider::-moz-range-thumb {
-    background: rgba(128, 128, 128, 0.8);
+  .zoom-slider-wrapper {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
   }
 }
 </style>

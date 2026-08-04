@@ -80,7 +80,9 @@ export default defineConfig({
     }),
     Components({
       // 基本配置，确保插件能正常工作
-      dts: 'components.d.ts'
+      dts: 'components.d.ts',
+      // Also auto-import the liquid-glass component library
+      dirs: ['src/components', 'src/liquid-glass']
     }),
   ],
   resolve: {

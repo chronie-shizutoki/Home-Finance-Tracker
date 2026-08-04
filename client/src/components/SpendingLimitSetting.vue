@@ -16,16 +16,12 @@
               <MessageTip v-model:message="errorMessage" type="error" />
               <div class="setting-header">
                 <h3 class="setting-title">{{ $t('spending.settings.on') }}</h3>
-                <GlassSwitch
+                <LiquidGlassSwitch
                   v-model="spendingStore.isLimitEnabled"
-                  @change="handleToggleEnabled"
-                  active-text=""
-                  inactive-text=""
+                  @update:modelValue="handleToggleEnabled"
+                  size="xs"
                   class="enable-switch"
-                >
-                  <template #active-text>{{ $t('spending.settings.enabled') }}</template>
-                  <template #inactive-text>{{ $t('spending.settings.disabled') }}</template>
-                </GlassSwitch>
+                />
               </div>
 
               <div class="setting-content" v-if="spendingStore.isLimitEnabled">
@@ -86,7 +82,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useSpendingStore } from '../stores/spending.js';
 import { useI18n } from 'vue-i18n';
-import GlassSwitch from './GlassSwitch.vue';
+import LiquidGlassSwitch from '../liquid-glass/LiquidGlassSwitch.vue';
 import GlassInputNumber from './GlassInputNumber.vue';
 import MessageTip from './MessageTip.vue';
 
