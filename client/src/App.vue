@@ -23,9 +23,9 @@ watchEffect(() => {
 </script>
 
 <style>
-/* 全局基础样式 */
+/* Global base styles */
 #app {
-  /* 确保应用内容不会被强制弹窗覆盖 */
+  /* Ensure application content is not forced by popups */
   position: relative !important;
   z-index: 1 !important;
   -webkit-font-smoothing: antialiased !important;
@@ -35,24 +35,24 @@ watchEffect(() => {
   background: var(--bg-primary) !important;
 }
 
-/* 全局滚动条隐藏样式 */
+/* Global scrollbar hide styles */
 html, body {
-  /* 隐藏滚动条但保留功能 */
-  -ms-overflow-style: none;  /* IE 和 Edge */
+  /* Hide scrollbar but keep functionality */
+  -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
-  overflow-x: hidden;        /* 防止水平滚动条 */
+  overflow-x: hidden;        /* Prevent horizontal scrollbar */
 }
 
-/* Chrome, Safari 和 Opera */
+/* Chrome, Safari, Opera */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 .app-container::-webkit-scrollbar {
   display: none;
 }
 
-/* 确保滚动功能仍然正常工作 */
+/* Ensure scrolling functionality still works */
 html, body {
-  -webkit-overflow-scrolling: touch;  /* iOS Safari 平滑滚动 */
+  -webkit-overflow-scrolling: touch;  /* iOS Safari smooth scrolling */
 }
 
 .contain {
@@ -84,7 +84,7 @@ button {
   transition: all var(--transition-time) ease !important;
 }
 
-/* 深色模式支持 */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-primary: #121212 !important;
@@ -104,7 +104,7 @@ button {
     border-bottom: 1px solid var(--border-light) !important;
   }
 
-  /* ===== 深色模式日期选择器优化 ===== */
+  /* ===== Dark mode date picker optimization ===== */
   input[type="date"] {
     background-color: #1e1e1e !important;
     border: 1px solid #333 !important;

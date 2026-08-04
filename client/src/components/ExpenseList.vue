@@ -1,7 +1,7 @@
 <!-- ExpenseList.vue -->
 <template>
   <div class="expense-list">
-      <!-- 搜索组件 -->
+      <!-- Search component for expense list -->
       <ExpenseSearch
         ref="searchComponent"
         :uniqueTypes="uniqueTypes"
@@ -16,7 +16,7 @@
         @search="handleSearch"
       />
 
-      <!-- 空状态提示 -->
+      <!-- Empty state prompt -->
       <div v-if="filteredExpenses.length === 0" class="empty-state">
         <div class="empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -31,10 +31,10 @@
       </div>
 
       <template v-else>
-        <!-- 统计组件 -->
+        <!-- Statistics component for expense list -->
         <ExpenseStats :statistics="statistics" />
 
-        <!-- 表格组件 - 直接使用后端处理的数据 -->
+        <!-- Table component for expense list -->
         <ExpenseTable
           :groupedExpenses="groupedExpenses"
           :sortField="sortField"
@@ -44,7 +44,7 @@
           @delete="handleDelete"
         />
 
-        <!-- 分页组件 -->
+        <!-- Pagination component for expense list -->
         <ExpensePagination
           v-if="totalPages > 1"
           :currentPage="currentPage"
@@ -75,7 +75,7 @@ export default {
     ExpensePagination
   },
   props: {
-    // 用于触发数据刷新的信号
+    // Signal to trigger data refresh on the client
     refreshTrigger: {
       type: Number,
       default: 0
@@ -90,17 +90,17 @@ export default {
     const route = useRoute();
     const searchComponent = ref(null);
     
-    // 处理编辑事件
+    // Handle edit event
     const handleEdit = (expense) => {
       emit('edit', expense);
     };
     
-    // 处理删除事件
+    // Handle delete event
     const handleDelete = (id) => {
       emit('delete', id);
     };
 
-    // 统一搜索参数
+    // Unified search parameters
     const searchParams = ref({
       keyword: '',
       type: '',
@@ -110,18 +110,18 @@ export default {
       sortOption: 'dateDesc'
     });
 
-    // 分页相关状态
+    // Pagination related state
     const currentPage = ref(1);
     const pageSize = ref(10);
     const totalItems = ref(0);
     const expenses = ref([]);
     
-    // 添加缺失的变量定义
+    // Unique expense types
     const uniqueTypes = ref([]);
-    // 初始化时提供默认的模拟月份数据，确保即使在API请求完成前，下拉菜单也有选项可显示
+    // Default months for dropdown menu，used to ensure dropdown menu has options even before API request completes
     const defaultMonths = [];
     const now = new Date();
-    // 生成最近120个月的月份数据
+    // Generate last 120 months of data for dropdown menu
     for (let i = 0; i < 120; i++) {
       const year = now.getFullYear();
       const month = now.getMonth() - i;
@@ -130,31 +130,31 @@ export default {
     }
     const availableMonths = ref(defaultMonths);
 
-    // 监听语言变化，当语言切换时重新生成月份选项
+    // Listen for language change and regenerate month options when language changes
     watch(locale, (newLocale) => {
-      console.log('语言已切换，重新生成月份选项:', newLocale);
-      // 重新获取数据以更新月份显示
+      console.log('Language changed, regenerating month options:', newLocale);
+      // Fetch new data to update month display
       fetchPaginatedData();
     });
     
-    // 移除前端筛选逻辑，直接使用后端返回的数据
+    // Remove frontend filtering logic and use backend data directly
     const filteredExpenses = computed(() => {
-      // 检查groupedExpenses是否有数据
+      // Check if groupedExpenses has data
       const dateGroups = Object.keys(groupedExpenses.value);
       if (dateGroups.length === 0) {
         return [];
       }
-      // 返回所有日期组的支出项
+      // Return all expense items for each date group
       return dateGroups.flatMap(date => groupedExpenses.value[date]);
     });
 
-    // 按日期分组支出数据（使用后端返回的分组数据）
+    // Grouped expenses by date (using backend data)
     const groupedExpenses = ref({});
     
-    // 获取分页数据（使用按日期分组的API）
+    // Fetch paginated data (using grouped by date API)
     const fetchPaginatedData = async () => {
       try {
-        // 添加空值检查，确保searchParams.value存在
+        // Add check if searchParams.value exists
         if (!searchParams.value) {
           return;
         }
@@ -165,16 +165,16 @@ export default {
           searchParams: { ...searchParams.value }
         });
         
-        // 添加排序参数到请求中
+        // Add sort parameters to request URL
         const params = new URLSearchParams();
         params.append('page', currentPage.value);
         params.append('limit', pageSize.value);
         
-        // 添加搜索参数
+        // Add search parameters
         if (searchParams.value.keyword) params.append('keyword', searchParams.value.keyword);
         if (searchParams.value.type) params.append('type', searchParams.value.type);
         if (searchParams.value.month) params.append('month', searchParams.value.month);
-        // 验证金额参数是否为有效数字
+        // Validate amount parameters are valid numbers before adding
         const minAmount = parseFloat(searchParams.value.minAmount);
         const maxAmount = parseFloat(searchParams.value.maxAmount);
         if (searchParams.value.minAmount !== null && !isNaN(minAmount)) {
@@ -185,36 +185,38 @@ export default {
         }
         if (searchParams.value.sortOption) params.append('sort', searchParams.value.sortOption);
         
-        // 调用按日期分组的API
+        // Call grouped by date API
         const response = await ExpenseAPI.getExpensesByDate(currentPage.value, pageSize.value, params);
         
-        // 适配后端返回的分页格式
+        // Handle response data format
         if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
-          // 后端返回的数据格式：[{ date: '2024-01-01', count: 5, totalAmount: 100, expenses: [...] }]
-          // 后端使用智能分页算法，确保同一个日期组的记录不会被拆分到不同页上
-          // 每页的记录数会尽量接近10条，但可能会稍微超过以保持日期组的完整性
+          // Backend response data format: [{ date: '2024-01-01', count: 5, totalAmount: 100, expenses: [...] }]
+          // Backend uses intelligent pagination algorithm to ensure records for the same date group are not split across different pages
+          // Each page will have records close to 10, but may exceed 10 to keep date group integrity
+          // Backend will return total number of records in the response
           const dateGroups = response.data.data;
           
-          // 将后端返回的分组数据转换为前端需要的格式
+          // Convert backend response data to frontend format required
           const groups = {};
           dateGroups.forEach(group => {
             groups[group.date] = group.expenses;
           });
           
           groupedExpenses.value = groups;
-          totalItems.value = response.data.total || 0; // 这里total是支出记录的总数
+          totalItems.value = response.data.total || 0; // Backend will return total number of records in the response
           
-          // 更新类型和月份数据
+          // Update uniqueTypes and availableMonths from backend response
           if (response.data.meta) {
             uniqueTypes.value = response.data.meta.uniqueTypes || [];
-            // 只有当API返回了有效的月份数据时，才替换默认数据
+            // Only update availableMonths if backend returns valid data
             if (response.data.meta.availableMonths && response.data.meta.availableMonths.length > 0) {
-              // 对月份进行排序，从新到旧
+              // Sort months from newest to oldest
+              // This is to match the default dropdown menu order
               availableMonths.value = response.data.meta.availableMonths.sort((a, b) => b.localeCompare(a));
             }
           }
         } else if (Array.isArray(response)) {
-          // 兼容旧格式
+          // Compatibility for old format response
           const expenseList = response;
           const groups = {};
           expenseList.forEach(expense => {
@@ -232,24 +234,24 @@ export default {
           totalItems: totalItems.value,
           page: currentPage.value
         });
-        // 通知父组件数据已加载，传递总记录数
+        // Notify parent component data has been loaded, pass total record count
         emit('data-loaded', { total: totalItems.value });
       } catch (error) {
-        console.error('获取分页数据失败:', error);
+        console.error('Error fetching paginated expenses data:', error);
         console.error('Data fetch error details:', { message: error.message, stack: error.stack });
       }
     };
 
-    // 搜索处理
+    // Search processing
     const handleSearch = (params) => {
       console.log('Search requested with params:', { ...params });
       searchParams.value = { ...params };
       currentPage.value = 1;
       fetchPaginatedData();
-      fetchStatistics(); // 更新统计数据
+      fetchStatistics(); // Update statistics data
     };
 
-    // 重置筛选条件
+    // Reset filters processing
     const resetFilters = () => {
       console.log('Filters reset requested');
       if (searchComponent.value) {
@@ -265,27 +267,27 @@ export default {
       };
       currentPage.value = 1;
       fetchPaginatedData();
-      fetchStatistics(); // 更新统计数据
+      fetchStatistics(); // Update statistics data
       console.log('Filters reset completed');
     };
 
-    // 分页处理 - 直接使用后端返回的分页数据
+    // Pagination processing
     const paginatedExpenses = computed(() => {
       return expenses.value || [];
     });
 
-    // 总页数
+    // Total pages count
     const totalPages = computed(() => {
       return Math.ceil(totalItems.value / pageSize.value) || 1;
     });
 
-    // 可见页码（小屏幕最多显示3个，大屏幕最多显示5个）
+    // Visible pages count（small screen max 1, large screen max 7）
     const visiblePages = computed(() => {
       const pages = [];
       const total = totalPages.value;
       const current = currentPage.value;
-      // 根据屏幕宽度确定最多显示的页码数
-      const maxVisible = window.innerWidth < 768 ? 1 : 5;
+      // Determine max visible pages based on screen width
+      const maxVisible = window.innerWidth < 768 ? 1 : 7;
 
       if (total <= maxVisible) {
         for (let i = 1; i <= total; i++) pages.push(i);
@@ -305,7 +307,7 @@ export default {
       return pages;
     });
 
-    // 使用ref存储从后端获取的统计数据，而不是基于当前页数据计算
+    // Statistics data
     const statistics = ref({
       count: 0,
       totalAmount: '0.00',
@@ -316,23 +318,23 @@ export default {
       typeDistribution: {}
     });
 
-    // 定义获取统计数据的函数
+    // Fetch statistics data
     const fetchStatistics = async () => {
       try {
-        // 添加空值检查，确保searchParams.value存在
+        // Check if searchParams.value exists
         if (!searchParams.value) {
           return;
         }
         
         console.log('Fetching statistics with filters:', { ...searchParams.value });
         
-        // 构建与getExpenses相同的查询参数
+        // Build query parameters
         const statsSearchParams = new URLSearchParams();
         if (searchParams.value.keyword) statsSearchParams.set('keyword', searchParams.value.keyword);
         if (searchParams.value.type) statsSearchParams.set('type', searchParams.value.type);
         if (searchParams.value.month) statsSearchParams.set('month', searchParams.value.month);
         
-        // 添加金额范围参数，确保是有效数字
+        // Add amount range parameters
         const validMinAmount = parseFloat(searchParams.value.minAmount);
         const validMaxAmount = parseFloat(searchParams.value.maxAmount);
         if (!isNaN(validMinAmount)) {
@@ -342,10 +344,10 @@ export default {
           statsSearchParams.set('maxAmount', validMaxAmount.toString());
         }
 
-        // 调用后端统计API获取完整数据
+        // Call backend statistics API to get full data
         const statsData = await ExpenseAPI.getStatistics(statsSearchParams);
         
-        // 格式化数字以保持一致性
+        // Format numbers to keep consistency
         if (statsData && !statsData.error) {
           statistics.value = {
             count: statsData.count || 0,
@@ -365,20 +367,20 @@ export default {
           });
         
       } catch (error) {
-        console.error('获取统计数据失败:', error);
+        console.error('Statistics fetch failed:', error);
         console.error('Statistics fetch error details:', { message: error.message, stack: error.stack });
-        // 出错时保持原有的统计数据
+        // Keep existing statistics data on error
       }
     };
 
-    // 当筛选条件变化时重新获取统计数据
+    // When filters change, fetch statistics again
     watchEffect(() => {
-      // 添加空值检查，确保searchParams.value存在
+      // Check if searchParams.value exists
       if (!searchParams.value) {
         return;
       }
       
-      // 延迟执行，避免频繁请求
+      // Delay execution to avoid frequent requests to backend
       const timer = setTimeout(() => {
         fetchStatistics();
       }, 300);
@@ -386,10 +388,10 @@ export default {
       return () => clearTimeout(timer);
     });
 
-    // 初始加载时获取统计数据
+    // Initial fetch statistics on page load
     fetchStatistics();
 
-    // 页面切换方法
+    // Page change method
     const changePage = (page) => {
       console.log('Page change requested:', { from: currentPage.value, to: page, totalPages: totalPages.value });
       if (page >= 1 && page <= totalPages.value) {
@@ -398,7 +400,7 @@ export default {
       }
     };
 
-    // 排序方法
+    // Sort method
     const sortBy = (field) => {
       const currentSort = searchParams.value.sortOption;
       let newSort = '';
@@ -417,7 +419,7 @@ export default {
       }
     };
 
-    // 监听状态变化并更新URL（使用防抖）
+    // Listen for state changes and update URL (using debounce)
     let updateURLTimer = null;
     watch(
       [currentPage, searchParams],
@@ -430,7 +432,7 @@ export default {
       { deep: true }
     );
 
-    // 计算 sortField 和 sortOrder
+    // Calculate sortField and sortOrder
     const sortField = computed(() => {
       const sortOption = searchParams.value.sortOption;
       console.log('Calculating sortField from:', sortOption);
@@ -453,29 +455,29 @@ export default {
       return 'asc';
     });
 
-    // 监听pageSize变化
+    // Listen for pageSize changes
     watch(pageSize, () => {
       currentPage.value = 1;
       fetchPaginatedData();
     });
 
-    // 当外部触发刷新时重新获取数据
+    // When external refresh trigger is received, reload data and statistics
     watch(
       () => props.refreshTrigger,
       (newValue, oldValue) => {
         if (newValue !== oldValue) {
           console.log('Refresh triggered from parent, reloading data');
-          // 重置到第一页以显示最新添加的记录
+          // Reset to first page to show latest records
           currentPage.value = 1;
           fetchPaginatedData();
           fetchStatistics();
-          // 发出事件通知父组件刷新已完成
+          // Notify parent component that refresh is completed
           emit('refreshCompleted');
         }
       }
     );
 
-    // 提供手动刷新方法供父组件调用
+    // Provide manual refresh method for parent component to call
     const refreshData = () => {
       console.log('Manual data refresh requested');
       currentPage.value = 1;
@@ -483,16 +485,16 @@ export default {
       fetchStatistics();
     };
 
-    // 标记是否正在从URL初始化，防止循环更新
+    // Mark if initializing from URL to prevent infinite loop
     let isInitializingFromURL = false;
-    // 路由监听器引用
+    // Route listener reference to unwatch on component destruction
     let routeUnwatch = null;
 
-    // 从URL查询参数中读取状态
+    // Initialize state from URL query parameters
     const initializeFromURL = () => {
       isInitializingFromURL = true;
       
-      // 读取分页参数
+      // Read pagination parameter
       if (route.query.page) {
         const page = parseInt(route.query.page);
         if (!isNaN(page) && page > 0) {
@@ -500,7 +502,7 @@ export default {
         }
       }
 
-      // 读取筛选参数
+      // Read filter parameters
       searchParams.value = {
         keyword: route.query.keyword || '',
         type: route.query.type || '',
@@ -513,18 +515,18 @@ export default {
       isInitializingFromURL = false;
     };
 
-    // 更新URL查询参数（使用原生History API避免触发Vue重新渲染）
+    // Update URL query parameters (using native History API to avoid triggering Vue re-rendering)
     const updateURL = () => {
       if (isInitializingFromURL) return;
 
       const query = {};
 
-      // 添加分页参数
+      // Add pagination parameter
       if (currentPage.value !== 1) {
         query.page = currentPage.value.toString();
       }
 
-      // 添加筛选参数
+      // Add filter parameters
       if (searchParams.value.keyword) query.keyword = searchParams.value.keyword;
       if (searchParams.value.type) query.type = searchParams.value.type;
       if (searchParams.value.month) query.month = searchParams.value.month;
@@ -538,10 +540,10 @@ export default {
         query.sort = searchParams.value.sortOption;
       }
 
-      // 使用原生History API更新URL，避免触发Vue重新渲染
+      // Update URL query parameters (using native History API to avoid triggering Vue re-rendering)
       const url = new URL(window.location.href);
       
-      // 清除旧的查询参数
+      // Clear old query parameters
       url.searchParams.delete('page');
       url.searchParams.delete('keyword');
       url.searchParams.delete('type');
@@ -550,16 +552,16 @@ export default {
       url.searchParams.delete('maxAmount');
       url.searchParams.delete('sort');
 
-      // 添加新的查询参数
+      // Add new query parameters
       Object.entries(query).forEach(([key, value]) => {
         url.searchParams.set(key, value);
       });
 
-      // 替换URL但不触发页面刷新或组件重新渲染
+      // Replace URL query parameters without refreshing the page or triggering Vue re-rendering
       window.history.replaceState({}, '', url.toString());
     };
 
-    // 初始化时加载数据
+    // Initialize state from URL query parameters
     onMounted(() => {
       console.log('ExpenseList component mounted, initializing from URL');
       initializeFromURL();

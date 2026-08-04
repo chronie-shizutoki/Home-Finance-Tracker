@@ -5,9 +5,9 @@ import { logApiRequest, logApiResponse, logApiError } from '@/utils/operationLog
 import { ExpenseAPI } from '@/api/expenses';
 
 /**
- * 离线数据同步工具
- * 基于IndexedDB实现离线数据存储和网络恢复后的自动同步
- * 支持UUID和版本控制
+ * Offline data sync tool
+ * Based on IndexedDB to store offline data and sync it when network is restored
+ * Support UUID and version control
  */
 class OfflineDataSync {
   constructor () {
@@ -25,7 +25,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 初始化IndexedDB数据库
+   * Initialize IndexedDB database
    */
   async initDB () {
     if (this.initPromise) {
@@ -38,12 +38,12 @@ class OfflineDataSync {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // 创建键值对缓存存储
+        // Create key-value cache store
         if (!db.objectStoreNames.contains(this.stores.cache)) {
           db.createObjectStore(this.stores.cache, { keyPath: 'key' });
         }
 
-        // 创建同步队列存储
+        // Create sync queue store
         if (!db.objectStoreNames.contains(this.stores.syncQueue)) {
           db.createObjectStore(this.stores.syncQueue, {
             keyPath: 'id',
@@ -51,7 +51,7 @@ class OfflineDataSync {
           });
         }
 
-        // 创建消费记录存储（支持UUID主键）
+        // Create expense store (support UUID primary key)
         if (!db.objectStoreNames.contains(this.stores.expenses)) {
           const expenseStore = db.createObjectStore(this.stores.expenses, {
             keyPath: 'id'
@@ -68,12 +68,12 @@ class OfflineDataSync {
       };
 
       request.onerror = (event) => {
-        console.error('IndexedDB初始化失败:', event.target.error);
+        console.error('IndexedDB initialization failed:', event.target.error);
         reject(event.target.error);
       };
 
       request.onblocked = (event) => {
-        console.warn('IndexedDB被阻塞，请关闭其他标签页');
+        console.warn('IndexedDB blocked, please close other tabs');
         reject(new Error('IndexedDB blocked'));
       };
     });
@@ -82,7 +82,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 确保数据库已初始化
+   * Ensure database is initialized
    */
   async ensureDB () {
     if (!this.db) {
@@ -92,7 +92,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取数据库事务
+   * Get database transaction
    */
   getTransaction (storeName, mode = 'readonly') {
     if (!this.db) {
@@ -102,14 +102,14 @@ class OfflineDataSync {
   }
 
   /**
-   * 生成UUID
+   * Generate UUID
    */
   generateId () {
     return uuidv4();
   }
 
   /**
-   * 保存消费记录到本地（带版本控制）
+   * Save expense to local database (with version control)
    */
   async saveExpense (expense, isSynced = false) {
     await this.ensureDB();
@@ -132,7 +132,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取本地消费记录
+   * Get expense from local database
    */
   async getExpense (id) {
     await this.ensureDB();
@@ -145,7 +145,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取所有未同步的变更
+   * Get all pending changes
    */
   async getPendingChanges () {
     await this.ensureDB();
@@ -162,7 +162,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取所有未删除的消费记录
+   * Get all active expenses from local database
    */
   async getAllExpenses () {
     await this.ensureDB();
@@ -180,7 +180,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 标记记录为已同步
+   * Mark expense as synced
    */
   async markAsSynced (id) {
     await this.ensureDB();
@@ -203,7 +203,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 软删除本地记录
+   * Soft delete local expense record
    */
   async deleteExpense (id) {
     await this.ensureDB();
@@ -230,7 +230,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取最后同步时间
+   * Get last sync time from local storage
    */
   getLastSyncTime () {
     const time = localStorage.getItem('lastSyncTime');
@@ -238,18 +238,18 @@ class OfflineDataSync {
   }
 
   /**
-   * 设置最后同步时间
+   * Set last sync time to local storage
    */
   setLastSyncTime (time) {
     localStorage.setItem('lastSyncTime', time.toString());
   }
 
   /**
-   * 执行同步（使用新的同步API）
+   * Perform sync operation
    */
   async performSync () {
     if (!navigator.onLine) {
-      console.log('离线状态，跳过同步');
+      console.log('Offline status, skip sync operation');
       return { success: false, offline: true };
     }
 
@@ -258,7 +258,7 @@ class OfflineDataSync {
       const lastSyncTime = this.getLastSyncTime();
       const pendingChanges = await this.getPendingChanges();
 
-      console.log(`开始同步，上次同步时间: ${lastSyncTime}, 待同步变更: ${pendingChanges.length}`);
+      console.log(`Start sync, last sync time: ${lastSyncTime}, pending changes: ${pendingChanges.length}`);
 
       const syncResult = await ExpenseAPI.syncExpenses(lastSyncTime, pendingChanges);
 
@@ -266,11 +266,11 @@ class OfflineDataSync {
         for (const serverExpense of syncResult.serverChanges) {
           await this.saveExpense(serverExpense, true);
         }
-        console.log(`已应用 ${syncResult.serverChanges.length} 条服务器变更`);
+        console.log(`Applied ${syncResult.serverChanges.length} server changes`);
       }
 
       if (syncResult.conflicts && syncResult.conflicts.length > 0) {
-        console.warn(`发现 ${syncResult.conflicts.length} 个冲突，已按Last-Write-Wins解决`);
+        console.warn(`Found ${syncResult.conflicts.length} conflicts, resolved by Last-Write-Wins`);
         for (const conflict of syncResult.conflicts) {
           await this.saveExpense(conflict.serverVersion, true);
         }
@@ -282,20 +282,20 @@ class OfflineDataSync {
 
       this.setLastSyncTime(syncResult.syncTime);
 
-      console.log('同步完成');
+      console.log('Sync completed successfully');
       return {
         success: true,
         serverChanges: syncResult.serverChanges?.length || 0,
         conflicts: syncResult.conflicts?.length || 0
       };
     } catch (error) {
-      console.error('同步失败:', error);
+      console.error('Sync failed:', error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * 缓存API响应数据
+   * Cache API response data
    */
   async cacheResponse (key, data) {
     await this.ensureDB();
@@ -308,7 +308,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取缓存的响应数据
+   * Get cached response data
    */
   async getCachedResponse (key) {
     await this.ensureDB();
@@ -321,7 +321,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 将请求添加到同步队列（兼容旧API）
+   * Add request to sync queue (compatible with old API)
    */
   async queueForSync (request) {
     await this.ensureDB();
@@ -338,7 +338,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 获取所有待同步请求
+   * Get all pending sync requests from queue
    */
   async getSyncQueue () {
     await this.ensureDB();
@@ -351,7 +351,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 移除已同步的请求
+   * Remove synced request from queue
    */
   async removeFromSyncQueue (id) {
     await this.ensureDB();
@@ -364,7 +364,7 @@ class OfflineDataSync {
   }
 
   /**
-   * 同步队列中的所有请求（兼容旧API）
+   * Sync all requests in sync queue (compatible with old API)
    */
   async syncQueue () {
     if (!navigator.onLine) return;
@@ -374,30 +374,30 @@ class OfflineDataSync {
       const queue = await this.getSyncQueue();
       if (queue.length === 0) return;
 
-      console.log(`开始同步${queue.length}个离线请求`);
+      console.log(`Start sync ${queue.length} offline requests`);
       for (const request of queue) {
         try {
           const response = await axios(request);
           if (response.status >= 200 && response.status < 300) {
             await this.removeFromSyncQueue(request.id);
-            console.log(`已同步请求: ${request.url}`);
+            console.log(`Successfully synchronized request: ${request.url}`);
           }
         } catch (error) {
-          console.error(`同步请求失败: ${request.url}`, error);
+          console.error(`Failed to synchronize request: ${request.url}`, error);
           break;
         }
       }
     } catch (error) {
-      console.error('同步队列处理失败', error);
+      console.error('Sync queue processing failed', error);
     }
   }
 
   /**
-   * 设置网络状态监听
+   * Set network status listeners for sync
    */
   setupNetworkListeners () {
     window.addEventListener('online', () => {
-      console.log('网络已恢复，开始同步');
+      console.log('Network recovered, start sync');
       setTimeout(() => this.performSync(), 1000);
     });
 
@@ -425,7 +425,7 @@ export function setupAxiosInterceptors (axiosInstance) {
     logApiRequest(config);
 
     if (!navigator.onLine && ['post', 'put', 'delete', 'patch'].includes(config.method)) {
-      console.log(`离线模式: 将请求加入同步队列 - ${config.url}`);
+      console.log(`Offline mode: Queue request for sync - ${config.url}`);
       await offlineSync.queueForSync({
         url: config.url,
         method: config.method,
@@ -452,7 +452,7 @@ export function setupAxiosInterceptors (axiosInstance) {
       const cacheKey = `${error.config.method}-${error.config.url}`;
       const cachedData = await offlineSync.getCachedResponse(cacheKey);
       if (cachedData) {
-        console.log(`离线模式: 使用缓存数据 - ${error.config.url}`);
+        console.log(`Offline mode: Use cached data - ${error.config.url}`);
         return Promise.resolve({ data: cachedData });
       }
     }

@@ -1,4 +1,4 @@
-/* 通用过渡动画 */
+/* General transition animations */
 .fade-enter-active, .fade-leave-active {
   transition: opacity var(--transition-time) ease;
 }
@@ -18,7 +18,7 @@
   opacity: 0;
 }
 
-/* 按钮交互动画 */
+/* Button interaction animations */
 .btn-scale {
   transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease;
 }
@@ -46,7 +46,7 @@
   }
 }
 
-/* 表单元素聚焦动画 */
+/* Form element focus animations */
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -59,7 +59,7 @@
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
-/* 表格行悬停动画 */
+/* Table row hover animations */
 .data-section tbody tr {
   transition: all 0.3s ease;
 }
@@ -68,9 +68,9 @@
   transform: translateX(4px);
 }
 
-/* 骨架加载动画 */
+/* Skeleton loading animation */
 
-/* 背景动画 */
+/* Background animation */
 .background-animation {
     position: absolute;
     top: 0;

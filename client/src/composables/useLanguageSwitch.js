@@ -1,9 +1,9 @@
 /*
  * @file useLanguageSwitch.js
- * @package 家庭记账本
- * @module 组合式函数
- * @description 多语言切换功能组合式函数，负责管理应用语言状态和切换逻辑
- * @author 开发者
+ * @package Home-Finance-Tracker
+ * @module Composables
+ * @description Language switch function for managing application language state and switching
+ * @author Developer
  * @version 1.0
 */
 
@@ -11,41 +11,41 @@ import { ref } from 'vue';
 import i18n from '@/locales/i18n';
 
 /**
- * 语言切换组合式函数
- * @returns {Object} 包含语言状态和切换方法的对象
+ * Language switch function for application language management
+ * @returns {Object} Object containing language state and switch methods
  */
 export function useLanguageSwitch () {
   /**
-   * 当前应用语言（响应式数据）
+   * Current application language (reactive data)
    * @type {import('vue').Ref<string>}
    */
-  // 项目使用组合式API模式（legacy: false），直接获取初始语言
+  // Project uses reactive API mode (legacy: false), directly get initial language from i18n.global.locale
   const currentLang = ref(i18n.global.locale.value);
 
   /**
-   * 切换应用语言
-   * @param {string} lang - 目标语言代码
+   * Switch application language
+   * @param {string} lang - Target language code
    */
   const switchLanguage = (lang) => {
-    // 项目使用组合式API模式（legacy: false），直接访问i18n.global.locale
+    // Project uses reactive API mode (legacy: false), directly access i18n.global.locale
     try {
       i18n.global.locale.value = lang;
       currentLang.value = lang;
-      localStorage.setItem('appLang', lang); // 持久化存储语言设置
+      localStorage.setItem('appLang', lang); // Persist language setting in local storage
     } catch (error) {
-      console.error('切换语言失败:', error);
+      console.error('Switch language failed:', error);
     }
   };
 
   /**
-   * 初始化语言设置（从本地存储读取）
+   * Initialize application language from local storage
    */
   const initLanguage = () => {
     const savedLang = localStorage.getItem('appLang');
     if (savedLang) switchLanguage(savedLang);
   };
 
-  // 组件挂载时初始化语言
+  // Component mounted, initialize language from local storage
   initLanguage();
 
   return {

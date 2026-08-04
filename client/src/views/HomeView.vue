@@ -956,15 +956,15 @@ const handleAddRecord = async () => {
     }
 
     // Add detailed logs to trace the date
-    console.log('用户选择的原始日期:', form.date);
+    console.log('User selected original date:', form.date);
     
     // Format the date as YYYY-MM-DD
     const userSelectedDate = form.date ? new Date(form.date).toISOString().split('T')[0] : '';
-    console.log('格式化后的用户选择日期:', userSelectedDate);
+    console.log('Formatted user selected date:', userSelectedDate);
     
     // Get today's date for comparison
     const today = new Date().toISOString().split('T')[0];
-    console.log('今天的日期:', today);
+    console.log('Today\'s date:', today);
 
     // Build the request payload expected by the API
     const expenseData = {
@@ -973,7 +973,7 @@ const handleAddRecord = async () => {
       remark: form.remark,
       date: userSelectedDate // Date field required by the server
     };
-    console.log('发送到服务器的数据:', expenseData);
+    console.log('Data sent to server:', expenseData);
 
     // Check whether any single expense exceeds 500 yuan
     await checkAndShowLargeExpenseWarning([expenseData]);
@@ -1001,8 +1001,8 @@ const handleAddRecord = async () => {
     // Reset the form
     Object.assign(form, { type: '', amount: '', date: '', remark: '' });
   } catch (error) {
-    console.error('添加记录失败:', error);
-    console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
+    console.error('Add record failed error:', error);
+    console.error('Error details:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
     // Distinguish form-validation errors from API errors
     let errorMsg;
     if (error.name === 'ValidationError') {
@@ -1010,7 +1010,7 @@ const handleAddRecord = async () => {
     } else if (error.response) {
       // Server response error
       const status = error.response.status;
-      const serverMsg = error.response.data?.message || '服务器处理异常';
+      const serverMsg = error.response.data?.message || 'Server error';
       if (status >= 500) {
         errorMsg = t('expense.serverError', { error: serverMsg });
       } else if (status === 400) {
@@ -1022,7 +1022,7 @@ const handleAddRecord = async () => {
       // No-response error (network issue)
       errorMsg = t('expense.networkTimeout');
     } else {
-      errorMsg = t('expense.unknownError', { error: error.message || '未知错误' });
+      errorMsg = t('expense.unknownError', { error: error.message || 'Unknown error' });
     }
     errorMessage.value = errorMsg;
     
@@ -1104,7 +1104,7 @@ const loadExpenses = async () => {
   isLoading.value = true;
 
   try {
-    console.log('开始使用分页加载数据...');
+    console.log('Start loading expenses with pagination...');
 
     // Use the pagination utility to fetch all data
     const allData = await fetchAllPages({
@@ -1114,11 +1114,11 @@ const loadExpenses = async () => {
       maxConcurrent: 3,        // At most 3 concurrent requests
       signal: paginationController.signal,
       onProgress: (progressData) => {
-        console.log(`数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
+        console.log(`Pagination progress: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
         // Progress bar could be updated here
       },
       onError: (error) => {
-        console.error('分页加载错误:', error);
+        console.error('Pagination error:', error);
         throw error;
       }
     });
@@ -1136,10 +1136,10 @@ const loadExpenses = async () => {
     if (Expenses.value.length === 0) {
       console.warn('loadExpenses: No valid data found in API response');
     } else {
-      console.log('loadExpenses: 分页加载完成, count:', Expenses.value.length);
+      console.log('loadExpenses: Pagination completed, count:', Expenses.value.length);
     }
   } catch (err) {
-    if (err.message !== '操作已被取消') {
+    if (err.message !== 'Operation canceled') {
       const errorInfo = err.response
         ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
         : err.message;
@@ -1149,7 +1149,7 @@ const loadExpenses = async () => {
       console.error('loadExpenses: Error Details:', err);
       Expenses.value = [];
     } else {
-      console.log('数据加载被用户取消');
+      console.log('Pagination canceled by user request');
     }
   } finally {
     isLoading.value = false;
@@ -1212,17 +1212,17 @@ const handleMultiRecordsSubmit = async () => {
     for (const record of selectedRecords) {
       // Validate the amount
       if (!record.amount || isNaN(record.amount) || Number(record.amount) <= 0) {
-        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的金额无效`);
+        throw new Error(`Record ${multiRecords.value.indexOf(record) + 1} is invalid amount`);
       }
       
       // Validate the type
       if (!record.type) {
-        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的类型不能为空`);
+        throw new Error(`Record ${multiRecords.value.indexOf(record) + 1} is missing type`);
       }
       
       // Validate the date
       if (!record.date) {
-        throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的日期不能为空`);
+        throw new Error(`Record ${multiRecords.value.indexOf(record) + 1} is missing date`);
       }
       
       // Format the record
@@ -1253,16 +1253,16 @@ const handleMultiRecordsSubmit = async () => {
     // Refresh the data
     await fetchData(true);
     
-    successMessage.value = `${validRecords.length}条记录添加成功`;
+    successMessage.value = `${validRecords.length} records added successfully`;
     console.log('Multi records submit successful:', { totalRecords: validRecords.length });
     
     // Reset the data
     multiRecords.value = [];
     selectAll.value = false;
   } catch (error) {
-    console.error('批量添加记录失败:', error);
-    console.error('批量添加错误详情:', { message: error.message, stack: error.stack });
-    errorMessage.value = `添加记录失败: ${error.message}`;
+    console.error('Multi records submit failed:', error);
+    console.error('Error details:', { message: error.message, stack: error.stack });
+    errorMessage.value = `Multi records submit failed: ${error.message}`;
   }
 };
 

@@ -14,7 +14,7 @@
       </GlassButton>
     </div>
 
-    <!-- 用户登录/注册表单 -->
+    <!-- User login/register form -->
     <div class="login-form" v-if="!isLoggedIn">
       <GlassForm @submit.prevent="handleLogin">
         <GlassFormItem :label="$t('membership.username')" prop="username" error="">
@@ -33,7 +33,7 @@
       </GlassForm>
     </div>
     
-    <!-- 用户信息和当前会员状态 -->
+    <!-- User info and membership status card -->
     <div class="user-info-card" v-if="isLoggedIn && userInfo">
       <div class="user-info-content">
         <AvatarUpload
@@ -96,12 +96,12 @@ export default {
     })
     const formLabelWidth = '100px'
     
-    // 返回主页
+    // Go to home
     const goToHome = () => {
       router.push('/')
     }
     
-    // 登录表单验证规则
+    // Login form validation rules
     const loginRules = {
       username: [
         { required: true, message: t('membership.error.requiredUsername'), trigger: 'blur' },
@@ -110,29 +110,29 @@ export default {
       ]
     }
     
-    // 从本地存储获取用户名
+    // Get username from local storage
     const getUsername = () => {
       return localStorage.getItem('username') || ''
     }
 
-    // 从本地存储获取头像
+    // Get avatar from local storage
     const getAvatar = () => {
       return localStorage.getItem('avatar-' + getUsername()) || ''
     }
 
-    // 保存头像到本地存储
+    // Save avatar to local storage
     const saveAvatar = (avatarDataUrl) => {
       localStorage.setItem('avatar-' + getUsername(), avatarDataUrl)
       avatarUrl.value = avatarDataUrl
     }
 
-    // 处理头像上传完成
+    // Handle avatar uploaded
     const handleAvatarUploaded = (avatarDataUrl) => {
       saveAvatar(avatarDataUrl)
       successMessage.value = t('membership.success.avatarUploaded')
     }
     
-    // 检查是否已登录
+    // Check login status
     const checkLoginStatus = () => {
       const username = getUsername()
       isLoggedIn.value = !!username
@@ -146,14 +146,14 @@ export default {
       }
     }
     
-    // 处理登录/注册
+    // Login or register
     const handleLogin = async () => {
       if (!loginForm.value.username.trim()) {
         errorMessage.value = t('membership.error.requiredUsername')
         return
       }
       
-      // 验证用户名格式，只允许大小写英文字母
+      // Validate username format, only allow uppercase and lowercase letters
       const usernamePattern = /^[A-Za-z]+$/
       if (!usernamePattern.test(loginForm.value.username)) {
         errorMessage.value = t('membership.error.usernameFormat')
@@ -163,24 +163,24 @@ export default {
       try {
         isLoggingIn.value = true
         
-        // 保存用户名到本地存储
+        // Save username to local storage
         localStorage.setItem('username', loginForm.value.username)
         isLoggedIn.value = true
         
-        // 设置用户信息
+        // Set user info
         userInfo.value = { username: loginForm.value.username }
         avatarUrl.value = getAvatar()
         
         successMessage.value = t('membership.success.login')
       } catch (error) {
-        console.error('登录失败:', error)
+        console.error('Login failed:', error)
         errorMessage.value = t('membership.error.loginFailed')
       } finally {
         isLoggingIn.value = false
       }
     }
     
-    // 处理登出
+    // Logout
     const logout = () => {
       localStorage.removeItem('username')
       isLoggedIn.value = false
@@ -189,9 +189,9 @@ export default {
     }
     
     
-    // 页面加载时获取数据
+    // Fetch data on page load
     onMounted(() => {
-      // 首先检查登录状态
+      // Check login status on page load
       checkLoginStatus()
     })
     

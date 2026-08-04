@@ -1,17 +1,17 @@
-/* 全局变量定义 */
+/* Global variable definitions */
 
 :root {
-  /* 主题色 */
-  --primary-color: #4CAF50; /* 更明亮的绿色主色调 */
-  --primary-gradient: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); /* 主色渐变 */
+  /* Theme colours */
+  --primary-color: #4CAF50; /* Brighter green primary colour */
+  --primary-gradient: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); /* Primary gradient */
   --success-color: #43A047;
   --error-color: #E53935;
   
-  /* 布局元素 */
-  --border-radius: 14px; /* 更圆润的边框 */
+  /* Layout elements */
+  --border-radius: 14px; /* Rounded corners */
   --border-radius-lg: 20px; /* Larger radius for containers and modals */
-  --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12); /* 更柔和的阴影 */
-  --transition-time: 0.35s; /* 更流畅的过渡时间 */
+  --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12); /* Soft shadow */
+  --transition-time: 0.35s; /* Smooth transition time */
   
   /* Backgrounds and effects. CSS glass uses these values directly; the
      liquid-glass engine reads them as tint colours when it is active. */

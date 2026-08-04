@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-// 使用相对路径API基础URL，通过Vite代理转发请求
+// Relative path API base URL, forwarded by Vite proxy to handle CORS issues
 export const API_BASE = '/api';
 
-// 生成UUID
+// Generate UUID for each record
 export const generateId = () => uuidv4();
 
 export const ExpenseAPI = {
   async addExpensesBatch (records) {
     try {
-      // 为每条记录添加UUID和版本信息
+      // Add UUID and version to each record
       const recordsWithMeta = records.map(record => ({
         id: record.id || generateId(),
         ...record,
@@ -23,30 +23,30 @@ export const ExpenseAPI = {
         }
       });
     } catch (error) {
-      console.error('批量添加消费记录失败:', error);
+      console.error('[Expense API] Batch add expenses failed with error:', error);
       throw error;
     }
   },
 
   async getExpenses (page = 1, limit = 10, searchParams = {}) {
-    console.log('[Expense API] 尝试获取消费数据，API基础URL:', API_BASE);
+    console.log('[Expense API] Trying to get expenses data from API base URL:', API_BASE);
     try {
-      // 构建查询参数
+      // Build query parameters
       let params;
       
-      // 处理URLSearchParams对象或普通对象
+      // Handle URLSearchParams object or plain object
       if (searchParams instanceof URLSearchParams) {
         params = {};
-        // 添加基础分页参数
+        // Add basic pagination parameters
         params.page = page;
         params.limit = limit;
         
-        // 从URLSearchParams中提取所有参数
+        // Extract all parameters from URLSearchParams
         searchParams.forEach((value, key) => {
           params[key] = value;
         });
       } else {
-        // 普通对象的情况
+        // Handle plain object case
         params = {
           page,
           limit,
@@ -54,21 +54,22 @@ export const ExpenseAPI = {
         };
       }
       
-      console.log('[Expense API] 请求参数:', params);
+      // Log request parameters for debugging
+      console.log('[Expense API] Request parameters:', params);
       const response = await axios.get(`${API_BASE}/expenses`, {
         params
       });
       
-      // 返回完整的响应对象，包括数据、总数、页码等信息
+      // Return full response object, including data, total, page, etc
       return response;
     } catch (error) {
       if (error.code === 'ERR_NETWORK') {
-        console.error('获取消费数据失败：网络连接异常，请检查服务器或网络状态。', error);
+        console.error('[Expense API] Failed to get expenses data: Network connection error, please check server or network status.', error);
       } else {
-        console.error('获取消费数据失败:', error);
+        console.error('[Expense API] Failed to get expenses data:', error);
       }
-      console.error('[Expense API] 获取消费数据失败详情:', error.response || error.message || error);
-      throw error; // 向上传递错误以便前端处理
+      console.error('[Expense API] Failed to get expenses data details:', error.response || error.message || error);
+      throw error; // Propagate error to frontend for handling
     }
   },
 
@@ -90,12 +91,12 @@ export const ExpenseAPI = {
         }
       });
     } catch (error) {
-      console.error('添加消费数据失败:', error);
-      throw error; // 添加操作失败需要向上抛出错误
+      console.error('[Expense API] Failed to add expense data:', error);
+      throw error; // Propagate error to frontend for handling
     }
   },
 
-  // 同步API - 用于离线同步
+  // Sync API for offline synchronization
   async syncExpenses (lastSyncTime, changes) {
     try {
       const response = await axios.post(`${API_BASE}/expenses/sync`, {
@@ -108,41 +109,41 @@ export const ExpenseAPI = {
       });
       return response.data;
     } catch (error) {
-      console.error('同步消费数据失败:', error);
-      throw error;
+      console.error('[Expense API] Failed to sync expenses data:', error);
+      throw error; // Propagate error to frontend for handling
     }
   },
 
   async getStatistics (searchParams = {}) {
     try {
-      // 处理URLSearchParams对象或普通对象
+      // Handle URLSearchParams object or plain object
       let params;
       if (searchParams instanceof URLSearchParams) {
         params = {};
-        // 从URLSearchParams中提取所有参数
+        // Extract all parameters from URLSearchParams
         searchParams.forEach((value, key) => {
           params[key] = value;
         });
       } else {
-        // 普通对象的情况
+        // Handle plain object case
         params = { ...searchParams };
       }
       
-      console.log('[Expense API] 获取统计数据请求参数:', params);
+      console.log('[Expense API] Request parameters for getStatistics:', params);
       const response = await axios.get(`${API_BASE}/expenses/statistics`, {
         params
       });
       return response.data;
     } catch (error) {
-      console.error('获取统计数据失败:', error);
-      return { error: error.message || '未知错误' };
+      console.error('[Expense API] Failed to get statistics data:', error);
+      return { error: error.message || 'Unknown error' };
     }
   },
 
-  // 更新消费记录
+  // Update expense record
   async updateExpense (id, data) {
     try {
-      console.log(`[Expense API] 更新消费记录 ID: ${id}`, data);
+      console.log(`[Expense API] Update expense record ID: ${id}`, data);
       const updateData = {
         ...data,
         amount: parseFloat(data.amount),
@@ -157,43 +158,43 @@ export const ExpenseAPI = {
       });
       return response.data;
     } catch (error) {
-      console.error(`更新消费记录失败 ID: ${id}:`, error);
+      console.error(`[Expense API] Failed to update expense record ID: ${id}:`, error);
       throw error;
     }
   },
 
-  // 删除消费记录
+  // Delete expense record
   async deleteExpense (id) {
     try {
-      console.log(`[Expense API] 删除消费记录 ID: ${id}`);
+      console.log(`[Expense API] Delete expense record ID: ${id}`);
       const response = await axios.delete(`${API_BASE}/expenses/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`删除消费记录失败 ID: ${id}:`, error);
+      console.error(`Delete expense record ID: ${id}:`, error);
       throw error;
     }
   },
 
-  // 获取按日期分组的消费记录（用于每日统计）
+  // Get expense records grouped by date (for daily statistics)
   async getExpensesByDate (page = 1, limit = 10, searchParams = {}) {
-    console.log('[Expense API] 尝试获取按日期分组的消费数据');
+    console.log('[Expense API] Request to get expense records grouped by date');
     try {
-      // 构建查询参数
+      // Build query parameters
       let params;
       
-      // 处理URLSearchParams对象或普通对象
+      // Handle URLSearchParams object or plain object
       if (searchParams instanceof URLSearchParams) {
         params = {};
-        // 添加基础分页参数
+        // Add basic pagination parameters
         params.page = page;
         params.limit = limit;
         
-        // 从URLSearchParams中提取所有参数
+        // Extract all parameters from URLSearchParams
         searchParams.forEach((value, key) => {
           params[key] = value;
         });
       } else {
-        // 普通对象的情况
+        // Handle plain object case
         params = {
           page,
           limit,
@@ -201,20 +202,21 @@ export const ExpenseAPI = {
         };
       }
       
-      console.log('[Expense API] 请求参数:', params);
+      // Log request parameters for debugging
+      console.log('[Expense API] Request parameters:', params);
       const response = await axios.get(`${API_BASE}/expenses/by-date`, {
         params
       });
       
-      // 返回完整的响应对象，包括数据、总数、页码等信息
+      // Return complete response object, including data, total count, page, etc.
       return response;
     } catch (error) {
       if (error.code === 'ERR_NETWORK') {
-        console.error('获取按日期分组的消费数据失败：网络连接异常，请检查服务器或网络状态。', error);
+        console.error('Failed to get expense records grouped by date: Network connection error, please check server or network status.', error);
       } else {
-        console.error('获取按日期分组的消费数据失败:', error);
+        console.error('Failed to get expense records grouped by date:', error);
       }
-      console.error('[Expense API] 获取按日期分组的消费数据失败详情:', error.response || error.message || error);
+      console.error('[Expense API] Failed to get expense records grouped by date details:', error.response || error.message || error);
       throw error;
     }
   }

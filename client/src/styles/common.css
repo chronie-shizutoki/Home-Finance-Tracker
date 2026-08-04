@@ -1,5 +1,4 @@
-/* 样式入口文件，导入所有模块 */
-/* 全局样式导入 */
+/* Global styles entry file, imports all modules */
 @import './variables.css';
 @import './base.css';
 @import './layout.css';
@@ -9,7 +8,7 @@
 @import './modal.css';
 @import './responsive.css';
 
-/* 通用工具类 */
+/* Common utility classes */
 .text-center {
   text-align: center;
 }
@@ -55,7 +54,7 @@
 .p-5 { padding: 1.5rem; }
 .p-6 { padding: 2rem; }
 
-/* 布局工具类 */
+/* Layout utility classes */
 .flex {
   display: flex;
 }
@@ -96,7 +95,7 @@
   height: 100%;
 }
 
-/* 圆角工具类 */
+/* Rounded utility classes */
 .rounded {
   border-radius: var(--border-radius);
 }
@@ -109,7 +108,7 @@
   border-radius: 9999px;
 }
 
-/* 阴影工具类 */
+/* Shadow utility classes */
 .shadow {
   box-shadow: var(--shadow);
 }
@@ -122,7 +121,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* 过渡工具类 */
+/* Transition utility classes */
 .transition {
   transition: all var(--transition-time) ease;
 }
@@ -135,7 +134,7 @@
   transition: all var(--transition-slow) ease;
 }
 
-/* 卡片样式 */
+/* Card styles */
 .card {
   background: var(--bg-card);
   border-radius: var(--border-radius);
@@ -149,20 +148,20 @@
   transform: translateY(-2px);
 }
 
-/* 加载状态 */
+/* Loading state */
 .loading {
   opacity: 0.6;
   pointer-events: none;
 }
 
-/* 文本截断 */
+/* Text truncation */
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 多行文本截断 */
+/* Multi-line text truncation */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -179,7 +178,7 @@
   overflow: hidden;
 }
 
-/* 深色模式通用适配 */
+/* Dark mode universal adaptation */
 @media (prefers-color-scheme: dark) {
   .card {
     background: var(--dark-bg-card);

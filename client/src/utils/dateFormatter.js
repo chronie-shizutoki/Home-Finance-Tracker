@@ -31,7 +31,7 @@ export const formatDateByLocale = (date, locale) => {
       return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     }
   } catch (error) {
-    console.error('日期格式化错误:', error);
+    console.error('formatDateByLocale error:', error);
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
   }
 };
@@ -51,7 +51,7 @@ export const formatMonthLabelByLocale = (yearMonth, locale) => {
       return `${d.getFullYear()}-${d.getMonth() + 1}`;
     }
   } catch (error) {
-    console.error('月份格式化错误:', error);
+    console.error('formatMonthLabelByLocale error:', error);
     return `${d.getFullYear()}-${d.getMonth() + 1}`;
   }
 };

@@ -1,8 +1,8 @@
 /**
- * 格式化日期为相对日期格式（今天、昨天、X天前等）
- * @param {string} dateString - 日期字符串 (YYYY-MM-DD)
- * @param {Function} t - Vue i18n 翻译函数
- * @returns {string} 格式化后的相对日期字符串
+ * Format date as relative date (today, yesterday, X days ago, etc.)
+ * @param {string} dateString - Date string (YYYY-MM-DD)
+ * @param {Function} t - Vue i18n translation function
+ * @returns {string} Formatted relative date string
  */
 export const formatRelativeDate = (dateString, t) => {
   try {
@@ -50,9 +50,9 @@ export const formatRelativeDate = (dateString, t) => {
 };
 
 /**
- * 格式化日期为 YYYY-MM-DD 格式
- * @param {string|Date} date - 日期字符串或Date对象
- * @returns {string} 格式化后的日期字符串
+ * Format date as YYYY-MM-DD format
+ * @param {string|Date} date - Date string or Date object
+ * @returns {string} Formatted date string
  */
 export const formatDate = (date) => {
   if (!date) return '';
@@ -67,9 +67,9 @@ export const formatDate = (date) => {
 };
 
 /**
- * 检查日期是否已过期
- * @param {string|Date} date - 日期字符串或Date对象
- * @returns {boolean} 是否过期
+ * Check if date has expired
+ * @param {string|Date} date - Date string or Date object
+ * @returns {boolean} Whether expired
  */
 export const isExpired = (date) => {
   if (!date) return false;
@@ -80,9 +80,9 @@ export const isExpired = (date) => {
 };
 
 /**
- * 检查日期是否即将过期（7天内）
- * @param {string|Date} date - 日期字符串或Date对象
- * @returns {boolean} 是否即将过期
+ * Check if date is soon expired (within 7 days)
+ * @param {string|Date} date - Date string or Date object
+ * @returns {boolean} Whether soon expired
  */
 export const isSoonExpired = (date) => {
   if (!date) return false;
@@ -95,18 +95,18 @@ export const isSoonExpired = (date) => {
 };
 
 /**
- * 获取当前日期的字符串表示（YYYY-MM-DD）
- * @returns {string} 当前日期
+ * Get current date as string (YYYY-MM-DD)
+ * @returns {string} Current date
  */
 export const getCurrentDate = () => {
   return formatDate(new Date());
 };
 
 /**
- * 计算两个日期之间的天数差
- * @param {string|Date} startDate - 开始日期
- * @param {string|Date} endDate - 结束日期
- * @returns {number} 天数差
+ * Calculate days difference between two dates
+ * @param {string|Date} startDate - Start date
+ * @param {string|Date} endDate - End date
+ * @returns {number} Days difference
  */
 export const getDaysDifference = (startDate, endDate) => {
   if (!startDate || !endDate) return 0;

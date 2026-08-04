@@ -7,7 +7,7 @@
         <GlassButton
           class="language-toggle"
           @click.stop="toggleDropdown"
-          :aria-label="`当前语言: ${currentLanguageLabel}`"
+          :aria-label="`Current language: ${currentLanguageLabel}`"
           aria-haspopup="true"
           :aria-expanded="isDropdownOpen"
         >
@@ -29,7 +29,7 @@
             v-show="isDropdownOpen"
             class="language-dropdown-menu"
             role="menu"
-            aria-label="语言选择"
+            aria-label="Language selection"
           >
             <button
               v-for="lang in languages"
@@ -190,7 +190,7 @@ const fetchUserInfo = async () => {
       }
     }
   } catch (error) {
-    console.error('获取用户信息失败:', error);
+    console.error('Failed to fetch user info:', error);
   }
 };
 
@@ -227,7 +227,7 @@ onUnmounted(() => {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: 9999;
   transition: all 0.3s ease;
   box-sizing: border-box;
   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);

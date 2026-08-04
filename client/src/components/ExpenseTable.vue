@@ -1,7 +1,7 @@
 <!-- ExpenseTable.vue -->
 <template>
   <div class="expense-container" v-liquid-glass>
-    <!-- 渐变定义 SVG -->
+    <!-- Gradient definition SVG -->
     <svg class="gradient-defs" width="0" height="0">
       <defs>
         <linearGradient id="gradient-arrow" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -10,7 +10,7 @@
         </linearGradient>
       </defs>
     </svg>
-    <!-- 大屏幕表格视图 -->
+    <!-- Large screen table view -->
     <div class="table-view">
       <table class="expense-table">
         <thead>
@@ -36,7 +36,7 @@
         </thead>
         <transition-group name="row-fade" tag="tbody">
           <template v-for="(expenses, date) in groupedExpenses" :key="date">
-            <!-- 日期标题行 -->
+            <!-- Date header row -->
             <tr class="date-header-row">
               <td colspan="5">
                 <div class="date-header">
@@ -48,7 +48,7 @@
                 </div>
               </td>
             </tr>
-            <!-- 该日期下的支出项 -->
+            <!-- Expense items for the date row -->
             <tr v-for="(expense, index) in expenses" :key="expense.id" :data-index="index">
               <td>{{ formatExpenseDate(expense.date) }}</td>
               <td>
@@ -74,11 +74,11 @@
       </table>
     </div>
 
-    <!-- 小屏幕卡片视图 -->
+    <!-- Small screen card view -->
     <div class="card-view">
       <transition-group name="row-fade" tag="div">
         <template v-for="(expenses, date) in groupedExpenses" :key="date">
-          <!-- 日期标题卡片 -->
+          <!-- Date header card -->
           <div class="date-header-card">
             <div class="date-info">
               <span class="date-text">{{ formatDate(date) }}</span>
@@ -86,7 +86,7 @@
             </div>
             <div class="total-amount">-{{ $t('common.currencySymbol') }}{{ calculateDailyTotal(expenses).toFixed(2) }}</div>
           </div>
-          <!-- 该日期下的支出卡片 -->
+          <!-- Expense items for the date row -->
           <div 
             v-for="(expense, index) in expenses" 
             :key="expense.id" 
@@ -117,7 +117,7 @@
             </div>
           </div>
         
-        <!-- 长按菜单 -->
+        <!-- Long press menu -->
         <transition 
           name="menu-fade"
           mode="out-in"
@@ -150,7 +150,7 @@
       </transition-group>
     </div>
 
-    <!-- 空数据状态 -->
+    <!-- No data status -->
     <div v-if="Object.keys(groupedExpenses).length === 0" class="no-data">
       <div class="no-data-icon"></div>
       <h3>{{ $t('expense.noDataTitle') }}</h3>
@@ -176,7 +176,7 @@ export default {
       type: Object,
       default: () => ({})
     },
-    // 使sortField和sortOrder成为可选属性
+    // Let sortField and sortOrder be optional properties
     sortField: {
       type: String,
       default: ''
@@ -188,7 +188,7 @@ export default {
   },
 
   setup (props, { emit }) {
-    // 使用 toRefs 保持 props 的响应性
+    // Use toRefs to keep props reactive
     const { sortField, sortOrder } = toRefs(props);
     const { t, locale } = useI18n();
     
@@ -201,20 +201,20 @@ export default {
       return formatDateByLocale(dateString, locale.value);
     };
 
-    // 计算每日总金额
+    // Calculate daily total
     const calculateDailyTotal = (expenses) => {
       return expenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
     };
 
-    // 长按相关状态
+    // Long press related state
     const showMenu = ref(false);
     const menuExpenseId = ref('');
     const currentMenuExpense = ref(null);
     const menuPosition = ref({ x: 0, y: 0 });
     const longPressTimer = ref(null);
-    const LONG_PRESS_DURATION = 500; // 长按触发时间
+    const LONG_PRESS_DURATION = 500; // Long press trigger duration
 
-    // 菜单样式计算
+    // Menu style calculation
     const menuStyle = computed(() => {
       return {
         top: `${menuPosition.value.y}px`,
@@ -222,41 +222,41 @@ export default {
       };
     });
 
-    // 开始长按
+    // Start long press
     const startLongPress = (expense, event) => {
-      // 清除之前的定时器
+      // Clear previous timer
       if (longPressTimer.value) {
         clearTimeout(longPressTimer.value);
       }
       
-      // 保存target引用，避免在异步回调中丢失
+      // Save target reference to avoid loss in async callbacks
       const target = event.currentTarget;
       
-      // 设置新的定时器
+      // Set new timer
       longPressTimer.value = setTimeout(() => {
-        // 计算菜单位置
-        // 添加空值检查，确保target存在
+        // Calculate menu position
+        // Add null check to ensure target exists
         if (!target) {
           console.warn('Long press target is null or undefined');
           return;
         }
         
         const rect = target.getBoundingClientRect();
-        // 获取触摸或鼠标事件的坐标
+        // Get coordinates of touch or mouse event
         const clientX = event.touches ? event.touches[0].clientX : event.clientX;
         const clientY = event.touches ? event.touches[0].clientY : event.clientY;
         
-        // 计算菜单位置，从长按位置附近弹出
+        // Calculate menu position, near the long press position
         menuPosition.value = {
-          x: window.innerWidth - clientX - 110, // 调整菜单宽度
+          x: window.innerWidth - clientX - 110, // Adjust menu width
           y: clientY + 10
         };
         
-        // 先设置菜单数据，再显示菜单
+        // Set menu data first, then show menu
         menuExpenseId.value = expense.id;
         currentMenuExpense.value = expense;
         
-        // 确保DOM更新后再显示菜单，触发动画
+        // Ensure DOM update before showing menu, trigger animation
         setTimeout(() => {
           showMenu.value = true;
           
@@ -266,7 +266,7 @@ export default {
       }, LONG_PRESS_DURATION);
     };
 
-    // 结束长按
+    // End long press
     const endLongPress = () => {
       if (longPressTimer.value) {
         clearTimeout(longPressTimer.value);
@@ -274,38 +274,38 @@ export default {
       }
     };
 
-    // 关闭菜单
+    // Close menu
     const closeMenu = () => {
       showMenu.value = false;
       menuExpenseId.value = '';
       currentMenuExpense.value = null;
     };
 
-    // 点击外部关闭菜单
+    // Click outside to close menu
     const handleClickOutside = (event) => {
       if (showMenu.value && !event.target.closest('.long-press-menu')) {
         closeMenu();
       }
     };
 
-    // 处理编辑事件
+    // Handle edit expense click
     const handleEdit = (expense) => {
       console.log('Edit expense clicked:', expense);
       emit('edit', expense);
     };
 
-    // 处理删除事件
+    // Handle delete expense click
     const handleDelete = (id) => {
       console.log('Delete expense clicked:', { id });
       emit('delete', id);
     };
 
-    // 添加全局点击事件监听
+    // Add global click event listener
     onMounted(() => {
       document.addEventListener('click', handleClickOutside);
     });
 
-    // 移除全局点击事件监听
+    // Remove global click event listener
     onUnmounted(() => {
       document.removeEventListener('click', handleClickOutside);
       if (longPressTimer.value) {
@@ -313,7 +313,7 @@ export default {
       }
     });
 
-    // 监听数据变化
+    // Listen for data changes
     watch(() => props.groupedExpenses, (newVal) => {
       const totalExpenses = Object.values(newVal || {}).reduce((sum, expenses) => sum + expenses.length, 0);
       console.log('Expense data updated:', { recordCount: totalExpenses });
@@ -347,7 +347,7 @@ export default {
   overflow: hidden;
 }
 
-/* 表格视图样式 */
+/* Table view styles */
 .table-view {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -387,7 +387,7 @@ export default {
   background-color: rgba(67, 97, 238, 0.03);
 }
 
-/* 日期标题行样式 */
+/* Date header row styles */
 .date-header-row {
   background: rgba(255, 255, 255, 0.25);
 }
@@ -427,12 +427,12 @@ export default {
   color: #e63946;
 }
 
-/* 卡片视图样式 */
+/* Card view styles */
 .card-view {
   display: none;
 }
 
-/* 日期标题卡片样式 */
+/* Date header card styles */
 .date-header-card {
   background: rgba(255, 255, 255, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -577,7 +577,7 @@ export default {
     background-color: #c1121f;
   }
 
-/* 长按菜单样式 */
+/* Long press menu styles */
 .long-press-menu {
   position: fixed;
   z-index: 9999;
@@ -638,7 +638,7 @@ export default {
   }
 }
 
-/* 菜单动画效果 */
+/* Menu animation effects */
 .menu-fade-enter-active,
 .menu-fade-leave-active {
   transition: all 0.3s ease-out !important;
@@ -656,7 +656,7 @@ export default {
   transform: scale(0.8) rotate(10deg) !important;
 }
 
-/* 兼容Vue 2的动画类名 */
+/* Vue.js 2 animation class names */
 .menu-fade-enter {
   opacity: 0 !important;
   transform: scale(0.8) rotate(-10deg) !important;
@@ -672,7 +672,7 @@ export default {
   transform: scale(0.8) rotate(10deg) !important;
 }
 
-/* 深色模式适配 */
+/* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .menu-content {
     background-color: #2a2a2a;
@@ -689,7 +689,7 @@ export default {
   }
 }
 
-/* 通用样式 */
+/* Common styles */
 .sortable {
   cursor: pointer;
   position: relative;
@@ -717,7 +717,7 @@ export default {
   fill: url(#gradient-arrow);
 }
 
-/* 渐变定义 */
+/* Gradient definitions */
 .gradient-defs {
   position: absolute;
   width: 0;
@@ -796,7 +796,7 @@ export default {
   margin: 0 auto;
 }
 
-/* 表格翻页渐隐渐入动画效果 */
+/* Table fade animation effects */
 .row-fade-enter-active,
 .row-fade-leave-active {
   transition: opacity 0.3s ease;
@@ -807,7 +807,7 @@ export default {
   opacity: 0;
 }
 
-/* 响应式设计 - 小屏幕使用卡片视图 */
+/* Responsive design for small screens (use card view) */
 @media (max-width: 768px) {
   .table-view {
     display: none;
@@ -818,7 +818,7 @@ export default {
   }
 }
 
-/* 深色模式支持 */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .table-view {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -862,7 +862,7 @@ export default {
     color: #aaa;
   }
 
-  /* 深色模式下的卡片样式 */
+  /* Dark mode card styles */
   .expense-card {
     background: rgba(30, 30, 30, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -900,7 +900,7 @@ export default {
     opacity: 0.9;
   }
 
-  /* 深色模式下的日期标题样式 */
+  /* Dark mode date header styles */
   .date-header-row {
     background: rgba(255, 255, 255, 0.06);
   }

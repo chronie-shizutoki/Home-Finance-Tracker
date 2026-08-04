@@ -41,15 +41,15 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible']);
 
-// 内部状态管理与双向同步
+// Internal state management and bidirectional synchronization
 const dialogVisible = ref(props.visible);
 
-// 同步父组件状态到内部
+// Sync parent component state to internal
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
 });
 
-// 同步内部状态到父组件
+// Sync internal state to parent component
 watch(dialogVisible, (newVal) => {
   emit('update:visible', newVal);
 });
@@ -60,15 +60,15 @@ const handleClose = (newVal) => {
 
 useI18n();
 
-// 配置 marked
-// 创建自定义marked渲染器
+// Configure marked.js
+// Create custom marked renderer
 const renderer = new marked.Renderer();
 const originalCodeRenderer = renderer.code;
 
-// 使用原始代码渲染器
+// Use original code renderer
 renderer.code = originalCodeRenderer;
 
-// 配置marked选项
+// Configure marked options
 marked.setOptions({
   highlight: function (code, lang) {
     if (lang && hljs.getLanguage(lang)) {

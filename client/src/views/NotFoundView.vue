@@ -13,13 +13,16 @@
 
 <script>
 /**
- * 全局错误页面组件
- * @displayName 错误页面
+ * Global error page component
+ * @displayName Error Page
  */
 export default {
   name: 'NotFoundView',
-  metaInfo: {
-    title: '页面未找到'
+  metaInfo() {
+    return {
+      title: this.$t('app.notFound'),
+      description: this.$t('app.pageNotFound'),
+    }
   }
 };
 </script>

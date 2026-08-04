@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <!-- 进度条显示 -->
+    <!-- Progress display -->
     <div class="progress-section">
       <div class="progress-info">
         <span class="current-spending">
@@ -43,7 +43,7 @@
       />
     </div>
 
-    <!-- 状态提示 -->
+    <!-- Status display -->
     <div class="status-section">
       <GlassAlert
         :type="statusAlert.type"
@@ -55,7 +55,7 @@
       </GlassAlert>
     </div>
 
-    <!-- 详细信息 -->
+    <!-- Details display -->
     <div class="details-section">
       <div class="detail-item" v-if="spendingStore.isOverLimit">
         <span class="detail-label">{{ $t('spending.exceeded') }}:</span>
@@ -80,7 +80,7 @@
     
   </div>
 
-  <!-- 启用提示 -->
+  <!-- Enable prompt -->
   <div class="enable-prompt" v-else>
     <div class="prompt-content">
 <FontAwesomeIcon icon="chart-line" class="prompt-icon" />
@@ -98,8 +98,8 @@
       </GlassButton>
     </div>
   </div>
-
-  <!-- 独立的预算设置弹窗 -->
+  
+  <!-- Settings dialog -->
   <SpendingLimitSetting v-model="showSettings" />
 </template>
 
@@ -118,13 +118,13 @@ import CustomProgress from './CustomProgress.vue';
 const { t, locale } = useI18n();
 const spendingStore = useSpendingStore();
 
-// 本地状态
+// Local state
 const successMessage = ref('');
 const errorMessage = ref('');
-// 控制独立弹窗的显示/隐藏
+// Control dialog display/hide
 const showSettings = ref(false);
 
-// 计算属性
+// Computed properties
 const currentMonthName = computed(() => {
   return formatMonthLabelByLocale(new Date(), locale.value);
 });
@@ -176,7 +176,7 @@ const statusAlert = computed(() => {
   }
 });
 
-// 计算日均消费
+// Calculate daily average spending
 const dailyAverage = computed(() => {
   const now = new Date();
   const currentDay = now.getDate();
@@ -202,7 +202,7 @@ const recommendedDailyClass = computed(() => {
   return 'positive-amount';
 });
 
-// 方法
+// Methods
 const formatAmount = (amount) => {
   return new Intl.NumberFormat('en-CA', {
     minimumFractionDigits: 0,
@@ -221,7 +221,7 @@ const handleEnableSpendingLimit = () => {
   successMessage.value = t('spending.enablePrompt.enabled');
 };
 
-// 监听消费数据变化
+// Listen for expense data changes
 const props = defineProps({
   expenses: {
     type: Array,
@@ -233,7 +233,7 @@ watch(() => props.expenses, (newExpenses) => {
   spendingStore.updateExpenses(newExpenses);
 }, { immediate: true, deep: true });
 
-// 组件挂载时初始化
+// Component mounted
 onMounted(() => {
   spendingStore.loadSettings();
   if (props.expenses && props.expenses.length > 0) {
@@ -420,7 +420,7 @@ onMounted(() => {
   font-size: 14px;
 }
 
-/* 深色模式支持 */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .spending-limit-display {
     background: rgba(30, 30, 30, 0.7);
@@ -473,7 +473,7 @@ onMounted(() => {
     background-color: rgba(75, 85, 99, 0.3);
   }
 
-    /* 月度预算相关元素颜色区分 */
+    /* Monthly budget related element color distinction */
   .spending-amount {
     color: #fcd34d;
   }
@@ -495,7 +495,7 @@ onMounted(() => {
   }
 }
 
-/* 响应式设计 */
+/* Responsive design support */
 @media (max-width: 768px) {
   .spending-limit-display {
     padding: 16px;

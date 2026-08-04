@@ -1,20 +1,20 @@
 // expenseUtils.js
-// 类型颜色映射缓存
+// type color cache
 const typeColorCache = {};
 
 /**
- * 获取消费类型的颜色
- * @param {string} type 消费类型
- * @returns {string} HSL颜色字符串
+ * Get color for expense type
+ * @param {string} type Expense type
+ * @returns {string} HSL color string
  */
 export function getTypeColor (type, isDarkMode = false) {
-  // 为不同模式使用不同的缓存键
+  // Use different cache key for dark mode
   const cacheKey = isDarkMode ? `${type}_dark` : type;
   
   if (!typeColorCache[cacheKey]) {
-    // 生成随机但一致的颜色
+    // Generate random but consistent color for the type
     const hue = Math.floor(Math.random() * 360);
-    // 深色模式下降低亮度，提高饱和度
+    // Dark mode reduces lightness and increases saturation
     const saturation = isDarkMode ? 80 : 70;
     const lightness = isDarkMode ? 65 : 85;
     typeColorCache[cacheKey] = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
@@ -23,10 +23,10 @@ export function getTypeColor (type, isDarkMode = false) {
 }
 
 /**
- * 计算分页可见页面范围
- * @param {number} currentPage 当前页码
- * @param {number} totalPages 总页数
- * @returns {Array} 可见页码数组
+ * Calculate visible pages range for pagination pagination
+ * @param {number} currentPage Current page number
+ * @param {number} totalPages Total pages
+ * @returns {Array} Visible pages array
  */
 export function calculateVisiblePages (currentPage, totalPages) {
   const pages = [];

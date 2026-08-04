@@ -1,7 +1,7 @@
 /**
- * 应用常量配置
+ * Application constants configuration
  * @module constants
- * @desc 集中管理应用中的常量，避免硬编码
+ * @desc Centralize application constants to avoid hardcoding
  */
 
 export const API_BASE_URL = '/';
