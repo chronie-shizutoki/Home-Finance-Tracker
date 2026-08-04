@@ -1,5 +1,5 @@
 import axios from 'axios';
-// 导入axios但暂时不导入i18n以避免循环依赖问题
+// Import axios but not i18n to avoid circular dependencies
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
 const api = axios.create({
@@ -8,7 +8,7 @@ const api = axios.create({
   withCredentials: true
 });
 
-// 请求拦截器
+// Request interceptor
 api.interceptors.request.use(config => {
   config.signal = new AbortController().signal;
   return config;
@@ -16,12 +16,12 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-// 响应拦截器
+// Response interceptor
 api.interceptors.response.use(
   response => response.data,
   error => {
     try {
-      // 懒加载i18n以避免循环依赖
+      // Lazy load i18n to avoid circular dependencies
       const i18n = require('@/locales/i18n.js').default;
       
       if (axios.isCancel(error)) {
@@ -38,7 +38,7 @@ api.interceptors.response.use(
       apiError.details = error.config;
       return Promise.reject(apiError);
     } catch (i18nError) {
-      // 如果i18n加载或使用失败，返回基本错误
+      // If i18n loading or use fails, return basic error
       const fallbackError = new Error(error.response?.data?.error?.message || 'Network error');
       fallbackError.code = error.response?.status || 'NETWORK_ERROR';
       fallbackError.details = error.config;

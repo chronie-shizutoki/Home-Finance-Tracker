@@ -1,5 +1,5 @@
-/* 模态弹窗公共样式 */
-/* 模态弹窗覆盖层 */
+/* Modal common styles */
+/* Modal overlay styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -20,7 +20,7 @@
   padding-top: 2rem;
   overflow: auto;
   perspective: 1000px;
-  /* 确保在深色模式下背景更暗 */
+  /* Ensure darker background in dark mode */
   @media (prefers-color-scheme: dark) {
     background: rgba(0, 0, 0, 0.7);
   }
@@ -33,7 +33,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* 模态内容容器 */
+/* Modal content container */
 .modal-content {
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -47,7 +47,7 @@
   margin-bottom: 2rem;
   position: relative;
   transition: all var(--transition-time) ease;
-  /* 自定义滚动条 */
+  /* Custom scrollbar styles */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -67,17 +67,17 @@
     background: var(--hover-bg);
   }
   
-  /* 小型弹窗 */
+  /* Small modal variant */
   &.small {
     max-width: 400px;
   }
   
-  /* 大型弹窗 */
+  /* Large modal variant */
   &.large {
     max-width: 700px;
   }
   
-  /* 全宽弹窗 */
+  /* Full-width modal variant */
   &.full-width {
     width: 95%;
     max-width: none;
@@ -95,7 +95,7 @@
     }
   }
   
-  /* 模态头部 */
+  /* Modal header */
   .modal-header {
     display: flex;
     justify-content: space-between;
@@ -158,14 +158,14 @@
     }
   }
   
-  /* 模态内容 */
+  /* Modal body */
   .modal-body {
     margin-bottom: 1.5rem;
     color: var(--text-primary);
     line-height: 1.6;
   }
   
-  /* 模态底部 */
+  /* Modal footer */
   .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -174,7 +174,7 @@
     border-top: 1px solid var(--border-color);
   }
   
-  /* 按钮组 */
+  /* Button group */
   .modal-actions {
     display: flex;
     gap: 0.75rem;
@@ -228,7 +228,7 @@
   animation: glassDialogContentOut calc(var(--transition-time) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* 响应式设计 */
+/* Responsive design adjustments */
 @media (max-width: 768px) {
   .modal-overlay {
     padding-top: 1rem;
@@ -284,7 +284,7 @@
   }
 }
 
-/* 深色模式适配 */
+/* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
     --text-primary: #fff;

@@ -12,14 +12,14 @@
       </div>
 
       <div class="search-grid">
-        <!-- 月份选择 -->
+        <!-- Month selection -->
         <div class="search-control">
           <label class="control-label">
             <i class="icon-calendar"></i>
             {{ $t('expense.search.month') }}
           </label>
           <div class="control-input">
-            <!-- 使用CustomSelect组件 -->
+            <!-- Month selection component -->
             <CustomSelect
               v-model="month"
               :options="monthOptions"
@@ -29,14 +29,14 @@
           </div>
         </div>
 
-        <!-- 类型选择 -->
+        <!-- Type selection -->
         <div class="search-control">
           <label class="control-label">
             <i class="icon-category"></i>
             {{ $t('expense.search.type') }}
           </label>
           <div class="control-input">
-            <!-- 使用CustomSelect组件 -->
+            <!-- Type selection component -->
             <CustomSelect
               v-model="type"
               :options="uniqueTypes"
@@ -45,14 +45,14 @@
           </div>
         </div>
 
-        <!-- 排序方式 -->
+        <!-- Sort option -->
         <div class="search-control">
           <label class="control-label">
             <i class="icon-sort"></i>
             {{ $t('expense.search.sort') }}
           </label>
           <div class="control-input">
-            <!-- 使用CustomSelect组件 -->
+            <!-- Sort option component -->
             <CustomSelect
               v-model="sortOption"
               :options="sortOptions"
@@ -66,7 +66,7 @@
           </div>
         </div>
 
-        <!-- 金额范围 -->
+        <!-- Amount range selection -->
         <div class="search-control">
           <label class="control-label" for="minAmount">
             <i class="icon-amount"></i>
@@ -89,7 +89,7 @@
           </div>
         </div>
 
-        <!-- 关键词搜索 -->
+        <!-- Keyword search input -->
         <div class="search-control">
           <label class="control-label" for="keyword">
             <i class="icon-keyword"></i>
@@ -139,13 +139,13 @@ const props = defineProps({
   initialMaxAmount: [String, Number],
   initialSortOption: String,
   locale: { type: String, default: 'en-US' },
-  maxAmountRange: { type: Number, default: 5000 }, // 默认最大金额范围
+  maxAmountRange: { type: Number, default: 99999999 }, // Default maximum amount range
   availableMonths: { type: Array, default: () => [] }
 });
 
 const emit = defineEmits(['search']);
 
-// 响应式搜索条件
+// Reactive search conditions
 const keyword = ref(props.initialKeyword || '');
 const type = ref(props.initialType || '');
 const month = ref(props.initialMonth || '');
@@ -155,7 +155,7 @@ const sortOption = ref(props.initialSortOption || 'dateDesc');
 const monthOptions = ref([]);
 const { t, locale } = useI18n();
 
-// 排序选项数据
+// Sort option data
 const sortOptions = computed(() => [
   { value: 'dateDesc', label: t('expense.sort.dateDesc') },
   { value: 'dateAsc', label: t('expense.sort.dateAsc') },
@@ -163,7 +163,7 @@ const sortOptions = computed(() => [
   { value: 'amountAsc', label: t('expense.sort.amountAsc') }
 ]);
 
-// 计算属性
+// Computed properties
 const monthDisplay = computed(() => {
   if (!month.value) return '';
   return formatMonthLabelByLocale(month.value, props.locale);
@@ -182,13 +182,13 @@ const maxSliderValue = computed(() => {
   return props.maxAmountRange || 5000;
 });
 
-// 生成搜索参数对象的计算属性
+// Computed search parameters object
 const searchParams = computed(() => {
-  // 验证并转换数值类型
+  // Validate and convert numeric types
   const min = minAmount.value !== '' ? Number(minAmount.value) : undefined;
   const max = maxAmount.value !== '' ? Number(maxAmount.value) : undefined;
 
-  // 确保数值有效性
+  // Ensure numeric validity
   const validMin = !isNaN(min) ? min : undefined;
   const validMax = !isNaN(max) ? max : undefined;
 
@@ -202,16 +202,15 @@ const searchParams = computed(() => {
   };
 });
 
-// 根据表格数据生成月份选项，无数据时显示最近12个月
+// Generate month options based on table data, default to last 12 months
 const generateMonthOptions = () => {
   let options = [];
 
-  // 检查是否有可用的月份数据，并且数据数组不为空
+  // if available months data is valid
   if (props.availableMonths?.length) {
-    // 使用提供的月份数据，将每个月份转换为包含值和显示标签的对象
-    // 直接使用props.locale而不是再次调用useI18n()
+    // Map available months to objects with value and label
     options = props.availableMonths.map(month => {
-      // 标准化语言环境以支持更多格式
+      // Normalize locale to support more formats
       const localeMap = {
         en: 'en-US'
       };
@@ -226,32 +225,31 @@ const generateMonthOptions = () => {
   monthOptions.value = options;
 };
 
-// 搜索处理
+// Search processing
 const handleSearch = () => {
   console.log('Search initiated with params:', searchParams.value);
   
-  // 验证金额范围逻辑
+  // Validate amount range logic
   const { minAmount, maxAmount } = searchParams.value;
   if (minAmount !== undefined && maxAmount !== undefined && minAmount > maxAmount) {
     console.warn('Amount range invalid - min > max, swapping values', { minAmount, maxAmount });
-    // 如果最小值大于最大值，交换它们
+    // Swap min and max if min is greater than max
     minAmount.value = maxAmount;
     maxAmount.value = minAmount;
     return;
   }
 
-  // 由于我们已经在searchParams计算属性中处理了数据验证，
-  // 这里可以直接使用该属性的值
+  // Use validated search params
   const searchData = {
     ...searchParams.value,
-    sortOption: sortOption.value // 保留向后兼容性
+    sortOption: sortOption.value // Maintain backward compatibility with existing code
   };
   
   console.log('Emitting search event:', searchData);
   emit('search', searchData);
 };
 
-// 重置搜索条件
+// Reset search filters
 const handleReset = () => {
   console.log('Resetting all search filters');
   keyword.value = '';
@@ -264,7 +262,7 @@ const handleReset = () => {
   handleSearch();
 };
 
-// 清除单个过滤器
+// Clear single filter
 const clearFilter = (filterName) => {
   console.log('Clearing filter:', filterName);
   switch (filterName) {
@@ -281,7 +279,7 @@ const clearFilter = (filterName) => {
   handleSearch();
 };
 
-// 清除金额过滤器
+// Clear amount range filter
 const clearAmountFilter = () => {
   console.log('Clearing amount range filters');
   minAmount.value = '';
@@ -289,7 +287,7 @@ const clearAmountFilter = () => {
   handleSearch();
 };
 
-// 初始化月份选项
+// Initialize month options
 onMounted(() => {
   console.log('ExpenseSearch component mounted with initial props:', {
     locale: props.locale,
@@ -299,24 +297,24 @@ onMounted(() => {
   generateMonthOptions();
 });
 
-// 监听availableMonths变化，当数据从父组件更新时重新生成月份选项
+// Listen for changes in availableMonths to update month options
 watch(() => props.availableMonths, () => {
   generateMonthOptions();
 }, { deep: true });
 
-// 监听语言变化，当语言切换时重新生成月份选项
+// Listen for changes in locale to update month options
 watch(locale, (newLocale) => {
-  console.log('ExpenseSearch: 语言已切换，重新生成月份选项:', newLocale);
+  console.log('ExpenseSearch: re-generated month options for locale changed to:', newLocale);
   generateMonthOptions();
 });
 
-// 监听props中的locale变化，确保能响应外部传入的语言变化
+// Listen for changes in props.locale to update month options
 watch(() => props.locale, (newLocale) => {
-  console.log('ExpenseSearch: props locale已更新，重新生成月份选项:', newLocale);
+  console.log('ExpenseSearch: re-generated month options for locale changed to:', newLocale);
   generateMonthOptions();
 });
 
-// 监听所有筛选条件变化
+// Listen for changes in all filter conditions
 watch([keyword, type, month, minAmount, maxAmount, sortOption], (newValues) => {
   console.log('Filter condition changed:', {
     keyword: newValues[0],
@@ -329,7 +327,7 @@ watch([keyword, type, month, minAmount, maxAmount, sortOption], (newValues) => {
   handleSearch();
 }, { deep: true });
 
-// 暴露方法给父组件
+// Expose methods to parent component
 defineExpose({
   handleReset
 });
@@ -445,7 +443,7 @@ defineExpose({
   box-sizing: border-box;
 }
 
-  /* CustomSelect组件样式覆盖 */
+  /* CustomSelect component style override */
   :deep(.custom-select) {
     max-width: 60%;
   }
@@ -643,7 +641,7 @@ defineExpose({
     }
   }
   
-  /* 手机端适配 */
+  /* Mobile device adaptation */
   @media (max-width: 480px) {
     .search-container {
       padding: 12px;
@@ -693,7 +691,7 @@ defineExpose({
     
   }
 
-  /* 深色模式适配 */
+  /* Dark mode adaptation */
   @media (prefers-color-scheme: dark) {
     .search-container {
       background: rgba(30, 30, 30, 0.7);
@@ -752,7 +750,7 @@ defineExpose({
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
-    /* 自定义滚动条样式 - 深色模式 */
+    /* Custom scrollbar style - dark mode */
     .select-dropdown::-webkit-scrollbar {
       width: 6px;
     }

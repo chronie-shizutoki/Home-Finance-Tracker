@@ -45,18 +45,18 @@ const emit = defineEmits(['success', 'error']);
 const fileInput = ref(null);
 
 const triggerUpload = (event, options = {}) => {
-  // 只有当event存在时才调用preventDefault
+  // Only call preventDefault if event exists and is a valid event
   if (event && event.preventDefault) {
     event.preventDefault();
   }
   
-  // 安卓设备特殊处理
+  // Android device special handling
   if (isAndroid()) {
-    // 根据选项设置capture属性
+    // Set capture attribute based on options
     if (options.capture) {
       fileInput.value.capture = options.capture;
     } else {
-      // 不设置capture属性，允许用户选择是拍照还是从相册选择
+      // Allow user to choose between taking a photo or selecting from the gallery
       fileInput.value.removeAttribute('capture');
     }
   }
@@ -64,7 +64,7 @@ const triggerUpload = (event, options = {}) => {
   fileInput.value?.click();
 };
 
-// 检测是否为安卓设备
+// Detect if it's an Android device
 const isAndroid = () => {
   const userAgent = navigator.userAgent.toLowerCase();
   return userAgent.includes('android');
@@ -74,13 +74,13 @@ const handleFileChange = async (event) => {
   const files = Array.from(event.target.files);
   if (files.length === 0) return;
 
-  // 安卓设备特殊处理
+  // Android device special handling
   if (isAndroid() && files.length > 1) {
-    // 安卓设备多文件上传时的特殊处理
-    console.log('安卓设备多文件上传处理');
+    // Android device multiple file upload special handling
+    console.log('Android device multiple file upload special handling');
   }
 
-  // 为每个文件执行上传
+  // Upload each file individually
   for (const file of files) {
     try {
       const formData = new FormData();
@@ -110,8 +110,7 @@ const handleFileChange = async (event) => {
       }, file);
     }
   }
-
-  // 重置文件输入，以便可以重新选择相同的文件
+  // Reset file input value to allow re-selecting the same file
   event.target.value = '';
 };
 </script>

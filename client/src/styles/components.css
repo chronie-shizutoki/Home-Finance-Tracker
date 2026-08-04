@@ -1,4 +1,4 @@
-/* 卡片模块样式优化 */
+/* Card module styles optimization */
 .form-section,
 .data-section,
 .chart-section {
@@ -35,7 +35,7 @@
   animation: none;
 }
 
-/* 悬停动画效果 */
+/* Hover animation effect */
 .form-section:hover,
 .data-section:hover,
 .chart-section:hover {
@@ -43,7 +43,7 @@
   box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
-/* 滚动条美化 */
+/* Scrollbar beautification */
 .data-section::-webkit-scrollbar,
 .chart-section::-webkit-scrollbar {
   width: 8px;
@@ -68,7 +68,7 @@
   background: rgba(0,0,0,0.3);
 }
 
-/* 表单元素样式 */
+/* Form element styles */
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -85,7 +85,7 @@
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
-/* 加载动画 */
+/* Loading animation */
 .loading-spinner {
   display: inline-block;
   width: 24px;
@@ -109,7 +109,7 @@
   }
 }
 
-/* 深色模式适配 */
+/* Dark mode universal adaptation */
 @media (prefers-color-scheme: dark) {
   .form-section,
   .data-section,

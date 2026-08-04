@@ -27,39 +27,39 @@ const parseDate = (dateString) => {
 
 export const useSpendingStore = defineStore('spending', {
   state: () => ({
-    monthlyLimit: 0, // 月度消费上限
-    currentMonthSpending: 0, // 当前月消费总额
+    monthlyLimit: 0, // Monthly spending limit
+    currentMonthSpending: 0, // Current month spending total
     isLimitEnabled: false, // 是否启用限制功能
-    lastCalculatedMonth: '', // 上次计算的月份，用于缓存优化
-    warningThreshold: 0.8, // 警告阈值（80%）
-    expenses: [] // 消费记录缓存
+    lastCalculatedMonth: '', // Last calculated month, used for cache optimization
+    warningThreshold: 0.8, // Warning threshold (80%)
+    expenses: [] // Expense record cache
   }),
 
   getters: {
-    // 计算消费百分比（不限制最大值，用于显示真实比例）
+    // Calculate spending percentage (no max limit, for real-time display)
     spendingPercentage: (state) => {
       if (!state.monthlyLimit || state.monthlyLimit <= 0) return 0;
       return (state.currentMonthSpending / state.monthlyLimit) * 100;
     },
 
-    // 剩余可消费金额
+    // Remaining amount that can be spent
     remainingAmount: (state) => {
       return Math.max(state.monthlyLimit - state.currentMonthSpending, 0);
     },
 
-    // 是否超出限制
+    // Whether spending exceeds the limit
     isOverLimit: (state) => {
       return state.isLimitEnabled && state.currentMonthSpending > state.monthlyLimit;
     },
 
-    // 是否接近限制（达到警告阈值）
+    // Whether spending is near the limit (reached warning threshold)
     isNearLimit: (state) => {
       return state.isLimitEnabled &&
              state.currentMonthSpending >= (state.monthlyLimit * state.warningThreshold) &&
              !state.isOverLimit;
     },
 
-    // 获取当前状态类型
+    // Get current status type
     statusType: (state) => {
       if (!state.isLimitEnabled) return 'disabled';
       if (state.isOverLimit) return 'danger';
@@ -67,7 +67,7 @@ export const useSpendingStore = defineStore('spending', {
       return 'normal';
     },
 
-    // 获取状态颜色
+    // Get status color
     statusColor: (state) => {
       switch (state.statusType) {
       case 'danger': return '#f56c6c';
@@ -77,51 +77,51 @@ export const useSpendingStore = defineStore('spending', {
       }
     },
 
-    // 当前月份字符串
+    // Current month string
     currentMonth: () => {
       return formatMonth(new Date());
     }
   },
 
   actions: {
-    // 设置月度消费限制
+    // Set monthly spending limit
     setMonthlyLimit (limit) {
       this.monthlyLimit = Math.max(0, Number(limit) || 0);
       this.saveSettings();
     },
 
-    // 启用/禁用限制功能
+    // Enable/disable spending limit
     toggleLimitEnabled (enabled) {
       this.isLimitEnabled = Boolean(enabled);
       this.saveSettings();
     },
 
-    // 设置警告阈值
+    // Set warning threshold (between 0.1 and 1)
     setWarningThreshold (threshold) {
       this.warningThreshold = Math.max(0.1, Math.min(1, Number(threshold) || 0.8));
       this.saveSettings();
     },
 
-    // 更新消费记录并重新计算当前月消费
+    // Update expense records and recalculate current month spending
     updateExpenses (expenses) {
       this.expenses = expenses || [];
       this.calculateCurrentMonthSpending();
     },
 
-    // 计算当前月消费总额
+    // Calculate current month spending total
     calculateCurrentMonthSpending () {
       const currentMonth = this.currentMonth;
 
-      // 如果是同一个月且已经计算过，直接返回缓存结果
+      // If it's the same month and already calculated, return cached result
       if (this.lastCalculatedMonth === currentMonth && this.currentMonthSpending > 0) {
         return this.currentMonthSpending;
       }
 
-      // 计算当前月的消费总额
+      // Calculate current month's spending total
       const monthlyTotal = this.expenses
         .filter(expense => {
-          // 使用date字段替代time字段，与后端数据保持一致
-          // 同时保持向后兼容性，先检查date字段，再检查time字段
+          // Use date field instead of time field, consistent with backend data
+          // Keep backward compatibility, check date field first, then time field
           const expenseDate = expense.date || expense.time;
           if (!expenseDate) return false;
           const parsedDate = parseDate(expenseDate);
@@ -131,7 +131,7 @@ export const useSpendingStore = defineStore('spending', {
         })
         .reduce((total, expense) => {
           const amount = Number(expense.amount) || 0;
-          return total + Math.abs(amount); // 使用绝对值，确保都是正数
+          return total + Math.abs(amount); // Use absolute value to ensure all positive numbers
         }, 0);
 
       this.currentMonthSpending = monthlyTotal;
@@ -140,16 +140,16 @@ export const useSpendingStore = defineStore('spending', {
       return monthlyTotal;
     },
 
-    // 添加新的消费记录
+    // Add new expense record
     addExpense (expense) {
-      // 使用date字段替代time字段，保持向后兼容
+      // Use date field instead of time field, keep backward compatibility
       if (expense && expense.amount && (expense.date || expense.time)) {
         this.expenses.push(expense);
         this.calculateCurrentMonthSpending();
       }
     },
 
-    // 获取消费状态信息
+    // Get spending status information
     getSpendingStatus () {
       if (!this.isLimitEnabled) {
         return {
@@ -189,7 +189,7 @@ export const useSpendingStore = defineStore('spending', {
       };
     },
 
-    // 保存设置到本地存储
+    // Save settings to local storage
     saveSettings () {
       try {
         const settings = {
@@ -203,7 +203,7 @@ export const useSpendingStore = defineStore('spending', {
       }
     },
 
-    // 从本地存储加载设置
+    // Load spending settings from local storage
     loadSettings () {
       try {
         const saved = localStorage.getItem('homemoney-spending-settings');
@@ -215,7 +215,7 @@ export const useSpendingStore = defineStore('spending', {
         }
       } catch (error) {
         console.error('Failed to load spending settings:', error);
-        // 使用默认值
+        // Use default values
         this.monthlyLimit = 0;
         this.isLimitEnabled = false;
         this.warningThreshold = 0.8;
@@ -223,7 +223,7 @@ export const useSpendingStore = defineStore('spending', {
       this.fetchExpenses();
     },
 
-    // 重置所有设置
+    // Reset all settings
     resetSettings () {
       this.monthlyLimit = 0;
       this.isLimitEnabled = false;
@@ -233,17 +233,17 @@ export const useSpendingStore = defineStore('spending', {
       this.saveSettings();
     },
 
-    // 从后端API获取消费数据
+    // Fetch expense data from backend API and update local state
     async fetchExpenses () {
       try {
         console.log('Fetching expenses from API...');
-        const response = await fetch('/api/expenses?limit=1000'); // 获取更多数据用于计算
+        const response = await fetch('/api/expenses?limit=1000'); // Get more data for calculation
         console.log('Expenses API response status:', response.status);
         if (!response.ok) throw new Error(`Failed to fetch expenses: ${response.statusText}`);
         const result = await response.json();
         console.log('Fetched expenses data:', result);
         
-        // 适配新的API响应格式
+        // Adapt new API response format
         let expenses = [];
         if (result && result.data && Array.isArray(result.data)) {
           expenses = result.data;

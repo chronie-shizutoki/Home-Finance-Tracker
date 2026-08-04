@@ -198,7 +198,16 @@ const specularSaturationValue = computed(() => props.specularSaturation.toString
 </script>
 
 <template>
-  <svg color-interpolation-filters="sRGB" style="display: none">
+  <!--
+    IMPORTANT: do NOT use display:none here. Browsers skip rendering SVG filters
+    inside display:none elements, which breaks backdrop-filter: url(#id).
+    Keep the SVG in the layout but invisible and non-interactive.
+  -->
+  <svg
+    color-interpolation-filters="sRGB"
+    style="position: fixed; top: 0; left: 0; width: 0; height: 0; pointer-events: none; visibility: hidden;"
+    aria-hidden="true"
+  >
     <defs>
       <filter :id="id">
         <!-- Magnifying effect (optional) -->

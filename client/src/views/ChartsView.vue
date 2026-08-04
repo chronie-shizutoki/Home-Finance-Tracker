@@ -61,7 +61,7 @@ const loadExpenses = async () => {
   isLoading.value = true;
 
   try {
-    console.log('ChartsView: 开始使用分页加载数据...');
+    console.log('ChartsView: Starting pagination loading...');
 
     // Use the pagination utility to fetch all data
     const allData = await fetchAllPages({
@@ -71,10 +71,10 @@ const loadExpenses = async () => {
       maxConcurrent: 2,        // Charts page uses 2 concurrent requests to avoid affecting other operations
       signal: paginationController.signal,
       onProgress: (progressData) => {
-        console.log(`ChartsView: 数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
+        console.log(`ChartsView: Pagination loading progress: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
       },
       onError: (error) => {
-        console.error('ChartsView: 分页加载错误:', error);
+        console.error('ChartsView: Pagination loading error:', error);
         throw error;
       }
     });
@@ -92,10 +92,10 @@ const loadExpenses = async () => {
     if (Expenses.value.length === 0) {
       console.warn('ChartsView: No valid data found in API response');
     } else {
-      console.log('ChartsView: 分页加载完成, count:', Expenses.value.length);
+      console.log('ChartsView: Data loading completed, count:', Expenses.value.length);
     }
   } catch (err) {
-    if (err.message !== '操作已被取消') {
+    if (err.message !== 'Canceled by user request') {
       const errorInfo = err.response
         ? `${err.response.status} ${err.message}: ${JSON.stringify(err.response.data)}`
         : err.message;
@@ -105,7 +105,7 @@ const loadExpenses = async () => {
       console.error('ChartsView: Error Details:', err);
       Expenses.value = [];
     } else {
-      console.log('ChartsView: 数据加载被用户取消');
+      console.log('ChartsView: Data loading canceled by user');
     }
   } finally {
     isLoading.value = false;

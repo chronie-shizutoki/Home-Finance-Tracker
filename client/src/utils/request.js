@@ -1,24 +1,24 @@
 import axios from 'axios';
 import { STORAGE_KEYS } from '@/utils/constants';
-// 直接使用相对路径作为基础URL，避免环境变量干扰
+// Use relative path as base URL to avoid environment variable interference
 
-// 创建axios实例
+// Create axios instance with relative path as base URL
 const request = axios.create({
   baseURL: '/',
-  timeout: 10000, // 请求超时时间
+  timeout: 10000, // Request timeout (ms)
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// 请求拦截器
+// Request interceptor to add authentication token to request headers
 request.interceptors.request.use(
   config => {
-    // 添加认证token
+    // Add authentication token to request headers if available
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
     console.log('Request interceptor - Token found:', !!token);
     console.log('Token value:', token);
-    // 仅在请求头中没有Authorization时添加令牌
+    // Add token to request headers if not already present
     if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log('Authorization header set by interceptor:', config.headers.Authorization);
@@ -39,7 +39,7 @@ request.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// Response interceptor to handle response data
 request.interceptors.response.use(
   response => {
     return response.data;

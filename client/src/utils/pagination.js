@@ -1,28 +1,28 @@
 /**
- * 分页数据获取工具
- * 提供高效的分页加载机制，避免一次性获取大量数据
+ * Pagination data fetch utility
+ * Provides efficient pagination loading mechanism, avoiding large data retrieval
  */
 
 // 分页配置
 const DEFAULT_PAGINATION_CONFIG = {
-  pageSize: 20,           // 每页数据量
-  maxConcurrent: 3,        // 最大并发数
-  retryTimes: 3,           // 重试次数
-  retryDelay: 1000,        // 重试延迟(ms)
-  timeout: 30000,          // 请求超时(ms)
-  enableProgress: true,    // 是否显示进度
+  pageSize: 20,           // Default page size
+  maxConcurrent: 3,        // Maximum concurrent requests
+  retryTimes: 3,           // Retry times
+  retryDelay: 1000,        // Retry delay (ms)
+  timeout: 30000,          // Request timeout (ms)
+  enableProgress: true,    // Whether to show progress indicator
 };
 
 /**
- * 分页获取数据的主要函数
- * @param {Object} options - 配置选项
- * @param {Function} options.apiCall - API调用函数，接收{page, limit}参数
- * @param {number} options.pageSize - 每页数据量
- * @param {number} options.maxConcurrent - 最大并发数
- * @param {Function} options.onProgress - 进度回调函数
- * @param {Function} options.onError - 错误回调函数
- * @param {AbortSignal} options.signal - 取消信号
- * @returns {Promise<Array>} - 合并后的所有数据
+ * Pagination data fetch main function
+ * @param {Object} options - Configuration options
+ * @param {Function} options.apiCall - API call function, accepting {page, limit} parameters
+ * @param {number} options.pageSize - Page size
+ * @param {number} options.maxConcurrent - Maximum concurrent requests
+ * @param {Function} options.onProgress - Progress callback function
+ * @param {Function} options.onError - Error callback function
+ * @param {AbortSignal} options.signal - Abort signal
+ * @returns {Promise<Array>} - Merged data from all pages
  */
 export async function fetchAllPages(options = {}) {
   const config = { ...DEFAULT_PAGINATION_CONFIG, ...options };
@@ -36,22 +36,22 @@ export async function fetchAllPages(options = {}) {
   } = config;
 
   if (!apiCall || typeof apiCall !== 'function') {
-    throw new Error('apiCall参数必须是一个函数');
+    throw new Error('apiCall parameter must be a function');
   }
 
   const allData = [];
   let totalCount = 0;
   let isCompleted = false;
 
-  // 创建取消检查函数
+  // Check cancellation signal
   const checkCancellation = () => {
     if (signal?.aborted) {
-      throw new Error('操作已被取消');
+      throw new Error('Operation canceled');
     }
   };
 
   try {
-    // 首先获取总数
+    // First get total count first
     checkCancellation();
     const firstResponse = await makeApiCallWithRetry(
       () => apiCall({ page: 1, limit: 1 }),
@@ -62,29 +62,29 @@ export async function fetchAllPages(options = {}) {
     totalCount = getTotalCount(firstResponse);
     
     if (totalCount === 0) {
-      console.log('fetchAllPages: 没有数据需要加载');
+      console.log('fetchAllPages: No data to load');
       return [];
     }
 
     if (totalCount <= pageSize) {
-      // 数据量小于等于一页，直接获取
+      // single page data, fetch all
       const singlePageData = getDataFromResponse(firstResponse);
-      console.log(`fetchAllPages: 数据量较小(${totalCount}条)，单页获取完成`);
+      console.log(`fetchAllPages: Data count is small (${totalCount} records), single page fetch completed`);
       return singlePageData;
     }
 
-    console.log(`fetchAllPages: 开始分页加载，共${totalCount}条数据，每页${pageSize}条`);
+    console.log(`fetchAllPages: Start loading, ${totalCount} records, ${pageSize} records per page`);
 
-    // 计算总页数
+    // Calculate total pages
     const totalPages = Math.ceil(totalCount / pageSize);
     
-    // 分批加载数据
+    // Batch load data
     const batches = [];
     for (let page = 1; page <= totalPages; page++) {
       batches.push(page);
     }
 
-    // 并发控制
+    // Concurrent control logic
     const batchSize = Math.min(maxConcurrent, batches.length);
     const results = [];
 
@@ -104,16 +104,16 @@ export async function fetchAllPages(options = {}) {
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
         
-        // 按页面顺序排序
+        // Sort by page number
         results.sort((a, b) => a.page - b.page);
         
-        // 合并数据
+        // Merge data
         allData.length = 0;
         results.forEach(result => {
           allData.push(...result.data);
         });
 
-        // 进度回调
+        // Progress callback
         if (onProgress && typeof onProgress === 'function') {
           const loadedCount = allData.length;
           const progress = Math.round((loadedCount / totalCount) * 100);
@@ -125,10 +125,10 @@ export async function fetchAllPages(options = {}) {
           });
         }
 
-        console.log(`fetchAllPages: 已加载 ${allData.length}/${totalCount} 条数据 (${Math.round((allData.length / totalCount) * 100)}%)`);
+        console.log(`fetchAllPages: Loaded ${allData.length}/${totalCount} records (${Math.round((allData.length / totalCount) * 100)}%)`);
         
       } catch (batchError) {
-        console.error('批次加载失败:', batchError);
+        console.error('Batch load failed:', batchError);
         if (onError && typeof onError === 'function') {
           onError(batchError);
         }
@@ -137,27 +137,27 @@ export async function fetchAllPages(options = {}) {
     }
 
     isCompleted = true;
-    console.log(`fetchAllPages: 完成！共加载 ${allData.length} 条数据`);
+    console.log(`fetchAllPages: Completed! Total ${allData.length} records`);
 
     return allData;
 
   } catch (error) {
-    if (error.message === '操作已被取消') {
-      console.log('fetchAllPages: 操作被用户取消');
+    if (error.message === 'Operation canceled') {
+      console.log('fetchAllPages: Operation canceled by user');
       throw error;
     }
     
-    console.error('fetchAllPages: 加载失败', error);
+    console.error('fetchAllPages: Load failed:', error);
     throw error;
   }
 }
 
 /**
- * 带重试机制的API调用
- * @param {Function} apiCall - API调用函数
- * @param {Object} config - 配置
- * @param {AbortSignal} signal - 取消信号
- * @returns {Promise} - API响应
+ * �
+ * @param {Function} apiCall - API call function
+ * @param {Object} config - Configuration
+ * @param {AbortSignal} signal - Abort signal
+ * @returns {Promise} - API response
  */
 async function makeApiCallWithRetry(apiCall, config, signal) {
   let lastError;
@@ -175,10 +175,10 @@ async function makeApiCallWithRetry(apiCall, config, signal) {
       return response;
     } catch (error) {
       lastError = error;
-      console.warn(`API调用失败 (尝试 ${attempt + 1}/${config.retryTimes + 1}):`, error.message);
+      console.warn(`API call failed (attempt ${attempt + 1}/${config.retryTimes + 1}):`, error.message);
       
       if (attempt < config.retryTimes) {
-        await delay(config.retryDelay * Math.pow(2, attempt)); // 指数退避
+        await delay(config.retryDelay * Math.pow(2, attempt)); // Exponential backoff
       }
     }
   }
@@ -187,18 +187,18 @@ async function makeApiCallWithRetry(apiCall, config, signal) {
 }
 
 /**
- * 检查取消信号
- * @param {AbortSignal} signal 
+ * Check cancellation signal
+ * @param {AbortSignal} signal Abort signal
  */
 function checkSignal(signal) {
   if (signal?.aborted) {
-    throw new Error('操作已被取消');
+    throw new Error('Operation canceled');
   }
 }
 
 /**
- * 延迟函数
- * @param {number} ms - 延迟毫秒数
+ * Delay function
+ * @param {number} ms - Delay milliseconds
  * @returns {Promise}
  */
 function delay(ms) {
@@ -206,12 +206,12 @@ function delay(ms) {
 }
 
 /**
- * 从响应中获取数据总数
- * @param {Object} response - API响应
- * @returns {number} - 数据总数
+ * Get total count from response data
+ * @param {Object} response - API response
+ * @returns {number} - Total count of records
  */
 function getTotalCount(response) {
-  // 尝试多种可能的响应格式
+  // Try multiple possible response formats
   if (response?.data?.total !== undefined) {
     return Number(response.data.total);
   }
@@ -228,17 +228,17 @@ function getTotalCount(response) {
     return Number(response.length);
   }
   
-  console.warn('无法从响应中获取数据总数，默认为1');
+  console.warn('No total count found in response, default to 1');
   return 1;
 }
 
 /**
- * 从响应中获取数据数组
- * @param {Object} response - API响应
- * @returns {Array} - 数据数组
+ * Get data array from response data
+ * @param {Object} response - API response
+ * @returns {Array} - Data array
  */
 function getDataFromResponse(response) {
-  // 尝试多种可能的响应格式
+  // Try multiple possible response formats
   if (response?.data?.data && Array.isArray(response.data.data)) {
     return response.data.data;
   }
@@ -249,49 +249,49 @@ function getDataFromResponse(response) {
     return response;
   }
   
-  console.warn('无法从响应中获取数据数组，返回空数组');
+  console.warn('Cannot get data array from response, return empty array');
   return [];
 }
 
 /**
- * 取消分页获取操作
- * @param {AbortController} controller - 取消控制器
+ * Cancel pagination fetch operation
+ * @param {AbortController} controller - Cancellation controller
  */
 export function cancelPagination(controller) {
   if (controller) {
     controller.abort();
-    console.log('分页获取操作已取消');
+    console.log('Pagination fetch operation canceled by user');
   }
 }
 
 /**
- * 创建取消控制器
- * @returns {AbortController} - 取消控制器
+ * Create cancellation controller for pagination fetch operation
+ * @returns {AbortController} - Cancellation controller
  */
 export function createCancellationController() {
   return new AbortController();
 }
 
 /**
- * 预加载数据（后台静默加载）
- * @param {Object} options - 配置选项
- * @returns {Promise<Array>} - 预加载的数据
+ * Preload data (background silent loading)
+ * @param {Object} options - Configuration options
+ * @returns {Promise<Array>} - Preloaded data
  */
 export async function preloadData(options = {}) {
   const config = { 
     ...DEFAULT_PAGINATION_CONFIG, 
     ...options,
-    enableProgress: false // 预加载不显示进度
+    enableProgress: false // Preload without progress display
   };
   
   return fetchAllPages(config);
 }
 
 /**
- * 获取分页统计信息
- * @param {number} totalCount - 总数据量
- * @param {number} pageSize - 每页大小
- * @returns {Object} - 分页统计信息
+ * Get pagination statistics
+ * @param {number} totalCount - Total data count
+ * @param {number} pageSize - Page size
+ * @returns {Object} - Pagination statistics
  */
 export function getPaginationInfo(totalCount, pageSize) {
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -299,7 +299,7 @@ export function getPaginationInfo(totalCount, pageSize) {
     totalCount,
     pageSize,
     totalPages,
-    estimatedTime: Math.ceil(totalCount / 1000 * 2), // 估算时间（秒）
+    estimatedTime: Math.ceil(totalCount / 1000 * 2), // Estimated time in seconds
     recommendedBatchSize: Math.min(Math.ceil(1000 / pageSize), 5)
   };
 }

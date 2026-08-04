@@ -1,9 +1,9 @@
 <!--
  * @file ExportButton.vue
- * @package 家庭记账本
- * @module 公共组件
- * @description 数据导出按钮组件
- * @author 开发者
+ * @package Home Finance Tracker
+ * @module Common Components
+ * @description Export button component for exporting data to Excel
+ * @author Developer
  * @version 1.0
 -->
 <template>
@@ -20,14 +20,14 @@
 <script setup>
 
 /**
- * 组件事件定义
+ * Component event definitions
  * @typedef {Object} ExportButtonEmits
- * @property {() => void} export-excel - 触发数据导出事件
+ * @property {() => void} export-excel - Trigger data export event
  */
 const emits = defineEmits(['export-excel']);
 
 /**
- * 处理导出按钮点击事件
+ * Handle export button click event
  */
 const handleExport = () => { emits('export-excel'); };
 </script>

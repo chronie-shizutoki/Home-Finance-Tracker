@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import GlassMessage from '../components/GlassMessage.vue'
 
-// 消息容器
+// Message Container
 let container = null
 
-// 创建消息容器
+// Create message container
 const createContainer = () => {
   if (container) return container
   
@@ -15,36 +15,36 @@ const createContainer = () => {
   return container
 }
 
-// 创建消息实例
+// Create message instance
 const createMessage = (options) => {
-  // 确保容器存在
+  // Ensure container exists
   const messageContainer = createContainer()
   
-  // 处理参数
+  // Process options
   const messageOptions = typeof options === 'string' ? { message: options } : options
   
-  // 创建Vue应用实例
+  // Create Vue app instance
   const app = createApp(GlassMessage, {
     ...messageOptions,
     onClose: () => {
-      // 关闭时销毁应用
+      // Destroy app on close
       app.unmount(messageElement)
       messageElement.remove()
       
-      // 如果容器为空，移除容器
+      // Remove container if empty after close
       if (messageContainer.children.length === 0) {
         messageContainer.remove()
         container = null
       }
       
-      // 调用用户提供的onClose回调
+      // Call user-provided onClose callback
       if (messageOptions.onClose) {
         messageOptions.onClose()
       }
     }
   })
   
-  // 挂载应用
+  // Mount app
   const messageElement = document.createElement('div')
   messageContainer.appendChild(messageElement)
   app.mount(messageElement)
@@ -57,7 +57,7 @@ const createMessage = (options) => {
   }
 }
 
-// 创建各种类型的消息方法
+// Create message methods for different types of messages
 const messageMethods = {
   success(options) {
     return createMessage({

@@ -1,4 +1,4 @@
-/* 现代自适应布局 */
+/* Modern adaptive layout */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -13,7 +13,7 @@
   transition: all var(--transition-time) ease;
 }
 
-/* 头部样式 */
+/* Header styles */
 .header {
   display: flex;
   justify-content: space-between;
@@ -23,7 +23,7 @@
   transition: box-shadow var(--transition-time) ease;
 }
 
-/* 语言切换器 */
+/* Language switcher */
 .lang-switcher {
   display: flex;
 }
@@ -49,7 +49,7 @@
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
-/* 卡片网格布局 */
+/* Card grid layout */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -58,7 +58,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* 卡片内容区域布局 */
+/* Card content area layout */
 .card-content {
   display: flex;
   flex-wrap: wrap;
@@ -66,14 +66,14 @@
   padding: 15px;
 }
 
-/* 优化大屏幕上的网格布局 */
+/* Optimize grid layout for larger screens */
 @media (min-width: 1200px) {
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 
-/* 优化超大屏幕上的网格布局（1400px+） */
+/* Optimize grid layout for extra large screens */
 @media (min-width: 1400px) {
   .card-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -86,7 +86,7 @@
   }
 }
 
-/* 大屏幕按钮样式优化 */
+/* Large screen button styles */
 @media (min-width: 1200px) {
   .card-content {
     font-size: 15px;
@@ -94,7 +94,7 @@
   }
 }
 
-/* 超大屏幕按钮样式优化 */
+/* Extra large screen button styles */
 @media (min-width: 1400px) {
   .card-content {
     font-size: 16px;
@@ -103,7 +103,7 @@
   }
 }
 
-/* 响应式调整 */
+/* Responsive adjustments for mobile devices */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -131,7 +131,7 @@
   }
 }
 
-/* 深色模式适配 */
+/* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);

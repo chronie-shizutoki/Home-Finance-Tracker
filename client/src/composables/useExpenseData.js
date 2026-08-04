@@ -1,9 +1,9 @@
 /*
 * @file useExpenseData.js
-* @package 家庭记账本
-* @module 组合式函数
-* @description 消费数据管理组合式函数，负责获取和处理消费记录数据
-* @author 开发者
+* @package Home Finance Tracker Client
+* @module Composition Function
+* @description Expense data management composition function, responsible for fetching and processing expense record data
+* @author Developer
 * @version 1.0
 */
 
@@ -12,48 +12,48 @@ import { useI18n } from 'vue-i18n';
 import { ExpenseAPI } from '@/api/expenses';
 
 /**
-* 获取并管理消费数据的组合式函数
-* @returns {Object} 包含消费数据和图表数据的响应式对象
+* Composition function to manage expense data, fetching and processing expense record data
+* @returns {Object} Reactive object containing expense data and chart data
 */
 export function useExpenseData () {
   const { t } = useI18n();
 
   /**
-   * 消费记录列表（响应式数据）
+   * Expense record list (reactive data)
    * @type {import('vue').Ref<Array>}
    */
   const expenses = ref([]);
 
   /**
-   * 数据获取错误信息（响应式数据）
+   * Data fetch error message (reactive data)
    * @type {import('vue').Ref<string>}
    */
   const error = ref('');
 
   /**
-   * 操作成功提示信息（响应式数据）
+   * Operation success message (reactive data)
    * @type {import('vue').Ref<string>}
    */
   const successMessage = ref('');
 
   /**
-   * 操作错误提示信息（响应式数据）
+   * Operation error message (reactive data)
    * @type {import('vue').Ref<string>}
    */
   const errorMessage = ref('');
 
   /**
-   * 获取消费数据
-   * @param {boolean} forceRefresh - 是否强制刷新数据（目前未在外部使用，但保留）
+   * Fetch expense data
+   * @param {boolean} forceRefresh - Whether to force refresh data (currently not used externally, but kept for future extensions)
    */
   const fetchData = async (forceRefresh = false) => {
     console.log('useExpenseData: fetchData called.');
     try {
       const res = await ExpenseAPI.getExpenses();
-      // 确保 res.data.data 是一个数组，即使 API 返回 null 或 undefined
+      // Ensure res.data.data is an array, even if API returns null or undefined
       const newData = res && res.data && res.data.data && Array.isArray(res.data.data) ? res.data.data : [];
 
-      // 当强制刷新时直接更新数据，否则检查内容变化
+      // Update expenses.value if forceRefresh is true or content has changed
       if (forceRefresh || JSON.stringify(expenses.value) !== JSON.stringify(newData)) {
         expenses.value = newData;
         console.log('useExpenseData: expenses.value updated' + (forceRefresh ? ' (force refresh)' : ' (content changed)') + '.');
@@ -61,11 +61,11 @@ export function useExpenseData () {
         console.log('useExpenseData: expenses.value content is identical, no update needed.');
       }
 
-      error.value = ''; // 清除之前的错误信息
+      error.value = ''; // Clear previous error message if any exists
     } catch (err) {
-      console.error('useExpenseData: 获取消费数据失败:', err.message || err);
+      console.error('useExpenseData: fetchData failed:', err.message || err);
       error.value = t('error.fetchExpensesFailed', { error: err.message || err });
-      // 在错误情况下，确保 expenses 仍然是一个空数组，避免后续操作报错
+      // Ensure expenses is an array after error, to avoid subsequent operations throwing errors
       if (!Array.isArray(expenses.value)) {
         expenses.value = [];
       }

@@ -1,6 +1,6 @@
 /**
- * 分页数据获取使用示例
- * 展示如何在现有组件中使用新的分页工具
+ * Pagination Examples Utility
+ * @module utils/pagination-examples
  */
 
 import { 
@@ -9,36 +9,36 @@ import {
   getPaginationInfo 
 } from '@/utils/pagination';
 
-// 示例1: 在HomeView中使用分页加载
+// Example 1: Use pagination in HomeView
 export const usePaginatedExpenseData = () => {
   const Expenses = ref([]);
   const isLoading = ref(false);
   const error = ref(null);
   const progress = ref({ loaded: 0, total: 0, progress: 0 });
 
-  // 创建取消控制器
+  // Create cancellation controller to handle asynchronous requests
   let cancellationController = null;
 
-  // 分页加载消费数据
+  // Load paginated expense data
   const loadExpenses = async (showProgress = true) => {
     if (isLoading.value) return;
 
-    // 取消之前的请求
+    // Cancel previous requests
     if (cancellationController) {
       cancellationController.abort();
     }
 
-    // 创建新的取消控制器
+    // Create new cancellation controller
     cancellationController = createCancellationController();
     isLoading.value = true;
     error.value = null;
 
     try {
-      // 获取分页统计信息
+      // Get pagination statistics
       const stats = await getExpenseStats();
       const paginationInfo = getPaginationInfo(stats.total, 500);
       
-      console.log('开始分页加载:', paginationInfo);
+      console.log('Start pagination load:', paginationInfo);
 
       const data = await fetchAllPages({
         apiCall: ({ page, limit }) => 
@@ -48,14 +48,14 @@ export const usePaginatedExpenseData = () => {
         signal: cancellationController.signal,
         onProgress: showProgress ? (progressData) => {
           progress.value = progressData;
-          console.log(`加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
+          console.log(`Loading progress: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
         } : undefined,
         onError: (err) => {
-          console.error('分页加载错误:', err);
+          console.error('Pagination load error:', err);
         }
       });
 
-      // 格式化数据
+      // Format data
       Expenses.value = data
         .map(item => ({
           type: item.type?.trim() || item.type,
@@ -65,14 +65,14 @@ export const usePaginatedExpenseData = () => {
         }))
         .filter(item => !isNaN(item.amount) && item.amount > 0);
 
-      console.log(`分页加载完成: 共${Expenses.value.length}条有效数据`);
+      console.log(`Pagination load completed: ${Expenses.value.length} valid data`);
 
     } catch (err) {
-      if (err.message !== '操作已被取消') {
-        console.error('分页加载失败:', err);
-        error.value = `加载失败: ${err.message}`;
+      if (err.message !== 'Operation canceled') {
+        console.error('Pagination load failed:', err);
+        error.value = `Loading failed: ${err.message}`;
       } else {
-        console.log('分页加载被取消');
+        console.log('Pagination load canceled');
       }
     } finally {
       isLoading.value = false;
@@ -80,26 +80,26 @@ export const usePaginatedExpenseData = () => {
     }
   };
 
-  // 获取统计信息
+  // Get statistics data
   const getExpenseStats = async () => {
     try {
       const response = await axios.get('/api/expenses?limit=1');
       const total = response.data?.total || response.data?.data?.length || 0;
       return { total };
     } catch (err) {
-      console.warn('无法获取统计信息:', err);
-      return { total: 1000 }; // 默认值
+      console.warn('Failed to get statistics data:', err);
+      return { total: 1000 }; // Default value if request fails
     }
   };
 
-  // 取消加载
+  // Cancel load
   const cancelLoad = () => {
     if (cancellationController) {
       cancellationController.abort();
     }
   };
 
-  // 清理资源
+  // Cleanup resources
   const cleanup = () => {
     cancelLoad();
     cancellationController = null;
@@ -116,7 +116,7 @@ export const usePaginatedExpenseData = () => {
   };
 };
 
-// 示例2: 在ChartsView中使用分页加载
+// Example 2: Use pagination in ChartsView
 export const usePaginatedChartsData = () => {
   const expenses = ref([]);
   const isLoading = ref(false);
@@ -126,7 +126,7 @@ export const usePaginatedChartsData = () => {
   const loadChartData = async () => {
     if (isLoading.value) return;
 
-    // 取消之前的请求
+    // Cancel previous requests
     if (cancellationController) {
       cancellationController.abort();
     }
@@ -140,10 +140,10 @@ export const usePaginatedChartsData = () => {
         apiCall: ({ page, limit }) => 
           axios.get(`/api/expenses?page=${page}&limit=${limit}`),
         pageSize: 500,
-        maxConcurrent: 2, // 图表页面可以减少并发数
+        maxConcurrent: 2, // Charts page can reduce concurrent requests
         signal: cancellationController.signal,
         onProgress: (progressData) => {
-          console.log(`图表数据加载进度: ${progressData.progress}%`);
+          console.log(`Loading progress: ${progressData.progress}%`);
         }
       });
 
@@ -156,12 +156,12 @@ export const usePaginatedChartsData = () => {
         }))
         .filter(item => !isNaN(item.amount) && item.amount > 0);
 
-      console.log(`图表数据加载完成: 共${expenses.value.length}条数据`);
+      console.log(`Pagination load completed: ${expenses.value.length} valid data`);
 
     } catch (err) {
-      if (err.message !== '操作已被取消') {
-        console.error('图表数据加载失败:', err);
-        error.value = `加载失败: ${err.message}`;
+      if (err.message !== 'Operation canceled') {
+        console.error('Pagination load failed:', err);
+        error.value = `Loading failed: ${err.message}`;
       }
     } finally {
       isLoading.value = false;
@@ -189,7 +189,7 @@ export const usePaginatedChartsData = () => {
   };
 };
 
-// 示例3: 智能数据加载策略
+// Example 3: Smart data loading strategy
 export const useSmartDataLoading = () => {
   const loadData = async (type = 'normal') => {
     switch (type) {
@@ -198,7 +198,7 @@ export const useSmartDataLoading = () => {
       case 'charts':
         return usePaginatedChartsData();
       case 'quick':
-        // 快速加载，只获取最近的数据
+        // Quick load, only get recent data
         return fetchAllPages({
           apiCall: ({ page, limit }) => 
             axios.get(`/api/expenses?page=${page}&limit=${limit}&sort=time&order=desc`),
@@ -207,7 +207,7 @@ export const useSmartDataLoading = () => {
           enableProgress: false
         });
       case 'full':
-        // 完整加载，适合数据导出等场景
+        // Full load, suitable for data export scenarios
         return fetchAllPages({
           apiCall: ({ page, limit }) => 
             axios.get(`/api/expenses?page=${page}&limit=${limit}`),
@@ -216,7 +216,7 @@ export const useSmartDataLoading = () => {
           retryTimes: 5
         });
       default:
-        throw new Error(`未知的加载类型: ${type}`);
+        throw new Error(`Unknown load type: ${type}`);
     }
   };
 

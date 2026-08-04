@@ -37,7 +37,7 @@ export default {
     }
   },
   setup(props) {
-    // 组件挂载日志
+    // Component mounted log
     onMounted(() => {
       console.log('ExpenseStats component mounted:', {
         count: props.statistics.count,
@@ -45,7 +45,7 @@ export default {
       });
     });
     
-    // 监听统计数据变化
+    // Listen for changes in statistics data
     watch(() => props.statistics, (newStats) => {
       console.log('Expense statistics updated:', {
         count: newStats.count,

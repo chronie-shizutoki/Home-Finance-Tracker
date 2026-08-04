@@ -1,33 +1,33 @@
 import axios from 'axios';
 
 /**
- * AI智能记录API模块
+ * AI Record API Module
  * @module api/aiRecord
- * @desc 提供与SiliconFlow API交互，实现AI智能解析记录功能
+ * @desc Provides SiliconFlow API interaction for AI record parsing
  */
 
-// SiliconFlow API配置
+// SiliconFlow API Configuration
 const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 const MODEL_NAME = 'Qwen/Qwen3-8B';
 
 /**
- * 创建与SiliconFlow API交互的axios实例
+ * Create an axios instance for SiliconFlow API interaction
  */
 const aiApi = axios.create({
   baseURL: SILICONFLOW_API_URL,
   timeout: 300000,
   headers: {
     'Content-Type': 'application/json'
-    // 注意：Authorization头部将通过setApiKey函数动态设置
+    // Authorization will be dynamically set by setApiKey function
   }
 });
 
 const today = new Date().toLocaleDateString('zh-CN');
 
 /**
- * 解析长文本为格式化的记录数据
- * @param {string} text - 要解析的长文本
- * @returns {Promise<Object>} 解析后的格式化记录数据
+ * Parse long text to formatted record data
+ * @param {string} text - Long text to parse
+ * @returns {Promise<Object>} Parsed record data
  */
 export const parseTextToRecord = async (text) => {
   try {
@@ -65,27 +65,28 @@ export const parseTextToRecord = async (text) => {
       stream: false
     });
 
-    // 解析响应内容
+    // Parse response content
     const content = response.data.choices[0].message.content;
     const parsedData = JSON.parse(content);
     
-    // 确保返回的是数组格式，方便统一处理
+    // Ensure array format for uniform processing
     return Array.isArray(parsedData) ? parsedData : [parsedData];
   } catch (error) {
-    console.error('AI文本解析失败:', error);
+    console.error('AI text parsing failed:', error);
     throw error;
   }
 };
 
 /**
- * 上传图片并解析为记录数据
- * @param {File} imageFile - 要上传的图片文件
- * @returns {Promise<Object>} 解析后的格式化记录数据
+ * Upload image and parse to record data
+ * @param {File} imageFile - Image file to upload
+ * @returns {Promise<Object>} Parsed record data
  */
 export const parseImageToRecord = async (imageFile) => {
   try {
-    // 由于SiliconFlow API支持多模态，我们可以直接发送图片和提示
-    // 首先将图片转换为Base64
+    // Upload image and parse to record data
+    // Since SiliconFlow API supports multimodal, we can directly send image and prompt
+    // First convert image to Base64
     const base64Image = await fileToBase64(imageFile);
     
     const prompt = `请分析图片中的所有消费信息。如果有多个消费记录，请以JSON数组的形式输出。
@@ -104,8 +105,8 @@ export const parseImageToRecord = async (imageFile) => {
 4. 如果没有明确的日期，请使用今天日期${today}
 5. 只返回JSON数据，不要添加其他无关内容`;
 
-    // 对于图片解析，使用支持多模态的模型
-    const imageModel = 'Qwen/Qwen3.5-4B'; // 使用支持图片的模型
+    // For image parsing, use multimodal model that supports image
+    const imageModel = 'Qwen/Qwen3.5-4B'; // Use model that supports image
     
     const response = await aiApi.post('', {
       model: imageModel,
@@ -129,22 +130,22 @@ export const parseImageToRecord = async (imageFile) => {
       stream: false
     });
 
-    // 解析响应内容
+    // Parse response content
     const content = response.data.choices[0].message.content;
     const parsedData = JSON.parse(content);
     
-    // 确保返回的是数组格式，方便统一处理
+    // Ensure array format for uniform processing
     return Array.isArray(parsedData) ? parsedData : [parsedData];
   } catch (error) {
-    console.error('AI图片解析失败:', error);
+    console.error('AI image parsing failed:', error);
     throw error;
   }
 };
 
 /**
- * 将文件转换为Base64
- * @param {File} file - 要转换的文件
- * @returns {Promise<string>} Base64编码的字符串
+ * Convert file to Base64
+ * @param {File} file - File to convert
+ * @returns {Promise<string>} Base64 encoded string
  */
 const fileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -156,22 +157,22 @@ const fileToBase64 = (file) => {
 };
 
 /**
- * 设置API密钥
- * @param {string} apiKey - 用户的API密钥
+ * Set API key
+ * @param {string} apiKey - API key
  */
 export const setApiKey = (apiKey) => {
   if (apiKey) {
     aiApi.defaults.headers['Authorization'] = `Bearer ${apiKey}`;
-    console.log('SiliconFlow API密钥已设置');
+    console.log('SiliconFlow API key set successfully');
   } else {
-    console.warn('未提供有效的SiliconFlow API密钥');
+    console.warn('Invalid SiliconFlow API key');
   }
 };
 
 /**
- * 计算消费数据的统计信息
- * @param {Array} expenses - 消费记录数组
- * @returns {Object} 统计信息对象
+ * Calculate expense statistics
+ * @param {Array} expenses - Expense records array
+ * @returns {Object} Statistics object with expense data
  */
 export const calculateExpenseStats = (expenses) => {
   if (!Array.isArray(expenses) || expenses.length === 0) {
@@ -188,13 +189,13 @@ export const calculateExpenseStats = (expenses) => {
     };
   }
 
-  // 提取金额并排序（只包含有效金额）
+  // Extract amounts and sort (only include valid amounts)
   const amounts = expenses
     .map(e => {
       const amount = parseFloat(e.amount);
       return isNaN(amount) ? 0 : amount;
     })
-    .filter(a => a > 0)  // 过滤掉0和负数
+    .filter(a => a > 0)  // Filter out 0 and negative numbers
     .sort((a, b) => a - b);
 
   const totalCount = expenses.length;
@@ -202,7 +203,7 @@ export const calculateExpenseStats = (expenses) => {
   const totalAmount = amounts.reduce((sum, a) => sum + a, 0);
   const averageAmount = validCount > 0 ? totalAmount / validCount : 0;
   
-  // 计算中位数
+  // Calculate median
   let medianAmount = 0;
   if (validCount > 0) {
     const mid = Math.floor(validCount / 2);
@@ -215,14 +216,14 @@ export const calculateExpenseStats = (expenses) => {
   const maxAmount = validCount > 0 ? amounts[validCount - 1] : 0;
   const amountRange = validCount > 0 ? `${minAmount.toFixed(2)} - ${maxAmount.toFixed(2)}` : '暂无有效数据';
 
-  // 计算类型分布
+  // Calculate type distribution
   const typeDistribution = {};
   expenses.forEach(expense => {
     const type = expense.type || '其他';
     typeDistribution[type] = (typeDistribution[type] || 0) + 1;
   });
 
-  // 计算月度趋势
+  // Calculate monthly trend
   const monthlyTrend = {};
   expenses.forEach(expense => {
     const date = new Date(expense.date);
@@ -244,13 +245,13 @@ export const calculateExpenseStats = (expenses) => {
 };
 
 /**
- * 根据筛选条件过滤消费数据
- * @param {Array} expenses - 原始消费记录数组
- * @param {Object} filters - 筛选条件
- * @param {string} filters.year - 年份筛选（可选）
- * @param {string} filters.month - 月份筛选（可选）
- * @param {Array} filters.types - 消费类型数组（可选）
- * @returns {Array} 筛选后的消费记录数组
+ * Filter expense records based on filters
+ * @param {Array} expenses - Original expense records array
+ * @param {Object} filters - Filter conditions
+ * @param {string} filters.year - Year filter (optional)
+ * @param {string} filters.month - Month filter (optional)
+ * @param {Array} filters.types - Expense types array (optional)
+ * @returns {Array} Filtered expense records array
  */
 export const filterExpenses = (expenses, filters = {}) => {
   if (!Array.isArray(expenses)) {
@@ -259,7 +260,7 @@ export const filterExpenses = (expenses, filters = {}) => {
 
   let result = [...expenses];
 
-  // 按年份筛选
+  // Filter by year
   if (filters.year) {
     result = result.filter(expense => {
       try {
@@ -271,7 +272,7 @@ export const filterExpenses = (expenses, filters = {}) => {
     });
   }
 
-  // 按月份筛选
+  // Filter by month
   if (filters.month) {
     result = result.filter(expense => {
       try {
@@ -283,7 +284,7 @@ export const filterExpenses = (expenses, filters = {}) => {
     });
   }
 
-  // 按类型筛选
+  // Filter by expense types
   if (filters.types && filters.types.length > 0) {
     result = result.filter(expense => filters.types.includes(expense.type));
   }
@@ -292,27 +293,27 @@ export const filterExpenses = (expenses, filters = {}) => {
 };
 
 /**
- * 使用DeepSeek模型生成消费记录分析报告
- * @param {Array} expenses - 消费记录数组
- * @param {string} question - 用户的问题（可选）
- * @param {Object} stats - 预先计算的统计数据（可选）
- * @param {string} filterDescription - 筛选条件描述（可选）
- * @returns {Promise<string>} 生成的报告内容
+ * Generate expense report using DeepSeek model
+ * @param {Array} result - Expense records array
+ * @param {string} question - User question (optional)
+ * @param {Object} stats - Precomputed statistics (optional)
+ * @param {string} filterDescription - Filter conditions description (optional)
+ * @returns {Promise<string>} Generated content string
  */
 export const generateExpenseReport = async (expenses, question = '', stats = null, filterDescription = '') => {
   try {
     // 数据验证
     if (!Array.isArray(expenses)) {
-      throw new Error('消费数据必须是数组格式');
+      throw new Error('Expense records must be in array format');
     }
 
-    // 如果没有提供统计数据，则自动计算
+    // If no precomputed statistics are provided, calculate them automatically
     const expenseStats = stats || calculateExpenseStats(expenses);
 
-    // 定义报告生成模型
+    // Define report generation model
     const reportModel = 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B';
 
-    // 准备消费数据摘要（包含详细统计信息）
+    // Prepare expense summary (includes detailed statistics)
     const expenseSummary = {
       totalCount: expenseStats.totalCount || 0,
       totalAmount: (expenseStats.totalAmount || 0).toFixed(2),
@@ -329,7 +330,7 @@ export const generateExpenseReport = async (expenses, question = '', stats = nul
       }))
     };
 
-    // 辅助函数：安全地生成类型分布字符串
+    // Auxiliary function: safely generate type distribution string
     const getTypeDistributionString = (typeDist) => {
       if (!typeDist || typeof typeDist !== 'object') {
         return '- 暂无数据';
@@ -341,7 +342,7 @@ export const generateExpenseReport = async (expenses, question = '', stats = nul
       return entries.map(([type, count]) => `- ${type}: ${count} 条`).join('\n');
     };
 
-    // 辅助函数：生成完整的消费记录列表字符串
+    // Auxiliary function: safely generate full expense list string
     const getExpensesListString = (expenseList) => {
       if (!expenseList || expenseList.length === 0) {
         return '- 暂无消费记录';
@@ -351,10 +352,10 @@ export const generateExpenseReport = async (expenses, question = '', stats = nul
       ).join('\n');
     };
 
-    // 根据是否有问题构建不同的提示
+    // Build prompt based on question presence
     let prompt;
     if (question) {
-      // 过滤问题内容，确保安全性
+      // Filter question content to ensure safety
       const filteredQuestion = filterQuestionContent(question);
       prompt = `用户提供了以下消费数据统计信息和问题，请基于这些信息回答用户的问题。
 
@@ -443,35 +444,35 @@ ${expenseSummary.totalCount > 20 ? `\n*（仅显示前20条记录）*` : ''}
       presence_penalty: 0
     });
 
-    // 响应验证
+    // Response validation
     if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-      throw new Error('API返回格式不正确');
+      throw new Error('API response format is incorrect');
     }
 
     const reportContent = response.data.choices[0].message.content;
 
-    // 确保返回的内容是Markdown格式
+    // Ensure the content is in Markdown format
     if (!isMarkdownContent(reportContent)) {
-      // 如果不是Markdown格式，尝试转换为Markdown格式
+      // If not in Markdown format, try to convert to Markdown
       return convertToMarkdown(reportContent);
     }
 
     return reportContent;
   } catch (error) {
-    console.error('生成消费报告失败:', error);
-    // 提供友好的错误信息
-    const errorMessage = error.response?.data?.error?.message || error.message || '生成报告失败，请稍后重试';
-    throw new Error(`生成消费报告失败: ${errorMessage}`);
+    console.error('Error generating expense report:', error);
+    // Provide friendly error message
+    const errorMessage = error.response?.data?.error?.message || error.message || 'Error generating expense report, please try again later.';
+    throw new Error(`Error generating report: ${errorMessage}`);
   }
 };
 
 /**
- * 过滤问题内容，确保安全性
- * @param {string} question - 要过滤的问题
- * @returns {string} 过滤后的问题
+ * Filter question content to ensure safety
+ * @param {string} question - Question to filter
+ * @returns {string} Filtered question
  */
 function filterQuestionContent(question) {
-  // 简单的内容过滤，可以根据需要扩展
+  // Simple content filtering, can be expanded as needed
   const unsafePatterns = [
     /<script.*?>.*?<\/script>/gi,
     /<.*?>/gi,
@@ -488,39 +489,39 @@ function filterQuestionContent(question) {
 }
 
 /**
- * 检查内容是否为Markdown格式
- * @param {string} content - 要检查的内容
- * @returns {boolean} 是否为Markdown格式
+ * Check if content is in Markdown format
+ * @param {string} content - Content to check
+ * @returns {boolean} Is Markdown format? true or false
  */
 function isMarkdownContent(content) {
-  // 简单检查常见的Markdown元素
+  // Simple check for common Markdown elements
   const markdownPatterns = [
-    /^# .*$/m,          // 一级标题
-    /^## .*$/m,         // 二级标题
-    /^\* .*$/m,         // 无序列表
-    /^\d+\. .*$/m,      // 有序列表
-    /`.*?`/m,           // 行内代码
-    /```[\s\S]*?```/m,  // 代码块
-    /\*\*.*?\*\*/m,     // 粗体
-    /\*.*?\*/m          // 斜体
+    /^# .*$/m,          // Level 1 heading
+    /^## .*$/m,         // Level 2 heading
+    /^\* .*$/m,         // Unordered list item
+    /^\d+\. .*$/m,      // Ordered list item
+    /`.*?`/m,           // Inline code block
+    /```[\s\S]*?```/m,  // Code block
+    /\*\*.*?\*\*/m,     // Bold
+    /\*.*?\*/m          // Italic
   ];
 
   return markdownPatterns.some(pattern => pattern.test(content));
 }
 
 /**
- * 转换内容为Markdown格式
- * @param {string} content - 要转换的内容
- * @returns {string} 转换后的Markdown内容
+ * Convert content to Markdown format
+ * @param {string} content - Content to convert
+ * @returns {string} Converted content in Markdown format
  */
 function convertToMarkdown(content) {
-  // 简单的转换，实际应用中可能需要更复杂的处理
+  // Simple conversion, may need more complex handling in real applications
   let markdownContent = content;
 
-  // 添加标题
+  // Add title
   markdownContent = `# 消费记录分析报告\n\n${markdownContent}`;
 
-  // 将换行转换为段落
+  // Convert line breaks to paragraphs
   markdownContent = markdownContent.replace(/\n\n+/g, '\n\n');
 
   return markdownContent;
