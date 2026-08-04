@@ -1,12 +1,14 @@
 <template>
-  <div v-liquid-glass class="charts-container glass-card">
+  <div class="charts-page">
     <div class="chart-controls glass-panel">
-      <CustomSelect
-        v-model="activeChart"
-        :options="chartTypes"
-        @change="renderChart"
-        :include-empty-option="false"
-        class="glass-select"
+      <LiquidGlassBottomNavBar
+        :model-value="activeChart"
+        :items="navbarItems"
+        @update:modelValue="onChartTypeChange"
+        size="medium"
+        :always-show-glass="false"
+        color="#3b82f6"
+        class="chart-type-navbar"
       />
       <div class="date-range-picker glass-input-group">
         <input
@@ -26,8 +28,10 @@
         />
       </div>
     </div>
-    <div class="chart-wrapper glass-chart-container">
-      <canvas id="expenseChart"></canvas>
+    <div v-liquid-glass class="charts-container glass-card">
+      <div class="chart-wrapper glass-chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
     </div>
   </div>
 </template>
@@ -36,6 +40,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Chart from 'chart.js/auto';
 import { useI18n } from 'vue-i18n';
+import LiquidGlassBottomNavBar from '../liquid-glass/LiquidGlassBottomNavBar.vue';
 
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date.getTime());
@@ -103,6 +108,27 @@ const debounce = (func, wait) => {
       { value: 'doughnut', label: t('chart.doughnut') },
       { value: 'radar', label: t('chart.radar') }
     ];
+
+    // SVG icons for the chart-switch bottom navigation bar
+    const chartIcons = {
+      bar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/></svg>',
+      line: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><polyline points="3 17 9 11 13 15 21 6"/><line x1="3" y1="21" x2="21" y2="21"/></svg>',
+      doughnut: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>',
+      radar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><polygon points="12 3 21 12 12 21 3 12"/><line x1="12" y1="12" x2="21" y2="12"/><line x1="12" y1="12" x2="12" y2="21"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>'
+    };
+
+    // Bottom-navigation items for chart switching (id/label/icon shape)
+    const navbarItems = chartTypes.map((type) => ({
+      id: type.value,
+      label: type.label,
+      icon: chartIcons[type.value] || ''
+    }));
+
+    // Handle chart-type change from the navigation bar and re-render
+    const onChartTypeChange = (val) => {
+      activeChart.value = val;
+      renderChart();
+    };
 
     // Filter expense data within the date range
     const filteredExpenses = ref([]);
@@ -1048,6 +1074,8 @@ const debounce = (func, wait) => {
     return {
       activeChart,
       chartTypes,
+      navbarItems,
+      onChartTypeChange,
       startDate,
       endDate,
       handleStartDateChange,
@@ -1060,6 +1088,13 @@ const debounce = (func, wait) => {
 </script>
 
 <style scoped>
+.charts-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .charts-container {
   padding: 24px;
   border-radius: 20px;
@@ -1079,7 +1114,6 @@ const debounce = (func, wait) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
   padding: 16px;
