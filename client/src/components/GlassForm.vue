@@ -25,19 +25,21 @@ const handleSubmit = () => {
 <style scoped>
 .glass-form {
   width: 100%;
-  padding: 20px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  padding: 24px;
+  border-radius: var(--border-radius-lg, 20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
 .glass-form {
-  background: rgba(26, 32, 44, 0.5);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 }
 </style>

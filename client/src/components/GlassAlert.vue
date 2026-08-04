@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-alert', alertType]">
+  <div :class="['glass-alert', alertType]" v-liquid-glass>
     <div class="glass-alert-content">
       <div class="glass-alert-icon">
         <slot name="icon">
@@ -66,7 +66,6 @@ const handleClose = () => {
   position: relative;
   border-radius: 8px;
   padding: 16px;
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
   background: rgba(255, 255, 255, 0.8);

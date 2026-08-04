@@ -1,6 +1,6 @@
 <!-- ExpenseSearch.vue -->
 <template>
-    <div class="search-container">
+    <div class="search-container" v-liquid-glass>
       <div class="search-header">
         <h2>{{ $t('expense.search.title') }}</h2>
         <div class="search-actions">
@@ -338,11 +338,12 @@ defineExpose({
   <style scoped>
   .search-container {
     background: transparent;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     padding: 20px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     margin-bottom: 25px;
     overflow: visible;
+    z-index: 100;
 }
 
   .search-header {
@@ -433,15 +434,15 @@ defineExpose({
   }
 
   .control-input input {
-    width: auto;
-    max-width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f8fafc;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.45);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
   /* CustomSelect组件样式覆盖 */
@@ -456,11 +457,11 @@ defineExpose({
   }
 
   .control-input input:focus {
-    border-color: #4361ee;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-    background: #fff;
-  }
+  border-color: rgba(67, 97, 238, 0.5);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  background: rgba(255, 255, 255, 0.6);
+}
 
   .amount-range {
     display: flex;
@@ -476,13 +477,14 @@ defineExpose({
   }
 
   .range-input input {
-    flex: 1;
-    padding: 10px 12px;
-    max-width: 100%;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    text-align: center;
-  }
+  flex: 1;
+  padding: 10px 12px;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.45);
+}
 
   .range-divider {
     color: #94a3b8;
@@ -696,7 +698,7 @@ defineExpose({
     .search-container {
       background: rgba(30, 30, 30, 0.7);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(75, 85, 99, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .search-header {
@@ -728,14 +730,14 @@ defineExpose({
     }
 
     .control-input input {
-      background: #1f2937;
-      border-color: #374151;
+      background: rgba(30, 30, 30, 0.5);
+      border-color: rgba(255, 255, 255, 0.1);
       color: #e5e7eb;
     }
 
     .control-input input:focus {
-      border-color: #4361ee;
-      background: #1f2937;
+      border-color: rgba(67, 97, 238, 0.5);
+      background: rgba(30, 30, 30, 0.65);
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
     
@@ -823,14 +825,14 @@ defineExpose({
       color: #f472b6;
     }
       .range-input input {
-        background: #1f2937;
-        border-color: #374151;
+        background: rgba(30, 30, 30, 0.5);
+        border-color: rgba(255, 255, 255, 0.1);
         color: #e5e7eb;
       }
 
       .range-input input:focus {
-        border-color: #4361ee;
-        background: #1f2937;
+        border-color: rgba(67, 97, 238, 0.5);
+        background: rgba(30, 30, 30, 0.65);
         box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
       }
   }

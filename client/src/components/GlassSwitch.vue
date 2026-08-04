@@ -3,12 +3,12 @@
     :class="['glass-switch-container']"
     :style="containerStyle"
   >
-    <label 
+    <label
       :class="[
-        'glass-switch', 
-        { 
-          'active': modelValue, 
-          'disabled': disabled, 
+        'glass-switch',
+        {
+          'active': modelValue,
+          'disabled': disabled,
           'loading': loading
         }
       ]"
@@ -32,8 +32,8 @@
       <span class="switch-ripple" v-if="showRipple"></span>
     </label>
     <span v-if="label" class="glass-switch-label">{{ label }}</span>
-    
-    <!-- 加载动画 -->
+
+    <!-- Loading spinner -->
     <div v-if="loading" class="switch-loading-overlay">
       <div class="loading-spinner"></div>
     </div>
@@ -72,11 +72,6 @@ const props = defineProps({
   inactiveColor: {
     type: String,
     default: 'linear-gradient(135deg, rgba(156, 163, 175, 0.3), rgba(107, 114, 128, 0.2))'
-  },
-  glassIntensity: {
-    type: Number,
-    default: 15,
-    validator: (value) => value >= 0 && value <= 30
   }
 })
 
@@ -113,7 +108,6 @@ const switchStyle = computed(() => {
     '--active-color': props.activeColor,
     '--inactive-color': props.inactiveColor,
     '--slider-size': size.sliderSize,
-    '--glass-blur': `${props.glassIntensity}px`,
     '--switch-width': size.width,
     '--switch-height': size.height
   }
@@ -134,7 +128,7 @@ const handleChange = (event) => {
     emit('update:modelValue', newValue)
     emit('change', newValue)
     
-    // 触发涟漪效果
+    // Trigger ripple effect
     showRipple.value = true
     setTimeout(() => {
       showRipple.value = false
@@ -151,7 +145,7 @@ const handleChange = (event) => {
   position: relative;
 }
 
-/* 主开关容器 */
+/* Main switch container */
 .glass-switch {
   position: relative;
   display: inline-block;
@@ -162,14 +156,12 @@ const handleChange = (event) => {
   isolation: isolate;
 }
 
-/* 玻璃效果轨道 */
+/* Glass-effect track */
 .glass-switch-track {
   position: absolute;
   inset: 0;
   background: var(--inactive-color);
   border-radius: inherit;
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.3),
@@ -189,7 +181,8 @@ const handleChange = (event) => {
     0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
-/* 液体流动效果 */
+/* Static liquid sheen — the moving light flow is disabled so the glass
+   surface stays calm while the liquid-glass engine handles the refraction. */
 .liquid-effect {
   position: absolute;
   inset: 0;
@@ -201,7 +194,7 @@ const handleChange = (event) => {
   );
   opacity: 0;
   transition: opacity 0.3s ease;
-  animation: liquidFlow 3s infinite linear;
+  animation: none;
   border-radius: inherit;
 }
 
@@ -218,7 +211,7 @@ const handleChange = (event) => {
   }
 }
 
-/* 内部辉光 */
+/* Inner glow */
 .inner-glow {
   position: absolute;
   inset: 0;
@@ -241,7 +234,7 @@ const handleChange = (event) => {
   );
 }
 
-/* 滑块 */
+/* Slider knob */
 .glass-switch-slider {
   position: absolute;
   top: 5px;
@@ -254,8 +247,6 @@ const handleChange = (event) => {
     rgba(255, 255, 255, 0.95),
     rgba(255, 255, 255, 0.85)
   );
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.15),
     0 2px 4px rgba(0, 0, 0, 0.1),
@@ -278,7 +269,7 @@ const handleChange = (event) => {
   );
 }
 
-/* 滑块光泽效果 */
+/* Slider shine */
 .slider-shine {
   position: absolute;
   top: 1px;
@@ -308,7 +299,7 @@ const handleChange = (event) => {
   border-radius: 50%;
 }
 
-/* 涟漪效果 */
+/* Ripple effect */
 .switch-ripple {
   position: absolute;
   top: 50%;
@@ -334,7 +325,7 @@ const handleChange = (event) => {
   }
 }
 
-/* 标签 */
+/* Label */
 .glass-switch-label {
   font-size: var(--label-font-size, 14px);
   color: #4a5568;
@@ -344,7 +335,7 @@ const handleChange = (event) => {
   user-select: none;
 }
 
-/* 禁用状态 */
+/* Disabled state */
 .glass-switch.disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -361,7 +352,7 @@ const handleChange = (event) => {
     inset 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
-/* 加载状态 */
+/* Loading state */
 .glass-switch.loading .glass-switch-slider {
   animation: loadingPulse 1.5s ease-in-out infinite;
 }
@@ -373,7 +364,6 @@ const handleChange = (event) => {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(2px);
   border-radius: inherit;
   z-index: 3;
 }
@@ -396,7 +386,7 @@ const handleChange = (event) => {
   50% { transform: scale(0.9); }
 }
 
-/* 暗黑主题 */
+/* Dark theme */
 @media (prefers-color-scheme: dark) {
 .glass-switch-container .glass-switch-track {
   border-color: rgba(255, 255, 255, 0.1);
@@ -433,7 +423,7 @@ const handleChange = (event) => {
 }
 }
 
-/* 隐藏原生输入框 */
+/* Hide native input */
 .glass-switch-input {
   position: absolute;
   opacity: 0;
@@ -441,7 +431,7 @@ const handleChange = (event) => {
   height: 0;
 }
 
-/* 悬停效果 */
+/* Hover effect */
 .glass-switch:not(.disabled):not(.loading):hover {
   transform: translateY(-2px);
 }
@@ -462,7 +452,7 @@ const handleChange = (event) => {
     0 6px 20px rgba(59, 130, 246, 0.25);
 }
 
-/* 点击反馈 */
+/* Click feedback */
 .glass-switch:not(.disabled):not(.loading):active .glass-switch-slider {
   transform: scale(0.95);
 }

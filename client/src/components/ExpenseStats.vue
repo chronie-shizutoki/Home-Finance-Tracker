@@ -1,6 +1,6 @@
 <!-- ExpenseStats.vue -->
 <template>
-    <div class="stats-container">
+    <div class="stats-container" v-liquid-glass>
       <div class="stats-summary">
         <div class="stat-item">
           <span class="stat-label">{{ $t('expense.stats.rowCount') }}：</span>
@@ -62,7 +62,7 @@ export default {
   <style scoped>
   .stats-container {
     background: transparent;
-    border-radius: 10px;
+    border-radius: var(--border-radius-lg);
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -76,9 +76,10 @@ export default {
   .stat-item {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
-    background: transparent;
-    border-radius: 8px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
 }
 
   .stat-label {
@@ -98,7 +99,8 @@ export default {
     }
 
     .stat-item {
-      background: rgba(40, 40, 40, 0.5);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .stat-label {

@@ -248,22 +248,22 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 15px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .select-trigger:hover {
-  border-color: #cbd5e0;
-  background: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
   transition: all 0.2s ease;
 }
 
 .select-trigger:focus {
   outline: none;
-  border-color: #4361ee;
+  border-color: rgba(67, 97, 238, 0.5);
   box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
@@ -301,9 +301,11 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   margin-top: 4px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   max-height: 240px;
   overflow-y: auto;
@@ -412,24 +414,24 @@ onUnmounted(() => {
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
   .select-trigger {
-    background: #1f2937;
-    border-color: #374151;
+    background: rgba(30, 30, 30, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
     color: #e5e7eb;
   }
-  
+
   .select-trigger:hover {
-    background: #374151;
-    border-color: #4b5563;
+    background: rgba(30, 30, 30, 0.65);
+    border-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   .select-icon::before {
     border-right-color: #9ca3af;
     border-bottom-color: #9ca3af;
   }
-  
+
   .select-dropdown {
-    background: #1f2937;
-    border-color: #374151;
+    background: rgba(30, 30, 30, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 

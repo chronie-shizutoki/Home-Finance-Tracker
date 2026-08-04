@@ -64,11 +64,11 @@ let originalOverflow = ''
 watch(() => props.visible, (newVal) => {
   if (props.preventScroll) {
     if (newVal) {
-      // 打开时禁止背景滚动
+      // Prevent background scroll while open
       originalOverflow = document.body.style.overflow
       document.body.style.overflow = 'hidden'
     } else {
-      // 关闭时恢复滚动
+      // Restore background scroll on close
       setTimeout(() => {
         document.body.style.overflow = originalOverflow
       }, props.animationDuration)
@@ -98,30 +98,33 @@ const afterLeave = () => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
+  /* Blur the lower layer so the modal reads as a distinct surface */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: v-bind('zIndex');
-  backdrop-filter: blur(4px);
 }
 
 .glass-dialog {
   position: relative;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--border-radius-lg, 20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.96);
   overflow: hidden;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   transition-property: transform, opacity;
   transition-duration: var(--animation-duration, 300ms);
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* 优雅的缓动曲线 */
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* Elegant easing curve */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* 进入动画 */
+/* Enter animation */
 .glass-dialog-enter-active,
 .glass-dialog-leave-active {
   transition: all var(--animation-duration, 350ms) cubic-bezier(0.4, 0, 0.2, 1);
@@ -139,12 +142,12 @@ const afterLeave = () => {
 
 .glass-dialog-enter-from .glass-dialog {
   opacity: 0;
-  transform: scale(0.95) translateY(-10px); /* 减小缩放差异和位移距离，降低冲击感 */
+  transform: scale(0.95) translateY(-10px); /* Reduce scale/offset to soften the entrance */
 }
 
 .glass-dialog-leave-to .glass-dialog {
   opacity: 0;
-  transform: scale(0.97) translateY(10px); /* 优化退出动画，降低冲击感 */
+  transform: scale(0.97) translateY(10px); /* Smooth the exit animation */
 }
 
 .glass-dialog-enter-to,
@@ -158,13 +161,13 @@ const afterLeave = () => {
   transform: scale(1) translateY(0);
 }
 
-/* 对话框内容逐项动画 */
+/* Per-item dialog content animation */
 .glass-dialog-enter-active .glass-dialog-header,
 .glass-dialog-enter-active .glass-dialog-body,
 .glass-dialog-enter-active .glass-dialog-footer {
   animation: slideUpFadeIn calc(var(--animation-duration, 350ms) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
   opacity: 0;
-  transform: translateY(10px); /* 减小内容位移，降低冲击感 */
+  transform: translateY(10px); /* Smaller content offset to soften the entrance */
 }
 
 .glass-dialog-leave-active .glass-dialog-header,
@@ -175,7 +178,7 @@ const afterLeave = () => {
   transform: translateY(0);
 }
 
-/* 调整内容动画延迟，使过渡更自然 */
+/* Tune content animation delays for a natural transition */
 .glass-dialog-enter-active .glass-dialog-header {
   animation-delay: calc(var(--animation-duration, 300ms) * 0.2);
 }
@@ -271,9 +274,9 @@ const afterLeave = () => {
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
 .glass-dialog {
-  background: rgba(26, 32, 44, 0.9);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .glass-dialog .glass-dialog-header {
@@ -306,7 +309,7 @@ const afterLeave = () => {
 }
 }
 
-/* 响应式设计 */
+/* Responsive layout */
 @media (max-width: 768px) {
   .glass-dialog {
     width: 90% !important;
@@ -315,7 +318,7 @@ const afterLeave = () => {
   }
 }
 
-/* 滚动条美化 */
+/* Scrollbar styling */
 .glass-dialog-body::-webkit-scrollbar {
   width: 6px;
 }

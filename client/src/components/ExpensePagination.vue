@@ -1,19 +1,23 @@
 <!-- ExpensePagination.vue -->
+<!-- Pagination buttons keep a static glass look via CSS and stay fully
+     clickable; they no longer use v-liquid-glass because the engine's
+     overlay/lens lifecycle can interfere with click targets on small,
+     densely packed controls. -->
 <template>
     <div class="pagination-container">
       <div class="pagination">
-        <button 
+        <button
           class="pagination-btn"
-          @click.prevent.stop="$emit('page-change', 1)" 
-          :disabled="currentPage === 1" 
+          @click.prevent.stop="$emit('page-change', 1)"
+          :disabled="currentPage === 1"
           :title="$t('app.firstPage')"
         >
           &lt;&lt;
         </button>
-        <button 
+        <button
           class="pagination-btn"
-          @click.prevent.stop="$emit('page-change', currentPage - 1)" 
-          :disabled="currentPage === 1" 
+          @click.prevent.stop="$emit('page-change', currentPage - 1)"
+          :disabled="currentPage === 1"
           :title="$t('app.previousPage')"
         >
           &lt;
@@ -31,18 +35,18 @@
           </button>
         </template>
 
-        <button 
+        <button
           class="pagination-btn"
-          @click.prevent.stop="$emit('page-change', currentPage + 1)" 
-          :disabled="currentPage === totalPages" 
+          @click.prevent.stop="$emit('page-change', currentPage + 1)"
+          :disabled="currentPage === totalPages"
           :title="$t('app.nextPage')"
         >
           &gt;
         </button>
-        <button 
+        <button
           class="pagination-btn"
-          @click.prevent.stop="$emit('page-change', totalPages)" 
-          :disabled="currentPage === totalPages" 
+          @click.prevent.stop="$emit('page-change', totalPages)"
+          :disabled="currentPage === totalPages"
           :title="$t('app.lastPage')"
         >
           &gt;&gt;
@@ -86,8 +90,6 @@ export default {
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(240, 240, 240, 0.1) 100%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   color: var(--text-primary, #495057);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -126,7 +128,7 @@ export default {
   animation: none;
 }
 
-/* 深色模式适配 */
+/* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .pagination-btn {
     background: linear-gradient(135deg, rgba(75, 85, 99, 0.3) 0%, rgba(55, 65, 81, 0.2) 100%);
@@ -160,7 +162,7 @@ export default {
   }
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
   .pagination-container {
     margin-top: 20px;

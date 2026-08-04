@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-progress">
+  <div class="custom-progress" v-liquid-glass>
     <div class="progress-bar-outer">
       <div 
         class="progress-bar-inner" 

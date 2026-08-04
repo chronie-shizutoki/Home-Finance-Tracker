@@ -1,4 +1,5 @@
-/* 现代自适应布局 */
+/* Modern adaptive layout. The glass look is produced by the WebGL engine
+   through the v-liquid-glass directive, not by CSS backdrop-filter. */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -9,7 +10,6 @@
   gap: 2rem;
   position: relative;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
   border-radius: var(--border-radius-lg);
   color: var(--text-primary);
   transition: all var(--transition-time) ease;
@@ -48,7 +48,8 @@
   color: var(--text-primary);
 }
 
-/* 卡片高光效果 */
+/* Static card highlight — the sweeping shine animation is disabled so the
+   glass panels stay still while the WebGL engine provides the refraction. */
 .form-section::before,
 .data-section::before,
 .chart-section::before {
@@ -66,7 +67,7 @@
   );
   pointer-events: none;
   contain: layout;
-  animation: shine 3s infinite;
+  animation: none;
 }
 
 /* 卡片悬停效果 */
@@ -125,12 +126,11 @@
   }
 }
 
-/* 响应式设计 - 小型设备 */
+/* Responsive layout - small devices */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
     border-radius: 0;
-    backdrop-filter: none;
     background: var(--bg-primary);
   }
   

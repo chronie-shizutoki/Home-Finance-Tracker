@@ -1,5 +1,5 @@
 <template>
-  <div :class="['header']">
+  <div :class="['header']" v-liquid-glass>
     <h1>{{ title }}</h1>
 
     <div class="header-right">
@@ -54,7 +54,7 @@
       </div>
 
       <div class="header-actions">
-        <!-- 头像显示 -->
+        <!-- Avatar display -->
         <div class="user-avatar-container" @click="goToMembership">
           <img :src="avatarUrl" alt="User Avatar" class="user-avatar" />
         </div>
@@ -72,21 +72,21 @@ import { useRouter } from 'vue-router';
 defineOptions({ name: 'AppHeader' });
 useI18n();
 
-// 定义组件接收的 props
+// Define props received by the component
 const props = defineProps({ title: String });
 
-// 初始化路由
+// Initialize the router
 const router = useRouter();
 
-// 点击头像导航到会员页面
+// Navigate to the membership page when the avatar is clicked
 const goToMembership = () => {
   router.push('/membership');
 };
 
-// 调用 useLanguageSwitch 获取语言切换函数和当前语言
+// Call useLanguageSwitch to obtain the language switch function and current language
 const { switchLanguage: originalSwitchLanguage, currentLang } = useLanguageSwitch();
 
-// 增强版语言切换函数，添加日志记录
+// Enhanced language switch function with added logging
 const switchLanguage = (langCode) => {
   console.log('Language switch requested:', { from: currentLang.value, to: langCode });
   try {
@@ -97,7 +97,7 @@ const switchLanguage = (langCode) => {
   }
 };
 
-// 定义支持的语言列表
+// Define the list of supported languages
 const languages = [
   { code: 'en-US', label: 'English', shortLabel: 'EN' },
   { code: 'id-ID', label: 'Indonesia', shortLabel: 'ID' },
@@ -147,32 +147,32 @@ const handleKeydown = (event) => {
   }
 };
 
-// 从本地存储获取用户名
+// Retrieve the username from local storage
 const getUsername = () => {
   return localStorage.getItem('username') || '';
 };
 
-// 从本地存储获取当前用户头像
+// Retrieve the current user's avatar from local storage
 const getCurrentUserAvatar = () => {
   const username = getUsername();
   if (!username) return '';
   return localStorage.getItem('avatar-' + username) || '';
 };
 
-// 计算属性获取头像URL，没有头像时返回默认空白头像
+// Computed property for the avatar URL; returns a default blank avatar when none is set
 const avatarUrl = computed(() => {
   const avatar = getCurrentUserAvatar();
-  // 如果没有头像，返回一个默认的空白头像SVG
+  // If no avatar is set, return a default blank avatar SVG
   return avatar || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="%23e0e0e0"/><circle cx="20" cy="15" r="5" fill="%23999999"/><path d="M10 30C10 28.3431 11.3431 27 13 27H27C28.6569 27 30 28.3431 30 30V32C30 33.6569 28.6569 35 27 35H13C11.3431 35 10 33.6569 10 32V30Z" fill="%23999999"/></svg>';
 });
 
-// 从后端获取用户信息和头像
+// Fetch user info and avatar from the backend
 const fetchUserInfo = async () => {
   const username = getUsername();
   if (!username) return;
   
   try {
-    // 从后端获取用户信息
+    // Fetch user info from the backend
     const userResponse = await fetch('/api/members/members/' + encodeURIComponent(username), {
       method: 'GET',
       headers: {
@@ -184,7 +184,7 @@ const fetchUserInfo = async () => {
       const userData = await userResponse.json();
       const user = userData.data || userData;
       
-      // 如果后端返回了头像，更新本地存储
+      // If the backend returned an avatar, update local storage
       if (user && user.avatar) {
         localStorage.setItem('avatar-' + username, user.avatar);
       }
@@ -194,10 +194,10 @@ const fetchUserInfo = async () => {
   }
 };
 
-// 生命周期钩子
+// Lifecycle hooks
 onMounted(async () => {
   console.log('Header component mounted:', { initialLanguage: currentLang.value });
-  // 从后端获取最新的用户信息和头像
+  // Fetch the latest user info and avatar from the backend
   await fetchUserInfo();
   document.addEventListener('click', handleClickOutside);
   document.addEventListener('keydown', handleKeydown);
@@ -210,79 +210,80 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 头部容器的基础样式 */
+/* Header container. The glass blur is rendered by the WebGL engine through
+   the v-liquid-glass directive on the .header element. */
 .header {
-  display: flex; /* 使用 Flexbox 布局 */
-  justify-content: space-between; /* 子元素两端对齐 */
-  align-items: center; /* 子元素垂直居中 */
-  padding: 1rem 2rem; /* 内边距 */
-  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.9) 100%); /* 渐变背景 */
-  backdrop-filter: blur(10px); /* 毛玻璃效果 */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* 底部阴影 */
-  border-bottom: 1px solid #e4e7ed; /* 底部边框 */
-  width: 95%; /* 宽度95% */
-  max-width: 1200px; /* 最大宽度限制 */
-  margin: 0 auto; /* 水平居中 */
-  position: fixed; /* 固定定位，使其在滚动时保持在顶部 */
-  top: 0; /* 距离顶部0 */
-  left: 50%; /* 水平居中定位 */
-  transform: translateX(-50%); /* 水平居中修正 */
-  z-index: 100; /* 确保在其他内容之上 */
-  transition: all 0.3s ease; /* 所有属性的过渡效果 */
-  box-sizing: border-box; /* 边框盒模型 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.9) 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e4e7ed;
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: fixed; /* Stays pinned to the top while scrolling */
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
-/* 滚动时的效果 */
+/* Effect applied while scrolling */
 .header.scrolled {
-  padding: 0.8rem 1.5rem; /* 减小滚动时的内边距 */
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08); /* 增加阴影 */
+  padding: 0.8rem 1.5rem; /* Reduce padding while scrolling */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08); /* Stronger shadow */
 }
 
-/* 标题样式 */
+/* Title styles */
 .header h1 {
-  font-size: 1.8rem; /* 标题字体大小 */
-  color: #303133; /* 标题文本颜色 */
-  margin: 0; /* 移除默认外边距 */
-  flex-shrink: 0; /* 防止标题被压缩 */
-  text-align: left; /* 文本左对齐 */
-  font-weight: 600; /* 字体粗细 */
-  background: linear-gradient(90deg, #409eff, #7928ca); /* 文本渐变背景 */
-  -webkit-background-clip: text; /* 背景裁剪到文本 */
+  font-size: 1.8rem; /* Title font size */
+  color: #303133; /* Title text color */
+  margin: 0; /* Remove default margin */
+  flex-shrink: 0; /* Prevent the title from shrinking */
+  text-align: left; /* Left-align text */
+  font-weight: 600; /* Font weight */
+  background: linear-gradient(90deg, #409eff, #7928ca); /* Gradient text background */
+  -webkit-background-clip: text; /* Clip background to the text */
   background-clip: text;
-  -webkit-text-fill-color: transparent; /* 文本填充透明，显示背景渐变 */
-  letter-spacing: -0.02em; /* 字母间距 */
-  transition: all 0.3s ease; /* 过渡效果 */
+  -webkit-text-fill-color: transparent; /* Transparent text fill so the gradient shows through */
+  letter-spacing: -0.02em; /* Letter spacing */
+  transition: all 0.3s ease; /* Transition effect */
   position: relative;
   z-index: 1;
-  white-space: nowrap; /* 防止标题换行 */
+  white-space: nowrap; /* Prevent the title from wrapping */
   overflow: hidden;
-  text-overflow: ellipsis; /* 超出显示省略号 */
-  max-width: 50%; /* 最大宽度限制 */
+  text-overflow: ellipsis; /* Show an ellipsis when text overflows */
+  max-width: 50%; /* Maximum width limit */
 }
 
-/* 右侧区域容器 */
+/* Right-side area container */
 .header-right {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-shrink: 0; /* 防止被压缩 */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
-/* 头部操作区域 */
+/* Header actions area */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* 用户头像容器 */
+/* User avatar container */
 .user-avatar-container {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 用户头像样式 */
+/* User avatar styles */
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -327,7 +328,6 @@ onUnmounted(() => {
   right: 0;
   min-width: 140px;
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);

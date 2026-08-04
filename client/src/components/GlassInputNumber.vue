@@ -99,12 +99,12 @@ const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
 
 const internalValue = ref(props.modelValue)
 
-// 确保值在范围内
+// Keep the value within range
 const clampValue = (value) => {
   return Math.max(props.min, Math.min(props.max, value))
 }
 
-// 监听外部值变化
+// Watch for external value changes
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -112,64 +112,64 @@ watch(
   }
 )
 
-// 增加数值
+// Increment value
 const increase = () => {
   if (props.disabled || internalValue.value >= props.max) return
   const newValue = clampValue(internalValue.value + props.step)
   updateValue(newValue)
 }
 
-// 减少数值
+// Decrement value
 const decrease = () => {
   if (props.disabled || internalValue.value <= props.min) return
   const newValue = clampValue(internalValue.value - props.step)
   updateValue(newValue)
 }
 
-// 处理输入
+// Handle input event
 const handleInput = (e) => {
   let value = parseFloat(e.target.value)
-  
+
   if (isNaN(value)) {
-    // 如果输入为空或非数字，暂时保持空值
+    // Keep empty when input is blank or non-numeric
     internalValue.value = ''
     return
   }
-  
+
   value = clampValue(value)
   internalValue.value = value
   emit('update:modelValue', value)
   emit('change', value)
 }
 
-// 处理焦点
+// Handle focus
 const handleFocus = () => {
   emit('focus')
 }
 
-// 处理失焦
+// Handle blur
 const handleBlur = () => {
   if (internalValue.value === '') {
-    // 失焦时如果为空，重置为默认值
+    // Reset to default value when left blank on blur
     const defaultValue = clampValue(props.min)
     updateValue(defaultValue)
   }
   emit('blur')
 }
 
-// 处理键盘上键
+// Handle ArrowUp key
 const handleKeyUp = (e) => {
   e.preventDefault()
   increase()
 }
 
-// 处理键盘下键
+// Handle ArrowDown key
 const handleKeyDown = (e) => {
   e.preventDefault()
   decrease()
 }
 
-// 更新值的通用方法
+// Shared value-update helper
 const updateValue = (newValue) => {
   internalValue.value = newValue
   emit('update:modelValue', newValue)
@@ -194,12 +194,14 @@ const updateValue = (newValue) => {
 .glass-input-number-wrapper {
   display: flex;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 4px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(31, 38, 135, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 12px rgba(31, 38, 135, 0.08);
   transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-input-number-content {
@@ -239,21 +241,20 @@ const updateValue = (newValue) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  border: none;
-  border-radius: 6px;
+  background: rgba(241, 245, 249, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
   font-size: 20px;
-  color: #4a5568;
+  color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
+  box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
 }
 
 .glass-input-number-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(241, 245, 249, 1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(31, 38, 135, 0.15);
+  box-shadow: 0 4px 12px rgba(31, 38, 135, 0.12);
 }
 
 .glass-input-number-btn:active:not(:disabled) {
@@ -280,12 +281,12 @@ const updateValue = (newValue) => {
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
 .glass-input-number-container .glass-input-number-label {
-  color: #cbd5e0;
+  color: #cbd5e1;
 }
 
 .glass-input-number-wrapper {
-  background: rgba(26, 32, 44, 0.5);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -295,21 +296,22 @@ const updateValue = (newValue) => {
 
 .glass-input-number-prefix,
 .glass-input-number-suffix {
-  color: #cbd5e0;
+  color: #94a3b8;
 }
 
 .glass-input-number::placeholder {
-  color: #718096;
+  color: #64748b;
 }
 
 .glass-input-number-btn {
-  background: rgba(45, 55, 72, 0.7);
-  color: #cbd5e0;
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .glass-input-number-btn:hover:not(:disabled) {  
-  background: rgba(45, 55, 72, 0.9);
+  background: rgba(51, 65, 85, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 }

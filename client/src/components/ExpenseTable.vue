@@ -1,6 +1,6 @@
 <!-- ExpenseTable.vue -->
 <template>
-  <div class="expense-container">
+  <div class="expense-container" v-liquid-glass>
     <!-- 渐变定义 SVG -->
     <svg class="gradient-defs" width="0" height="0">
       <defs>
@@ -129,26 +129,20 @@
             :style="menuStyle"
           >
             <div class="menu-content">
-              <GlassButton 
-                type="primary" 
+              <button 
                 class="menu-btn menu-edit-btn" 
                 @click.stop="() => { handleEdit(currentMenuExpense); closeMenu() }"
               >
-                <template #icon>
-                  <FontAwesomeIcon icon="edit" />
-                </template>
+                <FontAwesomeIcon icon="edit" />
                 {{ $t('common.edit') }}
-              </GlassButton>
-              <GlassButton 
-                type="danger" 
+              </button>
+              <button 
                 class="menu-btn menu-delete-btn" 
                 @click.stop="() => { handleDelete(currentMenuExpense.id); closeMenu() }"
               >
-                <template #icon>
-                  <FontAwesomeIcon icon="trash-alt" />
-                </template>
+                <FontAwesomeIcon icon="trash-alt" />
                 {{ $t('common.delete') }}
-              </GlassButton>
+              </button>
             </div>
           </div>
         </transition>
@@ -349,7 +343,7 @@ export default {
 <style scoped>
 .expense-container {
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 
@@ -364,6 +358,11 @@ export default {
   font-size: 14px;
 }
 
+.expense-table thead tr {
+  background: rgba(255, 255, 255, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 .expense-table th {
   background: linear-gradient(90deg, #ff7eb3, #ff758c);
   -webkit-background-clip: text;
@@ -374,7 +373,7 @@ export default {
   -moz-text-fill-color: transparent;
   -ms-text-fill-color: transparent;
   text-align: left;
-  padding: 12px 15px;
+  padding: 14px 18px;
   font-weight: 600;
   font-size: 15px;
 }
@@ -390,12 +389,12 @@ export default {
 
 /* 日期标题行样式 */
 .date-header-row {
-  background-color: #f8f9fa;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .date-header-row td {
-  padding: 8px 15px;
-  border-bottom: 2px solid #dee2e6;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .date-header {
@@ -435,14 +434,15 @@ export default {
 
 /* 日期标题卡片样式 */
 .date-header-card {
-  background: #f8f9fa;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius);
   padding: 12px 16px;
   margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .date-header-card .date-info {
@@ -469,8 +469,9 @@ export default {
 }
 
 .expense-card {
-  background: white;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--border-radius);
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -584,15 +585,18 @@ export default {
 }
 
 .menu-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
   padding: 8px;
   min-width: 120px;
   width: 120px;
   overflow: hidden;
   z-index: 10000;
   transform-origin: top right;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .menu-btn {
@@ -614,7 +618,7 @@ export default {
 }
 
 .menu-edit-btn:hover {
-  background-color: #3a56d4;
+  background-color: #3651c4;
 }
 
 .menu-delete-btn {
@@ -624,6 +628,14 @@ export default {
 
 .menu-delete-btn:hover {
   background-color: #c1121f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu-content {
+    background: rgba(30, 41, 59, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
 }
 
 /* 菜单动画效果 */
@@ -736,30 +748,29 @@ export default {
 
 .edit-btn,
 .delete-btn {
-  padding: 4px 10px;
-  border: none;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s ease;
-}
-
-.edit-btn {
-  background-color: #4361ee;
+  background: rgba(67, 97, 238, 0.85);
   color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .edit-btn:hover {
-  background-color: #3a56d4;
+  background: rgba(67, 97, 238, 1);
+  transform: translateY(-1px);
 }
 
 .delete-btn {
-  background-color: #e63946;
-  color: white;
+  background: rgba(230, 57, 70, 0.85);
 }
 
 .delete-btn:hover {
-  background-color: #c1121f;
+  background: rgba(230, 57, 70, 1);
+  transform: translateY(-1px);
 }
 
 .no-data {
@@ -813,9 +824,14 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
+  .expense-table thead tr {
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
   .expense-table td {
     color: #e0e0e0;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .expense-table tr:hover {
@@ -848,37 +864,37 @@ export default {
 
   /* 深色模式下的卡片样式 */
   .expense-card {
-    background-color: #2a2a2a;
-    border: 1px solid #444;
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
-  
+
   .card-header {
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   .date {
     color: #aaa;
   }
-  
+
   .amount {
     color: #60a5fa;
   }
-  
+
   .remark-text {
     color: #e0e0e0;
   }
-  
+
   .type-label,
   .remark-label {
     color: #888;
   }
-  
+
   .card-edit-btn,
   .card-delete-btn {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
-  
+
   .card-edit-btn:hover,
   .card-delete-btn:hover {
     opacity: 0.9;
@@ -886,11 +902,11 @@ export default {
 
   /* 深色模式下的日期标题样式 */
   .date-header-row {
-    background-color: #2a2a2a;
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .date-header-row td {
-    border-bottom: 2px solid #444;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .date-text {
@@ -906,9 +922,9 @@ export default {
   }
 
   .date-header-card {
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .date-header-card .date-text {

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['glass-card']">
+  <div :class="['glass-card']" v-liquid-glass>
     <div v-if="title" class="glass-card-title">
       <slot name="title">{{ title }}</slot>
     </div>
@@ -27,22 +27,9 @@ const props = defineProps({
   border-radius: 12px;
   padding: 20px;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
   background: rgba(255, 255, 255, 0.7);
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: inherit;
-  z-index: -1;
 }
 
 .glass-card:hover {
@@ -78,10 +65,6 @@ const props = defineProps({
   background: rgba(26, 32, 44, 0.7);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.glass-card::before {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .glass-card .glass-card-title {

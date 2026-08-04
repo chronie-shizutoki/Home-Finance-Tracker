@@ -6,6 +6,7 @@
       v-if="visible"
       :class="['glass-message', messageType, responsivePosition]"
       :style="{ zIndex: messageZIndex }"
+      v-liquid-glass="{ reveal: 'none' }"
     >
       <div class="glass-message-content">
         <div class="glass-message-icon">
@@ -32,7 +33,7 @@
         <div class="glass-message-text">
           {{ message }}
         </div>
-        <button v-if="closable" class="glass-message-close" @click="close">
+        <button v-if="closable" class="glass-message-close" @click="close" v-liquid-glass>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -81,14 +82,14 @@ const visible = ref(true)
 const messageType = computed(() => props.type)
 const messageZIndex = computed(() => props.zIndex)
 
-// 响应式位置计算：大屏幕右上角，小屏幕正下
+// Responsive position: top-right on large screens, bottom-center on small screens
 const responsivePosition = computed(() => {
-  // 默认使用props.position，如果未指定则根据屏幕尺寸判断
+  // Use props.position unless it is 'auto', then fall back to screen size
   if (props.position && props.position !== 'auto') {
     return props.position
   }
-  
-  // 检测屏幕尺寸
+
+  // Detect screen size
   const isSmallScreen = window.innerWidth <= 768
   return isSmallScreen ? 'bottom' : 'top-right'
 })
@@ -117,7 +118,6 @@ onUnmounted(() => {
   position: fixed;
   max-width: 380px;
   min-width: 220px;
-  backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 
     0 8px 32px rgba(31, 38, 135, 0.15),
@@ -128,8 +128,8 @@ onUnmounted(() => {
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 3000;
-  /* 添加内部发光效果 */
-  box-shadow: 
+  /* Subtle inner glow */
+  box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
     0 8px 32px rgba(31, 38, 135, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -200,7 +200,6 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: all 0.25s ease;
   flex-shrink: 0;
-  backdrop-filter: blur(8px);
 }
 
 .glass-message-close:hover {
@@ -323,14 +322,14 @@ onUnmounted(() => {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 根据位置应用不同的动画 */
+/* Per-position enter/leave animations */
 .glass-message-fade-enter-from,
 .glass-message-fade-leave-to {
   opacity: 0;
   scale: 0.9;
 }
 
-/* 顶部位置动画 */
+/* Top-position animation */
 .glass-message.top {
   .glass-message-fade-enter-from,
   .glass-message-fade-leave-to {
@@ -346,7 +345,7 @@ onUnmounted(() => {
   }
 }
 
-/* 底部位置动画 */
+/* Bottom-position animation */
 .glass-message.bottom {
   .glass-message-fade-enter-from,
   .glass-message-fade-leave-to {
@@ -362,7 +361,7 @@ onUnmounted(() => {
   }
 }
 
-/* 添加悬停效果 */
+/* Hover effect */
 .glass-message:hover {
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -388,7 +387,7 @@ onUnmounted(() => {
   transform: translateY(2px);
 }
 
-/* 响应式调整 */
+/* Responsive adjustments */
 @media (max-width: 480px) {
   .glass-message {
     max-width: calc(100vw - 40px);
