@@ -1,5 +1,5 @@
 <template>
-  <!-- 独立弹窗容器 -->
+  <!-- Standalone dialog container -->
   <transition name="dialog-fade">
     <div v-if="modelValue" class="custom-dialog-overlay" @click.self="closeDialog">
         <div v-if="modelValue" class="custom-dialog settings-panel-dialog">
@@ -29,7 +29,7 @@
               </div>
 
               <div class="setting-content" v-if="spendingStore.isLimitEnabled">
-                <!-- 月度限制设置 -->
+                <!-- Monthly limit setting -->
                 <div class="setting-item">
                   <label class="setting-label">{{ $t('spending.settings.monthlyLimit') }}</label>
                   <GlassInputNumber
@@ -46,7 +46,7 @@
                   />
                 </div>
 
-                <!-- 警告阈值设置 -->
+                <!-- Warning threshold setting -->
                 <div class="setting-item">
                   <label class="setting-label">{{ $t('spending.settings.warningThreshold') }}</label>
                   <GlassInputNumber
@@ -64,7 +64,7 @@
                 </div>
               </div>
 
-              <!-- 禁用状态说明 -->
+              <!-- Disabled-state notice -->
               <div class="disabled-notice" v-else>
                 <div class="notice-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,17 +104,17 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['update:modelValue']);
 
-// 本地状态
+// Local state
 const localLimit = ref(0);
 const thresholdPercentage = ref(80);
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// 方法
+// Methods
 const handleToggleEnabled = (enabled) => {
   spendingStore.toggleLimitEnabled(enabled);
   if (enabled && spendingStore.monthlyLimit <= 0) {
-    // 如果启用但没有设置限制，提示用户设置
+    // If enabled but no limit is set, prompt the user to set one
     errorMessage.value = t('spending.settings.pleaseSetLimit');
   }
 };
@@ -132,7 +132,7 @@ const handleThresholdChange = (value) => {
   }
 };
 
-// 监听store变化，同步到本地状态
+// Watch the store and sync to local state
 watch(() => spendingStore.monthlyLimit, (newValue) => {
   localLimit.value = newValue;
 }, { immediate: true });
@@ -141,12 +141,12 @@ watch(() => spendingStore.warningThreshold, (newValue) => {
   thresholdPercentage.value = Math.round(newValue * 100);
 }, { immediate: true });
 
-// 关闭弹窗
+// Close the dialog
 const closeDialog = () => {
   emit('update:modelValue', false);
 };
 
-// 组件挂载时加载设置
+// Load settings when the component mounts
 onMounted(() => {
   spendingStore.loadSettings();
 });
@@ -160,21 +160,26 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  /* Blur the lower layer so the modal reads as a distinct surface */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
 }
 
 .custom-dialog {
-  background: #ffffff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-lg, 20px);
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .dialog-header {
@@ -286,7 +291,7 @@ onMounted(() => {
 
 
 
-/* 对话框关闭按钮动画 */
+/* Dialog close-button animation */
 .dialog-close-btn:hover {
   transform: rotate(90deg);
 }
@@ -295,7 +300,7 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
   .custom-dialog {
     width: 95%;
@@ -312,15 +317,16 @@ onMounted(() => {
   }
 }
 
-/* 深色模式适配 */
+/* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .custom-dialog-overlay {
     background-color: rgba(0, 0, 0, 0.7);
   }
   
   .custom-dialog {
-    border: 1px solid #333;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   }
   
   .dialog-header {
@@ -367,7 +373,7 @@ onMounted(() => {
 }
 
 
-/* 自定义对话框样式 */
+/* Custom dialog styles */
 .custom-dialog-overlay {
   position: fixed;
   top: 0;
@@ -375,6 +381,9 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  /* Blur the lower layer so the modal reads as a distinct surface */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -382,8 +391,9 @@ onMounted(() => {
 }
 
 .custom-dialog {
-  background: #ffffff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-lg, 20px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   width: 90%;
   max-width: 500px;
@@ -392,19 +402,26 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog {
-  background: #1e1e1e;
+  background: rgba(30, 41, 59, 0.96);
   color: #ffffff;
 }
 }
 
-/* 对话框动画 */
+/* Unified modal open/close animation — matches the AI-feature GlassDialog style */
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-fade-enter-active .custom-dialog,
+.dialog-fade-leave-active .custom-dialog {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dialog-fade-enter-from,
@@ -412,23 +429,34 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* 背景遮罩动画 */
-.custom-dialog-overlay .custom-dialog0 {
-  transform: scale(1);
-  transition: transform 0.3s ease 0.1s;
-}
-
-.dialog-fade-enter-active .custom-dialog {
-  transform: scale(1);
-  transition: all 0.3s ease;
-}
-
 .dialog-fade-enter-from .custom-dialog {
-  transform: scale(0.7); /* 减小初始缩放比例，使动画更明显 */
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
 }
 
-.dialog-fade-leave-active .custom-dialog {
-  transform: scale(0.7) translateY(-20px);
+.dialog-fade-leave-to .custom-dialog {
+  opacity: 0;
+  transform: scale(0.97) translateY(10px);
+}
+
+.dialog-fade-enter-to .custom-dialog,
+.dialog-fade-leave-from .custom-dialog {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.dialog-fade-enter-active .dialog-header,
+.dialog-fade-enter-active .dialog-body,
+.dialog-fade-enter-active .dialog-footer {
+  animation: glassDialogContentIn 0.24s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.dialog-fade-leave-active .dialog-header,
+.dialog-fade-leave-active .dialog-body,
+.dialog-fade-leave-active .dialog-footer {
+  animation: glassDialogContentOut 0.24s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .dialog-header {

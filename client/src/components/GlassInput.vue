@@ -118,35 +118,30 @@ const isFocused = ref(false)
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
   padding: 0 12px;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.glass-input-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: inherit;
-  z-index: -1;
+.glass-input-wrapper:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .glass-input-wrapper.focused {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .glass-input-wrapper.error {
-  border-color: rgba(229, 62, 62, 0.4);
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+  border-color: rgba(229, 62, 62, 0.5);
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
 }
 
 .glass-input {
@@ -200,13 +195,20 @@ const isFocused = ref(false)
 }
 
 .glass-input-container .glass-input-wrapper {
-  background: rgba(26, 32, 44, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
-.glass-input-container .glass-input-wrapper::before {
-  background: rgba(0, 0, 0, 0.1);
+.glass-input-container .glass-input-wrapper:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.glass-input-container .glass-input-wrapper.focused {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
 
 .glass-input-container .glass-input,
@@ -216,11 +218,11 @@ const isFocused = ref(false)
 
 .glass-input-container .glass-input::placeholder,
 .glass-input-container .glass-textarea::placeholder {
-  color: #718096;
+  color: #94a3b8;
 }
 
 .glass-input-container .glass-input-count {
-  color: #718096;
+  color: #94a3b8;
 }
 
 .glass-input-container .glass-input-error {

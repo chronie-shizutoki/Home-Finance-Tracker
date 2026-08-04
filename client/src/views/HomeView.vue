@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <!-- 主弹窗 -->
+    <!-- Main dialogs -->
     <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
@@ -8,9 +8,9 @@
 
     <Header :title="$t('app.title')" />
 
-    <!-- 功能组网格布局 -->
+    <!-- Function group grid layout -->
     <div class="function-section">
-      <!-- 手机端选单 -->
+      <!-- Mobile selector -->
       <div class="mobile-selector">
         <CustomSelect
           v-model="selectedFunctionGroup"
@@ -20,9 +20,9 @@
         />
       </div>
       
-      <!-- 桌面端网格布局 -->
+      <!-- Desktop grid layout -->
       <div class="card-grid">
-        <!-- 主要功能组 -->
+        <!-- Primary function group -->
         <GlassCard :title="t('function.primary')">
           <div class="card-content">
             <GlassButton type="primary" @click="showAddDialog = true">
@@ -36,7 +36,7 @@
           </div>
         </GlassCard>
         
-        <!-- AI功能组 -->
+        <!-- AI function group -->
         <GlassCard :title="t('function.aiFeatures')">
           <div class="card-content">
             <GlassButton type="primary" @click="showAiAddDialog = true">
@@ -51,9 +51,9 @@
         </GlassCard>
       </div>
       
-      <!-- 手机端按钮显示 -->
+      <!-- Mobile buttons -->
       <div class="mobile-buttons">
-        <!-- 主要功能组按钮 -->
+        <!-- Primary function group buttons -->
         <div v-if="selectedFunctionGroup === 'primary'" class="mobile-button-group">
           <GlassButton type="primary" @click="showAddDialog = true" size="large" class="mobile-btn" >
             <template #icon><FontAwesomeIcon icon="plus" /></template>
@@ -65,7 +65,7 @@
           </GlassButton>
         </div>
         
-        <!-- AI功能组按钮 -->
+        <!-- AI function group buttons -->
         <div v-else-if="selectedFunctionGroup === 'ai'" class="mobile-button-group">
           <GlassButton type="primary" @click="showAiAddDialog = true" size="large" class="mobile-btn">
             <template #icon><FontAwesomeIcon icon="microchip" /></template>
@@ -79,7 +79,7 @@
       </div>
     </div>
 
-    <!-- 月度消费限制显示 -->
+    <!-- Monthly spending limit display -->
     <SpendingLimitDisplay :expenses="Expenses" />
     
     <ExpenseList
@@ -120,7 +120,7 @@
     </Transition>
   </div>
 
-  <!-- 自定义添加记录弹窗 -->
+  <!-- Custom add-record dialog -->
   <transition name="dialog-fade">
     <div v-if="showAddDialog" class="custom-dialog-overlay" @click.self="closeAddDialog">
       <div class="custom-dialog">
@@ -197,7 +197,7 @@
     </div>
   </transition>
 
-  <!-- 编辑消费记录对话框 -->
+  <!-- Edit expense record dialog -->
   <transition name="dialog-fade">
     <div v-if="showEditDialog" class="custom-dialog-overlay" @click.self="showEditDialog = false">
       <div class="custom-dialog">
@@ -274,7 +274,7 @@
     </div>
   </transition>
   
-  <!-- 删除确认对话框 -->
+  <!-- Delete confirmation dialog -->
   <transition name="dialog-fade">
     <div v-if="showDeleteDialog" class="custom-dialog-overlay" @click.self="showDeleteDialog = false">
       <div class="custom-dialog">
@@ -297,7 +297,7 @@
     </div>
   </transition>
 
-  <!-- API密钥设置对话框 -->
+  <!-- API key settings dialog -->
   <GlassDialog v-model:visible="showApiKeyDialog" title="设置硅基流动（SiliconFlow） API密钥" width="50%" :z-index="9999">
     <GlassForm :model="apiKeyForm" ref="apiKeyFormRef">
       <GlassFormItem :label="'API密钥'" prop="apiKey">
@@ -318,7 +318,7 @@
     </template>
   </GlassDialog>
 
-  <!-- AI智能记录对话框 -->
+  <!-- AI smart-record dialog -->
   <GlassDialog v-model:visible="showAiAddDialog" title="AI智能记录" width="80%">
     <GlassForm :model="aiForm" ref="aiFormRef">
       <GlassFormItem :label="'输入文本描述'">
@@ -367,18 +367,18 @@
     </template>
   </GlassDialog>
 
-  <!-- 多条记录编辑对话框 -->
+  <!-- Multi-record edit dialog -->
   <GlassDialog v-model:visible="showMultiRecordsDialog" title="AI生成的多条记录" width="90%">
     <div v-if="multiRecords.length === 0" class="no-records">
       {{ t('expense.noRecords') }}
     </div>
     <div v-else class="multi-records-container">
-      <!-- 全选功能 -->
+      <!-- Select-all feature -->
       <div class="select-all-container" style="margin-bottom: 20px;">
         <GlassCheckbox v-model="selectAll" @change="handleSelectAllChange">{{ t('common.selectAll') }}</GlassCheckbox>
       </div>
       
-      <!-- 记录列表 -->
+      <!-- Record list -->
       <div v-for="(record, index) in multiRecords" :key="index" class="record-item" style="margin-bottom: 15px; padding: 15px; border: 1px solid #e4e7ed; border-radius: 4px;">
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <GlassCheckbox v-model="record.selected" @change="handleRecordSelectChange"></GlassCheckbox>
@@ -415,17 +415,17 @@
     </template>
   </GlassDialog>
 
-  <!-- AI消费问答对话框 -->
+  <!-- AI spending Q&A dialog -->
   <GlassDialog v-model:visible="showAiReportDialog" title="AI消费问答" width="90%" height="80vh">
     <div class="ai-report-container">
-      <!-- 数据筛选区域 -->
+      <!-- Data filter section -->
       <div class="report-filter-section" style="margin-bottom: 15px;">
         <AIReportFilter 
           @filter-change="handleFilterChange"
         />
       </div>
       
-      <!-- 问题输入区域 -->
+      <!-- Question input section -->
       <div class="report-question-section" style="margin-bottom: 10px;">
         <GlassForm label-position="top">
           <GlassFormItem label="输入您的问题">
@@ -448,7 +448,7 @@
         </GlassForm>
       </div>
       
-      <!-- 报告内容显示区域 -->
+      <!-- Report content display section -->
       <div class="report-content-section">
         <div v-if="!reportContent" class="no-report-content">
           请点击"生成"按钮开始分析您的消费数据
@@ -502,7 +502,7 @@ import AIReportFilter from '@/components/AIReportFilter.vue';
 const { t } = useI18n();
 const router = useRouter();
 
-// 播放警报声 - 支持循环多秒
+// Play an alert sound - supports looping for multiple seconds
 const playAlertSound = (duration = 5) => {
   try {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -515,23 +515,23 @@ const playAlertSound = (duration = 5) => {
     oscillator.type = 'sine';
     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
     
-    // 创建循环效果
+    // Create a looping effect
     let currentTime = audioContext.currentTime;
-    const cycleDuration = 1; // 每次循环的持续时间（秒）
+    const cycleDuration = 1; // Duration of each loop (seconds)
     const cycles = Math.ceil(duration / cycleDuration);
     
-    // 生成多个频率变化的循环
+    // Generate multiple cycles with varying frequency
     for (let i = 0; i < cycles; i++) {
       const startTime = currentTime + i * cycleDuration;
       
-      // 设置上升和下降的音调变化
+      // Set rising and falling pitch changes
       oscillator.frequency.setValueAtTime(1000, startTime);
       oscillator.frequency.exponentialRampToValueAtTime(1200, startTime + 0.3);
       oscillator.frequency.exponentialRampToValueAtTime(800, startTime + 0.7);
       oscillator.frequency.exponentialRampToValueAtTime(1000, startTime + 1);
     }
     
-    // 最后淡出
+    // Fade out at the end
     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + duration - 0.5);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
     
@@ -542,24 +542,24 @@ const playAlertSound = (duration = 5) => {
   }
 }
 
-// 显示大额消费警告 - 支持回调
+// Show a large-expense warning - supports a callback
 let warningCallback = null;
 const showLargeExpenseWarning = (callback = null) => {
-  playAlertSound(5); // 播放5秒的循环警报声
+  playAlertSound(5); // Play a 5-second looping alert sound
   
-  // 存储回调函数
+  // Store the callback function
   warningCallback = callback;
   
-  // 创建全屏警告弹窗
+  // Create a full-screen warning dialog
   const warningContainer = document.createElement('div');
-  warningContainer.id = 'largeExpenseWarning'; // 添加ID以便查找
+  warningContainer.id = 'largeExpenseWarning'; // Add an id for later lookup
   warningContainer.style.position = 'fixed';
   warningContainer.style.top = '0';
   warningContainer.style.left = '0';
   warningContainer.style.width = '100%';
   warningContainer.style.height = '100%';
   warningContainer.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
-  warningContainer.style.zIndex = '99999'; // 提高z-index确保显示在最上层
+  warningContainer.style.zIndex = '99999'; // Raise z-index so it stays on top
   warningContainer.style.display = 'flex';
   warningContainer.style.flexDirection = 'column';
   warningContainer.style.justifyContent = 'center';
@@ -571,7 +571,7 @@ const showLargeExpenseWarning = (callback = null) => {
   warningContainer.style.padding = '2rem';
   warningContainer.style.animation = 'blink 0.5s infinite alternate';
   
-  // 添加闪烁动画样式
+  // Add the blink animation styles
   const styleSheet = document.createElement('style');
   styleSheet.id = 'largeExpenseWarningStyle';
   styleSheet.textContent = `
@@ -602,22 +602,22 @@ const showLargeExpenseWarning = (callback = null) => {
   confirmButton.style.borderRadius = '4px';
   confirmButton.style.cursor = 'pointer';
   confirmButton.style.fontWeight = 'bold';
-  confirmButton.style.zIndex = '100000'; // 确保按钮也在最上层
+  confirmButton.style.zIndex = '100000'; // Keep the button on top too
   
   confirmButton.addEventListener('click', () => {
     document.body.removeChild(warningContainer);
     document.head.removeChild(styleSheet);
-    // 执行回调函数
+    // Execute the callback function
     if (typeof warningCallback === 'function') {
       warningCallback();
       warningCallback = null;
     }
   });
   
-  // 确保即使在对话框后面也能看到警告
+  // Ensure the warning is visible even behind dialogs
   const dialogs = document.querySelectorAll('.dialog__wrapper');
   dialogs.forEach(dialog => {
-    dialog.style.zIndex = '99998'; // 让对话框在警告后面
+    dialog.style.zIndex = '99998'; // Keep dialogs behind the warning
   });
   
   warningContainer.appendChild(warningText);
@@ -625,50 +625,50 @@ const showLargeExpenseWarning = (callback = null) => {
   document.body.appendChild(warningContainer);
 };
 
-// 检查并显示大额消费警告
+// Check and show the large-expense warning
 const checkAndShowLargeExpenseWarning = async (records) => {
-  // 检查是否有单笔大于500元的消费
+  // Check whether any single expense exceeds 500 yuan
   const hasLargeExpense = records.some(record => parseFloat(record.amount) > 500);
   
   if (hasLargeExpense) {
-    // 创建一个Promise来等待用户点击确认按钮
+    // Create a Promise that waits for the user to click the confirm button
     return new Promise(resolve => {
-      // 使用回调函数支持
+      // Use callback-function support
       showLargeExpenseWarning(() => {
         resolve();
       });
       
-      // 添加超时机制，确保即使用户不点击也能继续
+      // Add a timeout so it continues even if the user never clicks
       setTimeout(() => {
-        // 尝试找到并点击确认按钮
+        // Try to find and click the confirm button
         const confirmButton = document.getElementById('largeExpenseConfirmButton');
         if (confirmButton) {
           confirmButton.click();
         } else {
-          // 如果找不到按钮，直接解析Promise
+          // If the button is not found, resolve the Promise directly
           resolve();
-          // 清理警告弹窗
+          // Clean up the warning dialog
           const warningContainer = document.getElementById('largeExpenseWarning');
           const styleSheet = document.getElementById('largeExpenseWarningStyle');
           if (warningContainer) document.body.removeChild(warningContainer);
           if (styleSheet) document.head.removeChild(styleSheet);
           warningCallback = null;
         }
-      }, 10000); // 10秒超时
+      }, 10000); // 10-second timeout
     });
   }
 };
 
-// 按钮状态变量
+// Button state variables
 const showAddDialog = ref(false);
 const showMarkdownDialog = ref(false);
 const showAiAddDialog = ref(false);
-// 新增：显示多条记录的对话框
+// Added: dialog for showing multiple records
 const showMultiRecordsDialog = ref(false);
-// 新增：显示AI报告对话框
+// Added: AI report dialog
 const showAiReportDialog = ref(false);
 
-// 新增：编辑和删除对话框状态
+// Added: edit and delete dialog state
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
 const editingExpenseId = ref('');
@@ -685,9 +685,9 @@ const editErrors = reactive({
   date: ''
 });
 
-// 功能组数据和选中状态（用于手机端）
+// Function group data and selected state (for mobile)
 const selectedFunctionGroup = ref('primary');
-// 使用computed属性确保t函数正确初始化后再获取翻译值
+// Use a computed property so translation values are fetched only after t is initialized
 const functionGroups = computed(() => [
   { label: t('function.primary'), value: 'primary' },
   { label: t('function.aiFeatures'), value: 'ai' }
@@ -697,15 +697,15 @@ const aiForm = reactive({
   image: []
 });
 const isParsing = ref(false);
-// 新增：存储多条记录的数据结构
+// Added: data structure for storing multiple records
 const multiRecords = ref([]);
-// 新增：全选状态
+// Added: select-all state
 const selectAll = ref(false);
-// 新增：报告相关状态
+// Added: report-related state
 const isGeneratingReport = ref(false);
 const reportContent = ref('');
 const reportQuestion = ref('');
-// 新增：筛选统计数据
+// Added: filtered statistics data
 const filteredStats = ref({
   totalCount: 0,
   totalAmount: 0,
@@ -716,52 +716,52 @@ const filteredStats = ref({
   filteredExpenses: []
 });
 
-// 获取传递给AI的消费数据
+// Get the expense data passed to the AI
 const aiExpenses = computed(() => {
   return filteredStats.value.filteredExpenses || [];
 });
 
-// 配置marked选项
+// Configure marked options
 marked.setOptions({
   breaks: true,
   gfm: true
 });
 
-// 渲染报告内容为HTML
+// Render the report content as HTML
 const renderedReportContent = computed(() => {
   return marked.parse(reportContent.value);
 });
 
-// 新增：计算已选择的记录数量
+// Added: count the selected records
 const selectedRecordsCount = computed(() => {
   return multiRecords.value.filter(record => record.selected).length;
 });
 
-// 导入AI API
+// Import the AI API
 import { parseTextToRecord, parseImageToRecord, setApiKey, generateExpenseReport } from '@/api/aiRecord';
 
-// API密钥相关
+// API key related
 const showApiKeyDialog = ref(false);
 const apiKeyForm = reactive({
   apiKey: localStorage.getItem('siliconflow_api_key') || ''
 });
 
-// 前往图表页面
+// Navigate to the charts page
 const goToCharts = () => {
   router.push('/charts');
 };
 
-// 处理编辑消费记录
+// Handle editing an expense record
 const handleEditExpense = (expense) => {
   console.log('Editing expense:', expense);
   editingExpenseId.value = expense.id;
   editingExpense.id = expense.id;
   editingExpense.type = expense.type || '';
   editingExpense.amount = expense.amount || '';
-  editingExpense.date = expense.date || ''; // 直接使用date字段的值
+  editingExpense.date = expense.date || ''; // Use the date field value directly
   editingExpense.remark = expense.remark || '';
   
-  // 清空错误提示
+  // Clear the error messages
   editErrors.type = '';
   editErrors.amount = '';
   editErrors.date = '';
@@ -769,36 +769,36 @@ const handleEditExpense = (expense) => {
   showEditDialog.value = true;
 };
 
-// 处理删除消费记录
+// Handle deleting an expense record
 const handleDeleteExpense = (id) => {
   console.log('Deleting expense:', id);
   editingExpenseId.value = id;
   showDeleteDialog.value = true;
 };
 
-// 验证编辑表单
+// Validate the edit form
 const validateEditForm = () => {
   let isValid = true;
   
-  // 清空错误
+  // Clear the errors
   editErrors.type = '';
   editErrors.amount = '';
   editErrors.date = '';
   
-  // 验证类型
+  // Validate the type
   if (!editingExpense.type.trim()) {
     editErrors.type = t('expense.typeRequired');
     isValid = false;
   }
   
-  // 验证金额
+  // Validate the amount
   const amount = parseFloat(editingExpense.amount);
   if (!editingExpense.amount || isNaN(amount) || amount <= 0) {
     editErrors.amount = t('expense.amountRequired');
     isValid = false;
   }
   
-  // 验证日期
+  // Validate the date
   if (!editingExpense.date) {
     editErrors.date = t('expense.dateRequired');
     isValid = false;
@@ -807,7 +807,7 @@ const validateEditForm = () => {
   return isValid;
 };
 
-// 确认编辑消费记录
+// Confirm editing the expense record
   const confirmEdit = async () => {
     if (!validateEditForm()) {
       return;
@@ -817,7 +817,7 @@ const validateEditForm = () => {
       const expenseData = {
         type: editingExpense.type.trim(),
         amount: parseFloat(editingExpense.amount).toFixed(2),
-        date: editingExpense.date, // 直接使用YYYY-MM-DD格式
+        date: editingExpense.date, // Use the YYYY-MM-DD format directly
         remark: editingExpense.remark.trim()
       };
 
@@ -827,7 +827,7 @@ const validateEditForm = () => {
     successMessage.value = t('expense.updateSuccess');
     showEditDialog.value = false;
     
-    // 刷新消费记录列表
+    // Refresh the expense record list
     refreshTrigger.value++;
   } catch (error) {
     console.error('Update expense failed:', error);
@@ -835,7 +835,7 @@ const validateEditForm = () => {
   }
 };
 
-// 确认删除消费记录
+// Confirm deleting the expense record
 const confirmDelete = async () => {
   try {
     console.log('Deleting expense:', editingExpenseId.value);
@@ -844,7 +844,7 @@ const confirmDelete = async () => {
     successMessage.value = t('expense.deleteSuccess');
     showDeleteDialog.value = false;
     
-    // 刷新消费记录列表
+    // Refresh the expense record list
     refreshTrigger.value++;
   } catch (error) {
     console.error('Delete expense failed:', error);
@@ -852,7 +852,7 @@ const confirmDelete = async () => {
   }
 };
 
-// 导入处理
+// Import handling
 const handleImportSuccess = (response) => {
   const message = response?.message || t('import.success')
   successMessage.value = `${message}${t('import.refreshNotice')}`
@@ -867,7 +867,7 @@ const handleImportError = (error) => {
   console.error('Import error:', error)
 }
 
-// 导出本月数据图片
+// Export this month's data as an image
 const exportMonthData = () => {
   window.open('/photo.html', '_blank');
 };
@@ -875,10 +875,10 @@ const exportMonthData = () => {
 const markdownContent = ref('');
 const markdownTitle = ref('');
 
-// 导入操作日志工具
+// Import the operation-logging utility
 import { logUserAction } from '@/utils/operationLogger';
 
-// 对话框相关数据
+// Dialog-related data
 const expenseTypes = ['日常用品', '奢侈品', '通讯费用', '食品', '零食糖果', '冷饮', '方便食品', '纺织品', '饮品', '调味品', '交通出行', '餐饮', '医疗费用', '水果', '其他', '水产品', '乳制品', '礼物人情', '旅行度假', '政务', '水电煤气', '美容美发', '豆制品', '个护美妆', '电子产品', '家用电器', '五金', '服装'];
 const form = reactive({
   type: '',
@@ -887,38 +887,38 @@ const form = reactive({
   remark: ''
 });
 
-// 表单错误状态
+// Form error state
 const formErrors = reactive({
   type: '',
   amount: '',
   date: ''
 });
 
-// 关闭添加对话框
+// Close the add dialog
 const closeAddDialog = () => {
-  // 清除表单错误
+  // Clear the form errors
   Object.keys(formErrors).forEach(key => {
     formErrors[key] = '';
   });
   showAddDialog.value = false;
 };
 
-// 验证表单
+// Validate the form
 const validateForm = () => {
   let isValid = true;
   
-  // 清除之前的错误
+  // Clear previous errors
   Object.keys(formErrors).forEach(key => {
     formErrors[key] = '';
   });
   
-  // 验证类型
+  // Validate the type
   if (!form.type) {
     formErrors.type = t('expense.selectType');
     isValid = false;
   }
   
-  // 验证金额
+  // Validate the amount
   if (!form.amount) {
     formErrors.amount = t('expense.inputAmount');
     isValid = false;
@@ -931,7 +931,7 @@ const validateForm = () => {
     }
   }
   
-  // 验证日期
+  // Validate the date
   if (!form.date) {
     formErrors.date = t('expense.selectDate');
     isValid = false;
@@ -942,73 +942,73 @@ const validateForm = () => {
 
 const handleAddRecord = async () => {
   try {
-    // 记录添加记录操作开始
+    // Log the start of the add-record operation
     logUserAction('record_add_start', { 
       type: form.type, 
       amount: form.amount,
       date: form.date
     });
     
-    // 使用自定义验证函数
+    // Use the custom validation function
     if (!validateForm()) {
-      // 表单验证失败，错误信息已经在表单中显示
+      // Form validation failed; the error is already shown in the form
       return;
     }
 
-    // 添加详细日志来跟踪日期
+    // Add detailed logs to trace the date
     console.log('用户选择的原始日期:', form.date);
     
-    // 格式化日期为YYYY-MM-DD格式
+    // Format the date as YYYY-MM-DD
     const userSelectedDate = form.date ? new Date(form.date).toISOString().split('T')[0] : '';
     console.log('格式化后的用户选择日期:', userSelectedDate);
     
-    // 获取当前日期用于比较
+    // Get today's date for comparison
     const today = new Date().toISOString().split('T')[0];
     console.log('今天的日期:', today);
 
-    // 构建符合API要求的请求数据
+    // Build the request payload expected by the API
     const expenseData = {
       type: form.type,
       amount: parseFloat(parseFloat(form.amount).toFixed(2)),
       remark: form.remark,
-      date: userSelectedDate // 服务器需要的日期字段
+      date: userSelectedDate // Date field required by the server
     };
     console.log('发送到服务器的数据:', expenseData);
 
-    // 检查是否有单笔大于500元的消费
+    // Check whether any single expense exceeds 500 yuan
     await checkAndShowLargeExpenseWarning([expenseData]);
 
-    // 使用与Expenses.vue相同的批量提交接口，明确指定为1条记录
+    // Use the same batch-submit endpoint as Expenses.vue, explicitly for 1 record
     await axios.post('/api/expenses', expenseData, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
     showAddDialog.value = false;
-    // 添加成功后刷新数据
+    // Refresh data after a successful add
     await fetchData(true);
-    // 触发ExpenseList组件刷新
+    // Trigger the ExpenseList component to refresh
     refreshTrigger.value++;
     successMessage.value = t('expense.addSuccess');
     
-    // 记录添加成功
+    // Log a successful add
     logUserAction('record_add_success', { 
       type: expenseData.type, 
       amount: expenseData.amount,
       date: expenseData.date
     });
     
-    // 重置表单
+    // Reset the form
     Object.assign(form, { type: '', amount: '', date: '', remark: '' });
   } catch (error) {
     console.error('添加记录失败:', error);
     console.error('错误详情:', { status: error.response?.status, data: error.response?.data, headers: error.response?.headers });
-    // 区分表单验证错误和API错误
+    // Distinguish form-validation errors from API errors
     let errorMsg;
     if (error.name === 'ValidationError') {
       errorMsg = error.message;
     } else if (error.response) {
-      // 服务器响应错误
+      // Server response error
       const status = error.response.status;
       const serverMsg = error.response.data?.message || '服务器处理异常';
       if (status >= 500) {
@@ -1019,14 +1019,14 @@ const handleAddRecord = async () => {
         errorMsg = t('expense.networkError', { error: `${status} - ${serverMsg}` });
       }
     } else if (error.request) {
-      // 无响应错误（网络问题）
+      // No-response error (network issue)
       errorMsg = t('expense.networkTimeout');
     } else {
       errorMsg = t('expense.unknownError', { error: error.message || '未知错误' });
     }
     errorMessage.value = errorMsg;
     
-    // 记录添加失败
+    // Log a failed add
     logUserAction('record_add_failed', { 
       error: errorMsg,
       attemptedData: { type: form.type, amount: form.amount, date: form.date }
@@ -1034,19 +1034,19 @@ const handleAddRecord = async () => {
   }
 };
 
-// 状态数据
+// State data
 const Expenses = ref([]);
 const isLoading = ref(false);
-const refreshTrigger = ref(0); // 用于触发ExpenseList组件刷新的数据版本号
-const expenseListTotal = ref(0); // ExpenseList组件中的数据总数
+const refreshTrigger = ref(0); // Data version number used to trigger ExpenseList refresh
+const expenseListTotal = ref(0); // Total record count within the ExpenseList component
 
-// 处理ExpenseList数据加载完成事件
+// Handle the ExpenseList data-loaded event
 const handleDataLoaded = (data) => {
   console.log('ExpenseList data loaded:', data);
   expenseListTotal.value = data.total || 0;
 };
 
-// 导出功能 - 调用后端API下载Excel
+// Export feature - call the backend API to download Excel
 const exportToExcel = async () => {
   try {
     const currentLang = localStorage.getItem('appLang') || i18n.global.locale.value || 'zh-CN'
@@ -1073,7 +1073,7 @@ const exportToExcel = async () => {
   }
 }
 
-// 费用数据管理
+// Expense data management
 const {
   fetchData: originalFetchData,
   errorMessage,
@@ -1081,21 +1081,21 @@ const {
   successMessage
 } = useExpenseData();
 
-// 封装 fetchData
+// Wrap fetchData
 const fetchData = async (forceRefresh = false) => {
   console.log('fetchData called, forceRefresh:', forceRefresh);
   await originalFetchData(forceRefresh);
   await loadExpenses();
 };
 
-// 创建取消控制器
+// Create a cancellation controller
 let paginationController = null;
 
-// 载入消费数据（从SQLite数据库） - 使用分页加载优化性能
+// Load expense data (from the SQLite database) - use paginated loading for performance
 const loadExpenses = async () => {
   if (isLoading.value) return;
 
-  // 取消之前的请求
+  // Cancel the previous request
   if (paginationController) {
     paginationController.abort();
   }
@@ -1106,16 +1106,16 @@ const loadExpenses = async () => {
   try {
     console.log('开始使用分页加载数据...');
 
-    // 使用分页工具获取所有数据
+    // Use the pagination utility to fetch all data
     const allData = await fetchAllPages({
       apiCall: ({ page, limit }) => 
         axios.get(`/api/expenses?page=${page}&limit=${limit}`),
-      pageSize: 100,           // 每页100条记录
-      maxConcurrent: 3,        // 最多3个并发请求
+      pageSize: 100,           // 100 records per page
+      maxConcurrent: 3,        // At most 3 concurrent requests
       signal: paginationController.signal,
       onProgress: (progressData) => {
         console.log(`数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
-        // 可以在这里更新进度条显示
+        // Progress bar could be updated here
       },
       onError: (error) => {
         console.error('分页加载错误:', error);
@@ -1123,7 +1123,7 @@ const loadExpenses = async () => {
       }
     });
 
-    // 确保数据格式正确
+    // Ensure the data format is correct
     Expenses.value = allData
       .map(item => ({
         type: item.type?.trim() || item.type,
@@ -1156,49 +1156,49 @@ const loadExpenses = async () => {
   }
 };
 
-// 处理AI智能记录生成
+// Handle AI smart-record generation
 const handleImageChange = (file, fileList) => {
   aiForm.image = fileList;
 };
 
-// 处理AI智能记录取消
+// Handle cancellation of AI smart-record
 const handleAiCancel = () => {
   showAiAddDialog.value = false;
-  // 重置AI表单
+  // Reset the AI form
   aiForm.text = '';
   aiForm.image = [];
 };
 
-// 新增：处理全选/取消全选
+// Added: handle select-all / deselect-all
 const handleSelectAllChange = (value) => {
   multiRecords.value.forEach(record => {
     record.selected = value;
   });
 };
 
-// 新增：处理单个记录选择变化
+// Added: handle single-record selection change
 const handleRecordSelectChange = () => {
   const allSelected = multiRecords.value.every(record => record.selected);
   const noneSelected = multiRecords.value.every(record => !record.selected);
   
   selectAll.value = allSelected;
-  // 处理半选中状态
+  // Handle the indeterminate (half-selected) state
   if (!allSelected && !noneSelected) {
     selectAll.value = undefined;
   }
 };
 
-// 新增：处理多条记录对话框取消
+// Added: handle multi-record dialog cancel
 const handleMultiRecordsCancel = () => {
   showMultiRecordsDialog.value = false;
   multiRecords.value = [];
   selectAll.value = false;
 };
 
-// 新增：处理多条记录提交
+// Added: handle multi-record submit
 const handleMultiRecordsSubmit = async () => {
   try {
-    // 获取所有选中的记录
+    // Get all selected records
     const selectedRecords = multiRecords.value.filter(record => record.selected);
     console.log('Multi records submit started:', { recordCount: selectedRecords.length });
     
@@ -1207,38 +1207,38 @@ const handleMultiRecordsSubmit = async () => {
       return;
     }
     
-    // 验证并格式化所有记录
+    // Validate and format all records
     const validRecords = [];
     for (const record of selectedRecords) {
-      // 验证金额
+      // Validate the amount
       if (!record.amount || isNaN(record.amount) || Number(record.amount) <= 0) {
         throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的金额无效`);
       }
       
-      // 验证类型
+      // Validate the type
       if (!record.type) {
         throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的类型不能为空`);
       }
       
-      // 验证日期
+      // Validate the date
       if (!record.date) {
         throw new Error(`第${multiRecords.value.indexOf(record) + 1}条记录的日期不能为空`);
       }
       
-      // 格式化记录
+      // Format the record
       validRecords.push({
         type: record.type,
         amount: parseFloat(parseFloat(record.amount).toFixed(2)),
         remark: record.remark || '',
-        date: record.date // 使用date字段，不再需要time字段
+        date: record.date // Use the date field; the time field is no longer needed
       });
       console.log('Valid record prepared:', { index: validRecords.length, type: record.type, amount: record.amount });
     }
     
-    // 检查是否有单笔大于500元的消费
+    // Check whether any single expense exceeds 500 yuan
     await checkAndShowLargeExpenseWarning(validRecords);
     
-    // 提交所有记录
+    // Submit all records
     for (const record of validRecords) {
       await axios.post('/api/expenses', record, {
         headers: {
@@ -1247,16 +1247,16 @@ const handleMultiRecordsSubmit = async () => {
       });
     }
     
-    // 关闭对话框
+    // Close the dialog
     showMultiRecordsDialog.value = false;
     
-    // 刷新数据
+    // Refresh the data
     await fetchData(true);
     
     successMessage.value = `${validRecords.length}条记录添加成功`;
     console.log('Multi records submit successful:', { totalRecords: validRecords.length });
     
-    // 重置数据
+    // Reset the data
     multiRecords.value = [];
     selectAll.value = false;
   } catch (error) {
@@ -1268,13 +1268,13 @@ const handleMultiRecordsSubmit = async () => {
 
 const handleAiGenerate = async () => {
   try {
-    // 检查API密钥
+    // Check the API key
     if (!checkApiKey()) {
       console.log('AI generation skipped: API key not configured');
       return;
     }
     
-    // 检查是否有输入
+    // Check whether there is any input
     if (!aiForm.text && (!aiForm.image || aiForm.image.length === 0)) {
       console.log('AI generation skipped: No input text or image provided');
       errorMessage.value = '请输入文本描述或上传图片';
@@ -1286,7 +1286,7 @@ const handleAiGenerate = async () => {
     isParsing.value = true;
     let parsedDataList;
 
-    // 解析文本或图片
+    // Parse text or image
     if (aiForm.text) {
       console.log('Parsing text input for AI generation:', { textPreview: aiForm.text.substring(0, 50) + (aiForm.text.length > 50 ? '...' : '') });
       parsedDataList = await parseTextToRecord(aiForm.text);
@@ -1295,11 +1295,11 @@ const handleAiGenerate = async () => {
       parsedDataList = await parseImageToRecord(aiForm.image[0].raw);
     }
 
-    // 处理解析结果
+    // Handle the parse result
     if (parsedDataList && parsedDataList.length > 0) {
       console.log('AI generation successful:', { recordCount: parsedDataList.length });
       if (parsedDataList.length === 1) {
-        // 只有一条记录，保持原有逻辑
+        // Only one record, keep the original logic
         const parsedData = parsedDataList[0];
         console.log('Single record generated:', { type: parsedData.type, amount: parsedData.amount, date: parsedData.date });
         form.type = parsedData.type || '';
@@ -1307,12 +1307,12 @@ const handleAiGenerate = async () => {
         form.date = parsedData.date || '';
         form.remark = parsedData.remark || '';
 
-        // 关闭AI对话框，打开普通编辑对话框
+        // Close the AI dialog and open the normal edit dialog
         showAiAddDialog.value = false;
         showAddDialog.value = true;
         successMessage.value = 'AI已成功生成记录，请检查并确认';
       } else {
-        // 多条记录，显示多条记录对话框
+        // Multiple records, show the multi-record dialog
         console.log('Multiple records generated:', parsedDataList.map(r => ({ type: r.type, amount: r.amount })));
         multiRecords.value = parsedDataList.map(record => ({
           ...record,
@@ -1330,23 +1330,23 @@ const handleAiGenerate = async () => {
     errorMessage.value = 'AI生成记录失败，请重试';
   } finally {
     isParsing.value = false;
-    // 重置AI表单
+    // Reset the AI form
     aiForm.text = '';
     aiForm.image = [];
   }
 };
 
-// 处理筛选条件变化
+// Handle filter condition changes
 const handleFilterChange = (data) => {
   filteredStats.value = data;
   console.log('Filter stats updated:', data);
 };
 
-// 构建筛选条件描述
+// Build the filter-condition description
 const buildFilterDescription = (stats, year, month, types) => {
   const conditions = [];
   
-  // 时间范围描述
+  // Time-range description
   if (year && month) {
     conditions.push(`- **时间范围**：${year}年${parseInt(month)}月`);
   } else if (year) {
@@ -1357,33 +1357,33 @@ const buildFilterDescription = (stats, year, month, types) => {
     conditions.push(`- **时间范围**：所有时间`);
   }
   
-  // 消费类型描述
+  // Expense-type description
   if (types && types.length > 0) {
     conditions.push(`- **消费类型**：${types.join('、')}`);
   } else {
     conditions.push(`- **消费类型**：全部类型（共28种）`);
   }
   
-  // 记录数说明
+  // Record-count note
   conditions.push(`- **数据量**：共${stats?.totalCount || 0}条记录`);
   
   return conditions.join('\n');
 };
 
-// 处理AI报告生成
+// Handle AI report generation
 const handleGenerateReport = async () => {
   try {
-    // 检查API密钥
+    // Check the API key
     if (!checkApiKey()) {
       console.log('Report generation skipped: API key not configured');
       return;
     }
     
-    // 获取筛选后的数据
+    // Get the filtered data
     const targetExpenses = aiExpenses.value;
     const stats = filteredStats.value;
     
-    // 详细日志
+    // Detailed logging
     console.log('=== AI Report Generation Debug ===');
     console.log('filteredStats:', stats);
     console.log('aiExpenses:', targetExpenses);
@@ -1391,14 +1391,14 @@ const handleGenerateReport = async () => {
     console.log('targetExpenses.length:', targetExpenses.length);
     console.log('Expenses.value.length:', Expenses.value.length);
     
-    // 检查是否有消费数据
+    // Check whether there is expense data
     if (!targetExpenses || targetExpenses.length === 0) {
-      // 如果筛选后没有数据，尝试使用所有数据
+      // If no data after filtering, try using all data
       if (Expenses.value && Expenses.value.length > 0) {
         console.log('Using all expenses as no filter applied');
         const allExpenses = Expenses.value;
         
-        // 计算统计数据
+        // Calculate statistics
         const amounts = allExpenses.map(e => parseFloat(e.amount)).filter(a => !isNaN(a) && a > 0).sort((a, b) => a - b);
         const totalAmount = amounts.reduce((sum, a) => sum + a, 0);
         const avgAmount = allExpenses.length > 0 ? totalAmount / allExpenses.length : 0;
@@ -1421,7 +1421,7 @@ const handleGenerateReport = async () => {
         
         console.log('Using all data with calculated stats:', calculatedStats);
         
-        // 构建筛选条件描述
+        // Build the filter-condition description
         const filterDesc = buildFilterDescription(
           calculatedStats,
           filteredStats.value?.filterConditions?.year || '',
@@ -1447,7 +1447,7 @@ const handleGenerateReport = async () => {
       return;
     }
     
-    // 从筛选条件构建描述
+    // Build the description from the filter conditions
     const filterConditions = filteredStats.value?.filterConditions || {};
     const filterDescription = buildFilterDescription(
       stats,
@@ -1466,7 +1466,7 @@ const handleGenerateReport = async () => {
     isGeneratingReport.value = true;
     reportContent.value = '';
     
-    // 生成报告（传入筛选后的统计数据和筛选条件描述）
+    // Generate the report (pass in the filtered stats and filter-condition description)
     console.log('Calling expense report generation API');
     const content = await generateExpenseReport(
       targetExpenses, 
@@ -1487,12 +1487,12 @@ const handleGenerateReport = async () => {
   }
 };
 
-// 清空报告问题
+// Clear the report question
 const clearReportQuestion = () => {
   reportQuestion.value = '';
 };
 
-// 处理API密钥设置
+// Handle API key settings
 const handleApiKeySave = () => {
   if (apiKeyForm.apiKey) {
     console.log('API key save requested');
@@ -1507,7 +1507,7 @@ const handleApiKeySave = () => {
   }
 };
 
-// 检查是否已设置API密钥
+// Check whether the API key has been set
 const checkApiKey = () => {
   const savedApiKey = localStorage.getItem('siliconflow_api_key');
   if (!savedApiKey) {
@@ -1531,9 +1531,9 @@ const refreshPage = () => {
 </script>
 
 <style scoped>
-/* 定义 CSS 变量 */
+/* Define CSS variables */
 :root {
-  /* 弹窗样式变量 */
+  /* Dialog style variables */
   --popup-bg: rgba(0,0,0,0.5);
   --popup-content-bg: #fff;
   --popup-btn-bg: #4CAF50;
@@ -1547,7 +1547,7 @@ const refreshPage = () => {
   --error-border: #ffcdd2;
 }
 
-/* API密钥提示框样式 */
+/* API key hint box styles */
 .api-key-prompt {
   margin-top: 16px;
   padding: 12px;
@@ -1595,7 +1595,7 @@ const refreshPage = () => {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: all 0.2s ease;
-  cursor: pointer; /* 添加手势 */
+  cursor: pointer; /* Add pointer cursor */
 }
 
 .prev-btn, .next-btn {
@@ -1642,7 +1642,7 @@ const refreshPage = () => {
   }
 }
 
-/* 过渡动画 */
+/* Transition animation */
 .chart-enter-active,
 .chart-leave-active {
   transition: opacity 0.5s ease;
@@ -1663,7 +1663,7 @@ const refreshPage = () => {
   opacity: 0;
 }
 
-/* 输入框容器（修正选择器确保生效） */
+/* Input container (fixed selector to ensure it takes effect) */
 .confirm-input-container {
   position: relative;
   margin: 1.5rem 0;
@@ -1671,7 +1671,7 @@ const refreshPage = () => {
   max-width: 300px;
 }
 
-/* 输入框基础样式（添加组件作用域前缀） */
+/* Base input styles (added component scope prefix) */
 .confirm-input {
   width: 90%;
   padding: 12px 16px;
@@ -1685,19 +1685,19 @@ const refreshPage = () => {
   color: var(--text-primary);
 }
 
-/* 输入框占位符样式 */
+/* Input placeholder styles */
 .confirm-input::placeholder {
   color: var(--text-secondary);
   font-weight: 400;
 }
 
-/* 悬停效果 */
+/* Hover effect */
 .confirm-input:hover {
   border-color: #b0b0b0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* 聚焦效果 */
+/* Focus effect */
 .confirm-input:focus {
   border-color: #4361ee;
   box-shadow:
@@ -1706,7 +1706,7 @@ const refreshPage = () => {
   transform: translateY(-1px);
 }
 
-/* 输入框标签动画 */
+/* Input label animation */
 .confirm-input-label {
   position: absolute;
   top: 13px;
@@ -1727,7 +1727,7 @@ const refreshPage = () => {
   font-weight: 600;
 }
 
-/* 错误状态 */
+/* Error state */
 .confirm-input-error .custom-input {
   border-color: #f44336;
 }
@@ -1736,14 +1736,14 @@ const refreshPage = () => {
   color: #f44336;
 }
 
-/* 禁用状态 */
+/* Disabled state */
 .confirm-input:disabled {
   background: #f8f8f8;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-/* AI报告内容的Markdown样式 */
+/* Markdown styles for AI report content */
 .report-content {
   line-height: 1.6;
   padding: 10px 0;
@@ -1869,7 +1869,7 @@ const refreshPage = () => {
   text-decoration: underline;
 }
 
-/* 深色模式适配 */
+/* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .report-content :deep(h1),
   .report-content :deep(h2),
@@ -1932,7 +1932,7 @@ const refreshPage = () => {
     color: #93c5fd;
   }
 }
-/* 自定义对话框样式 */
+/* Custom dialog styles */
 .custom-dialog-overlay {
   position: fixed;
   top: 0;
@@ -1940,6 +1940,9 @@ const refreshPage = () => {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  /* Blur the lower layer so the modal reads as a distinct surface */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1947,8 +1950,9 @@ const refreshPage = () => {
 }
 
 .custom-dialog {
-  background: #ffffff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-lg, 20px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   width: 90%;
   max-width: 500px;
@@ -1957,19 +1961,27 @@ const refreshPage = () => {
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog {
-  background: #1e1e1e;
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(255, 255, 255, 0.12);
   color: #ffffff;
 }
 }
 
-/* 对话框动画 */
+/* Unified modal open/close animation — matches the AI-feature GlassDialog style */
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-fade-enter-active .custom-dialog,
+.dialog-fade-leave-active .custom-dialog {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dialog-fade-enter-from,
@@ -1977,23 +1989,34 @@ const refreshPage = () => {
   opacity: 0;
 }
 
-/* 背景遮罩动画 */
-.custom-dialog-overlay .custom-dialog0 {
-  transform: scale(1);
-  transition: transform 0.3s ease 0.1s;
-}
-
-.dialog-fade-enter-active .custom-dialog {
-  transform: scale(1);
-  transition: all 0.3s ease;
-}
-
 .dialog-fade-enter-from .custom-dialog {
-  transform: scale(0.7); /* 减小初始缩放比例，使动画更明显 */
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
 }
 
-.dialog-fade-leave-active .custom-dialog {
-  transform: scale(0.7) translateY(-20px);
+.dialog-fade-leave-to .custom-dialog {
+  opacity: 0;
+  transform: scale(0.97) translateY(10px);
+}
+
+.dialog-fade-enter-to .custom-dialog,
+.dialog-fade-leave-from .custom-dialog {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.dialog-fade-enter-active .dialog-header,
+.dialog-fade-enter-active .dialog-body,
+.dialog-fade-enter-active .dialog-footer {
+  animation: glassDialogContentIn 0.24s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.dialog-fade-leave-active .dialog-header,
+.dialog-fade-leave-active .dialog-body,
+.dialog-fade-leave-active .dialog-footer {
+  animation: glassDialogContentOut 0.24s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .dialog-header {
@@ -2226,7 +2249,7 @@ const refreshPage = () => {
 }
 }
 
-/* 功能组样式 */
+/* Feature group styles */
 .function-section {
   margin-top: 75px;
   margin-bottom: 20px;
@@ -2251,7 +2274,7 @@ const refreshPage = () => {
   flex-wrap: wrap;
 }
 
-/* 导出按钮容器样式 */
+/* Export button container styles */
 .export-buttons-container {
   display: flex;
   justify-content: center;
@@ -2266,7 +2289,7 @@ const refreshPage = () => {
   align-items: center;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 640px) {
   .custom-dialog {
     width: 95%;
@@ -2288,9 +2311,9 @@ const refreshPage = () => {
     font-size: 13px;
   }
   
-  /* 手机端样式 */
+  /* Mobile styles */
   .card-grid {
-    display: none; /* 隐藏桌面端网格布局 */
+    display: none; /* Hide the desktop grid layout */
   }
   
   .mobile-selector {
@@ -2301,7 +2324,7 @@ const refreshPage = () => {
     display: block;
   }
   
-  /* 手机端按钮组样式 */
+  /* Mobile button group styles */
   .mobile-button-group {
     display: flex;
     flex-direction: column;
@@ -2311,7 +2334,7 @@ const refreshPage = () => {
     padding: 0;
   }
   
-  /* 确保所有按钮大小一致 */
+  /* Ensure all buttons are the same size */
   .mobile-btn {
     width: 100%;
     justify-content: center;
@@ -2326,14 +2349,14 @@ const refreshPage = () => {
   }
 }
 
-/* 桌面端样式 */
+/* Desktop styles */
 @media (min-width: 641px) {
   .mobile-selector {
-    display: none; /* 隐藏手机端选单 */
+    display: none; /* Hide the mobile menu */
   }
   
   .mobile-buttons {
-    display: none; /* 隐藏手机端按钮 */
+    display: none; /* Hide the mobile buttons */
   }
 }
 

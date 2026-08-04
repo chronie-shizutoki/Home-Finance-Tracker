@@ -1,8 +1,8 @@
 <template>
-  <div class="charts-container glass-card">
+  <div v-liquid-glass class="charts-container glass-card">
     <div class="chart-controls glass-panel">
-      <CustomSelect 
-        v-model="activeChart" 
+      <CustomSelect
+        v-model="activeChart"
         :options="chartTypes"
         @change="renderChart"
         :include-empty-option="false"
@@ -78,14 +78,14 @@ export default {
     const startDate = ref(formatDate(getStartOfMonth()));
     const endDate = ref(formatDate(getEndOfMonth()));
     const chartInstances = ref({});
-// 事件处理函数引用，用于组件卸载时移除监听器
+// References to event handlers, used to remove listeners on unmount
 const windowResizeHandler = ref(null);
 const orientationChangeHandler = ref(null);
 const canvasTouchHandlers = ref(null);
     
     const { t } = useI18n();
 
-// 防抖函数实现
+// Debounce function implementation
 const debounce = (func, wait) => {
   let timeout;
   return function executedFunction(...args) {
@@ -104,13 +104,13 @@ const debounce = (func, wait) => {
       { value: 'radar', label: t('chart.radar') }
     ];
 
-    // 过滤日期范围内的支出数据
+    // Filter expense data within the date range
     const filteredExpenses = ref([]);
 
-    // 处理开始日期变化
+    // Handle start-date change
     const handleStartDateChange = () => {
       console.log('Start date changed to:', startDate.value);
-      // 确保开始日期不晚于结束日期
+      // Ensure the start date is not later than the end date
       if (startDate.value && endDate.value && startDate.value > endDate.value) {
         startDate.value = endDate.value;
       }
@@ -118,10 +118,10 @@ const debounce = (func, wait) => {
       renderAllCharts();
     };
 
-    // 处理结束日期变化
+    // Handle end-date change
     const handleEndDateChange = () => {
       console.log('End date changed to:', endDate.value);
-      // 确保结束日期不早于开始日期
+      // Ensure the end date is not earlier than the start date
       if (startDate.value && endDate.value && endDate.value < startDate.value) {
         endDate.value = startDate.value;
       }
@@ -129,9 +129,9 @@ const debounce = (func, wait) => {
       renderAllCharts();
     };
 
-    // 过滤支出数据
+    // Filter the expense data
     const filterExpenses = () => {
-      // 确保日期有效
+      // Ensure the dates are valid
       if (!startDate.value || !endDate.value) {
         console.warn('Invalid date range');
         filteredExpenses.value = [];
@@ -150,20 +150,20 @@ const debounce = (func, wait) => {
       console.log('Date range filter:', formatDate(startDateObj), 'to', formatDate(endDateObj));
 
       filteredExpenses.value = props.expenses.filter(expense => {
-        // 确保expense.date有效
+        // Ensure expense.date is valid
         if (!expense.date) {
           console.warn('Expense with no date:', expense);
           return false;
         }
         
         const expenseDate = parseDate(expense.date);
-        // 检查日期解析是否成功
+        // Check whether date parsing succeeded
         if (!expenseDate) {
           console.warn('Invalid expense date format:', expense.date);
           return false;
         }
         
-        // 正确处理日期边界，包含开始和结束日期
+        // Correctly handle date boundaries, inclusive of start and end dates
         const isAfterStart = expenseDate >= startDateObj;
         const isBeforeEnd = expenseDate <= endDateObj;
         
@@ -176,7 +176,7 @@ const debounce = (func, wait) => {
       console.log('Filtered expenses count:', filteredExpenses.value.length);
     };
 
-    // 准备图表数据
+    // Prepare chart data
     const prepareChartData = (type) => {
       switch (type) {
         case 'bar':
@@ -192,9 +192,9 @@ const debounce = (func, wait) => {
       }
     };
 
-    // 准备柱状图数据
+    // Prepare bar chart data
     const prepareBarData = () => {
-      // 按类别分组
+      // Group by category
       const categoryData = {};
       filteredExpenses.value.forEach(expense => {
         if (!categoryData[expense.type]) {
@@ -255,7 +255,7 @@ const debounce = (func, wait) => {
       };
     };
 
-    // 准备饼图数据
+    // Prepare pie chart data
     const preparePieData = () => {
       const categoryData = {};
       filteredExpenses.value.forEach(expense => {
@@ -315,13 +315,13 @@ const debounce = (func, wait) => {
       };
     };
 
-    // 准备折线图数据
+    // Prepare line chart data
     const prepareLineData = () => {
       console.log('Preparing line chart data with expenses count:', filteredExpenses.value.length);
         
-        // 按时间排序
+        // Sort by time
         const sortedExpenses = [...filteredExpenses.value].sort((a, b) => {
-          // 使用date字段替代time字段，与后端数据保持一致
+          // Use the date field instead of time, to stay consistent with the backend data
           const dateA = parseDate(a.date || a.time);
           const dateB = parseDate(b.date || b.time);
           return dateA - dateB;
@@ -330,10 +330,10 @@ const debounce = (func, wait) => {
         console.log('First expense time:', sortedExpenses.length > 0 ? formatDate(parseDate(sortedExpenses[0].date || sortedExpenses[0].time)) : 'No data');
         console.log('Last expense time:', sortedExpenses.length > 0 ? formatDate(parseDate(sortedExpenses[sortedExpenses.length - 1].date || sortedExpenses[sortedExpenses.length - 1].time)) : 'No data');
 
-      // 按日期分组
+      // Group by date
       const dateData = {};
       sortedExpenses.forEach(expense => {
-        // 再次验证日期有效性，使用date字段替代time字段
+        // Re-validate date validity, using the date field instead of time
         const expenseDate = expense.date || expense.time;
         if (!expenseDate || !parseDate(expenseDate)) {
           console.warn('Skipping expense with invalid date:', expense);
@@ -380,11 +380,11 @@ const debounce = (func, wait) => {
       };
     };
 
-    // 准备雷达图数据
+    // Prepare radar chart data
     const prepareRadarData = () => {
-      // 获取所有唯一类别
+      // Get all unique categories
       const categories = [...new Set(filteredExpenses.value.map(expense => expense.type))];
-      // 获取所有唯一周几
+      // Get all unique weekdays
       const weekdays = [
         t('common.sunday'), 
         t('common.monday'), 
@@ -395,7 +395,7 @@ const debounce = (func, wait) => {
         t('common.saturday')
       ];
 
-      // 按周几和类别分组
+      // Group by weekday and category
       const data = categories.map(category => {
         const values = Array(7).fill(0);
         filteredExpenses.value.forEach(expense => {
@@ -433,26 +433,26 @@ const debounce = (func, wait) => {
       };
     };
 
-    // 渲染主图表
+    // Render the main chart
     const renderChart = () => {
       const ctx = document.getElementById('expenseChart');
       
-      // 安全地销毁旧图表，防止Canvas重用错误
+      // Safely destroy the old chart to prevent canvas reuse errors
       try {
-        // 检查是否存在旧图表实例并销毁
+        // Check for an existing chart instance and destroy it
         if (chartInstances.value && chartInstances.value.main) {
           chartInstances.value.main.destroy();
-          // 清空引用，确保垃圾回收
+          // Clear the reference to allow garbage collection
           chartInstances.value.main = null;
         }
         
-        // 额外清理Canvas上下文，避免在小屏幕设备上的渲染残留
+        // Extra cleanup of the canvas context to avoid render residue on small screens
         if (ctx && ctx.getContext) {
           const context = ctx.getContext('2d');
           if (context) {
-            // 清除Canvas内容
+            // Clear the canvas content
             context.clearRect(0, 0, ctx.width, ctx.height);
-            // 重置Canvas的宽度和高度，强制清除所有状态
+            // Reset the canvas width and height to force-clear all state
             const width = ctx.width;
             const height = ctx.height;
             ctx.width = width;
@@ -461,40 +461,40 @@ const debounce = (func, wait) => {
         }
       } catch (error) {
         console.warn('Error destroying chart:', error);
-        // 即使销毁失败，也要继续尝试创建新图表
+        // Even if destruction fails, still attempt to create the new chart
       }
 
       const chartData = prepareChartData(activeChart.value);
       
-      // 检查是否有数据点
+      // Check whether there are data points
       let options = {};
       
-      // 通用配置，特别是针对移动设备的优化
+      // Common configuration, with optimizations for mobile devices
       const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        // 针对移动端触摸事件的优化
+        // Touch-event optimizations for mobile
         interaction: {
           intersect: false,
           mode: 'index',
-          // 禁用默认的触摸手势处理，避免与原生触摸事件冲突
+          // Disable default touch-gesture handling to avoid conflicts with native touch events
           gestures: {
-            // 对于小屏幕设备，禁用平移和缩放功能
+            // Disable pan and zoom on small-screen devices
             pan: window.innerWidth < 768 ? false : true,
             zoom: window.innerWidth < 768 ? false : true
           }
         },
-        // 优化性能的配置
+        // Performance-oriented configuration
         animation: {
           duration: window.innerWidth < 480 ? 300 : 500,
           easing: 'easeOutQuart'
         },
-        // 针对Canvas的事件处理优化
+        // Canvas event-handling optimizations
         onHover: (event, elements) => {
-          // 仅在有元素被悬停时改变鼠标样式
+          // Only change the cursor style when an element is hovered
           event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
         },
-        // 优化渲染性能
+        // Rendering performance optimizations
         elements: {
           point: {
             hoverRadius: window.innerWidth < 480 ? 6 : 8,
@@ -502,11 +502,11 @@ const debounce = (func, wait) => {
             radius: window.innerWidth < 480 ? 3 : 4
           }
         },
-        // 液态玻璃效果 - 通用配置
+        // Shared chart plugin config. The liquid-glass look is rendered by the
+        // WebGL engine on the chart container, not by a CSS backdrop filter.
         plugins: {
           tooltip: {
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
             borderColor: 'rgba(255, 255, 255, 0.3)',
             borderWidth: 1,
             titleColor: '#333',
@@ -530,11 +530,11 @@ const debounce = (func, wait) => {
             }
           }
         },
-        // 深色模式适配
+        // Dark mode adaptation
         isDarkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       };
 
-      // 根据图表类型设置不同的选项
+      // Set different options based on the chart type
       switch (activeChart.value) {
         case 'bar':
           options = {
@@ -810,30 +810,30 @@ const debounce = (func, wait) => {
           break;
       }
 
-      // 确保ctx存在
+      // Ensure ctx exists
       if (!ctx) {
         console.error('Canvas element not found');
         return;
       }
       
-      // 安全地创建新图表
+      // Safely create a new chart
       try {
-        // 确保ctx存在且可用
+        // Ensure ctx exists and is usable
         if (!ctx || !ctx.getContext) {
           console.error('Canvas context not available');
           return;
         }
         
-        // 确保chartData和options有效
+        // Ensure chartData and options are valid
         if (!chartData || !options) {
           console.error('Invalid chart data or options');
           return;
         }
         
-        // 检测深色模式
+        // Detect dark mode
         const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        // 根据深色模式调整颜色
+        // Adjust colours based on dark mode
         if (isDarkMode) {
           if (options.plugins && options.plugins.tooltip) {
             options.plugins.tooltip.backgroundColor = 'rgba(30, 30, 30, 0.9)';
@@ -874,20 +874,20 @@ const debounce = (func, wait) => {
           }
         }
         
-        // 在小屏幕设备上，使用较小的图表配置以提高性能
+        // On small-screen devices, use a lighter chart config for better performance
         if (window.innerWidth < 480) {
-          // 确保动画持续时间较短
+          // Keep the animation duration short
           if (!options.animation) options.animation = {};
           options.animation.duration = 200;
           
-          // 简化交互以避免性能问题
+          // Simplify interaction to avoid performance issues
           if (!options.interaction) options.interaction = {};
           options.interaction.intersect = false;
           options.interaction.mode = 'index';
           options.interaction.axis = 'x';
         }
         
-        // 创建新图表实例
+        // Create the new chart instance
         chartInstances.value.main = new Chart(ctx, {
           type: activeChart.value,
           data: chartData,
@@ -898,21 +898,21 @@ const debounce = (func, wait) => {
         console.log('Chart data:', chartData);
       } catch (error) {
         console.error('Error creating chart:', error);
-        // 确保chartInstances引用被重置
+        // Ensure the chartInstances reference is reset
         chartInstances.value.main = null;
       }
     };
 
-    // 渲染类别饼图（现在已整合到主图表中）
+    // Render the category pie chart (now integrated into the main chart)
 
-    // 渲染趋势折线图（现在已整合到主图表中）
+    // Render the trend line chart (now integrated into the main chart)
 
-    // 渲染所有图表
+    // Render all charts
     const renderAllCharts = () => {
       renderChart();
     };
 
-    // 监听支出数据变化
+    // Watch for expense data changes
     watch(
       () => props.expenses,
       () => {
@@ -922,25 +922,25 @@ const debounce = (func, wait) => {
       { deep: true }
     );
 
-    // 组件挂载时
+    // On component mount
     onMounted(() => {
       filterExpenses();
       renderAllCharts();
       
-      // 添加窗口大小变化监听，处理设备旋转
+      // Add a window resize listener to handle device rotation
       const handleResize = debounce(() => {
-        // 确保在设备旋转时正确重新渲染图表
+        // Ensure the chart re-renders correctly on device rotation
         if (chartInstances.value.main) {
-          // 先销毁旧图表，避免内存泄漏
+          // Destroy the old chart first to avoid memory leaks
           chartInstances.value.main.destroy();
-          // 重新渲染图表以适应新的屏幕大小
+          // Re-render the chart to fit the new screen size
           renderAllCharts();
         }
-      }, 250); // 添加防抖以避免频繁触发
+      }, 250); // Add debounce to avoid frequent triggering
       
-      // 添加设备方向变化监听
+      // Add a device orientation change listener
       const handleOrientationChange = () => {
-        // 延迟执行，让浏览器有时间调整布局
+        // Defer execution to give the browser time to adjust the layout
         setTimeout(() => {
           handleResize();
         }, 300);
@@ -949,25 +949,25 @@ const debounce = (func, wait) => {
       window.addEventListener('resize', handleResize);
       window.addEventListener('orientationchange', handleOrientationChange);
       
-      // 存储监听器引用以便在组件卸载时移除
+      // Store listener references so they can be removed on unmount
       windowResizeHandler.value = handleResize;
       orientationChangeHandler.value = handleOrientationChange;
       
-      // 添加canvas元素的触摸事件优化
+      // Add touch-event optimizations for the canvas element
       const canvas = document.getElementById('expenseChart');
       if (canvas) {
-        // 防止触摸事件的默认行为，但只在特定条件下
+        // Prevent the default touch behaviour, but only under certain conditions
         const handleTouchStart = (e) => {
-          // 只在折线图且小屏幕设备上进行特殊处理
+          // Special handling only for line charts on small-screen devices
           if (window.innerWidth < 480 && activeChart.value === 'line') {
-            // 阻止默认行为以避免滚动和缩放冲突
+            // Prevent default behaviour to avoid scroll and zoom conflicts
             e.preventDefault();
             
-            // 使用setTimeout避免阻塞主线程
+            // Use setTimeout to avoid blocking the main thread
             setTimeout(() => {
-              // 检查图表实例是否存在且canvas元素仍然可用
+              // Check whether the chart instance exists and the canvas is still usable
               if (chartInstances.value && chartInstances.value.main && document.getElementById('expenseChart')) {
-                // 重新触发点击事件以确保图表正常响应
+                // Re-trigger the click event to ensure the chart responds normally
                 const clickEvent = new MouseEvent('click', {
                   clientX: e.touches[0].clientX,
                   clientY: e.touches[0].clientY,
@@ -982,7 +982,7 @@ const debounce = (func, wait) => {
         
         const handleTouchMove = (e) => {
           if (window.innerWidth < 480) {
-            e.preventDefault(); // 防止页面滚动
+            e.preventDefault(); // Prevent page scrolling
           }
         };
         
@@ -996,7 +996,7 @@ const debounce = (func, wait) => {
         canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
         
-        // 存储事件处理函数引用以便在组件卸载时移除
+        // Store event handler references so they can be removed on unmount
         canvasTouchHandlers.value = {
           touchstart: handleTouchStart,
           touchmove: handleTouchMove,
@@ -1005,9 +1005,9 @@ const debounce = (func, wait) => {
       }
     });
 
-    // 组件卸载时的清理
+    // Cleanup on component unmount
       onUnmounted(() => {
-        // 销毁图表实例
+        // Destroy the chart instance
         if (chartInstances.value.main) {
           try {
             chartInstances.value.main.destroy();
@@ -1017,19 +1017,19 @@ const debounce = (func, wait) => {
           chartInstances.value.main = null;
         }
         
-        // 移除窗口大小变化监听
+        // Remove the window resize listener
         if (windowResizeHandler.value) {
           window.removeEventListener('resize', windowResizeHandler.value);
           windowResizeHandler.value = null;
         }
         
-        // 移除设备方向变化监听
+        // Remove the device orientation change listener
         if (orientationChangeHandler.value) {
           window.removeEventListener('orientationchange', orientationChangeHandler.value);
           orientationChangeHandler.value = null;
         }
         
-        // 移除canvas触摸事件监听
+        // Remove the canvas touch event listeners
         const canvas = document.getElementById('expenseChart');
         if (canvas && canvasTouchHandlers.value) {
           if (canvasTouchHandlers.value.touchstart) {
@@ -1064,8 +1064,6 @@ const debounce = (func, wait) => {
   padding: 24px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -1087,8 +1085,6 @@ const debounce = (func, wait) => {
   padding: 16px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 
     0 4px 16px rgba(0, 0, 0, 0.05),
@@ -1109,8 +1105,6 @@ const debounce = (func, wait) => {
   border-radius: 12px;
   font-size: 14px;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 150px;
   color: #333;
@@ -1149,8 +1143,6 @@ const debounce = (func, wait) => {
   padding: 20px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     0 4px 20px rgba(0, 0, 0, 0.05),
@@ -1170,7 +1162,7 @@ const debounce = (func, wait) => {
   max-width: 100% !important;
 }
 
-/* 确保下拉菜单显示在图表容器之上 */
+/* Ensure the dropdown appears above the chart container */
 :deep(.glass-select) {
   position: relative;
   z-index: 100;
@@ -1180,7 +1172,7 @@ const debounce = (func, wait) => {
   z-index: 200 !important;
 }
 
-/* 平板设备响应式设计 */
+/* Responsive design for tablet devices */
 @media (max-width: 768px) {
   .charts-container {
     padding: 20px;
@@ -1207,7 +1199,7 @@ const debounce = (func, wait) => {
   }
 }
 
-/* 手机设备响应式设计 */
+/* Responsive design for phone devices */
 @media (max-width: 480px) {
   .charts-container {
     padding: 16px;
@@ -1236,7 +1228,7 @@ const debounce = (func, wait) => {
   }
 }
 
-/* 超小屏幕设备响应式设计 */
+/* Responsive design for extra-small screens */
 @media (max-width: 360px) {
   .glass-chart-container {
     height: 250px;

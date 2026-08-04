@@ -1,0 +1,57 @@
+/* ============================================================
+   Engine-driven liquid glass (v-liquid-glass directive)
+   ------------------------------------------------------------
+   The liquidGL WebGL engine paints refraction on a shared,
+   pointer-events:none overlay canvas and neutralises the lens
+   host's own backdrop-filter. We therefore:
+   - keep the host positioned (relative),
+   - re-enable the host as interactive (the engine sets inline
+     pointer-events:none, which !important overrides so buttons,
+     inputs and switches stay clickable),
+   - hide the component's flat ::before tint, because the engine
+     already tints from the captured background colour.
+   This is the ONLY place that defines the liquid-glass look now;
+   all hand-written backdrop-filter glass CSS has been removed.
+   ============================================================ */
+
+.v-liquid-glass {
+  position: relative;
+  /* The engine forces pointer-events:none on the host; re-enable it so
+     interactive surfaces stay usable. */
+  pointer-events: auto !important;
+}
+
+/* The shared WebGL overlay must sit behind every glass host so the
+   refraction shows through the host's transparent background instead of
+   covering the host's own content. The engine updates this inline, so
+   !important keeps the layer order stable. */
+canvas[data-liquid-ignore] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* The Vue mount root creates a stacking context that traps glass children
+   behind a root z-index of 1. Release that trap so glass hosts can live in
+   the same root context as the overlay canvas. Doubled selector raises
+   specificity above App.vue's own #app rule. */
+#app#app {
+  z-index: auto !important;
+}
+
+/* The engine supplies its own tint from the element's captured background
+   colour, so the component's extra flat ::before overlay is redundant. */
+.v-liquid-glass::before {
+  display: none !important;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .v-liquid-glass {
+    transition: none !important;
+  }
+}

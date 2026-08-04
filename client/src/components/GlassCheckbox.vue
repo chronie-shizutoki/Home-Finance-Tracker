@@ -9,8 +9,9 @@
         :disabled="disabled"
         class="glass-checkbox-input"
       />
-      <div 
+      <div
         :class="['glass-checkbox-box', { 'checked': modelValue, 'disabled': disabled }]"
+        v-liquid-glass
       >
         <slot name="check-icon">
           <svg v-if="modelValue" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +55,7 @@ const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
 
 const checkboxRef = ref(null)
 
-// 监听外部值变化
+// Watch for external value changes
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -64,7 +65,7 @@ watch(
   }
 )
 
-// 处理变化事件
+// Handle change event
 const handleChange = (e) => {
   const checked = e.target.checked
   emit('update:modelValue', checked)
@@ -105,7 +106,6 @@ const handleChange = (e) => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
   color: #3b82f6;
 }

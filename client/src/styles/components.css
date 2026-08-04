@@ -14,7 +14,8 @@
   color: var(--text-primary);
 }
 
-/* 卡片高光效果 */
+/* Static card highlight — no sweeping shine animation; the liquid-glass
+   engine now provides the surface refraction. */
 .form-section::before,
 .data-section::before,
 .chart-section::before {
@@ -31,7 +32,7 @@
     rgba(255,255,255,0) 60%
   );
   pointer-events: none;
-  animation: shine 6s infinite;
+  animation: none;
 }
 
 /* 悬停动画效果 */

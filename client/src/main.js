@@ -3,18 +3,21 @@ import axios from 'axios';
 import { setupAxiosInterceptors } from './utils/offlineDataSync.js';
 import { initGlobalErrorMonitoring, tryReportFailedLogs, initConsoleLogging } from './utils/operationLogger.js';
 
-import './styles/common.css'; // 导入公共样式文件
-import './styles/fonts.css'; // 导入自定义字体
+import './styles/common.css'; // Import common styles
+import './styles/fonts.css'; // Import custom fonts
+import './styles/liquid-glass.css'; // Import liquid glass engine driver styles
+
+import liquidGlassDirective from './directives/liquidGlass.js';
 
 import router from './router';
 import i18n from './locales/i18n.js';
-// 使用locales目录下已配置的i18n实例（包含完整语言包）
+// Import i18n instance from locales directory (contains full language packages)
 import { createPinia } from 'pinia';
 
-// 导入Font Awesome
+// Import Font Awesome library
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// 导入Solid风格图标
+// Import solid-style icons from Font Awesome library
 import {
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
@@ -23,7 +26,7 @@ import {
   faFileExport, faArrowUp, faArrowDown
 } from '@fortawesome/free-solid-svg-icons'
 
-// 将图标添加到库中
+// Add icons to the library
 library.add(
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
@@ -32,19 +35,18 @@ library.add(
 )
 
 import App from './App.vue';
-// 设置Axios离线拦截器
+// Set up Axios offline interceptors
 setupAxiosInterceptors(axios);
 
-// 初始化全局错误监听
+// Initialize global error monitoring
 initGlobalErrorMonitoring();
 
-// 尝试上报失败的日志
+// Try to report failed logs
 tryReportFailedLogs();
 
-// 初始化控制台日志捕获
-// 配置选项：
-// - levels: 要捕获的日志级别
-// - maxLength: 单个日志消息的最大长度，防止过大的日志数据
+// Initialize console logging capture
+// - levels: Log levels to capture
+// - maxLength: Maximum length of log messages to prevent excessive data
 initConsoleLogging({
   levels: ['log', 'error', 'warn', 'info'],
   maxLength: 5000
@@ -62,14 +64,13 @@ const app = createApp({
     </Suspense>
   `
 });
-app.use(pinia); // 安装Pinia实例
+app.use(pinia); // Apply Pinia instance
 
-// 注册Font Awesome组件
+// Register Font Awesome components
 app.component('FontAwesomeIcon', FontAwesomeIcon)
+// Register the liquid-glass directive: enables containers like cards/dialogs/tooltips to render as real WebGL liquid glass
+app.directive('liquid-glass', liquidGlassDirective)
 app.use(router);
 app.use(i18n);
 app.mount('#app');
 console.log('[App Initialization] Application mounted successfully');
-
-// 记录应用启动日志
-// 移除应用启动日志记录，避免增加日志量

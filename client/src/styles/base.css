@@ -1,8 +1,8 @@
-/* 磨砂玻璃效果 */
+/* Frosted glass surface. The refraction itself is rendered by the WebGL
+   engine via the v-liquid-glass directive; this rule only keeps the tint
+   colour and the border. */
 .glass-effect {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 

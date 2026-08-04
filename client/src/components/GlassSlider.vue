@@ -1,9 +1,10 @@
 <template>
   <div :class="['glass-slider-container']">
     <div v-if="label" class="glass-slider-label">{{ label }}</div>
-    <div 
+    <div
       :class="['glass-slider', { 'disabled': disabled }]"
       :style="sliderStyle"
+      v-liquid-glass
       @mousedown="handleMouseDown"
       @touchstart="handleTouchStart"
     >
@@ -14,9 +15,10 @@
           backgroundColor: trackColor
         }"
       ></div>
-      <div 
+      <div
         ref="sliderThumb"
         class="glass-slider-thumb"
+        v-liquid-glass
         :style="{
           left: `${progress}%`,
           backgroundColor: thumbColor,
@@ -93,9 +95,9 @@ const updateValue = (clientX) => {
   const offsetX = clientX - sliderRect.left
   const percentage = Math.max(0, Math.min(100, (offsetX / sliderRect.width) * 100))
   
-  // 计算新值
+  // Compute new value
   const rawValue = (percentage / 100) * (props.max - props.min) + props.min
-  // 按步长取整
+  // Snap to step
   const newValue = Math.round(rawValue / props.step) * props.step
   
   emit('update:modelValue', newValue)
@@ -171,7 +173,6 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 4px;
   cursor: pointer;
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 12px rgba(31, 38, 135, 0.1);
 }
@@ -194,7 +195,6 @@ onUnmounted(() => {
   cursor: grab;
   transition: transform 0.2s ease, background-color 0.2s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.8);
 }
 

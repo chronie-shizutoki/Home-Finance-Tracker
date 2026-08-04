@@ -7,6 +7,9 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
+  /* Blur the lower layer so the modal reads as a distinct surface */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 1000;
   transition: opacity var(--transition-time) ease, visibility var(--transition-time) ease;
   visibility: visible;
@@ -23,10 +26,9 @@
   }
 }
 
-/* 优化模糊效果 */
+/* Glass surface framing. The blur/refraction is rendered by the WebGL
+   engine through the v-liquid-glass directive. */
 .glass-effect {
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
@@ -81,13 +83,12 @@
     max-width: none;
   }
   
-  /* 玻璃态弹窗样式 */
+  /* Glass modal variant - refraction handled by the v-liquid-glass engine */
   &.glass-effect {
     background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
     border: 1px solid rgba(255, 255, 255, 0.2);
     
-    /* 浅色模式输入框样式 */
+    /* Light-mode date input styling */
     input[type="date"] {
       background: white;
       color: var(--text-primary);
@@ -181,42 +182,50 @@
   }
 }
 
-/* 配合Vue Transition组件，定义进入时的动画状态 */
-.modal-fade-enter-active .modal-content {
-  isolation: isolate;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-  filter: brightness(100%);
-}
-
-.modal-fade-enter-from {
-  transform: translateY(20px) scale(0.95);
-  opacity: 0;
-}
-
-.modal-fade-enter-active {
-  transition: transform var(--transition-time) ease, opacity var(--transition-time) ease;
-}
-
-.modal-fade-enter-to {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-/* 离开动画 */
-.modal-fade-leave-from {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
+/* Unified modal open/close animation — matches the AI-feature GlassDialog style */
+.modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity var(--transition-time) ease, transform var(--transition-time) ease;
+  transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.modal-fade-enter-active .modal-content,
+.modal-fade-leave-active .modal-content {
+  transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
-  visibility: hidden;
+}
+
+.modal-fade-enter-from .modal-content {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.modal-fade-leave-to .modal-content {
+  opacity: 0;
+  transform: scale(0.97) translateY(10px);
+}
+
+.modal-fade-enter-to .modal-content,
+.modal-fade-leave-from .modal-content {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modal-fade-enter-active .modal-header,
+.modal-fade-enter-active .modal-body,
+.modal-fade-enter-active .modal-footer {
+  animation: glassDialogContentIn calc(var(--transition-time) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.modal-fade-leave-active .modal-header,
+.modal-fade-leave-active .modal-body,
+.modal-fade-leave-active .modal-footer {
+  animation: glassDialogContentOut calc(var(--transition-time) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* 响应式设计 */

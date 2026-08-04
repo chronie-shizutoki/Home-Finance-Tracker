@@ -9,37 +9,38 @@
   
   /* 布局元素 */
   --border-radius: 14px; /* 更圆润的边框 */
+  --border-radius-lg: 20px; /* Larger radius for containers and modals */
   --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12); /* 更柔和的阴影 */
   --transition-time: 0.35s; /* 更流畅的过渡时间 */
   
-  /* 背景和效果 */
-  --glass-bg: rgba(255, 255, 255, 0.7); /* 降低不透明度以显示背景动画 */
-  --glass-blur: 15px; /* 增强模糊效果 */
-  --highlight-color: rgba(76, 175, 80, 0.08); /* 高亮背景色 */
-    --bg-card: rgba(255, 255, 255, 0.7); /* 卡片背景透明度 */
-  
-  /* 文字颜色 */
-  --text-primary: #212121; /* 主要文字颜色 */
-  --text-muted: #616161; /* 次要文字颜色 */
-  
-  /* 背景颜色 */
-  --bg-primary: transparent; /* 主背景色 */
-  --bg-secondary: transparent; /* 次要背景色 */
-  --bg-card: transparent; /* 卡片背景色 */
+  /* Backgrounds and effects. CSS glass uses these values directly; the
+     liquid-glass engine reads them as tint colours when it is active. */
+  --glass-bg: rgba(255, 255, 255, 0.92); /* Opaque enough to stay readable in light mode */
+  --highlight-color: rgba(76, 175, 80, 0.08); /* Highlight background colour */
+
+  /* Text colours */
+  --text-primary: #212121; /* Primary text colour */
+  --text-muted: #616161; /* Secondary text colour */
+
+  /* Background colours */
+  --bg-primary: #f8fafc; /* Main page background */
+  --bg-secondary: #ffffff; /* Secondary surface background */
+  --bg-card: rgba(255, 255, 255, 0.92); /* Card surface background */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-  /* 深色模式变量定义 */
+  /* Dark mode variable overrides (no --glass-blur: the WebGL engine
+     renders the blur instead of CSS). */
   --primary-color: #66BB6A;
   --primary-gradient: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
   --success-color: #66BB6A;
   --error-color: #EF5350;
   --border-radius: 14px;
+  --border-radius-lg: 20px;
   --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
   --transition-time: 0.35s;
   --glass-bg: rgba(30, 30, 30, 0.7);
-  --glass-blur: 15px;
   --highlight-color: rgba(102, 187, 106, 0.15);
   --text-primary: #E0E0E0;
   --text-muted: #9E9E9E;

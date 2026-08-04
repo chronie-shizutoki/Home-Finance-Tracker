@@ -1,7 +1,8 @@
 <template>
   <div :class="['glass-upload-wrapper']">
-    <div 
+    <div
       class="glass-upload-dropzone"
+      v-liquid-glass
       @click="triggerFileInput"
       @dragover.prevent
       @drop="handleDrop"
@@ -28,12 +29,13 @@
       >
     </div>
     
-    <!-- 文件列表 -->
+    <!-- File list -->
     <div v-if="files.length > 0" class="glass-upload-file-list">
-      <div 
-        v-for="(file, index) in files" 
-        :key="file.uid || index" 
+      <div
+        v-for="(file, index) in files"
+        :key="file.uid || index"
         class="glass-upload-file-item"
+        v-liquid-glass
       >
         <div class="glass-upload-file-info">
           <div class="glass-upload-file-name">{{ file.name }}</div>
@@ -81,17 +83,17 @@ const emit = defineEmits(['file-change', 'file-remove', 'update:file-list', 'cha
 const fileInput = ref(null)
 const files = ref([])
 
-// 同步fileList prop到files ref
+// Sync fileList prop into the files ref
 watch(() => props.fileList, (newFileList) => {
   files.value = newFileList
 }, { deep: true })
 
-// 触发文件选择
+// Trigger the file picker
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
-// 处理文件选择
+// Handle file selection
 const handleFileChange = (event) => {
   const selectedFiles = Array.from(event.target.files)
   if (selectedFiles.length > 0) {
@@ -102,20 +104,20 @@ const handleFileChange = (event) => {
       raw: file
     }))
     
-    // 如果是多选模式，添加到现有列表
-    // 如果是单选模式，替换现有列表
+    // Multi-select mode: append to existing list
+    // Single-select mode: replace existing list
     files.value = props.multiple ? [...files.value, ...newFiles] : newFiles
-    
+
     emit('file-change', files.value)
     emit('update:file-list', files.value)
     emit('change', files.value)
-    
-    // 清空input以便再次选择相同文件
+
+    // Clear input so the same file can be picked again
     event.target.value = ''
   }
 }
 
-// 处理拖放
+// Handle drop
 const handleDrop = (event) => {
   event.preventDefault()
   const droppedFiles = Array.from(event.dataTransfer.files)
@@ -127,17 +129,17 @@ const handleDrop = (event) => {
       raw: file
     }))
     
-    // 如果是多选模式，添加到现有列表
-    // 如果是单选模式，替换现有列表
+    // Multi-select mode: append to existing list
+    // Single-select mode: replace existing list
     files.value = props.multiple ? [...files.value, ...newFiles] : newFiles
-    
+
     emit('file-change', files.value)
     emit('update:file-list', files.value)
     emit('change', files.value)
   }
 }
 
-// 移除文件
+// Remove a file
 const removeFile = (index) => {
   files.value.splice(index, 1)
   emit('file-change', files.value)
@@ -145,7 +147,7 @@ const removeFile = (index) => {
   emit('file-remove', index)
 }
 
-// 格式化文件大小
+// Format file size
 const formatFileSize = (size) => {
   if (size < 1024) {
     return size + ' B'
@@ -166,7 +168,6 @@ const formatFileSize = (size) => {
   position: relative;
   border-radius: 8px;
   padding: 32px;
-  backdrop-filter: blur(10px);
   border: 2px dashed rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
   background: rgba(255, 255, 255, 0.6);
@@ -209,7 +210,6 @@ const formatFileSize = (size) => {
   position: relative;
   border-radius: 8px;
   padding: 12px;
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 12px rgba(31, 38, 135, 0.08);
   background: rgba(255, 255, 255, 0.8);

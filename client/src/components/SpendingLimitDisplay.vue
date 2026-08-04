@@ -1,5 +1,5 @@
 <template>
-  <div class="spending-limit-display" v-if="spendingStore.isLimitEnabled">
+  <div class="spending-limit-display" v-if="spendingStore.isLimitEnabled" v-liquid-glass>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
     <div class="display-header">

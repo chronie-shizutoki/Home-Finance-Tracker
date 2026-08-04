@@ -1,22 +1,22 @@
 <template>
   <div class="container">
-    <!-- 顶部加载和错误提示 -->
+    <!-- Loading and error banners -->
     <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
 
-    <!-- 页面标题 -->
+    <!-- Page title -->
     <Header :title="t('chart.title')" />
 
-    <!-- 返回主页按钮 -->
+    <!-- Back-to-home button -->
     <div class="back-button-container">
       <GlassButton type="primary" @click="goBack" size="default">
        <
       </GlassButton>
     </div>
 
-    <!-- 消费图表分析 -->
+    <!-- Expense chart analysis -->
     <ExpenseCharts :expenses="Expenses" />
 
   </div>
@@ -38,21 +38,21 @@ import MessageTip from '@/components/MessageTip.vue';
 const { t } = useI18n();
 const router = useRouter();
 
-// 状态数据
+// State data
 const Expenses = ref([]);
 const isLoading = ref(false);
 
-// 取消控制器
+// Cancellation controller
 let paginationController = null;
 
-// 费用数据管理
+// Expense data management
 const { error, successMessage, errorMessage } = useExpenseData();
 
-// 载入消费数据（从SQLite数据库）- 使用分页加载优化性能
+// Load expense data (from the SQLite database) - use paginated loading for performance
 const loadExpenses = async () => {
   if (isLoading.value) return;
 
-  // 取消之前的请求
+  // Cancel any previous request
   if (paginationController) {
     paginationController.abort();
   }
@@ -63,12 +63,12 @@ const loadExpenses = async () => {
   try {
     console.log('ChartsView: 开始使用分页加载数据...');
 
-    // 使用分页工具获取所有数据
+    // Use the pagination utility to fetch all data
     const allData = await fetchAllPages({
       apiCall: ({ page, limit }) => 
         axios.get(`/api/expenses?page=${page}&limit=${limit}`),
-      pageSize: 100,           // 每页100条记录
-      maxConcurrent: 2,        // 图表页面使用2个并发请求，避免影响其他操作
+      pageSize: 100,           // 100 records per page
+      maxConcurrent: 2,        // Charts page uses 2 concurrent requests to avoid affecting other operations
       signal: paginationController.signal,
       onProgress: (progressData) => {
         console.log(`ChartsView: 数据加载进度: ${progressData.progress}% (${progressData.loaded}/${progressData.total})`);
@@ -79,7 +79,7 @@ const loadExpenses = async () => {
       }
     });
 
-    // 确保数据格式正确
+    // Ensure the data format is correct
     Expenses.value = allData
       .map(item => ({
         type: item.type?.trim() || item.type,
@@ -112,12 +112,12 @@ const loadExpenses = async () => {
   }
 };
 
-// 返回主页
+// Return to home
 const goBack = () => {
   router.push('/');
 };
 
-// 组件挂载时加载数据
+// Load data when the component is mounted
 onMounted(async () => {
   try {
     await loadExpenses();

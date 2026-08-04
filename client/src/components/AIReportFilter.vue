@@ -1,9 +1,9 @@
 <template>
-  <div class="ai-report-filter">
+  <div v-liquid-glass class="ai-report-filter">
     <div class="filter-section">
       <h4 class="filter-title">{{ t('ai.report.filterTitle') }}</h4>
       
-      <!-- 年份和月份选择 -->
+      <!-- Year and month selection -->
       <div class="filter-row date-filter-row">
         <div class="date-select-wrapper">
           <span class="date-label">年份</span>
@@ -28,7 +28,7 @@
         </div>
       </div>
       
-      <!-- 消费类型多选 -->
+      <!-- Expense type multi-select -->
       <div class="filter-row types-section">
         <GlassFormItem label="消费类型（可多选）" class="filter-item types-label">
           <div class="type-checkboxes" :class="{ 'has-active': localSelectedTypes.length > 0 }">
@@ -51,7 +51,7 @@
         </GlassFormItem>
       </div>
       
-      <!-- 快捷选择按钮 -->
+      <!-- Quick-select buttons -->
       <div class="quick-buttons">
         <GlassButton size="small" variant="secondary" @click="selectCurrentMonth">
           <span class="btn-icon">◉</span>本月
@@ -67,7 +67,7 @@
         </GlassButton>
       </div>
       
-      <!-- 数据统计预览 -->
+      <!-- Data statistics preview -->
       <div class="stats-preview">
         <div class="stats-header">
           <h5>{{ t('ai.report.statsPreview') }}</h5>
@@ -124,7 +124,7 @@ const { t } = useI18n();
 
 const emit = defineEmits(['filterChange']);
 
-// 消费类型列表
+// List of expense types
 const expenseTypes = [
   '日常用品', '奢侈品', '通讯费用', '食品', '零食糖果', '冷饮', '方便食品', 
   '纺织品', '饮品', '调味品', '交通出行', '餐饮', '医疗费用', '水果', '其他', 
@@ -132,7 +132,7 @@ const expenseTypes = [
   '豆制品', '个护美妆', '电子产品', '家用电器', '五金', '服装'
 ];
 
-// 月份选项
+// Month options
 const months = [
   { value: '01', label: '1月' },
   { value: '02', label: '2月' },
@@ -148,12 +148,12 @@ const months = [
   { value: '12', label: '12月' }
 ];
 
-// 当前日期
+// Current date
 const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
 
-// 可用年份（最近10年）
+// Available years (last 10 years)
 const availableYears = computed(() => {
   return Array.from({ length: 10 }, (_, i) => ({
     value: String(currentYear - i),
@@ -161,23 +161,23 @@ const availableYears = computed(() => {
   }));
 });
 
-// 加载状态
+// Loading state
 const isLoading = ref(true);
-// 所有消费数据
+// All expense data
 const allExpenses = ref([]);
 
-// 本地筛选状态
+// Local filter state
 const localYear = ref('');
 const localMonth = ref('');
 const localSelectedTypes = ref([]);
 
-// 获取所有消费数据
+// Fetch all expense data
 const fetchAllExpenses = async () => {
   isLoading.value = true;
   try {
     console.log('AIReportFilter: Fetching all expenses...');
     
-    // 使用分页获取所有数据
+    // Fetch all data using pagination
     const allData = [];
     let page = 1;
     const limit = 100;
@@ -190,7 +190,7 @@ const fetchAllExpenses = async () => {
       if (data.length > 0) {
         allData.push(...data);
         page++;
-        // 如果返回的数据少于请求的数量，说明已经没有更多数据了
+        // If fewer records are returned than requested, there is no more data
         if (data.length < limit) {
           hasMore = false;
         }
@@ -199,7 +199,7 @@ const fetchAllExpenses = async () => {
       }
     }
     
-    // 确保数据格式正确
+    // Ensure the data format is correct
     allExpenses.value = allData
       .map(item => ({
         type: item.type?.trim() || item.type,
@@ -211,7 +211,7 @@ const fetchAllExpenses = async () => {
     
     console.log('AIReportFilter: Fetched expenses count:', allExpenses.value.length);
     
-    // 触发筛选更新（包含筛选条件信息）
+    // Trigger a filter update (includes filter condition info)
     emit('filterChange', {
       ...stats.value,
       filterConditions: {
@@ -228,11 +228,11 @@ const fetchAllExpenses = async () => {
   }
 };
 
-// 筛选后的消费数据
+// Filtered expense data
 const filteredExpenses = computed(() => {
   let result = [...allExpenses.value];
   
-  // 按年份筛选
+  // Filter by year
   if (localYear.value) {
     result = result.filter(expense => {
       try {
@@ -244,7 +244,7 @@ const filteredExpenses = computed(() => {
     });
   }
   
-  // 按月份筛选
+  // Filter by month
   if (localMonth.value) {
     result = result.filter(expense => {
       try {
@@ -256,7 +256,7 @@ const filteredExpenses = computed(() => {
     });
   }
   
-  // 按类型筛选
+  // Filter by type
   if (localSelectedTypes.value.length > 0) {
     result = result.filter(expense => 
       localSelectedTypes.value.includes(expense.type)
@@ -266,7 +266,7 @@ const filteredExpenses = computed(() => {
   return result;
 });
 
-// 统计数据
+// Statistics data
 const stats = computed(() => {
   const expenses = filteredExpenses.value;
   const amounts = expenses
@@ -303,7 +303,7 @@ const formatNumber = (num) => {
   return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-// 监听筛选变化，通知父组件
+// Watch for filter changes and notify the parent component
 watch([localYear, localMonth, localSelectedTypes], () => {
   console.log('Filter changed:', {
     year: localYear.value,
@@ -312,7 +312,7 @@ watch([localYear, localMonth, localSelectedTypes], () => {
     filteredCount: filteredExpenses.value.length
   });
   
-  // 传递完整的筛选信息和统计数据
+  // Pass the complete filter info and statistics data
   emit('filterChange', {
     ...stats.value,
     filterConditions: {
@@ -323,19 +323,19 @@ watch([localYear, localMonth, localSelectedTypes], () => {
   });
 }, { deep: true });
 
-// 处理年份变化
+// Handle year change
 const handleYearChange = (value) => {
   console.log('Year changed:', value);
   localYear.value = value;
 };
 
-// 处理月份变化
+// Handle month change
 const handleMonthChange = (value) => {
   console.log('Month changed:', value);
   localMonth.value = value;
 };
 
-// 快捷选择方法
+// Quick-select methods
 const selectCurrentMonth = () => {
   localYear.value = String(currentYear);
   localMonth.value = currentMonth;
@@ -358,12 +358,12 @@ const clearFilters = () => {
   localSelectedTypes.value = [];
 };
 
-// 初始化时获取数据
+// Fetch data on initialization
 onMounted(() => {
   fetchAllExpenses();
 });
 
-// 暴露方法供外部调用
+// Expose methods for external calls
 defineExpose({
   getStats: () => stats.value,
   clearFilters,
@@ -380,8 +380,6 @@ defineExpose({
     rgba(255, 255, 255, 0.1) 100%
   );
   border-radius: 16px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.1),

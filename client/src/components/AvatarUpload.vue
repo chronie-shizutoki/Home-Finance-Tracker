@@ -1,10 +1,10 @@
 <template>
   <div class="avatar-upload-container">
-    <!-- 头像预览 -->
+    <!-- Avatar preview -->
     <div class="avatar-preview-container">
       <div class="avatar-preview" @click="triggerFileInput">
         <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-image" />
-        <div v-else class="avatar-placeholder">
+        <div v-else v-liquid-glass class="avatar-placeholder">
           <span>{{ computedPlaceholder }}</span>
         </div>
       </div>
@@ -17,34 +17,38 @@
       />
     </div>
 
-    <!-- 裁剪弹窗 -->
-    <transition name="cropper-fade">
-      <div v-if="showCropper" class="cropper-overlay" @click="closeCropper">
-        <div class="cropper-container" @click.stop>
-        <div class="cropper-header">
-          <h3>{{ $t('avatar.cropTitle') }}</h3>
-          <button class="close-button" @click="closeCropper">&times;</button>
-        </div>
-        
-        <div class="cropper-content">
-          <canvas ref="canvas" class="cropper-canvas"></canvas>
-          <input
-            type="range"
-            v-model="zoomLevel"
-            min="1"
-            max="3"
-            step="0.1"
-            class="zoom-slider"
-          />
-        </div>
+    <!-- Cropper dialog -->
+    <!-- Teleport to body so the fixed overlay escapes the backdrop-filter
+         containing block of .user-info-card and centers on the viewport. -->
+    <Teleport to="body">
+      <transition name="cropper-fade">
+        <div v-if="showCropper" class="cropper-overlay" @click="closeCropper">
+          <div class="cropper-container" @click.stop>
+          <div class="cropper-header">
+            <h3>{{ $t('avatar.cropTitle') }}</h3>
+            <button class="close-button" @click="closeCropper">&times;</button>
+          </div>
 
-        <div class="cropper-footer">
-          <button class="cancel-button" @click="closeCropper">{{ $t('avatar.cancel') }}</button>
-          <button class="confirm-button" @click="confirmCrop">{{ $t('avatar.confirm') }}</button>
+          <div class="cropper-content">
+            <canvas ref="canvas" class="cropper-canvas"></canvas>
+            <input
+              type="range"
+              v-model="zoomLevel"
+              min="1"
+              max="3"
+              step="0.1"
+              class="zoom-slider"
+            />
+          </div>
+
+          <div class="cropper-footer">
+            <button class="cancel-button" @click="closeCropper">{{ $t('avatar.cancel') }}</button>
+            <button class="confirm-button" @click="confirmCrop">{{ $t('avatar.confirm') }}</button>
+          </div>
         </div>
-      </div>
-      </div>
-    </transition>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
@@ -55,7 +59,7 @@ import { updateUserAvatar } from '@/api/membership'
 
 const { t } = useI18n()
 
-// 定义组件属性
+// Define component props
 const props = defineProps({
   modelValue: {
     type: String,
@@ -71,7 +75,7 @@ const props = defineProps({
   },
   size: {
     type: Number,
-    default: 200 // 头像尺寸
+    default: 200 // Avatar size
   },
   username: {
     type: String,
@@ -79,10 +83,10 @@ const props = defineProps({
   }
 })
 
-// 定义组件事件
+// Define component events
 const emit = defineEmits(['update:modelValue', 'avatar-uploaded'])
 
-// 组件状态
+// Component state
 const avatarUrl = ref(props.modelValue)
 const showCropper = ref(false)
 const fileInput = ref(null)
@@ -94,38 +98,38 @@ const imagePosition = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const lastMousePos = ref({ x: 0, y: 0 })
 
-// 动态计算 placeholder，支持国际化
+// Dynamically compute the placeholder, with i18n support
 const computedPlaceholder = computed(() => {
   return props.placeholder || t('avatar.placeholder')
 })
 
-// 触发文件选择
+// Trigger the file input
 const triggerFileInput = () => {
-  // 重置文件输入框的值，确保每次选择相同文件也能触发change事件
+  // Reset the file input value so selecting the same file still triggers the change event
   if (fileInput.value) {
     fileInput.value.value = ''
   }
   fileInput.value?.click()
 }
 
-// 处理文件选择
+// Handle file selection
 const handleFileChange = (event) => {
   const file = event.target.files[0]
   if (!file) return
 
-  // 检查文件大小
+  // Check file size
   if (file.size > props.maxSize * 1024 * 1024) {
     alert(t('avatar.error.sizeLimit', { maxSize: props.maxSize }))
     return
   }
 
-  // 检查文件类型
+  // Check file type
   if (!file.type.startsWith('image/')) {
     alert(t('avatar.error.invalidType'))
     return
   }
 
-  // 读取文件并显示裁剪界面
+  // Read the file and show the cropper UI
   const reader = new FileReader()
   reader.onload = (e) => {
     const img = new Image()
@@ -134,7 +138,7 @@ const handleFileChange = (event) => {
       currentImage.value = img
       showCropper.value = true
       
-      // 延迟执行，确保DOM已经更新
+      // Defer execution to ensure the DOM has updated
       nextTick(() => {
         initCanvas()
         drawImage()
@@ -146,40 +150,37 @@ const handleFileChange = (event) => {
   reader.readAsDataURL(file)
 }
 
-// 初始化画布
+// Initialize the canvas
 const initCanvas = () => {
   if (!canvas.value) return
 
   const ctx = canvas.value.getContext('2d')
   context.value = ctx
 
-  // 确保画布大小正确
-  const container = canvas.value.parentElement
-  if (container) {
-    canvas.value.width = container.clientWidth
-    canvas.value.height = container.clientHeight
-  } else {
-    canvas.value.width = props.size
-    canvas.value.height = props.size
-  }
+  // Keep the canvas square and match its rendered CSS width. drawImage uses
+  // a single canvasSize for both dimensions and draws a centered circle mask,
+  // so width and height must always be equal.
+  const size = canvas.value.clientWidth || props.size
+  canvas.value.width = size
+  canvas.value.height = size
 
-  // 清空画布
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+  // Clear the canvas
+  ctx.clearRect(0, 0, size, size)
 
-  // 添加鼠标事件处理
+  // Add mouse event handlers
   canvas.value.addEventListener('mousedown', handleMouseDown)
   canvas.value.addEventListener('mousemove', handleMouseMove)
   canvas.value.addEventListener('mouseup', handleMouseUp)
   canvas.value.addEventListener('mouseleave', handleMouseUp)
   
-  // 添加触控事件处理
+  // Add touch event handlers
   canvas.value.addEventListener('touchstart', handleTouchStart)
   canvas.value.addEventListener('touchmove', handleTouchMove)
   canvas.value.addEventListener('touchend', handleTouchEnd)
   canvas.value.addEventListener('touchcancel', handleTouchCancel)
 }
 
-// 绘制图像
+// Draw the image
 const drawImage = () => {
   if (!canvas.value || !context.value || !currentImage.value) {
     console.log('Drawing skipped:', !canvas.value ? 'no canvas' : !context.value ? 'no context' : 'no image')
@@ -190,29 +191,29 @@ const drawImage = () => {
   const img = currentImage.value
   const canvasSize = canvas.value.width
 
-  // 清空画布
+  // Clear the canvas
   ctx.clearRect(0, 0, canvasSize, canvasSize)
 
-  // 计算图像显示大小
+  // Calculate the displayed image size
   const imgRatio = img.width / img.height
   let displayWidth, displayHeight
 
-  // 确保图像至少能填满画布
+  // Ensure the image at least fills the canvas
   if (imgRatio > 1) {
-    // 宽图
+    // Landscape image
     displayHeight = canvasSize
     displayWidth = displayHeight * imgRatio
   } else {
-    // 高图
+    // Portrait image
     displayWidth = canvasSize
     displayHeight = displayWidth / imgRatio
   }
 
-  // 应用缩放
+  // Apply zoom
   displayWidth *= zoomLevel.value
   displayHeight *= zoomLevel.value
 
-  // 计算绘制位置（居中显示）
+  // Calculate the draw position (centered)
   const x = (canvasSize - displayWidth) / 2 + imagePosition.value.x
   const y = (canvasSize - displayHeight) / 2 + imagePosition.value.y
 
@@ -227,10 +228,10 @@ const drawImage = () => {
     zoom: zoomLevel.value
   })
 
-  // 绘制图像
+  // Draw the image
   ctx.drawImage(img, x, y, displayWidth, displayHeight)
 
-  // 绘制裁剪框
+  // Draw the crop mask
   ctx.save()
   ctx.globalCompositeOperation = 'destination-in'
   ctx.beginPath()
@@ -239,7 +240,7 @@ const drawImage = () => {
   ctx.restore()
 }
 
-// 鼠标事件处理
+// Mouse event handlers
 const handleMouseDown = (e) => {
   isDragging.value = true
   lastMousePos.value = {
@@ -271,9 +272,9 @@ const handleMouseUp = () => {
   isDragging.value = false
 }
 
-// 触控事件处理
+// Touch event handlers
 const handleTouchStart = (e) => {
-  e.preventDefault() // 防止页面滚动
+  e.preventDefault() // Prevent page scrolling
   if (e.touches.length > 0) {
     isDragging.value = true
     const touch = e.touches[0]
@@ -286,7 +287,7 @@ const handleTouchStart = (e) => {
 }
 
 const handleTouchMove = (e) => {
-  e.preventDefault() // 防止页面滚动
+  e.preventDefault() // Prevent page scrolling
   if (!isDragging.value || e.touches.length === 0) return
 
   const touch = e.touches[0]
@@ -318,21 +319,21 @@ const handleTouchCancel = () => {
   isDragging.value = false
 }
 
-// 关闭裁剪窗口
+// Close the cropper dialog
 const closeCropper = () => {
   showCropper.value = false
   zoomLevel.value = 1
   imagePosition.value = { x: 0, y: 0 }
   currentImage.value = null
   
-  // 移除鼠标事件监听
+  // Remove mouse event listeners
   if (canvas.value) {
     canvas.value.removeEventListener('mousedown', handleMouseDown)
     canvas.value.removeEventListener('mousemove', handleMouseMove)
     canvas.value.removeEventListener('mouseup', handleMouseUp)
     canvas.value.removeEventListener('mouseleave', handleMouseUp)
     
-    // 移除触控事件监听
+    // Remove touch event listeners
     canvas.value.removeEventListener('touchstart', handleTouchStart)
     canvas.value.removeEventListener('touchmove', handleTouchMove)
     canvas.value.removeEventListener('touchend', handleTouchEnd)
@@ -340,25 +341,25 @@ const closeCropper = () => {
   }
 }
 
-// 确认裁剪
+// Confirm the crop
 const confirmCrop = async () => {
   if (!canvas.value || !props.username) return
 
-  // 获取裁剪后的图像数据URL
+  // Get the cropped image data URL
   const dataUrl = canvas.value.toDataURL('image/png', 0.8)
   
   try {
-    // 上传头像到后端
+    // Upload the avatar to the backend
     await updateUserAvatar(props.username, dataUrl)
     
-    // 更新头像URL
+    // Update the avatar URL
     avatarUrl.value = dataUrl
     
-    // 通知父组件
+    // Notify the parent component
     emit('update:modelValue', dataUrl)
     emit('avatar-uploaded', dataUrl)
     
-    // 关闭裁剪窗口
+    // Close the cropper dialog
     closeCropper()
   } catch (error) {
     console.error('上传头像失败:', error)
@@ -366,7 +367,7 @@ const confirmCrop = async () => {
   }
 }
 
-// 监听modelValue变化
+// Watch for changes to modelValue
 const updateAvatarUrl = (newVal) => {
   avatarUrl.value = newVal
 }
@@ -378,7 +379,7 @@ watch(
   }
 )
 
-// 监听缩放变化，重新绘制图像
+// Watch for zoom changes and redraw the image
 watch(
   () => zoomLevel.value,
   () => {
@@ -386,12 +387,12 @@ watch(
   }
 )
 
-// 监听showCropper变化，确保画布初始化完成后绘制图像
+// Watch for showCropper changes and redraw once the canvas is initialized
 watch(
   () => showCropper.value,
   (newVal) => {
     if (newVal && currentImage.value) {
-      // 确保画布已经初始化
+      // Ensure the canvas is already initialized
       initCanvas()
       drawImage()
     }
@@ -422,7 +423,7 @@ watch(
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  /* 吧唧质感效果 */
+  /* Glossy badge effect */
   box-shadow: 
     0 0 10px rgba(255, 255, 255, 0.8) inset,
     0 0 20px rgba(0, 0, 0, 0.2),
@@ -444,7 +445,7 @@ watch(
   position: relative;
   width: 100px;
   height: 100px;
-  /* 添加底座效果 */
+  /* Base pedestal effect */
   background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
   border-radius: 50%;
   padding: 2px;
@@ -456,8 +457,6 @@ watch(
   height: 100%;
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(240,240,240,0.3) 0%, rgba(240,240,240,0.1) 50%, rgba(0,0,0,0.2) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 3px solid rgba(217, 217, 217, 0.8);
   display: flex;
   align-items: center;
@@ -481,7 +480,7 @@ watch(
     0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 裁剪弹窗样式 */
+/* Cropper dialog styles */
 .cropper-overlay {
   position: fixed;
   top: 0;
@@ -495,7 +494,7 @@ watch(
   z-index: 1000;
 }
 
-/* 弹窗过渡动画 */
+/* Dialog transition animation */
 .cropper-fade-enter-active,
 .cropper-fade-leave-active {
   transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -508,18 +507,19 @@ watch(
 }
 
 .cropper-container {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 12px;
+  /* CSS glass surface — the WebGL lens overlay previously hid the crop canvas
+     and intercepted the buttons, so this dialog uses CSS glass instead. */
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: var(--border-radius-lg, 20px);
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  transform: scale(0.9);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* 容器缩放动画 */
+/* Container scale animation */
 .cropper-fade-enter-active .cropper-container,
 .cropper-fade-leave-active .cropper-container {
   transition: transform 0.3s ease;
@@ -551,10 +551,10 @@ watch(
 }
 
 .close-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   font-size: 24px;
-  color: #909399;
+  color: #606266;
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -564,12 +564,10 @@ watch(
   justify-content: center;
   border-radius: 50%;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .close-button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.08);
   color: #303133;
   transform: rotate(90deg);
 }
@@ -584,14 +582,13 @@ watch(
 .cropper-canvas {
   width: 100%;
   max-width: 400px;
-  height: 400px;
-  object-fit: contain;
+  aspect-ratio: 1 / 1;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   cursor: move;
   background: rgba(255, 255, 255, 0.9);
   display: block;
-  touch-action: none; /* 禁用浏览器默认的触摸行为 */
+  touch-action: none; /* Disable the browser's default touch behaviour */
 }
 
 .zoom-slider {
@@ -640,18 +637,16 @@ watch(
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.18);
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   font-weight: 500;
 }
 
 .cancel-button {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.05);
   color: #606266;
 }
 
 .cancel-button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.1);
   color: #303133;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -670,11 +665,11 @@ watch(
   box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
 }
 
-/* 深色模式支持 */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .cropper-container {
-    background: rgba(32, 32, 32, 0.8);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(30, 41, 59, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .cropper-header h3 {
@@ -728,25 +723,25 @@ watch(
   }
 
   .close-button {
-    background: rgba(64, 64, 64, 0.8);
-    border-color: rgba(255, 255, 255, 0.08);
-    color: #a0a0a0;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
   }
 
   .close-button:hover {
-    background: rgba(80, 80, 80, 0.8);
-    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.16);
+    color: #f1f5f9;
   }
 
   .cancel-button {
-    background: rgba(64, 64, 64, 0.8);
-    color: #e0e0e0;
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .cancel-button:hover {
-    background: rgba(80, 80, 80, 0.8);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.16);
+    color: #f1f5f9;
   }
 
   .confirm-button {

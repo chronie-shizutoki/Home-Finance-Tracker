@@ -1,4 +1,5 @@
-/* 消息提示公共样式 */
+/* Shared message-tip styles. The glass refraction comes from the WebGL
+   engine (v-liquid-glass), so no backdrop-filter is declared here. */
 .message-tip {
   padding: 1rem 1.5rem;
   margin: 1rem 0;
@@ -7,7 +8,6 @@
   justify-content: space-between;
   align-items: center;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all var(--transition-time) ease;
