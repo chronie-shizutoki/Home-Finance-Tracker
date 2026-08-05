@@ -1,4 +1,4 @@
-name: Go Build & Release
+name: "build&release"
 
 on:
   workflow_dispatch:
@@ -128,6 +128,80 @@ jobs:
           path: server-go/build/${{ env.ASSET }}
           retention-days: 7
 
+  # ========== Android Release Build ==========
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v7
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0"
+
+      - name: Decode signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+
+      - name: Write local.properties with signing secrets
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          {
+            echo "RELEASE_STORE_FILE=release.keystore"
+            echo "RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$KEY_ALIAS"
+            echo "RELEASE_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> android/local.properties
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+
+      - name: Build release APK
+        working-directory: android
+        run: ./gradlew assembleRelease -PbuildNumber=${{ github.run_number }} --no-daemon
+
+      - name: Generate output-meta.json
+        run: |
+          BUILD_DATE=$(date +%Y%m%d)
+          VERSION_NAME="1.${BUILD_DATE}.${{ github.run_number }}"
+          VERSION_CODE=$(date +%s)
+          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          mkdir -p android/build/release-output
+          jq -n \
+            --arg appId "com.chronie.homemoney" \
+            --arg versionName "$VERSION_NAME" \
+            --argjson versionCode "$VERSION_CODE" \
+            --arg buildNumber "${{ github.run_number }}" \
+            --arg commit "${{ github.sha }}" \
+            --arg buildTime "$BUILD_TIME" \
+            --arg platform "android" \
+            --arg abi "arm64-v8a" \
+            --arg artifact "app-release.apk" \
+            '{appId:$appId,versionName:$versionName,versionCode:$versionCode,buildNumber:$buildNumber,commit:$commit,buildTime:$buildTime,platform:$platform,abi:$abi,artifact:$artifact}' \
+            > android/build/release-output/output-meta.json
+
+      - name: Copy APK to release output
+        run: cp android/app/build/outputs/apk/release/app-release.apk android/build/release-output/
+
+      - name: Upload android release artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-release
+          path: android/build/release-output/*
+          retention-days: 7
+
   # ========== Go Test ==========
   test:
     runs-on: ubuntu-latest
@@ -163,50 +237,79 @@ jobs:
           working-directory: server-go
           args: --timeout=5m
 
-  # ========== Go Release ==========
+  # ========== Release (tag + upload all artifacts) ==========
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [build-go, test, lint]
+    needs: [build-go, build-android, test, lint]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Download all build artifacts
+      - name: Compute next tag (yyyy.mm.x)
+        id: tag
+        run: |
+          YM=$(date +%Y.%m)
+          PREFIX="${YM}."
+          MAX=0
+          for t in $(git tag --list "${PREFIX}*"); do
+            n="${t#$PREFIX}"
+            if [[ "$n" =~ ^[0-9]+$ ]] && [ "$n" -gt "$MAX" ]; then
+              MAX=$n
+            fi
+          done
+          NEXT=$((MAX + 1))
+          TAG="${YM}.${NEXT}"
+          echo "Computed tag: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          git tag "${{ steps.tag.outputs.tag }}"
+          git push origin "${{ steps.tag.outputs.tag }}"
+
+      - name: Download Go build artifacts
         uses: actions/download-artifact@v8
         with:
-          path: artifacts/
           pattern: home-finance-tracker-*
+          path: artifacts/
           merge-multiple: false
+
+      - name: Download Android release artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: android-release
+          path: artifacts/android-release
 
       - name: Generate checksums
         run: |
-          find artifacts/ -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec sha256sum {} \; > checksums.txt
+          find artifacts/ -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.apk" -o -name "*.json" \) -exec sha256sum {} \; > checksums.txt
 
-      - name: Create/Update Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          name: "Go Server Build ${{ github.run_number }}"
-          tag_name: "go-build-${{ github.run_number }}"
+          name: "Release ${{ steps.tag.outputs.tag }}"
+          tag_name: ${{ steps.tag.outputs.tag }}
           body: |
-            ## Go Server Automatic Build
+            ## Home Finance Tracker Release ${{ steps.tag.outputs.tag }}
 
             - **Commit**: ${{ github.sha }}
-            - **Branch**: ${{ github.ref_name }}
+            - **Tag**: ${{ steps.tag.outputs.tag }}
 
-            ### Build Artifacts
-            | Platform | Architecture |
-            |------|------|
-            | Linux | amd64, arm64 |
-            | Windows | amd64, arm64 |
-            | macOS | amd64, arm64 |
-
-            Each package contains the Go server binary + frontend `client/dist/` static files.
+            ### Assets
+            - Go server binaries (Linux / Windows / macOS × amd64 / arm64) bundled with the frontend `client/dist/`
+            - Android release APK (`arm64-v8a`) + `output-meta.json`
           files: |
             artifacts/home-finance-tracker-*/*
+            artifacts/android-release/*
             checksums.txt
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
