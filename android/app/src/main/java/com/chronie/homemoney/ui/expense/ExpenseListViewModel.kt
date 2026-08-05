@@ -2,6 +2,7 @@ package com.chronie.homemoney.ui.expense
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chronie.homemoney.data.sync.SyncScheduler
 import com.chronie.homemoney.domain.model.Expense
 import com.chronie.homemoney.domain.model.ExpenseFilters
 import com.chronie.homemoney.domain.model.ExpenseStatistics
@@ -29,7 +30,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ExpenseListViewModel @Inject constructor(
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val syncScheduler: SyncScheduler
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ExpenseListUiState())
@@ -297,6 +299,20 @@ class ExpenseListViewModel @Inject constructor(
                     
                     // Reload statistics after delete
                     loadStatistics()
+
+                    // Push the delete to the server promptly. Without this, the
+                    // tombstone would only be flushed by the hourly periodic sync,
+                    // and a network-first list refresh in the meantime could
+                    // resurrect the record from the cloud and drop the pending delete.
+                    try {
+                        syncScheduler.triggerImmediateSync()
+                    } catch (e: Exception) {
+                        android.util.Log.w(
+                            "ExpenseListViewModel",
+                            "Failed to trigger sync after delete",
+                            e
+                        )
+                    }
                 },
                 onFailure = { error ->
                     _uiState.update {
