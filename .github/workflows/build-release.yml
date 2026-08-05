@@ -170,30 +170,15 @@ jobs:
 
       - name: Build release APK
         working-directory: android
-        run: ./gradlew assembleRelease -PbuildNumber=${{ github.run_number }} --no-daemon
+        run: ./gradlew assembleRelease --no-daemon
 
-      - name: Generate output-meta.json
+      - name: Copy APK and AGP metadata to release output
         run: |
-          BUILD_DATE=$(date +%Y%m%d)
-          VERSION_NAME="1.${BUILD_DATE}.${{ github.run_number }}"
-          VERSION_CODE=$(date +%s)
-          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          # Ship the AGP-generated metadata (output-metadata.json) as-is, so the
+          # uploaded output-meta.json is the real artifact produced by the build.
           mkdir -p android/build/release-output
-          jq -n \
-            --arg appId "com.chronie.homemoney" \
-            --arg versionName "$VERSION_NAME" \
-            --argjson versionCode "$VERSION_CODE" \
-            --arg buildNumber "${{ github.run_number }}" \
-            --arg commit "${{ github.sha }}" \
-            --arg buildTime "$BUILD_TIME" \
-            --arg platform "android" \
-            --arg abi "arm64-v8a" \
-            --arg artifact "app-release.apk" \
-            '{appId:$appId,versionName:$versionName,versionCode:$versionCode,buildNumber:$buildNumber,commit:$commit,buildTime:$buildTime,platform:$platform,abi:$abi,artifact:$artifact}' \
-            > android/build/release-output/output-meta.json
-
-      - name: Copy APK to release output
-        run: cp android/app/build/outputs/apk/release/app-release.apk android/build/release-output/
+          cp android/app/build/outputs/apk/release/app-release.apk android/build/release-output/
+          cp android/app/build/outputs/apk/release/output-metadata.json android/build/release-output/output-meta.json
 
       - name: Upload android release artifact
         uses: actions/upload-artifact@v7
