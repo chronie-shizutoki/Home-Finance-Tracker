@@ -122,9 +122,18 @@ interface ExpenseDao {
      */
     @Transaction
     suspend fun upsertExpense(expense: ExpenseEntity) {
-        val existing = getExpenseById(expense.id)
-        if (existing != null && existing.updatedAt >= expense.updatedAt) {
-            return
+        // Use the sync-aware lookup: a locally soft-deleted tombstone must not be
+        // overwritten by an incoming (possibly stale) server record. Otherwise a
+        // pending delete is resurrected and never reaches the cloud.
+        val existing = getExpenseByIdForSync(expense.id)
+        if (existing != null) {
+            if (existing.deletedAt != null) {
+                // A local delete wins locally until it has been pushed to the server.
+                return
+            }
+            if (existing.updatedAt >= expense.updatedAt) {
+                return
+            }
         }
         insertExpense(expense)
     }

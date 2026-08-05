@@ -199,9 +199,11 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 
 	// If client provided localIDs, return records missing from client
 	if len(localIDs) > 0 {
-		// Get all server record IDs
+		// Get all server record IDs (active records only; soft-deleted
+		// tombstones must not be re-pushed to clients, otherwise a delete
+		// that was already synced would be resurrected on the device).
 		var allServerRecords []models.Expense
-		if err := r.db.Model(&models.Expense{}).Select("id").Find(&allServerRecords).Error; err != nil {
+		if err := r.db.Model(&models.Expense{}).Where("deletedAt IS NULL").Select("id").Find(&allServerRecords).Error; err != nil {
 			return nil, nil, fmt.Errorf("failed to get server records: %w", err)
 		}
 
@@ -223,13 +225,14 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 		}
 
 		if len(missingIDs) > 0 {
-			if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
+			// Only return active records; exclude soft-deleted tombstones.
+			if err := r.db.Where("id IN ?", missingIDs).Where("deletedAt IS NULL").Find(&serverChanges).Error; err != nil {
 				return nil, nil, fmt.Errorf("failed to get missing records: %w", err)
 			}
 		}
 	} else if lastSyncTime != nil && *lastSyncTime > 0 {
 		// Old behavior: return records updated after lastSyncTime
-		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
+		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Where("deletedAt IS NULL").Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
 			return nil, nil, fmt.Errorf("failed to get updated records: %w", err)
 		}
 	}
