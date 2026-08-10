@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
@@ -134,6 +135,11 @@ fun DatabaseTestScreen(
                         )
                         Text(context.getString(R.string.record_count, uiState.expenseCount))
                         Text(context.getString(R.string.total_amount_database, uiState.totalAmount))
+                        Text(
+                            text = context.getString(R.string.recycle_bin_deleted) + "：" + uiState.deletedCount,
+                            style = MiuixTheme.textStyles.body2,
+                            color = MiuixTheme.colorScheme.error
+                        )
                     }
                 }
             }
@@ -197,8 +203,9 @@ fun ExpenseItem(
     context: android.content.Context,
     expense: ExpenseItemUiModel
 ) {
+    val isDeleted = expense.deletedAt != null
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().alpha(if (isDeleted) 0.55f else 1f)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -206,12 +213,25 @@ fun ExpenseItem(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = expense.type,
-                    style = MiuixTheme.textStyles.body1
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = expense.type,
+                        style = MiuixTheme.textStyles.body1
+                    )
+                    if (isDeleted) {
+                        Text(
+                            text = context.getString(R.string.recycle_bin_deleted),
+                            style = MiuixTheme.textStyles.footnote2,
+                            color = MiuixTheme.colorScheme.error
+                        )
+                    }
+                }
                 Text(
                         text = context.getString(R.string.currency_format, context.getString(R.string.currency_symbol), expense.amount),
                         style = MiuixTheme.textStyles.body1,
@@ -263,7 +283,8 @@ private fun ExpenseEntity.toUiModel(): ExpenseItemUiModel {
         remark = remark ?: "",
         amount = amount,
         timeFormatted = date,
-        isSynced = isSynced
+        isSynced = isSynced,
+        deletedAt = deletedAt
     )
 }
 
@@ -276,5 +297,6 @@ data class ExpenseItemUiModel(
     val remark: String,
     val amount: Double,
     val timeFormatted: String,
-    val isSynced: Boolean
+    val isSynced: Boolean,
+    val deletedAt: Long? = null
 )

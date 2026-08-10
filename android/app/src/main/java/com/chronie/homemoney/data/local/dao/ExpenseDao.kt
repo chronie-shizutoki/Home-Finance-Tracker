@@ -158,13 +158,16 @@ interface ExpenseDao {
      */
     @Transaction
     suspend fun upsertExpense(expense: ExpenseEntity) {
-        // Use the sync-aware lookup: a locally soft-deleted tombstone must not be
-        // overwritten by an incoming (possibly stale) server record. Otherwise a
-        // pending delete is resurrected and never reaches the cloud.
+        // Use the sync-aware lookup. A locally soft-deleted tombstone that has NOT
+        // been pushed to the server must never be resurrected by an incoming
+        // record — otherwise a pending delete is lost. Once the tombstone has been
+        // synced (isSynced == true) the server becomes authoritative, so a newer
+        // server record with deletedAt == null (a restore done on another device)
+        // is applied and clears the local tombstone everywhere.
         val existing = getExpenseByIdForSync(expense.id)
         if (existing != null) {
-            if (existing.deletedAt != null) {
-                // A local delete wins locally until it has been pushed to the server.
+            if (existing.deletedAt != null && !existing.isSynced) {
+                // Pending, un-pushed local delete: keep it until it reaches the cloud.
                 return
             }
             if (existing.updatedAt >= expense.updatedAt) {

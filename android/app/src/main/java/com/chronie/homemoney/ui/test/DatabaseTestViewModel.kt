@@ -37,7 +37,7 @@ class DatabaseTestViewModel @Inject constructor(
     private fun loadExpenses() {
         viewModelScope.launch {
             try {
-                expenseDao.getAllExpenses()
+                flow { emit(expenseDao.getAllExpensesForSync()) }
                     .catch { e ->
                         _uiState.update { it.copy(
                             message = application.getString(R.string.load_failed, e.message ?: ""),
@@ -46,10 +46,12 @@ class DatabaseTestViewModel @Inject constructor(
                     }
                     .collect { expenses ->
                         val count = expenses.size
-                        val totalAmount = expenses.sumOf { it.amount }
+                        val deletedCount = expenses.count { it.deletedAt != null }
+                        val totalAmount = expenses.filter { it.deletedAt == null }.sumOf { it.amount }
                         _uiState.update { it.copy(
                             expenses = expenses,
                             expenseCount = count,
+                            deletedCount = deletedCount,
                             totalAmount = totalAmount,
                             message = null,
                             isError = false
@@ -137,6 +139,7 @@ class DatabaseTestViewModel @Inject constructor(
 data class DatabaseTestUiState(
     val expenses: List<ExpenseEntity> = emptyList(),
     val expenseCount: Int = 0,
+    val deletedCount: Int = 0,
     val totalAmount: Double = 0.0,
     val message: String? = null,
     val isError: Boolean = false

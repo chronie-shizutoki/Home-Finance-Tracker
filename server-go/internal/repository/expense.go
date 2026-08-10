@@ -199,62 +199,70 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 
 	// If client provided localIDs, return records missing from client, plus
 	// any soft-deleted tombstones for records the client already holds.
-	if len(localIDs) > 0 {
-		// Active server record IDs, used to compute records missing on client.
-		var allServerRecords []models.Expense
-		if err := r.db.Model(&models.Expense{}).Where("deletedAt IS NULL").Select("id").Find(&allServerRecords).Error; err != nil {
-			return nil, nil, fmt.Errorf("failed to get server records: %w", err)
-		}
+		if len(localIDs) > 0 {
+			// All server record IDs (active AND tombstoned), used to compute the
+			// diff against the client's known IDs.
+			var allServerRecords []models.Expense
+			if err := r.db.Model(&models.Expense{}).Select("id").Find(&allServerRecords).Error; err != nil {
+				return nil, nil, fmt.Errorf("failed to get server records: %w", err)
+			}
 
-		allServerIDs := make(map[string]bool)
-		for _, r := range allServerRecords {
-			allServerIDs[r.ID] = true
-		}
-		localIDSet := make(map[string]bool)
-		for _, id := range localIDs {
-			localIDSet[id] = true
-		}
+			allServerIDs := make(map[string]bool)
+			for _, r := range allServerRecords {
+				allServerIDs[r.ID] = true
+			}
+			localIDSet := make(map[string]bool)
+			for _, id := range localIDs {
+				localIDSet[id] = true
+			}
 
-		// Records that exist on the server but not on the client.
-		var missingIDs []string
-		for id := range allServerIDs {
-			if !localIDSet[id] {
-				missingIDs = append(missingIDs, id)
+			// Records that exist on the server but not on the client. Returned in
+			// full (active or tombstoned) so newly deleted records propagate even
+			// to clients that never held an active copy.
+			var missingIDs []string
+			for id := range allServerIDs {
+				if !localIDSet[id] {
+					missingIDs = append(missingIDs, id)
+				}
+			}
+			if len(missingIDs) > 0 {
+				if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
+					return nil, nil, fmt.Errorf("failed to get missing records: %w", err)
+				}
+			}
+
+			// Server's current state for IDs the client already holds. Returning
+			// the full row (active OR tombstoned, changed since lastSyncTime)
+			// lets a restore on one device clear the tombstone on every other
+			// device — not just propagate fresh deletes. The client's
+			// upsertExpense skips rows whose updatedAt is not newer, so unchanged
+			// records are not re-applied.
+			knownQuery := r.db.Where("id IN ?", localIDs)
+			if lastSyncTime != nil && *lastSyncTime > 0 {
+				knownQuery = knownQuery.Where("updatedAt > ?", *lastSyncTime)
+			}
+			var knownRecords []models.Expense
+			if err := knownQuery.Find(&knownRecords).Error; err != nil {
+				return nil, nil, fmt.Errorf("failed to get known records: %w", err)
+			}
+			serverChanges = append(serverChanges, knownRecords...)
+		} else if lastSyncTime != nil && *lastSyncTime > 0 {
+			// Incremental pull: records changed after lastSyncTime, including
+			// tombstones (a soft-delete bumps updatedAt, so it is returned once).
+			if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
+				return nil, nil, fmt.Errorf("failed to get updated records: %w", err)
 			}
 		}
-
-		if len(missingIDs) > 0 {
-			if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
-				return nil, nil, fmt.Errorf("failed to get missing records: %w", err)
-			}
-		}
-
-		// Soft-deleted tombstones for records the client already knows about.
-		// Push them so the client can mark those records deleted locally and
-		// surface them in the recycle bin. Re-pushing an already-synced
-		// tombstone is harmless: the device keeps it as a tombstone, so it is
-		// never resurrected. Tombstones for unknown records are skipped
-		// because the client has no local row to affect.
-		var tombstones []models.Expense
-		if err := r.db.Where("deletedAt IS NOT NULL").Where("id IN ?", localIDs).Find(&tombstones).Error; err != nil {
-			return nil, nil, fmt.Errorf("failed to get tombstones: %w", err)
-		}
-		serverChanges = append(serverChanges, tombstones...)
-	} else if lastSyncTime != nil && *lastSyncTime > 0 {
-		// Incremental pull: records changed after lastSyncTime, including
-		// tombstones (a soft-delete bumps updatedAt, so it is returned once).
-		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
-			return nil, nil, fmt.Errorf("failed to get updated records: %w", err)
-		}
-	}
 
 	// Process changes submitted by client
 	for _, change := range changes {
 		if change.DeletedAt != nil {
-			// Delete operation
+			// Delete operation — only apply if the client's delete is newer than
+			// the server record, so a stale delete cannot overwrite a newer
+			// restore (last-write-wins by updatedAt, consistent with updates).
 			var serverRecord models.Expense
 			err := r.db.Where("id = ?", change.ID).First(&serverRecord).Error
-			if err == nil {
+			if err == nil && change.UpdatedAt > serverRecord.UpdatedAt {
 				r.db.Model(&serverRecord).Updates(map[string]interface{}{
 					"deletedAt": *change.DeletedAt,
 					"updatedAt": change.UpdatedAt,
@@ -274,7 +282,9 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 			fmt.Printf("Error processing change: %s, %v\n", change.ID, err)
 		} else {
 			if change.UpdatedAt > serverRecord.UpdatedAt {
-				// Client version is newer, update server
+				// Client version is newer, update server. A restore (client sends
+				// DeletedAt == nil) must clear any existing tombstone so the
+				// un-delete propagates to every other device.
 				r.db.Model(&serverRecord).Updates(map[string]interface{}{
 					"type":      change.Type,
 					"remark":    change.Remark,
@@ -282,6 +292,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 					"date":      change.Date,
 					"version":   change.Version,
 					"updatedAt": change.UpdatedAt,
+					"deletedAt": nil,
 				})
 			} else if change.UpdatedAt < serverRecord.UpdatedAt {
 				// Conflict
