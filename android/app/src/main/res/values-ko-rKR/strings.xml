@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">브러시 크기</string>
     <string name="image_editor_load_failed">이미지를 불러오지 못했습니다</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">서버</string>
+    <string name="server_address">서버 주소</string>
+    <string name="server_address_hint">예: http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">사용자 지정 서버 주소 사용 중</string>
+    <string name="server_test_connection">연결 테스트</string>
+    <string name="server_test_reachable">연결 가능 (%dms)</string>
+    <string name="server_test_bad_response">서버 오류 응답: %d</string>
+    <string name="server_test_unreachable">서버에 연결할 수 없음: %s</string>
+    <string name="server_url_invalid">잘못된 서버 주소</string>
+    <string name="server_reset_default">기본값 사용</string>
+    <string name="recycle_bin">휴지통</string>
+    <string name="recycle_bin_entry_summary">삭제된 지출 내역 복원 또는 영구 삭제</string>
+    <string name="recycle_bin_summary">항목 %d개 · %d일 후 영구 삭제</string>
+    <string name="recycle_bin_empty">휴지통이 비어 있습니다</string>
+    <string name="recycle_bin_restore">복원</string>
+    <string name="recycle_bin_deleted">삭제됨</string>
+    <string name="recycle_bin_expires_in">%d일 후 자동 삭제</string>
+    <string name="recycle_bin_permanent_delete_title">영구 삭제하시겠습니까?</string>
+    <string name="recycle_bin_permanent_delete_message">이 항목은 영구적으로 제거되며 복구할 수 없습니다.</string>
+
 </resources>

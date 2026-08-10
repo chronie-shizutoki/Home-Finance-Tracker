@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
@@ -37,6 +38,7 @@ import com.chronie.homemoney.ui.components.*
 import com.chronie.homemoney.ui.components.imageeditor.CropShape
 import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import com.chronie.homemoney.ui.recyclebin.RecycleBinScreen
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
 import com.chronie.homemoney.ui.theme.MiuixTransitions
@@ -48,10 +50,8 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
@@ -66,7 +66,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 enum class SettingsPage {
-    MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT
+    MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT, RECYCLE_BIN
 }
 
 /**
@@ -183,6 +183,18 @@ fun SettingsScreen(
                     context = context,
                     onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
                     onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                    paddingValues = paddingValues
+                )
+            }
+        }
+        composable(SettingsPage.RECYCLE_BIN.name) {
+            SettingsSubPage(
+                title = context.getString(R.string.recycle_bin),
+                onBack = { navController.popBackStack() },
+                scope = this
+            ) { paddingValues ->
+                RecycleBinScreen(
+                    context = context,
                     paddingValues = paddingValues
                 )
             }
@@ -359,6 +371,31 @@ private fun MainSettingsPage(
 
                     item {
                         ArrowPreference(
+                            title = context.getString(R.string.recycle_bin),
+                            summary = context.getString(R.string.recycle_bin_entry_summary),
+                            startAction = {
+                                Row {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        color = MiuixTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = CircleShape
+                                    ) {
+                                        Icon(
+                                            Icons.Default.RestoreFromTrash,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(8.dp),
+                                            tint = MiuixTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                }
+                            },
+                            onClick = { onNavigate(SettingsPage.RECYCLE_BIN) }
+                        )
+                    }
+
+                    item {
+                        ArrowPreference(
                             title = context.getString(R.string.common_more_functions),
                             summary = context.getString(R.string.feedback_title) + ", " + context.getString(R.string.open_source_licenses),
                             startAction = {
@@ -387,6 +424,22 @@ private fun MainSettingsPage(
     )
 }
 
+/**
+ * Shared chrome for every settings sub-page.
+ *
+ * Uses the collapsible [TopAppBar] (rather than [SmallTopAppBar]) so the title renders as a large
+ * heading when the page is at rest and shrinks into the compact bar as the user scrolls down.
+ *
+ * The [MiuixScrollBehavior] is created here and its nested-scroll connection is attached to the
+ * content [Box]. Compose dispatches scroll events from any descendant scrollable to the nearest
+ * ancestor nested-scroll node, so each sub-page's own `LazyColumn` drives the collapse without
+ * needing to know about the scroll behavior.
+ *
+ * @param title text shown both as the large heading and the collapsed bar title.
+ * @param onBack invoked when the navigation icon is tapped.
+ * @param scope the [AnimatedContentScope] used to drive the predictive-back transform.
+ * @param content the page body; receives the [PaddingValues] reported by the [Scaffold].
+ */
 @Composable
 private fun SettingsSubPage(
     title: String,
@@ -394,14 +447,27 @@ private fun SettingsSubPage(
     scope: AnimatedContentScope,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = title,
+                largeTitle = title,
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    CircularIconButton(
+                        onClick = onBack,
+                        modifier = Modifier.padding(start = 8.dp, end = 4.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
+                },
+                actions = {
+                    Box(modifier = Modifier.padding(end = 8.dp))
                 }
             )
         },
@@ -409,7 +475,7 @@ private fun SettingsSubPage(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .predictiveBackEffect(scope)
             ) {
                 content(paddingValues)
@@ -603,6 +669,10 @@ fun DataSyncSettingsPage(
         )
     ) {
         item {
+            ServerConfigSection(viewModel = viewModel, context = context)
+            Spacer(modifier = Modifier.height(24.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(24.dp))
             SyncSection(
                 viewModel = viewModel,
                 context = context,
@@ -1029,6 +1099,167 @@ fun DataImportExportSection(
         onDateSelected = { endDate = it; showEndDatePicker = false },
         title = context.getString(R.string.export_end_date)
     )
+}
+
+@Composable
+fun ServerConfigSection(
+    viewModel: SettingsViewModel,
+    context: Context
+) {
+    val serverBaseUrl by viewModel.serverBaseUrl.collectAsState()
+    val isCustom by viewModel.isUsingCustomServer.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = context.getString(R.string.server_settings),
+            style = MiuixTheme.textStyles.body1,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        ArrowPreference(
+            title = context.getString(R.string.server_address),
+            summary = serverBaseUrl,
+            onClick = { showDialog = true }
+        )
+
+        if (isCustom) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = context.getString(R.string.server_custom_hint),
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceSecondary
+            )
+        }
+    }
+
+    ServerConfigDialog(
+        show = showDialog,
+        viewModel = viewModel,
+        context = context,
+        currentUrl = serverBaseUrl,
+        onDismiss = { showDialog = false }
+    )
+}
+
+@Composable
+fun ServerConfigDialog(
+    show: Boolean,
+    viewModel: SettingsViewModel,
+    context: Context,
+    currentUrl: String,
+    onDismiss: () -> Unit
+) {
+    var input by remember(show, currentUrl) { mutableStateOf(currentUrl) }
+    val testState by viewModel.serverTestState.collectAsState()
+
+    WindowDialog(
+        show = show,
+        title = context.getString(R.string.server_address),
+        onDismissRequest = {
+            viewModel.clearServerTestState()
+            onDismiss()
+        }
+    ) {
+        Column {
+            Text(
+                text = context.getString(R.string.server_address_hint),
+                style = MiuixTheme.textStyles.body2,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            TextField(
+                value = input,
+                onValueChange = {
+                    input = it
+                    if (testState !is ServerTestUiState.Idle) viewModel.clearServerTestState()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = context.getString(R.string.server_address_hint),
+                useLabelAsPlaceholder = true,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = { viewModel.testServerConnection(input) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = testState !is ServerTestUiState.Testing && input.isNotBlank(),
+                colors = ButtonDefaults.buttonColorsPrimary()
+            ) {
+                if (testState is ServerTestUiState.Testing) {
+                    ExpressiveLoadingIndicator(containerVisible = false)
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(text = context.getString(R.string.server_test_connection))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when (val state = testState) {
+                is ServerTestUiState.Reachable -> Text(
+                    text = context.getString(R.string.server_test_reachable, state.latencyMs),
+                    color = MiuixTheme.colorScheme.primary,
+                    style = MiuixTheme.textStyles.body2
+                )
+                is ServerTestUiState.Failed -> Text(
+                    text = state.message,
+                    color = MiuixTheme.colorScheme.error,
+                    style = MiuixTheme.textStyles.body2
+                )
+                else -> {}
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    text = context.getString(R.string.server_reset_default),
+                    onClick = {
+                        viewModel.resetServerUrl()
+                        viewModel.clearServerTestState()
+                        onDismiss()
+                    }
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularIconButton(
+                        onClick = {
+                            viewModel.clearServerTestState()
+                            onDismiss()
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = context.getString(R.string.cancel),
+                            tint = MiuixTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    CircularIconButton(
+                        onClick = {
+                            if (viewModel.saveServerUrl(input)) {
+                                viewModel.clearServerTestState()
+                                onDismiss()
+                            }
+                        },
+                        enabled = input.isNotBlank()
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = context.getString(R.string.save),
+                            tint = MiuixTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

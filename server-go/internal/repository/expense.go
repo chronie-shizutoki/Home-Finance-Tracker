@@ -197,11 +197,10 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 	serverChanges := make([]models.Expense, 0)
 	conflicts := make([]gin.H, 0)
 
-	// If client provided localIDs, return records missing from client
+	// If client provided localIDs, return records missing from client, plus
+	// any soft-deleted tombstones for records the client already holds.
 	if len(localIDs) > 0 {
-		// Get all server record IDs (active records only; soft-deleted
-		// tombstones must not be re-pushed to clients, otherwise a delete
-		// that was already synced would be resurrected on the device).
+		// Active server record IDs, used to compute records missing on client.
 		var allServerRecords []models.Expense
 		if err := r.db.Model(&models.Expense{}).Where("deletedAt IS NULL").Select("id").Find(&allServerRecords).Error; err != nil {
 			return nil, nil, fmt.Errorf("failed to get server records: %w", err)
@@ -216,7 +215,7 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 			localIDSet[id] = true
 		}
 
-		// Find records that exist on server but not on client
+		// Records that exist on the server but not on the client.
 		var missingIDs []string
 		for id := range allServerIDs {
 			if !localIDSet[id] {
@@ -225,14 +224,26 @@ func (r *ExpenseRepository) SyncExpenses(lastSyncTime *int64, changes []models.E
 		}
 
 		if len(missingIDs) > 0 {
-			// Only return active records; exclude soft-deleted tombstones.
-			if err := r.db.Where("id IN ?", missingIDs).Where("deletedAt IS NULL").Find(&serverChanges).Error; err != nil {
+			if err := r.db.Where("id IN ?", missingIDs).Find(&serverChanges).Error; err != nil {
 				return nil, nil, fmt.Errorf("failed to get missing records: %w", err)
 			}
 		}
+
+		// Soft-deleted tombstones for records the client already knows about.
+		// Push them so the client can mark those records deleted locally and
+		// surface them in the recycle bin. Re-pushing an already-synced
+		// tombstone is harmless: the device keeps it as a tombstone, so it is
+		// never resurrected. Tombstones for unknown records are skipped
+		// because the client has no local row to affect.
+		var tombstones []models.Expense
+		if err := r.db.Where("deletedAt IS NOT NULL").Where("id IN ?", localIDs).Find(&tombstones).Error; err != nil {
+			return nil, nil, fmt.Errorf("failed to get tombstones: %w", err)
+		}
+		serverChanges = append(serverChanges, tombstones...)
 	} else if lastSyncTime != nil && *lastSyncTime > 0 {
-		// Old behavior: return records updated after lastSyncTime
-		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Where("deletedAt IS NULL").Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
+		// Incremental pull: records changed after lastSyncTime, including
+		// tombstones (a soft-delete bumps updatedAt, so it is returned once).
+		if err := r.db.Where("updatedAt > ?", *lastSyncTime).Order("updatedAt ASC").Find(&serverChanges).Error; err != nil {
 			return nil, nil, fmt.Errorf("failed to get updated records: %w", err)
 		}
 	}

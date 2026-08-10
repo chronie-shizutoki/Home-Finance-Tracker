@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">ブラシサイズ</string>
     <string name="image_editor_load_failed">画像の読み込みに失敗しました</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">サーバー</string>
+    <string name="server_address">サーバーアドレス</string>
+    <string name="server_address_hint">例: http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">カスタムサーバーアドレスを使用中</string>
+    <string name="server_test_connection">接続をテスト</string>
+    <string name="server_test_reachable">接続可能（%d ミリ秒）</string>
+    <string name="server_test_bad_response">サーバーエラー: %d</string>
+    <string name="server_test_unreachable">サーバーに接続できません: %s</string>
+    <string name="server_url_invalid">無効なサーバーアドレス</string>
+    <string name="server_reset_default">デフォルトを使用</string>
+    <string name="recycle_bin">ゴミ箱</string>
+    <string name="recycle_bin_entry_summary">削除した支出を復元または完全に削除</string>
+    <string name="recycle_bin_summary">%d 件 · %d 日後に完全削除</string>
+    <string name="recycle_bin_empty">ゴミ箱は空です</string>
+    <string name="recycle_bin_restore">復元</string>
+    <string name="recycle_bin_deleted">削除済み</string>
+    <string name="recycle_bin_expires_in">%d 日後に自動削除</string>
+    <string name="recycle_bin_permanent_delete_title">完全に削除しますか？</string>
+    <string name="recycle_bin_permanent_delete_message">この項目は完全に削除され、復元できなくなります。</string>
+
 </resources>

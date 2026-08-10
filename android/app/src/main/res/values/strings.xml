@@ -382,6 +382,29 @@
     <string name="server_connection_error_message">Unable to connect to server. Check network connection</string>
     <string name="server_connection_restored">Server connection restored</string>
 
+    <!-- Server Config -->
+    <string name="server_settings">Server</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_address_hint">e.g. http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">Using a custom server address</string>
+    <string name="server_test_connection">Test Connection</string>
+    <string name="server_test_reachable">Reachable (%d ms)</string>
+    <string name="server_test_bad_response">Server responded with error: %d</string>
+    <string name="server_test_unreachable">Cannot reach server: %s</string>
+    <string name="server_url_invalid">Invalid server address</string>
+    <string name="server_reset_default">Use Default</string>
+
+    <!-- Recycle Bin -->
+    <string name="recycle_bin">Recycle Bin</string>
+    <string name="recycle_bin_entry_summary">Restore or permanently delete removed expenses</string>
+    <string name="recycle_bin_summary">%d items · permanently deleted after %d days</string>
+    <string name="recycle_bin_empty">Recycle bin is empty</string>
+    <string name="recycle_bin_restore">Restore</string>
+    <string name="recycle_bin_deleted">Deleted</string>
+    <string name="recycle_bin_expires_in">Auto-deleted in %d days</string>
+    <string name="recycle_bin_permanent_delete_title">Delete permanently?</string>
+    <string name="recycle_bin_permanent_delete_message">This item will be permanently removed and cannot be restored.</string>
+
     <!-- Color Picker -->
     <string name="color_picker_title">Select Theme Color</string>
     <string name="color_picker_search_hint">Search color names...</string>

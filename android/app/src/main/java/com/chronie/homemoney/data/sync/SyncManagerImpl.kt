@@ -86,12 +86,12 @@ class SyncManagerImpl @Inject constructor(
                 expenseDao.upsertExpense(entity)
             }
             
+            // Every uploaded change is now reconciled with the server: mark it
+            // synced. Soft-deleted tombstones are intentionally NOT hard-deleted
+            // here — they must stay in the local DB so the recycle bin keeps
+            // showing them until the 30-day auto-purge removes them.
             for (change in pendingChanges) {
-                if (change.deletedAt != null) {
-                    expenseDao.deleteExpenseById(change.id)
-                } else {
-                    expenseDao.updateExpense(change.copy(isSynced = true))
-                }
+                expenseDao.updateExpense(change.copy(isSynced = true))
             }
             
             setLastSyncTime(syncResponse.syncTime)

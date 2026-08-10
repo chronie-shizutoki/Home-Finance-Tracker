@@ -39,6 +39,7 @@ import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.himanshoe.charty.bar.BarChart
 import com.himanshoe.charty.bar.config.BarChartConfig
 import com.himanshoe.charty.bar.data.BarData
@@ -275,6 +276,7 @@ private fun ChartsContent(
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
     val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
     
     LazyColumn(

@@ -2,10 +2,12 @@ package com.chronie.homemoney.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.chronie.homemoney.data.local.ServerConfigManager
 import com.chronie.homemoney.data.remote.api.*
 import com.chronie.homemoney.data.remote.interceptor.AuthInterceptor
 import com.chronie.homemoney.data.remote.interceptor.ErrorHandlingInterceptor
 import com.chronie.homemoney.data.remote.interceptor.LoggingInterceptor
+import com.chronie.homemoney.data.remote.interceptor.ServerUrlInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -30,14 +32,19 @@ import javax.inject.Singleton
  * Interceptors are chained in a specific order:
  * - ErrorHandlingInterceptor (innermost: catches and wraps network errors)
  * - AuthInterceptor (adds Bearer token)
+ * - ServerUrlInterceptor (retargets the request at the user-configured server)
  * - LoggingInterceptor (outermost: logs full request/response)
+ *
+ * [BASE_URL] is only a placeholder required by Retrofit's builder — the effective address is
+ * resolved per-request by [ServerUrlInterceptor] from [ServerConfigManager], so changing servers
+ * at runtime does not require rebuilding the object graph.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
     // Note: BASE_URL does not include /api/ prefix, as each API interface will add it automatically
-    private const val BASE_URL = "http://192.168.10.9:3010/"
+    private const val BASE_URL = ServerConfigManager.DEFAULT_BASE_URL
     private const val CONNECT_TIMEOUT = 5L
     private const val READ_TIMEOUT = 5L
     private const val WRITE_TIMEOUT = 5L
@@ -76,7 +83,8 @@ object NetworkModule {
     fun provideOkHttpClient(
         authInterceptor: AuthInterceptor,
         loggingInterceptor: LoggingInterceptor,
-        errorHandlingInterceptor: ErrorHandlingInterceptor
+        errorHandlingInterceptor: ErrorHandlingInterceptor,
+        serverUrlInterceptor: ServerUrlInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
@@ -84,6 +92,7 @@ object NetworkModule {
             .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(errorHandlingInterceptor) // Error handling interceptor first to catch any errors
             .addInterceptor(authInterceptor) // Authentication interceptor
+            .addInterceptor(serverUrlInterceptor) // Retarget before logging so logs show the real URL
             .addInterceptor(loggingInterceptor) // Logging interceptor last to log all requests and responses
             .retryOnConnectionFailure(true) // Retry on connection failure
             .build()
@@ -120,7 +129,8 @@ object NetworkModule {
     fun provideHealthCheckOkHttpClient(
         authInterceptor: AuthInterceptor,
         loggingInterceptor: LoggingInterceptor,
-        errorHandlingInterceptor: ErrorHandlingInterceptor
+        errorHandlingInterceptor: ErrorHandlingInterceptor,
+        serverUrlInterceptor: ServerUrlInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(2, TimeUnit.SECONDS) // Health check uses shorter timeouts
@@ -128,6 +138,7 @@ object NetworkModule {
             .writeTimeout(2, TimeUnit.SECONDS)
             .addInterceptor(errorHandlingInterceptor)
             .addInterceptor(authInterceptor)
+            .addInterceptor(serverUrlInterceptor)
             .addInterceptor(loggingInterceptor)
             .retryOnConnectionFailure(false) // Health check does not retry on connection failure
             .build()

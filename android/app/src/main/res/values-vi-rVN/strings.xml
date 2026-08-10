@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">Kích thước bút</string>
     <string name="image_editor_load_failed">Tải ảnh thất bại</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">Máy chủ</string>
+    <string name="server_address">Địa chỉ máy chủ</string>
+    <string name="server_address_hint">ví dụ: http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">Đang dùng địa chỉ máy chủ tùy chỉnh</string>
+    <string name="server_test_connection">Kiểm tra kết nối</string>
+    <string name="server_test_reachable">Có thể kết nối (%d ms)</string>
+    <string name="server_test_bad_response">Máy chủ phản hồi lỗi: %d</string>
+    <string name="server_test_unreachable">Không thể kết nối máy chủ: %s</string>
+    <string name="server_url_invalid">Địa chỉ máy chủ không hợp lệ</string>
+    <string name="server_reset_default">Dùng mặc định</string>
+    <string name="recycle_bin">Thùng rác</string>
+    <string name="recycle_bin_entry_summary">Khôi phục hoặc xóa vĩnh viễn các khoản chi đã xóa</string>
+    <string name="recycle_bin_summary">%d mục · tự động xóa sau %d ngày</string>
+    <string name="recycle_bin_empty">Thùng rác trống</string>
+    <string name="recycle_bin_restore">Khôi phục</string>
+    <string name="recycle_bin_deleted">Đã xóa</string>
+    <string name="recycle_bin_expires_in">Tự động xóa sau %d ngày</string>
+    <string name="recycle_bin_permanent_delete_title">Xóa vĩnh viễn?</string>
+    <string name="recycle_bin_permanent_delete_message">Mục này sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
+
 </resources>

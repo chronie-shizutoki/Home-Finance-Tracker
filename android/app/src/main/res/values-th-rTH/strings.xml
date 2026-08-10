@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">ขนาดแปรง</string>
     <string name="image_editor_load_failed">โหลดรูปภาพล้มเหลว</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">เซิร์ฟเวอร์</string>
+    <string name="server_address">ที่อยู่เซิร์ฟเวอร์</string>
+    <string name="server_address_hint">เช่น http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">กำลังใช้ที่อยู่เซิร์ฟเวอร์แบบกำหนดเอง</string>
+    <string name="server_test_connection">ทดสอบการเชื่อมต่อ</string>
+    <string name="server_test_reachable">เชื่อมต่อได้ (%d มิลลิวินาที)</string>
+    <string name="server_test_bad_response">เซิร์ฟเวอร์ตอบสนองด้วยข้อผิดพลาด: %d</string>
+    <string name="server_test_unreachable">ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: %s</string>
+    <string name="server_url_invalid">ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง</string>
+    <string name="server_reset_default">ใช้ค่าเริ่มต้น</string>
+    <string name="recycle_bin">ถังรีไซเคิล</string>
+    <string name="recycle_bin_entry_summary">กู้คืนหรือลบรายจ่ายที่ถูกลบออกอย่างถาวร</string>
+    <string name="recycle_bin_summary">%d รายการ · ลบอย่างถาวรหลัง %d วัน</string>
+    <string name="recycle_bin_empty">ถังรีไซเคิลว่างเปล่า</string>
+    <string name="recycle_bin_restore">กู้คืน</string>
+    <string name="recycle_bin_deleted">ลบแล้ว</string>
+    <string name="recycle_bin_expires_in">ลบอัตโนมัติใน %d วัน</string>
+    <string name="recycle_bin_permanent_delete_title">ลบอย่างถาวรหรือไม่?</string>
+    <string name="recycle_bin_permanent_delete_message">รายการนี้จะถูกลบออกอย่างถาวรและกู้คืนไม่ได้</string>
+
 </resources>

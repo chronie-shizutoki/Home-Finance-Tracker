@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">笔刷大小</string>
     <string name="image_editor_load_failed">图片加载失败</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">服务器</string>
+    <string name="server_address">服务器地址</string>
+    <string name="server_address_hint">例如 http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">正在使用自定义服务器地址</string>
+    <string name="server_test_connection">测试连接</string>
+    <string name="server_test_reachable">可连接（%d 毫秒）</string>
+    <string name="server_test_bad_response">服务器返回错误：%d</string>
+    <string name="server_test_unreachable">无法连接服务器：%s</string>
+    <string name="server_url_invalid">服务器地址无效</string>
+    <string name="server_reset_default">使用默认</string>
+    <string name="recycle_bin">回收站</string>
+    <string name="recycle_bin_entry_summary">恢复或永久删除已移除的支出</string>
+    <string name="recycle_bin_summary">%d 个项目 · %d 天后永久删除</string>
+    <string name="recycle_bin_empty">回收站为空</string>
+    <string name="recycle_bin_restore">恢复</string>
+    <string name="recycle_bin_deleted">已删除</string>
+    <string name="recycle_bin_expires_in">%d 天后自动删除</string>
+    <string name="recycle_bin_permanent_delete_title">永久删除？</string>
+    <string name="recycle_bin_permanent_delete_message">此项目将被永久移除且无法恢复。</string>
+
 </resources>
