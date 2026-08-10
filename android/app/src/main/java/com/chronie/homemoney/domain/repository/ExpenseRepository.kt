@@ -48,6 +48,21 @@ interface ExpenseRepository {
      * Delete Expense Record
      */
     suspend fun deleteExpense(id: String): Result<Unit>
+
+    /**
+     * Reactive list of soft-deleted expenses currently in the recycle bin.
+     */
+    fun getDeletedExpenses(): Flow<List<Expense>>
+
+    /**
+     * Restore a soft-deleted expense, making it visible and active again.
+     */
+    suspend fun restoreExpense(id: String): Result<Unit>
+
+    /**
+     * Permanently delete a single soft-deleted expense from the recycle bin.
+     */
+    suspend fun permanentDeleteExpense(id: String): Result<Unit>
     
     /**
      * Get Statistics Data

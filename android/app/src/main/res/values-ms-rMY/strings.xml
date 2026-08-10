@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">Saiz Berus</string>
     <string name="image_editor_load_failed">Gagal memuatkan imej</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">Pelayan</string>
+    <string name="server_address">Alamat Pelayan</string>
+    <string name="server_address_hint">cth. http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">Menggunakan alamat pelayan tersuai</string>
+    <string name="server_test_connection">Uji Sambungan</string>
+    <string name="server_test_reachable">Boleh disambung (%d ms)</string>
+    <string name="server_test_bad_response">Pelayan memberi respons ralat: %d</string>
+    <string name="server_test_unreachable">Tidak dapat capai pelayan: %s</string>
+    <string name="server_url_invalid">Alamat pelayan tidak sah</string>
+    <string name="server_reset_default">Guna Lalai</string>
+    <string name="recycle_bin">Tong Sampah</string>
+    <string name="recycle_bin_entry_summary">Pulihkan atau padam secara kekal perbelanjaan yang dibuang</string>
+    <string name="recycle_bin_summary">%d item · dipadam secara kekal selepas %d hari</string>
+    <string name="recycle_bin_empty">Tong sampah kosong</string>
+    <string name="recycle_bin_restore">Pulihkan</string>
+    <string name="recycle_bin_deleted">Dipadam</string>
+    <string name="recycle_bin_expires_in">Dipadam secara automatik dalam %d hari</string>
+    <string name="recycle_bin_permanent_delete_title">Padam secara kekal?</string>
+    <string name="recycle_bin_permanent_delete_message">Item ini akan dibuang secara kekal dan tidak boleh dipulihkan.</string>
+
 </resources>

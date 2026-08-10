@@ -8,6 +8,7 @@ import com.chronie.homemoney.R
 import com.chronie.homemoney.core.common.DeveloperMode
 import com.chronie.homemoney.core.common.Language
 import com.chronie.homemoney.core.common.LanguageManager
+import com.chronie.homemoney.data.local.ServerConfigManager
 import com.chronie.homemoney.data.sync.SyncScheduler
 import com.chronie.homemoney.domain.model.SyncStatus
 import com.chronie.homemoney.domain.sync.DeviceInfo
@@ -56,6 +57,8 @@ class SettingsViewModel @Inject constructor(
     private val logoutUseCase: com.chronie.homemoney.domain.usecase.LogoutUseCase,
     private val memberRepository: com.chronie.homemoney.domain.repository.MemberRepository,
     private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
+    private val serverConfigManager: com.chronie.homemoney.data.local.ServerConfigManager,
+    private val serverConnectionTester: com.chronie.homemoney.service.ServerConnectionTester,
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel(), com.chronie.homemoney.domain.sync.SyncRequestCallback {
 
@@ -142,6 +145,20 @@ class SettingsViewModel @Inject constructor(
 
     // Sync request callback continuation
     private var syncRequestContinuation: kotlin.coroutines.Continuation<Boolean>? = null
+
+    // Server address configuration
+    val serverBaseUrl: StateFlow<String> = serverConfigManager.baseUrl
+
+    val isUsingCustomServer: StateFlow<Boolean> = serverConfigManager.baseUrl
+        .map { it != ServerConfigManager.DEFAULT_BASE_URL }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = serverConfigManager.isUsingCustomServer
+        )
+
+    private val _serverTestState = MutableStateFlow<ServerTestUiState>(ServerTestUiState.Idle)
+    val serverTestState: StateFlow<ServerTestUiState> = _serverTestState.asStateFlow()
 
     init {
         loadSyncInfo()
@@ -448,6 +465,52 @@ class SettingsViewModel @Inject constructor(
         syncManager.getDeviceSyncManager().clearSyncProgress()
     }
 
+    /**
+     * Probes [rawUrl] for reachability and reports the outcome through [serverTestState].
+     */
+    fun testServerConnection(rawUrl: String) {
+        viewModelScope.launch {
+            _serverTestState.value = ServerTestUiState.Testing
+            when (val result = serverConnectionTester.test(rawUrl)) {
+                is com.chronie.homemoney.service.ServerTestResult.Success ->
+                    _serverTestState.value = ServerTestUiState.Reachable(result.latencyMs)
+                is com.chronie.homemoney.service.ServerTestResult.InvalidUrl ->
+                    _serverTestState.value = ServerTestUiState.Failed(context.getString(R.string.server_url_invalid))
+                is com.chronie.homemoney.service.ServerTestResult.BadResponse ->
+                    _serverTestState.value = ServerTestUiState.Failed(context.getString(R.string.server_test_bad_response, result.code))
+                is com.chronie.homemoney.service.ServerTestResult.Unreachable ->
+                    _serverTestState.value = ServerTestUiState.Failed(context.getString(R.string.server_test_unreachable, result.reason))
+            }
+        }
+    }
+
+    /**
+     * Persists [rawUrl] as the active server address.
+     * @return true when the value was accepted and stored.
+     */
+    fun saveServerUrl(rawUrl: String): Boolean {
+        val result = serverConfigManager.setBaseUrl(rawUrl)
+        return if (result.isSuccess) {
+            _serverTestState.value = ServerTestUiState.Idle
+            true
+        } else {
+            val message = result.exceptionOrNull()?.message ?: context.getString(R.string.server_url_invalid)
+            _serverTestState.value = ServerTestUiState.Failed(message)
+            false
+        }
+    }
+
+    /** Restores the compiled-in default address. */
+    fun resetServerUrl() {
+        serverConfigManager.resetToDefault()
+        _serverTestState.value = ServerTestUiState.Idle
+    }
+
+    /** Clears any transient test result so the dialog starts fresh. */
+    fun clearServerTestState() {
+        _serverTestState.value = ServerTestUiState.Idle
+    }
+
     fun setAIApiKey(apiKey: String) {
         viewModelScope.launch {
             val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
@@ -603,4 +666,22 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+}
+
+/**
+ * UI representation of a server reachability probe, driven by [SettingsViewModel.serverTestState].
+ */
+sealed interface ServerTestUiState {
+
+    /** No probe has run yet (or the result was dismissed). */
+    data object Idle : ServerTestUiState
+
+    /** A probe is in flight. */
+    data object Testing : ServerTestUiState
+
+    /** The candidate server answered the health endpoint. [latencyMs] is the round-trip time. */
+    data class Reachable(val latencyMs: Long) : ServerTestUiState
+
+    /** The probe failed; [message] is already localized for display. */
+    data class Failed(val message: String) : ServerTestUiState
 }

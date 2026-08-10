@@ -31,6 +31,7 @@ import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.ui.budget.BudgetCard
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -265,6 +266,7 @@ fun ExpenseListScreen(
                 }
                 else -> {
                     val listState = rememberLazyListState()
+                    RegisterScrollToTop(listState)
                     val groupedExpenses = uiState.groupedExpenses
                     var lastLoadTime by remember { mutableLongStateOf(0L) }
                     

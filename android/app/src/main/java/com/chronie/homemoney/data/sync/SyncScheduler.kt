@@ -7,6 +7,7 @@ import com.chronie.homemoney.core.network.NetworkMonitor
 import com.chronie.homemoney.core.network.NetworkStatus
 import com.chronie.homemoney.domain.sync.SyncManager
 import com.chronie.homemoney.worker.SyncWorker
+import com.chronie.homemoney.worker.TrashCleanupWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +54,9 @@ class SyncScheduler @Inject constructor(
         // Schedule periodic sync tasks
         schedulePeriodicSync()
         
+        // Schedule daily recycle-bin cleanup (auto purge of expired tombstones)
+        scheduleTrashCleanup()
+        
         // Monitor network status changes
         observeNetworkChanges()
     }
@@ -86,6 +90,18 @@ class SyncScheduler @Inject constructor(
         Log.d(TAG, "Periodic sync scheduled")
     }
     
+    /**
+     * Schedule daily recycle-bin cleanup (auto purge of 30-day-old tombstones).
+     */
+    private fun scheduleTrashCleanup() {
+        workManager.enqueueUniquePeriodicWork(
+            TrashCleanupWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            TrashCleanupWorker.periodicRequest()
+        )
+        Log.d(TAG, "Periodic trash cleanup scheduled")
+    }
+
     /**
      * Observe network status changes
      */

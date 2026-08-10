@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,7 +21,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,6 +40,7 @@ import com.chronie.homemoney.ui.settings.OpenSourceLicensesScreen
 import com.chronie.homemoney.ui.sync.LanSyncScreen
 import com.chronie.homemoney.ui.sync.IncomingSyncRequestDialog
 import com.chronie.homemoney.data.sync.SyncRequestBus
+import com.chronie.homemoney.ui.scroll.ScrollToTopRegistry
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
@@ -48,6 +52,7 @@ import com.chronie.homemoney.ui.util.predictiveBackEffect
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.abs
 import java.util.Locale
 import javax.inject.Inject
 
@@ -167,6 +172,50 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         healthCheckService.stop()
+    }
+
+    // --- Tap status bar to scroll to top ---------------------------------------------------
+    // Android exposes no public callback for "tap the status bar", so we watch touch events
+    // in the status-bar band ourselves and forward a confirmed tap to ScrollToTopRegistry.
+    // The gesture is never consumed, so normal touches still reach the UI underneath.
+
+    private var statusBarTapDownX = 0f
+    private var statusBarTapDownY = 0f
+    private var statusBarTapConsumed = false
+
+    /** Max pointer travel (px) that still counts as a tap rather than a drag. */
+    private val statusBarTapSlop = 24f
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                statusBarTapDownX = event.x
+                statusBarTapDownY = event.y
+                statusBarTapConsumed = false
+            }
+            MotionEvent.ACTION_UP -> {
+                if (!statusBarTapConsumed) {
+                    val top = statusBarTapDownY
+                    val statusBarHeight = getStatusBarHeight()
+                    val dy = abs(event.y - statusBarTapDownY)
+                    val dx = abs(event.x - statusBarTapDownX)
+                    if (statusBarHeight > 0 && top < statusBarHeight && dy < statusBarTapSlop && dx < statusBarTapSlop) {
+                        ScrollToTopRegistry.trigger()
+                        statusBarTapConsumed = true
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
+    /** Current status-bar height in px, with a framework-dimension fallback. */
+    private fun getStatusBarHeight(): Int {
+        val insets = ViewCompat.getRootWindowInsets(window.decorView)
+        val fromInsets = insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top
+        if (fromInsets != null && fromInsets > 0) return fromInsets
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
     }
 }
 

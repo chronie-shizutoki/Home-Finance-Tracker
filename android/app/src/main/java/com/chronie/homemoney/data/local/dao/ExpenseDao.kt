@@ -75,6 +75,42 @@ interface ExpenseDao {
     /** Returns all expense IDs (including soft-deleted) for sync diffing. */
     @Query("SELECT id FROM expenses")
     suspend fun getAllIds(): List<String>
+
+    /**
+     * Reactive Flow of all soft-deleted expenses, newest tombstone first.
+     * Drives the Recycle Bin screen.
+     */
+    @Query("SELECT * FROM expenses WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
+    fun getDeletedExpenses(): Flow<List<ExpenseEntity>>
+
+    /**
+     * Restores a soft-deleted expense by clearing its tombstone.
+     *
+     * [updatedAt] is bumped and [isSynced] reset so the restore propagates
+     * to the server on the next sync; otherwise the server keeps the deleted
+     * copy and would re-tombstone the record.
+     */
+    @Query("UPDATE expenses SET deleted_at = NULL, updated_at = :now, is_synced = 0 WHERE id = :id")
+    suspend fun restoreExpense(id: String, now: Long)
+
+    /**
+     * Permanently removes a single soft-deleted expense.
+     * Guarded so only tombstoned rows match — an active record is never wiped
+     * by a stale recycle-bin action.
+     */
+    @Query("DELETE FROM expenses WHERE id = :id AND deleted_at IS NOT NULL")
+    suspend fun permanentDeleteExpense(id: String)
+
+    /**
+     * Permanently removes tombstones whose deletion has aged past [threshold]
+     * (epoch millis) AND that have already been pushed to the server.
+     *
+     * The `is_synced = 1` guard is deliberate: a tombstone that has not yet
+     * reached the server must survive the purge, otherwise its delete would
+     * be lost and the server would re-push the original record (resurrection).
+     */
+    @Query("DELETE FROM expenses WHERE deleted_at IS NOT NULL AND deleted_at < :threshold AND is_synced = 1")
+    suspend fun purgeExpiredTombstones(threshold: Long): Int
     
     /** Inserts or replaces a single expense. */
     @Insert(onConflict = OnConflictStrategy.REPLACE)

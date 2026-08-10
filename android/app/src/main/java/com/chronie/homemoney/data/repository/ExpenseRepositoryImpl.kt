@@ -13,6 +13,7 @@ import com.chronie.homemoney.domain.model.SortOption
 import com.chronie.homemoney.domain.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import java.time.LocalDate
 import java.util.UUID
@@ -257,6 +258,51 @@ class ExpenseRepositoryImpl @Inject constructor(
                 expenseDao.updateExpense(deletedEntity)
             }
             
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Exposes soft-deleted expenses for the Recycle Bin screen.
+     * The DAO query already filters to `deleted_at IS NOT NULL`.
+     */
+    override fun getDeletedExpenses(): Flow<List<Expense>> {
+        return expenseDao.getDeletedExpenses().map { entities ->
+            entities.map { ExpenseMapper.toDomain(it) }
+        }
+    }
+
+    /**
+     * Restores a soft-deleted expense by clearing its tombstone.
+     * Marked unsynced so the restore reaches the server on the next sync.
+     */
+    override suspend fun restoreExpense(id: String): Result<Unit> {
+        return try {
+            expenseDao.restoreExpense(id, System.currentTimeMillis())
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Permanently removes a single soft-deleted expense from the recycle bin.
+     *
+     * The server is asked to hard-delete too (best-effort — network/HTTP errors
+     * are swallowed) so a synced tombstone does not reappear on the next pull.
+     * The local row is always removed regardless of the server outcome.
+     */
+    override suspend fun permanentDeleteExpense(id: String): Result<Unit> {
+        return try {
+            try {
+                expenseApi.hardDeleteExpense(id)
+            } catch (_: Exception) {
+                // Offline or server unreachable — keep the local deletion; it will
+                // reconcile on a later sync attempt.
+            }
+            expenseDao.permanentDeleteExpense(id)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

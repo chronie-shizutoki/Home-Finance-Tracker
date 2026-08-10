@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">Ukuran Kuas</string>
     <string name="image_editor_load_failed">Gagal memuat gambar</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">Server</string>
+    <string name="server_address">Alamat Server</string>
+    <string name="server_address_hint">mis. http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">Menggunakan alamat server kustom</string>
+    <string name="server_test_connection">Uji Koneksi</string>
+    <string name="server_test_reachable">Dapat terhubung (%d ms)</string>
+    <string name="server_test_bad_response">Server merespons error: %d</string>
+    <string name="server_test_unreachable">Tidak dapat menjangkau server: %s</string>
+    <string name="server_url_invalid">Alamat server tidak valid</string>
+    <string name="server_reset_default">Gunakan Default</string>
+    <string name="recycle_bin">Keranjang Sampah</string>
+    <string name="recycle_bin_entry_summary">Pulihkan atau hapus permanen pengeluaran yang dihapus</string>
+    <string name="recycle_bin_summary">%d item · dihapus permanen setelah %d hari</string>
+    <string name="recycle_bin_empty">Keranjang sampah kosong</string>
+    <string name="recycle_bin_restore">Pulihkan</string>
+    <string name="recycle_bin_deleted">Dihapus</string>
+    <string name="recycle_bin_expires_in">Dihapus otomatis dalam %d hari</string>
+    <string name="recycle_bin_permanent_delete_title">Hapus permanen?</string>
+    <string name="recycle_bin_permanent_delete_message">Item ini akan dihapus secara permanen dan tidak dapat dipulihkan.</string>
+
 </resources>

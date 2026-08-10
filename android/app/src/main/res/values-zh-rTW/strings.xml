@@ -520,4 +520,25 @@
     <string name="image_editor_brush_size">筆刷大小</string>
     <string name="image_editor_load_failed">圖片載入失敗</string>
 
+    <!-- Added: server config + recycle bin -->
+    <string name="server_settings">伺服器</string>
+    <string name="server_address">伺服器地址</string>
+    <string name="server_address_hint">例如 http://192.168.1.5:3010</string>
+    <string name="server_custom_hint">正在使用自訂伺服器地址</string>
+    <string name="server_test_connection">測試連線</string>
+    <string name="server_test_reachable">可連線（%d 毫秒）</string>
+    <string name="server_test_bad_response">伺服器回應錯誤：%d</string>
+    <string name="server_test_unreachable">無法連線至伺服器：%s</string>
+    <string name="server_url_invalid">伺服器地址無效</string>
+    <string name="server_reset_default">使用預設</string>
+    <string name="recycle_bin">資源回收筒</string>
+    <string name="recycle_bin_entry_summary">還原或永久刪除已移除的支出</string>
+    <string name="recycle_bin_summary">%d 個項目 · %d 天後永久刪除</string>
+    <string name="recycle_bin_empty">資源回收筒是空的</string>
+    <string name="recycle_bin_restore">還原</string>
+    <string name="recycle_bin_deleted">已刪除</string>
+    <string name="recycle_bin_expires_in">%d 天後自動刪除</string>
+    <string name="recycle_bin_permanent_delete_title">永久刪除？</string>
+    <string name="recycle_bin_permanent_delete_message">此項目將被永久移除且無法復原。</string>
+
 </resources>
