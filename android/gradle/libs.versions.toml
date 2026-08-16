@@ -34,7 +34,7 @@ datastore = "1.2.1"
 room = "2.8.4"
 
 retrofit = "3.0.0"
-okhttp-logging = "5.4.0"
+okhttp-logging = "5.5.0"
 
 paging = "3.5.0"
 
