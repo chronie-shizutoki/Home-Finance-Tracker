@@ -36,7 +36,7 @@ room = "2.8.4"
 retrofit = "3.0.0"
 okhttp-logging = "5.4.0"
 
-paging = "3.5.0"
+paging = "3.5.1"
 
 coil = "3.5.0"
 
