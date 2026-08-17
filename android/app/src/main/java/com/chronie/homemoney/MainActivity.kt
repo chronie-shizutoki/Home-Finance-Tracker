@@ -24,11 +24,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import com.chronie.homemoney.ui.navigation.AppRoute
 import com.chronie.homemoney.core.common.LanguageManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -47,8 +53,6 @@ import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
-import com.chronie.homemoney.ui.theme.MiuixTransitions
-import com.chronie.homemoney.ui.util.predictiveBackEffect
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +74,7 @@ val LocalLanguageManager = staticCompositionLocalOf<LanguageManager> {
  * - Observes the current language from [LanguageManager] and applies it to the
  *   [Configuration] so the entire Compose tree uses the correct locale resources.
  * - Sets [HomeMoneyApp] as the Compose content root, which hosts the
- *   [NavHost] for all screen navigation (welcome, main, settings, charts, etc.).
+ *   [androidx.navigation3.ui.NavDisplay] for all screen navigation (welcome, main, settings, charts, etc.).
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -220,7 +224,7 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Root composable that owns the app-wide [NavHost] and top-level state.
+ * Root composable that owns the app-wide [androidx.navigation3.ui.NavDisplay] and top-level state.
  *
  * Determines the start destination based on login status (welcome vs. main).
  * Manages cross-screen state such as [shouldRefreshExpenses] and [selectedTab].
@@ -235,232 +239,197 @@ fun HomeMoneyApp(
     context: Context,
     checkLoginStatusUseCase: CheckLoginStatusUseCase
 ) {
-    val navController = rememberNavController()
+    val startRoute = remember {
+        if (checkLoginStatusUseCase()) AppRoute.Main else AppRoute.Welcome
+    }
+    val backStack = rememberNavBackStack(startRoute)
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    // Determine initial route
-    val startDestination = remember {
-        val isLoggedIn = checkLoginStatusUseCase()
-        if (isLoggedIn) "main" else "welcome"
-    }
-
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        enterTransition = { MiuixTransitions.enter() },
-        exitTransition = { MiuixTransitions.exit() },
-        popEnterTransition = { MiuixTransitions.popEnter() },
-        popExitTransition = { MiuixTransitions.popExit() }
-    ) {
-        composable("welcome") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                WelcomeScreen(
-                    context = context,
-                    onGetStartedClick = {
-                        navController.navigate("main") {
-                            popUpTo(0) { inclusive = true }
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<AppRoute.Welcome> {
+                Box(Modifier.fillMaxSize()) {
+                    WelcomeScreen(
+                        context = context,
+                        onGetStartedClick = {
+                            backStack.clear()
+                            backStack.add(AppRoute.Main)
                         }
-                    }
-                )
-            }
-        }
-
-        composable("membership") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                MembershipScreen(
-                    context = context,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onLogout = {
-                        navController.navigate("welcome") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
-            }
-        }
-
-        composable("settings") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                SettingsScreen(
-                    context = context,
-                    onNavigateToDatabaseTest = {
-                        navController.navigate("database_test")
-                    },
-                    onNavigateToLanSync = {
-                        navController.navigate("lan_sync")
-                    },
-                    onNavigateToOpenSourceLicenses = {
-                        navController.navigate("open_source_licenses")
-                    },
-                    onLogout = {
-                        // Logout, clear entire navigation stack and return to welcome page
-                        navController.navigate("welcome") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    },
-                    onRequireLogin = {
-                        navController.navigate("welcome") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
-            }
-        }
-
-        composable("lan_sync") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                LanSyncScreen(
-                    context = context,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-        }
-
-        composable("main") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                MainScreen(
-                    context = context,
-                    shouldRefreshExpenses = shouldRefreshExpenses,
-                    onRefreshHandled = { shouldRefreshExpenses = false },
-                    selectedTab = selectedTab,
-                    onTabChange = { selectedTab = it },
-                    onNavigateToDatabaseTest = {
-                        selectedTab = 2
-                        navController.navigate("database_test")
-                    },
-                    onNavigateToAddExpense = {
-                        selectedTab = 0
-                        navController.navigate("add_expense")
-                    },
-                    onNavigateToAIExpense = {
-                        selectedTab = 0
-                        navController.navigate("ai_expense")
-                    },
-                    onNavigateToEditExpense = { expenseId ->
-                        selectedTab = 0
-                        navController.navigate(
-                            route = "add_expense?expenseId=$expenseId"
-                        )
-                    },
-                    onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
-                        selectedTab = 1
-                        navController.navigate(
-                            route = "weekday_detail?dayOfWeek=$dayOfWeek&amount=$amount&count=$count&percentage=$percentage&startDate=$startDate&endDate=$endDate"
-                        )
-                    },
-                    onNavigateToLanSync = {
-                        selectedTab = 2
-                        navController.navigate("lan_sync")
-                    },
-                    onNavigateToOpenSourceLicenses = {
-                        selectedTab = 2
-                        navController.navigate("open_source_licenses")
-                    },
-                    onRequireLogin = {
-                        // Logout, clear entire navigation stack and return to welcome page
-                        navController.navigate("welcome") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
-            }
-        }
-
-        composable(
-            "add_expense?expenseId={expenseId}",
-            arguments = listOf(
-                navArgument("expenseId") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
+                    )
                 }
-            )
-        ) { backStackEntry ->
-            val expenseId = backStackEntry.arguments?.getString("expenseId")
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                AddExpenseScreen(
-                    context = context,
-                    expenseId = expenseId,
-                    onNavigateBack = {
-                        shouldRefreshExpenses = true
-                        navController.popBackStack()
-                    }
-                )
             }
-        }
 
-        composable("ai_expense") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                AIExpenseScreen(
-                    context = context,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onRecordsSaved = {
-                        shouldRefreshExpenses = true
-                        navController.popBackStack()
-                    }
-                )
+            entry<AppRoute.Membership> {
+                Box(Modifier.fillMaxSize()) {
+                    MembershipScreen(
+                        context = context,
+                        onNavigateBack = { backStack.removeLastOrNull() },
+                        onLogout = {
+                            backStack.clear()
+                            backStack.add(AppRoute.Welcome)
+                        }
+                    )
+                }
             }
-        }
 
-        composable("database_test") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                DatabaseTestScreen(
-                    context = context,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    }
-                )
+            entry<AppRoute.Settings> {
+                Box(Modifier.fillMaxSize()) {
+                    SettingsScreen(
+                        context = context,
+                        onNavigateToDatabaseTest = { backStack.add(AppRoute.DatabaseTest) },
+                        onNavigateToLanSync = { backStack.add(AppRoute.LanSync) },
+                        onNavigateToOpenSourceLicenses = { backStack.add(AppRoute.OpenSourceLicenses) },
+                        onLogout = {
+                            backStack.clear()
+                            backStack.add(AppRoute.Welcome)
+                        },
+                        onRequireLogin = {
+                            backStack.clear()
+                            backStack.add(AppRoute.Welcome)
+                        }
+                    )
+                }
             }
-        }
 
-        composable("open_source_licenses") {
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                OpenSourceLicensesScreen(
-                    context = context,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    }
-                )
+            entry<AppRoute.LanSync> {
+                Box(Modifier.fillMaxSize()) {
+                    LanSyncScreen(
+                        context = context,
+                        onNavigateBack = { backStack.removeLastOrNull() }
+                    )
+                }
             }
-        }
 
-        composable(
-            "weekday_detail?dayOfWeek={dayOfWeek}&amount={amount}&count={count}&percentage={percentage}&startDate={startDate}&endDate={endDate}",
-            arguments = listOf(
-                navArgument("dayOfWeek") { type = NavType.IntType },
-                navArgument("amount") { type = NavType.FloatType },
-                navArgument("count") { type = NavType.IntType },
-                navArgument("percentage") { type = NavType.FloatType },
-                navArgument("startDate") { type = NavType.StringType },
-                navArgument("endDate") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val dayOfWeek = backStackEntry.arguments?.getInt("dayOfWeek") ?: 0
-            val amount = backStackEntry.arguments?.getFloat("amount")?.toDouble() ?: 0.0
-            val count = backStackEntry.arguments?.getInt("count") ?: 0
-            val percentage = backStackEntry.arguments?.getFloat("percentage") ?: 0f
-
-            Box(Modifier.fillMaxSize().predictiveBackEffect(this)) {
-                com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
-                    context = context,
-                    dayOfWeek = dayOfWeek,
-                    amount = amount,
-                    count = count,
-                    percentage = percentage,
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    }
-                )
+            entry<AppRoute.Main> {
+                Box(Modifier.fillMaxSize()) {
+                    MainScreen(
+                        context = context,
+                        shouldRefreshExpenses = shouldRefreshExpenses,
+                        onRefreshHandled = { shouldRefreshExpenses = false },
+                        selectedTab = selectedTab,
+                        onTabChange = { selectedTab = it },
+                        onNavigateToDatabaseTest = {
+                            selectedTab = 2
+                            backStack.add(AppRoute.DatabaseTest)
+                        },
+                        onNavigateToAddExpense = {
+                            selectedTab = 0
+                            backStack.add(AppRoute.AddExpense())
+                        },
+                        onNavigateToAIExpense = {
+                            selectedTab = 0
+                            backStack.add(AppRoute.AIExpense)
+                        },
+                        onNavigateToEditExpense = { expenseId ->
+                            selectedTab = 0
+                            backStack.add(AppRoute.AddExpense(expenseId))
+                        },
+                        onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
+                            selectedTab = 1
+                            backStack.add(
+                                AppRoute.WeekdayDetail(
+                                    dayOfWeek = dayOfWeek,
+                                    amount = amount,
+                                    count = count,
+                                    percentage = percentage,
+                                    startDate = startDate,
+                                    endDate = endDate
+                                )
+                            )
+                        },
+                        onNavigateToLanSync = {
+                            selectedTab = 2
+                            backStack.add(AppRoute.LanSync)
+                        },
+                        onNavigateToOpenSourceLicenses = {
+                            selectedTab = 2
+                            backStack.add(AppRoute.OpenSourceLicenses)
+                        },
+                        onRequireLogin = {
+                            backStack.clear()
+                            backStack.add(AppRoute.Welcome)
+                        }
+                    )
+                }
             }
+
+            entry<AppRoute.AddExpense> { key ->
+                Box(Modifier.fillMaxSize()) {
+                    AddExpenseScreen(
+                        context = context,
+                        expenseId = key.expenseId,
+                        onNavigateBack = {
+                            shouldRefreshExpenses = true
+                            backStack.removeLastOrNull()
+                        }
+                    )
+                }
+            }
+
+            entry<AppRoute.AIExpense> {
+                Box(Modifier.fillMaxSize()) {
+                    AIExpenseScreen(
+                        context = context,
+                        onNavigateBack = { backStack.removeLastOrNull() },
+                        onRecordsSaved = {
+                            shouldRefreshExpenses = true
+                            backStack.removeLastOrNull()
+                        }
+                    )
+                }
+            }
+
+            entry<AppRoute.DatabaseTest> {
+                Box(Modifier.fillMaxSize()) {
+                    DatabaseTestScreen(
+                        context = context,
+                        onNavigateBack = { backStack.removeLastOrNull() }
+                    )
+                }
+            }
+
+            entry<AppRoute.OpenSourceLicenses> {
+                Box(Modifier.fillMaxSize()) {
+                    OpenSourceLicensesScreen(
+                        context = context,
+                        onNavigateBack = { backStack.removeLastOrNull() }
+                    )
+                }
+            }
+
+            entry<AppRoute.WeekdayDetail> { key ->
+                Box(Modifier.fillMaxSize()) {
+                    com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
+                        context = context,
+                        dayOfWeek = key.dayOfWeek,
+                        amount = key.amount,
+                        count = key.count,
+                        percentage = key.percentage,
+                        onNavigateBack = { backStack.removeLastOrNull() }
+                    )
+                }
+            }
+        },
+        transitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
+        },
+        popTransitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+        },
+        predictivePopTransitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
         }
-    }
+    )
 
     // App-wide incoming LAN sync confirmation.
     // The responder runs on a native worker thread and, when no screen-bound callback is
