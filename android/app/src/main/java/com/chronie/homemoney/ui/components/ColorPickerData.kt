@@ -16,8 +16,8 @@ data class ColorOption(
 ) {
     /** Returns true if this represents the default (system) color. */
     val isDefault: Boolean get() = value == 0
-    /** Resolves the ARGB value to a [Color]; uses #2E5FA1 for the default entry. */
-    val color: Color get() = if (isDefault) Color(0xFF2E5FA1) else Color(value.toLong() and 0xFFFFFFFFL)
+    /** Resolves the ARGB value to a [Color]; uses #4E84F7 for the default entry. */
+    val color: Color get() = if (isDefault) Color(0xFF4E84F7) else Color(value.toLong() and 0xFFFFFFFFL)
 }
 
 /**
