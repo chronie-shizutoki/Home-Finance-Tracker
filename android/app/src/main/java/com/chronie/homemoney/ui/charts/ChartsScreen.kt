@@ -468,7 +468,7 @@ private fun HighQualityLineChart(
         )
     }
     
-    Box(modifier = modifier.padding(start = 24.dp, end = 8.dp)) {
+    Box(modifier = modifier.padding(start = 8.dp, end = 8.dp)) {
         LineChart(
             data = { lineData },
             modifier = Modifier.fillMaxSize(),
@@ -480,8 +480,8 @@ private fun HighQualityLineChart(
                 smoothCurve = true
             ),
             scaffoldConfig = ChartScaffoldConfig(
-                gridColor = MiuixTheme.colorScheme.dividerLine,
-                axisColor = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                gridColor = ChartyColor.Solid(MiuixTheme.colorScheme.dividerLine),
+                axisColor = ChartyColor.Solid(MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
                 labelTextStyle = MiuixTheme.textStyles.footnote1.copy(color = MiuixTheme.colorScheme.onSurface)
             )
         )

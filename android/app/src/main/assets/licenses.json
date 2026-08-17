@@ -8,7 +8,7 @@
   {
     "group": "androidx.appcompat",
     "name": "appcompat",
-    "version": "1.7.1",
+    "version": "1.8.0",
     "fullName": "androidx.appcompat:appcompat"
   },
   {
@@ -20,37 +20,37 @@
   {
     "group": "androidx.compose.ui",
     "name": "ui",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "fullName": "androidx.compose.ui:ui"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-graphics",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "fullName": "androidx.compose.ui:ui-graphics"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-test-manifest",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "fullName": "androidx.compose.ui:ui-test-manifest"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-tooling",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "fullName": "androidx.compose.ui:ui-tooling"
   },
   {
     "group": "androidx.compose.ui",
     "name": "ui-tooling-preview",
-    "version": "1.11.4",
+    "version": "1.12.0",
     "fullName": "androidx.compose.ui:ui-tooling-preview"
   },
   {
     "group": "androidx.compose",
     "name": "compose-bom",
-    "version": "2026.06.01",
+    "version": "2026.08.00",
     "fullName": "androidx.compose:compose-bom"
   },
   {
@@ -110,13 +110,13 @@
   {
     "group": "androidx.paging",
     "name": "paging-compose",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "fullName": "androidx.paging:paging-compose"
   },
   {
     "group": "androidx.paging",
     "name": "paging-runtime-ktx",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "fullName": "androidx.paging:paging-runtime-ktx"
   },
   {
@@ -206,13 +206,13 @@
   {
     "group": "com.himanshoe",
     "name": "charty",
-    "version": "3.0.0-rc01",
+    "version": "3.1.0",
     "fullName": "com.himanshoe:charty"
   },
   {
     "group": "com.squareup.okhttp3",
     "name": "logging-interceptor",
-    "version": "5.4.0",
+    "version": "5.5.0",
     "fullName": "com.squareup.okhttp3:logging-interceptor"
   },
   {
