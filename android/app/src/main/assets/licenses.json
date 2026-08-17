@@ -332,19 +332,19 @@
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-blur-android",
-    "version": "0.9.3",
+    "version": "0.9.4-rc01",
     "fullName": "top.yukonga.miuix.kmp:miuix-blur-android"
   },
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-preference-android",
-    "version": "0.9.3",
+    "version": "0.9.4-rc01",
     "fullName": "top.yukonga.miuix.kmp:miuix-preference-android"
   },
   {
     "group": "top.yukonga.miuix.kmp",
     "name": "miuix-ui-android",
-    "version": "0.9.3",
+    "version": "0.9.4-rc01",
     "fullName": "top.yukonga.miuix.kmp:miuix-ui-android"
   }
 ]
