@@ -8,7 +8,18 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import kotlinx.serialization.Serializable
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,9 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.components.*
@@ -41,8 +49,6 @@ import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.recyclebin.RecycleBinScreen
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
-import com.chronie.homemoney.ui.theme.MiuixTransitions
-import com.chronie.homemoney.ui.util.predictiveBackEffect
 import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
@@ -65,12 +71,13 @@ import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 
-enum class SettingsPage {
+@Serializable
+enum class SettingsPage : NavKey {
     MAIN, ACCOUNT, APPEARANCE, FEATURES, DATA_SYNC, ABOUT, RECYCLE_BIN
 }
 
 /**
- * The top-level settings hub that delegates to sub-pages via an internal [NavHost].
+ * The top-level settings hub that delegates to sub-pages via an internal [androidx.navigation3.ui.NavDisplay].
  *
  * Connects to [SettingsViewModel] and renders the following sections:
  * - **Main** — profile card, theme, features, sync, and about entry points.
@@ -99,107 +106,103 @@ fun SettingsScreen(
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {}
 ) {
-    val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = SettingsPage.MAIN.name,
+    val backStack = rememberNavBackStack(SettingsPage.MAIN)
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
         modifier = Modifier.fillMaxSize(),
-        enterTransition = { MiuixTransitions.enter() },
-        exitTransition = { MiuixTransitions.exit() },
-        popEnterTransition = { MiuixTransitions.popEnter() },
-        popExitTransition = { MiuixTransitions.popExit() }
-    ) {
-        composable(SettingsPage.MAIN.name) {
-            MainSettingsPage(
-                viewModel = viewModel,
-                context = context,
-                onNavigate = { navController.navigate(it.name) }
-            )
-        }
-        composable(SettingsPage.ACCOUNT.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.auth_account_info),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                AccountSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onLogout = onLogout,
-                    onRequireLogin = onRequireLogin,
-                    paddingValues = paddingValues
-                )
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<SettingsPage> { key ->
+                when (key) {
+                    SettingsPage.MAIN -> MainSettingsPage(
+                        viewModel = viewModel,
+                        context = context,
+                        onNavigate = { backStack.add(it) }
+                    )
+                    SettingsPage.ACCOUNT -> SettingsSubPage(
+                        title = context.getString(R.string.auth_account_info),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        AccountSettingsPage(
+                            viewModel = viewModel,
+                            context = context,
+                            onLogout = onLogout,
+                            onRequireLogin = onRequireLogin,
+                            paddingValues = paddingValues
+                        )
+                    }
+                    SettingsPage.APPEARANCE -> SettingsSubPage(
+                        title = context.getString(R.string.theme_settings),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        AppearanceSettingsPage(
+                            viewModel = viewModel,
+                            context = context,
+                            paddingValues = paddingValues
+                        )
+                    }
+                    SettingsPage.FEATURES -> SettingsSubPage(
+                        title = context.getString(R.string.budget_settings),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        FeaturesSettingsPage(
+                            viewModel = viewModel,
+                            context = context,
+                            paddingValues = paddingValues
+                        )
+                    }
+                    SettingsPage.DATA_SYNC -> SettingsSubPage(
+                        title = context.getString(R.string.sync_title),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        DataSyncSettingsPage(
+                            viewModel = viewModel,
+                            context = context,
+                            onNavigateToLanSync = onNavigateToLanSync,
+                            paddingValues = paddingValues
+                        )
+                    }
+                    SettingsPage.ABOUT -> SettingsSubPage(
+                        title = context.getString(R.string.common_more_functions),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        AboutSettingsPage(
+                            viewModel = viewModel,
+                            context = context,
+                            onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
+                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                            paddingValues = paddingValues
+                        )
+                    }
+                    SettingsPage.RECYCLE_BIN -> SettingsSubPage(
+                        title = context.getString(R.string.recycle_bin),
+                        onBack = { backStack.removeLastOrNull() }
+                    ) { paddingValues ->
+                        RecycleBinScreen(
+                            context = context,
+                            paddingValues = paddingValues
+                        )
+                    }
+                }
             }
+        },
+        transitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
+        },
+        popTransitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+        },
+        predictivePopTransitionSpec = {
+            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
         }
-        composable(SettingsPage.APPEARANCE.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.theme_settings),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                AppearanceSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    paddingValues = paddingValues
-                )
-            }
-        }
-        composable(SettingsPage.FEATURES.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.budget_settings),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                FeaturesSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    paddingValues = paddingValues
-                )
-            }
-        }
-        composable(SettingsPage.DATA_SYNC.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.sync_title),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                DataSyncSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigateToLanSync = onNavigateToLanSync,
-                    paddingValues = paddingValues
-                )
-            }
-        }
-        composable(SettingsPage.ABOUT.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.common_more_functions),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                AboutSettingsPage(
-                    viewModel = viewModel,
-                    context = context,
-                    onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
-                    onNavigateToDatabaseTest = onNavigateToDatabaseTest,
-                    paddingValues = paddingValues
-                )
-            }
-        }
-        composable(SettingsPage.RECYCLE_BIN.name) {
-            SettingsSubPage(
-                title = context.getString(R.string.recycle_bin),
-                onBack = { navController.popBackStack() },
-                scope = this
-            ) { paddingValues ->
-                RecycleBinScreen(
-                    context = context,
-                    paddingValues = paddingValues
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable
@@ -437,14 +440,12 @@ private fun MainSettingsPage(
  *
  * @param title text shown both as the large heading and the collapsed bar title.
  * @param onBack invoked when the navigation icon is tapped.
- * @param scope the [AnimatedContentScope] used to drive the predictive-back transform.
  * @param content the page body; receives the [PaddingValues] reported by the [Scaffold].
  */
 @Composable
 private fun SettingsSubPage(
     title: String,
     onBack: () -> Unit,
-    scope: AnimatedContentScope,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val scrollBehavior = MiuixScrollBehavior()
@@ -476,7 +477,6 @@ private fun SettingsSubPage(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
-                    .predictiveBackEffect(scope)
             ) {
                 content(paddingValues)
             }

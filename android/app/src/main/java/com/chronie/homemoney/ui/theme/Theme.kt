@@ -2,9 +2,6 @@ package com.chronie.homemoney.ui.theme
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.animation.*
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -140,16 +137,6 @@ private fun m3colorToMiuix(keyColor: Color, isDark: Boolean, style: PaletteStyle
         outline = scheme.outline.toColor(),
         dividerLine = scheme.outlineVariant.toColor(),
     )
-}
-
-// ── Horizontal slide transitions ──
-
-object MiuixTransitions {
-    private const val DURATION = 320
-    fun enter() = slideInHorizontally(tween(DURATION, easing = FastOutSlowInEasing)) { it }
-    fun exit() = slideOutHorizontally(tween(DURATION, easing = FastOutSlowInEasing)) { -it }
-    fun popEnter() = slideInHorizontally(tween(DURATION, easing = FastOutSlowInEasing)) { -it / 4 }
-    fun popExit() = slideOutHorizontally(tween(DURATION, easing = FastOutSlowInEasing)) { it }
 }
 
 // ── Theme ──
