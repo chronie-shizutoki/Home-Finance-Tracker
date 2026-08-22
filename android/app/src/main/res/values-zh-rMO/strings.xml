@@ -349,6 +349,7 @@
     <string name="membership_title">帳戶</string>
     <string name="auth_logged_in">已登入</string>
     <string name="auth_skip_login">跳過</string>
+    <string name="welcome_server_config_entry">自訂伺服器</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">伺服器連線監察</string>
     <string name="health_check_channel_description">監察伺服器連線狀態</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">使用預設</string>
     <string name="recycle_bin">資源回收筒</string>
     <string name="recycle_bin_entry_summary">還原或永久刪除已移除的支出</string>
-    <string name="recycle_bin_summary">%d 個項目 · %d 天後永久刪除</string>
+    <string name="recycle_bin_summary">%1$d 個項目 · %2$d 天後永久刪除</string>
     <string name="recycle_bin_empty">資源回收筒是空的</string>
     <string name="recycle_bin_restore">還原</string>
     <string name="recycle_bin_deleted">已刪除</string>

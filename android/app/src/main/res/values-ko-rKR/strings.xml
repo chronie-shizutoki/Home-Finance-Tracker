@@ -349,6 +349,7 @@
     <string name="membership_title">계정</string>
     <string name="auth_logged_in">로그인됨</string>
     <string name="auth_skip_login">건너뛰기</string>
+    <string name="welcome_server_config_entry">사용자 지정 서버</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">서버 연결 상태</string>
     <string name="health_check_channel_description">서버 연결 모니터링</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">기본값 사용</string>
     <string name="recycle_bin">휴지통</string>
     <string name="recycle_bin_entry_summary">삭제된 지출 내역 복원 또는 영구 삭제</string>
-    <string name="recycle_bin_summary">항목 %d개 · %d일 후 영구 삭제</string>
+    <string name="recycle_bin_summary">항목 %1$d개 · %2$d일 후 영구 삭제</string>
     <string name="recycle_bin_empty">휴지통이 비어 있습니다</string>
     <string name="recycle_bin_restore">복원</string>
     <string name="recycle_bin_deleted">삭제됨</string>

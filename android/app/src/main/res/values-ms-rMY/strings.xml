@@ -349,6 +349,7 @@
     <string name="membership_title">Akaun</string>
     <string name="auth_logged_in">Telah log masuk</string>
     <string name="auth_skip_login">Langkau</string>
+    <string name="welcome_server_config_entry">Server Tersuai</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">Status Sambungan Pelayan</string>
     <string name="health_check_channel_description">Memantau sambungan pelayan</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">Guna Lalai</string>
     <string name="recycle_bin">Tong Sampah</string>
     <string name="recycle_bin_entry_summary">Pulihkan atau padam secara kekal perbelanjaan yang dibuang</string>
-    <string name="recycle_bin_summary">%d item · dipadam secara kekal selepas %d hari</string>
+    <string name="recycle_bin_summary">%1$d item · dipadam secara kekal selepas %2$d hari</string>
     <string name="recycle_bin_empty">Tong sampah kosong</string>
     <string name="recycle_bin_restore">Pulihkan</string>
     <string name="recycle_bin_deleted">Dipadam</string>

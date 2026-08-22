@@ -349,6 +349,7 @@
     <string name="membership_title">账号</string>
     <string name="auth_logged_in">已登录</string>
     <string name="auth_skip_login">跳过</string>
+    <string name="welcome_server_config_entry">自定义服务器</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">服务器连接状态</string>
     <string name="health_check_channel_description">监控服务器连接</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">使用默认</string>
     <string name="recycle_bin">回收站</string>
     <string name="recycle_bin_entry_summary">恢复或永久删除已移除的支出</string>
-    <string name="recycle_bin_summary">%d 个项目 · %d 天后永久删除</string>
+    <string name="recycle_bin_summary">%1$d 个项目 · %2$d 天后永久删除</string>
     <string name="recycle_bin_empty">回收站为空</string>
     <string name="recycle_bin_restore">恢复</string>
     <string name="recycle_bin_deleted">已删除</string>

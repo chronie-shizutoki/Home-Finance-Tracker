@@ -372,6 +372,7 @@
     <string name="membership_title">Account</string>
     <string name="auth_logged_in">Logged in</string>
     <string name="auth_skip_login">Skip</string>
+    <string name="welcome_server_config_entry">Custom Server</string>
 
     <!-- Health Check -->
     <string name="health_check_channel_name">Server Connection Monitor</string>
@@ -397,7 +398,7 @@
     <!-- Recycle Bin -->
     <string name="recycle_bin">Recycle Bin</string>
     <string name="recycle_bin_entry_summary">Restore or permanently delete removed expenses</string>
-    <string name="recycle_bin_summary">%d items · permanently deleted after %d days</string>
+    <string name="recycle_bin_summary">%1$d items · permanently deleted after %2$d days</string>
     <string name="recycle_bin_empty">Recycle bin is empty</string>
     <string name="recycle_bin_restore">Restore</string>
     <string name="recycle_bin_deleted">Deleted</string>
