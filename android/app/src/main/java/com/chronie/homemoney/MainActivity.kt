@@ -5,12 +5,22 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.ViewConfiguration
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -20,16 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -92,6 +99,129 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var healthCheckService: HealthCheckService
 
+    // ========================================================================
+    // TAP-THE-TOP-TO-SCROLL (Activity-level dispatchTouchEvent implementation)
+    // ========================================================================
+    //
+    // IMPORTANT – Android system limitation:
+    //   The REAL status-bar pixel row (time, signal, battery icons) is owned
+    //   by the SystemUI window that sits ABOVE our app window. NO Android app
+    //   can ever receive touches there – it is a hard OS-level wall.
+    //
+    //   As a UX substitute we detect taps on the ENTIRE top chrome of the app
+    //   (status-bar visual band + the TopAppBar underneath). That covers the
+    //   user's muscle memory: "tap anywhere near the top to go back up".
+    //
+    // Detection band size (chosen empirically after debug measurements):
+    //   The user's typical tap on a 2400px-tall screen lands at rawY ≈ 514 in
+    //   the TopAppBar-title area. With 20% (= 480px) that was just OUTSIDE the
+    //   band (inBand=false), so we use 28% + 80px safety margin. That gives
+    //   ≈ 750px on a 2400px screen, comfortably covering:
+    //       status bar visual band + large-title TopAppBar + budget-card header.
+    //
+    // Debug flags (disable for release):
+    private val showDebugToasts       = false // confirmed-tap feedback
+    private val showForceAllTouches   = false // EVERY touch diagnostic (VERY noisy)
+
+    // ---- Gesture state ----
+    private var tapTrackingActive = false
+    private var tapDownX        = 0f
+    private var tapDownY        = 0f
+    private var touchSlopPx     = 0
+    private var detectionBandPx = 0   // pixels; top N rows of the screen
+
+    private fun refreshTapBand() {
+        val dm = resources.displayMetrics
+        // 28% of screen height + 80px absolute margin.
+        // On a 2400px FHD+ phone this equals ≈ 752 px (≈ 210 dp).
+        // Minimum 500 px so small / landscape / foldable states don't collapse.
+        detectionBandPx = ((dm.heightPixels * 0.28f).toInt() + 80).coerceAtLeast(500)
+        touchSlopPx     = ViewConfiguration.get(this).scaledTouchSlop
+        android.util.Log.d(
+            "StatusBarTap",
+            "band=$detectionBandPx (28% of ${dm.heightPixels} + 80), slop=$touchSlopPx"
+        )
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) refreshTapBand()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        // Refresh immediately on the very first touch of a session if needed.
+        // onWindowFocusChanged is unreliable on some OEM ROMs (MIUI / ColorOS),
+        // so we treat "first touch ever received" as another fallback sync point.
+        if (detectionBandPx <= 0) refreshTapBand()
+
+        val y     = ev.y        // relative to decorView (our Window's content area)
+        val rawY  = ev.rawY     // absolute screen coordinate
+        val x     = ev.x
+
+        // -------------------- FORCE DIAGNOSTIC ------------------------------
+        // Show a Toast for EVERY ACTION_DOWN so we can prove:
+        //   a) dispatchTouchEvent is actually being called,
+        //   b) what y/rawY values really are vs detectionBandPx,
+        //   c) whether the comparison ever lands inside the band.
+        if (showForceAllTouches && ev.actionMasked == MotionEvent.ACTION_DOWN) {
+            val inBand = (y <= detectionBandPx.toFloat())
+            Toast.makeText(
+                this,
+                "ACTION_DOWN  y=%.0f  rawY=%.0f  band=%d  inBand=%s  screenH=%d"
+                    .format(y, rawY, detectionBandPx, inBand,
+                            resources.displayMetrics.heightPixels),
+                Toast.LENGTH_SHORT
+            ).show()
+            android.util.Log.i(
+                "StatusBarTap",
+                "DOWN y=$y rawY=$rawY band=$detectionBandPx inBand=$inBand"
+            )
+        }
+        // -------------------------------------------------------------------
+
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                tapTrackingActive = (y <= detectionBandPx.toFloat())
+                if (tapTrackingActive) {
+                    tapDownX = x
+                    tapDownY = y
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (tapTrackingActive) {
+                    val dx = abs(x - tapDownX)
+                    val dy = abs(y - tapDownY)
+                    if (dx >= touchSlopPx || dy >= touchSlopPx) {
+                        tapTrackingActive = false
+                    }
+                }
+            }
+            MotionEvent.ACTION_UP -> {
+                if (tapTrackingActive) {
+                    val dx           = abs(x - tapDownX)
+                    val dy           = abs(y - tapDownY)
+                    val tapConfirmed = dx < touchSlopPx && dy < touchSlopPx
+                    if (tapConfirmed) {
+                        val handlerExists = ScrollToTopRegistry.tryTrigger()
+                        if (showDebugToasts) {
+                            val msg = if (handlerExists) {
+                                "✓ 顶部点击 → 已触发回顶"
+                            } else {
+                                "✓ 顶部点击检测到，但当前页面未注册回顶 handler"
+                            }
+                            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    tapTrackingActive = false
+                }
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                tapTrackingActive = false
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
     @SuppressLint("LocalContextConfigurationRead")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,8 +245,11 @@ class MainActivity : ComponentActivity() {
         // Clear splash screen background, set to transparent background
         window.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Edge-to-edge with proper status bar icon colors based on theme
-        // detectDarkMode ensures light mode → dark icons, dark mode → light icons
+        // Edge-to-edge with proper status bar icon colors based on theme.
+        // detectDarkMode ensures light mode → dark icons, dark mode → light icons.
+        // NOTE: enableEdgeToEdge() internally calls setDecorFitsSystemWindows(false),
+        // so we don't need a second call (duplicate calls can confuse the
+        // insets-dispatch pipeline and break coordinate consistency).
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.auto(
                 lightScrim = android.graphics.Color.TRANSPARENT,
@@ -129,10 +262,6 @@ class MainActivity : ComponentActivity() {
                 detectDarkMode = { resources.configuration.isNightModeActive }
             )
         )
-
-        // Override: keep content below the status bar so touch events in the
-        // status bar area reach dispatchTouchEvent (scroll-to-top feature).
-        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         // Start health check service
         healthCheckService.start()
@@ -182,50 +311,6 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         healthCheckService.stop()
     }
-
-    // --- Tap status bar to scroll to top ---------------------------------------------------
-    // Android exposes no public callback for "tap the status bar", so we watch touch events
-    // in the status-bar band ourselves and forward a confirmed tap to ScrollToTopRegistry.
-    // The gesture is never consumed, so normal touches still reach the UI underneath.
-
-    private var statusBarTapDownX = 0f
-    private var statusBarTapDownY = 0f
-    private var statusBarTapConsumed = false
-
-    /** Max pointer travel (px) that still counts as a tap rather than a drag. */
-    private val statusBarTapSlop = 24f
-
-    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                statusBarTapDownX = event.x
-                statusBarTapDownY = event.y
-                statusBarTapConsumed = false
-            }
-            MotionEvent.ACTION_UP -> {
-                if (!statusBarTapConsumed) {
-                    val top = statusBarTapDownY
-                    val statusBarHeight = getStatusBarHeight()
-                    val dy = abs(event.y - statusBarTapDownY)
-                    val dx = abs(event.x - statusBarTapDownX)
-                    if (statusBarHeight > 0 && top < statusBarHeight && dy < statusBarTapSlop && dx < statusBarTapSlop) {
-                        ScrollToTopRegistry.trigger()
-                        statusBarTapConsumed = true
-                    }
-                }
-            }
-        }
-        return super.dispatchTouchEvent(event)
-    }
-
-    /** Current status-bar height in px, with a framework-dimension fallback. */
-    private fun getStatusBarHeight(): Int {
-        val insets = ViewCompat.getRootWindowInsets(window.decorView)
-        val fromInsets = insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top
-        if (fromInsets != null && fromInsets > 0) return fromInsets
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
-    }
 }
 
 /**
@@ -235,6 +320,11 @@ class MainActivity : ComponentActivity() {
  * Manages cross-screen state such as [shouldRefreshExpenses] and [selectedTab].
  * Listens for incoming LAN sync requests via [SyncRequestBus] and shows
  * [IncomingSyncRequestDialog] regardless of which screen is currently displayed.
+ *
+ * NOTE: The "tap status bar to scroll to top" gesture is implemented at the
+ * Activity level in [MainActivity.dispatchTouchEvent], NOT inside Compose. That
+ * avoids the SystemUI-interception and WindowInsets-read-0 pitfalls that made
+ * every Compose-overlay approach unreliable for real devices.
  *
  * @param context the Android [Context] used for navigation callbacks and dialogs.
  * @param checkLoginStatusUseCase use case to determine whether the user is logged in.
@@ -251,203 +341,205 @@ fun HomeMoneyApp(
     var shouldRefreshExpenses by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<AppRoute.Welcome> {
-                Box(Modifier.fillMaxSize()) {
-                    WelcomeScreen(
-                        context = context,
-                        onGetStartedClick = {
-                            backStack.clear()
-                            backStack.add(AppRoute.Main)
-                        }
-                    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<AppRoute.Welcome> {
+                    Box(Modifier.fillMaxSize()) {
+                        WelcomeScreen(
+                            context = context,
+                            onGetStartedClick = {
+                                backStack.clear()
+                                backStack.add(AppRoute.Main)
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.Membership> {
-                Box(Modifier.fillMaxSize()) {
-                    MembershipScreen(
-                        context = context,
-                        onNavigateBack = { backStack.removeLastOrNull() },
-                        onLogout = {
-                            backStack.clear()
-                            backStack.add(AppRoute.Welcome)
-                        }
-                    )
+                entry<AppRoute.Membership> {
+                    Box(Modifier.fillMaxSize()) {
+                        MembershipScreen(
+                            context = context,
+                            onNavigateBack = { backStack.removeLastOrNull() },
+                            onLogout = {
+                                backStack.clear()
+                                backStack.add(AppRoute.Welcome)
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.Settings> {
-                Box(Modifier.fillMaxSize()) {
-                    SettingsScreen(
-                        context = context,
-                        onNavigateToDatabaseTest = { backStack.add(AppRoute.DatabaseTest) },
-                        onNavigateToLanSync = { backStack.add(AppRoute.LanSync) },
-                        onNavigateToOpenSourceLicenses = { backStack.add(AppRoute.OpenSourceLicenses) },
-                        onLogout = {
-                            backStack.clear()
-                            backStack.add(AppRoute.Welcome)
-                        },
-                        onRequireLogin = {
-                            backStack.clear()
-                            backStack.add(AppRoute.Welcome)
-                        }
-                    )
+                entry<AppRoute.Settings> {
+                    Box(Modifier.fillMaxSize()) {
+                        SettingsScreen(
+                            context = context,
+                            onNavigateToDatabaseTest = { backStack.add(AppRoute.DatabaseTest) },
+                            onNavigateToLanSync = { backStack.add(AppRoute.LanSync) },
+                            onNavigateToOpenSourceLicenses = { backStack.add(AppRoute.OpenSourceLicenses) },
+                            onLogout = {
+                                backStack.clear()
+                                backStack.add(AppRoute.Welcome)
+                            },
+                            onRequireLogin = {
+                                backStack.clear()
+                                backStack.add(AppRoute.Welcome)
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.LanSync> {
-                Box(Modifier.fillMaxSize()) {
-                    LanSyncScreen(
-                        context = context,
-                        onNavigateBack = { backStack.removeLastOrNull() }
-                    )
+                entry<AppRoute.LanSync> {
+                    Box(Modifier.fillMaxSize()) {
+                        LanSyncScreen(
+                            context = context,
+                            onNavigateBack = { backStack.removeLastOrNull() }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.Main> {
-                Box(Modifier.fillMaxSize()) {
-                    MainScreen(
-                        context = context,
-                        shouldRefreshExpenses = shouldRefreshExpenses,
-                        onRefreshHandled = { shouldRefreshExpenses = false },
-                        selectedTab = selectedTab,
-                        onTabChange = { selectedTab = it },
-                        onNavigateToDatabaseTest = {
-                            selectedTab = 2
-                            backStack.add(AppRoute.DatabaseTest)
-                        },
-                        onNavigateToAddExpense = {
-                            selectedTab = 0
-                            backStack.add(AppRoute.AddExpense())
-                        },
-                        onNavigateToAIExpense = {
-                            selectedTab = 0
-                            backStack.add(AppRoute.AIExpense)
-                        },
-                        onNavigateToEditExpense = { expenseId ->
-                            selectedTab = 0
-                            backStack.add(AppRoute.AddExpense(expenseId))
-                        },
-                        onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
-                            selectedTab = 1
-                            backStack.add(
-                                AppRoute.WeekdayDetail(
-                                    dayOfWeek = dayOfWeek,
-                                    amount = amount,
-                                    count = count,
-                                    percentage = percentage,
-                                    startDate = startDate,
-                                    endDate = endDate
+                entry<AppRoute.Main> {
+                    Box(Modifier.fillMaxSize()) {
+                        MainScreen(
+                            context = context,
+                            shouldRefreshExpenses = shouldRefreshExpenses,
+                            onRefreshHandled = { shouldRefreshExpenses = false },
+                            selectedTab = selectedTab,
+                            onTabChange = { selectedTab = it },
+                            onNavigateToDatabaseTest = {
+                                selectedTab = 2
+                                backStack.add(AppRoute.DatabaseTest)
+                            },
+                            onNavigateToAddExpense = {
+                                selectedTab = 0
+                                backStack.add(AppRoute.AddExpense())
+                            },
+                            onNavigateToAIExpense = {
+                                selectedTab = 0
+                                backStack.add(AppRoute.AIExpense)
+                            },
+                            onNavigateToEditExpense = { expenseId ->
+                                selectedTab = 0
+                                backStack.add(AppRoute.AddExpense(expenseId))
+                            },
+                            onNavigateToWeekdayDetail = { dayOfWeek, amount, count, percentage, startDate, endDate ->
+                                selectedTab = 1
+                                backStack.add(
+                                    AppRoute.WeekdayDetail(
+                                        dayOfWeek = dayOfWeek,
+                                        amount = amount,
+                                        count = count,
+                                        percentage = percentage,
+                                        startDate = startDate,
+                                        endDate = endDate
+                                    )
                                 )
-                            )
-                        },
-                        onNavigateToLanSync = {
-                            selectedTab = 2
-                            backStack.add(AppRoute.LanSync)
-                        },
-                        onNavigateToOpenSourceLicenses = {
-                            selectedTab = 2
-                            backStack.add(AppRoute.OpenSourceLicenses)
-                        },
-                        onRequireLogin = {
-                            backStack.clear()
-                            backStack.add(AppRoute.Welcome)
-                        }
-                    )
+                            },
+                            onNavigateToLanSync = {
+                                selectedTab = 2
+                                backStack.add(AppRoute.LanSync)
+                            },
+                            onNavigateToOpenSourceLicenses = {
+                                selectedTab = 2
+                                backStack.add(AppRoute.OpenSourceLicenses)
+                            },
+                            onRequireLogin = {
+                                backStack.clear()
+                                backStack.add(AppRoute.Welcome)
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.AddExpense> { key ->
-                Box(Modifier.fillMaxSize()) {
-                    AddExpenseScreen(
-                        context = context,
-                        expenseId = key.expenseId,
-                        onNavigateBack = {
-                            shouldRefreshExpenses = true
-                            backStack.removeLastOrNull()
-                        }
-                    )
+                entry<AppRoute.AddExpense> { key ->
+                    Box(Modifier.fillMaxSize()) {
+                        AddExpenseScreen(
+                            context = context,
+                            expenseId = key.expenseId,
+                            onNavigateBack = {
+                                shouldRefreshExpenses = true
+                                backStack.removeLastOrNull()
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.AIExpense> {
-                Box(Modifier.fillMaxSize()) {
-                    AIExpenseScreen(
-                        context = context,
-                        onNavigateBack = { backStack.removeLastOrNull() },
-                        onRecordsSaved = {
-                            shouldRefreshExpenses = true
-                            backStack.removeLastOrNull()
-                        }
-                    )
+                entry<AppRoute.AIExpense> {
+                    Box(Modifier.fillMaxSize()) {
+                        AIExpenseScreen(
+                            context = context,
+                            onNavigateBack = { backStack.removeLastOrNull() },
+                            onRecordsSaved = {
+                                shouldRefreshExpenses = true
+                                backStack.removeLastOrNull()
+                            }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.DatabaseTest> {
-                Box(Modifier.fillMaxSize()) {
-                    DatabaseTestScreen(
-                        context = context,
-                        onNavigateBack = { backStack.removeLastOrNull() }
-                    )
+                entry<AppRoute.DatabaseTest> {
+                    Box(Modifier.fillMaxSize()) {
+                        DatabaseTestScreen(
+                            context = context,
+                            onNavigateBack = { backStack.removeLastOrNull() }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.OpenSourceLicenses> {
-                Box(Modifier.fillMaxSize()) {
-                    OpenSourceLicensesScreen(
-                        context = context,
-                        onNavigateBack = { backStack.removeLastOrNull() }
-                    )
+                entry<AppRoute.OpenSourceLicenses> {
+                    Box(Modifier.fillMaxSize()) {
+                        OpenSourceLicensesScreen(
+                            context = context,
+                            onNavigateBack = { backStack.removeLastOrNull() }
+                        )
+                    }
                 }
-            }
 
-            entry<AppRoute.WeekdayDetail> { key ->
-                Box(Modifier.fillMaxSize()) {
-                    com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
-                        context = context,
-                        dayOfWeek = key.dayOfWeek,
-                        amount = key.amount,
-                        count = key.count,
-                        percentage = key.percentage,
-                        onNavigateBack = { backStack.removeLastOrNull() }
-                    )
+                entry<AppRoute.WeekdayDetail> { key ->
+                    Box(Modifier.fillMaxSize()) {
+                        com.chronie.homemoney.ui.charts.WeekdayDetailScreen(
+                            context = context,
+                            dayOfWeek = key.dayOfWeek,
+                            amount = key.amount,
+                            count = key.count,
+                            percentage = key.percentage,
+                            onNavigateBack = { backStack.removeLastOrNull() }
+                        )
+                    }
                 }
+            },
+            transitionSpec = {
+                slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
+                    slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
+            },
+            popTransitionSpec = {
+                slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                    slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+            },
+            predictivePopTransitionSpec = {
+                slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                    slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
             }
-        },
-        transitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
-        },
-        popTransitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
-        },
-        predictivePopTransitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
-        }
-    )
-
-    // App-wide incoming LAN sync confirmation.
-    // The responder runs on a native worker thread and, when no screen-bound callback is
-    // installed, posts the request to SyncRequestBus. Observing it here (at the always-mounted
-    // app root) means a sync request arriving on ANY screen still prompts the user instead of
-    // being silently rejected - the original "B does nothing, A shows 100% failed" symptom.
-    val busRequest by SyncRequestBus.request.collectAsState()
-    if (busRequest != null) {
-        IncomingSyncRequestDialog(
-            context = context,
-            requestInfo = busRequest!!,
-            onAccept = { SyncRequestBus.resolve(true) },
-            onReject = { SyncRequestBus.resolve(false) }
         )
+
+        // App-wide incoming LAN sync confirmation.
+        // The responder runs on a native worker thread and, when no screen-bound callback is
+        // installed, posts the request to SyncRequestBus. Observing it here (at the always-mounted
+        // app root) means a sync request arriving on ANY screen still prompts the user instead of
+        // being silently rejected - the original "B does nothing, A shows 100% failed" symptom.
+        val busRequest by SyncRequestBus.request.collectAsState()
+        if (busRequest != null) {
+            IncomingSyncRequestDialog(
+                context = context,
+                requestInfo = busRequest!!,
+                onAccept = { SyncRequestBus.resolve(true) },
+                onReject = { SyncRequestBus.resolve(false) }
+            )
+        }
     }
 }
