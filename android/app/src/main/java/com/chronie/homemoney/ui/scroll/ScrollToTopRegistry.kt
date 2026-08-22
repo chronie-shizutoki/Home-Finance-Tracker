@@ -36,6 +36,18 @@ object ScrollToTopRegistry {
         handlers.lastOrNull()?.invoke()
     }
 
+    /**
+     * Same as [trigger], but returns `true` if a handler actually existed and
+     * was invoked, `false` otherwise. Used by MainActivity's debug Toast so
+     * we can visually tell "tap detected → scrolled" apart from "tap detected
+     * → no handler registered on this screen".
+     */
+    fun tryTrigger(): Boolean {
+        val h = handlers.lastOrNull()
+        h?.invoke()
+        return h != null
+    }
+
     /** Drop every handler — used when the registry is reset (e.g. logout). */
     fun clear() {
         handlers.clear()
