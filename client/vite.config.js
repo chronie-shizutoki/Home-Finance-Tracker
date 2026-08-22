@@ -1,7 +1,7 @@
 /**
- * Vite配置
+ * Vite Client Config
  * @module vite.config
- * @description 客户端Vite构建配置
+ * @description Client Vite Config for Home Finance Tracker Client
  */
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
@@ -14,16 +14,23 @@ import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
   build: {
-    target: 'esnext', // 提升目标环境版本以支持现代CSS特性（如嵌套语法）
+    target: 'esnext', // Target ESNext for modern CSS features (like nested selectors)
     rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html'),
-          photo: path.resolve(__dirname, 'photo.html'),
+          main: path.resolve(import.meta.dirname, 'index.html'),
+          photo: path.resolve(import.meta.dirname, 'photo.html'),
         },
         output: {
           manualChunks: (id) => {
-            if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia')) {
-              return 'vendor';
+            if (!id.includes('node_modules')) return;
+            if (id.includes('vue-router')) {
+              return 'vue-router';
+            }
+            if (id.includes('pinia')) {
+              return 'pinia';
+            }
+            if (id.includes('vue')) {
+              return 'vue';
             }
             if (id.includes('axios') || id.includes('dayjs')) {
               return 'utils';
@@ -51,15 +58,15 @@ export default defineConfig({
     }
   },
 
-  base: '/', // 确保构建资源路径为根目录
-  assetsDir: 'assets', // 静态资源存放目录（与服务器public目录结构一致）
+  base: '/', // Base URL for client-side routing
+  assetsDir: 'assets', // Static assets directory (same as server public directory)
   server: {
 
-    host: '0.0.0.0', // 监听所有网络接口，支持局域网访问
+    host: '0.0.0.0', // Listen on all network interfaces for local network access
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://0.0.0.0:3010', // 替换为后端实际局域网IP
+        target: 'http://0.0.0.0:3010', // Replace with actual backend local network IP
         secure: false,
         changeOrigin: true
       }
@@ -74,12 +81,12 @@ export default defineConfig({
     }),
     vue(),
     AutoImport({
-      // 基本配置，确保插件能正常工作
-      imports: ['vue'], // 自动导入Vue的ref、reactive等
+      // Basic configuration for AutoImport plugin to work properly
+      imports: ['vue'], // Auto-import Vue ref, reactive, etc.
       dts: 'auto-imports.d.ts'
     }),
     Components({
-      // 基本配置，确保插件能正常工作
+      // Basic configuration for Components plugin to work properly
       dts: 'components.d.ts',
       // Also auto-import the liquid-glass component library
       dirs: ['src/components', 'src/liquid-glass']
@@ -87,10 +94,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      vue: path.resolve(__dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
-      // 强制使用本地内存缓存实现，覆盖第三方冲突的CacheStore类
-      CacheStore: path.resolve(__dirname, './src/utils/CacheStore.js')
+      '@': path.resolve(import.meta.dirname, './src'),
+      vue: path.resolve(import.meta.dirname, 'node_modules/vue/dist/vue.esm-bundler.js'),
+      // Force local memory cache implementation for CacheStore class
+      CacheStore: path.resolve(import.meta.dirname, './src/utils/CacheStore.js')
     }
   }
 });
