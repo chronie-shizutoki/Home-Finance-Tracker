@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">Dipadam secara automatik dalam %d hari</string>
     <string name="recycle_bin_permanent_delete_title">Padam secara kekal?</string>
     <string name="recycle_bin_permanent_delete_message">Item ini akan dibuang secara kekal dan tidak boleh dipulihkan.</string>
+    <string name="recycle_bin_select">Pilih</string>
+    <string name="recycle_bin_select_all">Pilih Semua</string>
+    <string name="recycle_bin_deselect_all">Nyahpilih</string>
+    <string name="recycle_bin_selected_count">%d dipilih</string>
+    <string name="recycle_bin_restore_all">Pulihkan Semua</string>
+    <string name="recycle_bin_delete_all">Padam Semua</string>
+    <string name="recycle_bin_restore_selected">Pulihkan</string>
+    <string name="recycle_bin_delete_selected">Padam</string>
+    <string name="recycle_bin_restore_all_title">Pulihkan semua item?</string>
+    <string name="recycle_bin_restore_all_message">Semua %1$d item akan dipulihkan ke senarai perbelanjaan.</string>
+    <string name="recycle_bin_delete_all_title">Padam semua item?</string>
+    <string name="recycle_bin_delete_all_message">Semua %1$d item akan dibuang secara kekal dan tidak boleh dipulihkan.</string>
+    <string name="recycle_bin_restore_selected_title">Pulihkan item yang dipilih?</string>
+    <string name="recycle_bin_restore_selected_message">%1$d item yang dipilih akan dipulihkan ke senarai perbelanjaan.</string>
+    <string name="recycle_bin_delete_selected_title">Padam item yang dipilih?</string>
+    <string name="recycle_bin_delete_selected_message">%1$d item yang dipilih akan dibuang secara kekal dan tidak boleh dipulihkan.</string>
 
 </resources>

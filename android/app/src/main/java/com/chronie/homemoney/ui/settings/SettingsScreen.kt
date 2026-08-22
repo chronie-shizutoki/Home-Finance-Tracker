@@ -23,6 +23,7 @@ import kotlinx.serialization.Serializable
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,9 +47,12 @@ import com.chronie.homemoney.ui.components.*
 import com.chronie.homemoney.ui.components.imageeditor.CropShape
 import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
 import com.chronie.homemoney.ui.expense.formatDateByLocale
+import com.chronie.homemoney.ui.recyclebin.BatchAction
 import com.chronie.homemoney.ui.recyclebin.RecycleBinScreen
+import com.chronie.homemoney.ui.recyclebin.RecycleBinViewModel
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
@@ -63,6 +67,10 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.basic.DropdownDefaults
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowDialog
@@ -178,14 +186,162 @@ fun SettingsScreen(
                             paddingValues = paddingValues
                         )
                     }
-                    SettingsPage.RECYCLE_BIN -> SettingsSubPage(
-                        title = context.getString(R.string.recycle_bin),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        RecycleBinScreen(
-                            context = context,
-                            paddingValues = paddingValues
-                        )
+                    SettingsPage.RECYCLE_BIN -> {
+                        val recycleBinViewModel: RecycleBinViewModel = hiltViewModel()
+                        val isSelectMode by recycleBinViewModel.isSelectMode.collectAsState()
+
+                        SettingsSubPage(
+                            title = context.getString(R.string.recycle_bin),
+                            onBack = { backStack.removeLastOrNull() },
+                            actions = {
+                                if (isSelectMode) {
+                                    WindowIconDropdownMenu(
+                                        entries = listOf(
+                                            DropdownEntry(
+                                                items = listOf(
+                                                    DropdownItem(
+                                                        text = context.getString(R.string.recycle_bin_restore_selected),
+                                                        icon = { modifier ->
+                                                            Icon(
+                                                                Icons.Default.Restore,
+                                                                contentDescription = null,
+                                                                modifier = modifier
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            recycleBinViewModel.requestBatchAction(
+                                                                BatchAction.RESTORE_SELECTED
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            ),
+                                            DropdownEntry(
+                                                items = listOf(
+                                                    DropdownItem(
+                                                        text = "",
+                                                        icon = { modifier ->
+                                                            Row(
+                                                                modifier = modifier,
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Delete,
+                                                                    contentDescription = null,
+                                                                    tint = MiuixTheme.colorScheme.error
+                                                                )
+                                                                Text(
+                                                                    text = context.getString(R.string.recycle_bin_delete_selected),
+                                                                    color = MiuixTheme.colorScheme.error
+                                                                )
+                                                            }
+                                                        },
+                                                        onClick = {
+                                                            recycleBinViewModel.requestBatchAction(
+                                                                BatchAction.DELETE_SELECTED
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        dropdownColors = DropdownDefaults.dropdownColors(
+                                            contentColor = MiuixTheme.colorScheme.onSurface,
+                                            summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                                        )
+                                    ) {
+                                        Icon(
+                                            Icons.Default.MoreVert,
+                                            contentDescription = context.getString(R.string.common_more_functions)
+                                        )
+                                    }
+                                } else {
+                                    WindowIconDropdownMenu(
+                                        entries = listOf(
+                                            DropdownEntry(
+                                                items = listOf(
+                                                    DropdownItem(
+                                                        text = context.getString(R.string.recycle_bin_select),
+                                                        icon = { modifier ->
+                                                            Icon(
+                                                                Icons.Default.Checklist,
+                                                                contentDescription = null,
+                                                                modifier = modifier
+                                                            )
+                                                        },
+                                                        onClick = { recycleBinViewModel.enterSelectMode() }
+                                                    )
+                                                )
+                                            ),
+                                            DropdownEntry(
+                                                items = listOf(
+                                                    DropdownItem(
+                                                        text = context.getString(R.string.recycle_bin_restore_all),
+                                                        icon = { modifier ->
+                                                            Icon(
+                                                                Icons.Default.Restore,
+                                                                contentDescription = null,
+                                                                modifier = modifier
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            recycleBinViewModel.requestBatchAction(
+                                                                BatchAction.RESTORE_ALL
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            ),
+                                            DropdownEntry(
+                                                items = listOf(
+                                                    DropdownItem(
+                                                        text = "",
+                                                        icon = { modifier ->
+                                                            Row(
+                                                                modifier = modifier,
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Delete,
+                                                                    contentDescription = null,
+                                                                    tint = MiuixTheme.colorScheme.error
+                                                                )
+                                                                Text(
+                                                                    text = context.getString(R.string.recycle_bin_delete_all),
+                                                                    color = MiuixTheme.colorScheme.error
+                                                                )
+                                                            }
+                                                        },
+                                                        onClick = {
+                                                            recycleBinViewModel.requestBatchAction(
+                                                                BatchAction.DELETE_ALL
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        dropdownColors = DropdownDefaults.dropdownColors(
+                                            contentColor = MiuixTheme.colorScheme.onSurface,
+                                            summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                                        )
+                                    ) {
+                                        Icon(
+                                            Icons.Default.MoreVert,
+                                            contentDescription = context.getString(R.string.common_more_functions)
+                                        )
+                                    }
+                                }
+                            }
+                        ) { paddingValues ->
+                            RecycleBinScreen(
+                                context = context,
+                                viewModel = recycleBinViewModel,
+                                paddingValues = paddingValues
+                            )
+                        }
                     }
                 }
             }
@@ -222,11 +378,14 @@ private fun MainSettingsPage(
             )
         },
         content = { paddingValues ->
+            val settingsListState = rememberLazyListState()
+            RegisterScrollToTop(settingsListState)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
                 LazyColumn(
+                    state = settingsListState,
                     modifier = Modifier
                         .fillMaxSize()
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -446,6 +605,7 @@ private fun MainSettingsPage(
 private fun SettingsSubPage(
     title: String,
     onBack: () -> Unit,
+    actions: @Composable (RowScope.() -> Unit) = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
     val scrollBehavior = MiuixScrollBehavior()
@@ -468,6 +628,7 @@ private fun SettingsSubPage(
                     }
                 },
                 actions = {
+                    actions()
                     Box(modifier = Modifier.padding(end = 8.dp))
                 }
             )
@@ -492,7 +653,10 @@ fun AccountSettingsPage(
     onRequireLogin: () -> Unit,
     paddingValues: PaddingValues
 ) {
+    val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = paddingValues.calculateTopPadding() + 16.dp,
@@ -522,7 +686,10 @@ fun AppearanceSettingsPage(
     var showColorPicker by remember { mutableStateOf(false) }
     val themeSettings = LocalThemeSettings.current
 
+    val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = paddingValues.calculateTopPadding() + 16.dp,
@@ -639,7 +806,10 @@ fun FeaturesSettingsPage(
     context: Context,
     paddingValues: PaddingValues
 ) {
+    val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = paddingValues.calculateTopPadding() + 16.dp,
@@ -661,7 +831,10 @@ fun DataSyncSettingsPage(
     onNavigateToLanSync: () -> Unit,
     paddingValues: PaddingValues
 ) {
+    val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = paddingValues.calculateTopPadding() + 16.dp,
@@ -696,7 +869,10 @@ fun AboutSettingsPage(
 ) {
     val isDeveloperMode by viewModel.isDeveloperMode.collectAsState(initial = false)
 
+    val listState = rememberLazyListState()
+    RegisterScrollToTop(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = paddingValues.calculateTopPadding() + 16.dp,

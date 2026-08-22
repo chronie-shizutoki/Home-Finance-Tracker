@@ -308,6 +308,49 @@ class ExpenseRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun restoreExpenses(ids: List<String>): Result<Unit> {
+        return try {
+            expenseDao.restoreExpenses(ids, System.currentTimeMillis())
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun permanentDeleteExpenses(ids: List<String>): Result<Unit> {
+        return try {
+            ids.forEach { id ->
+                try {
+                    expenseApi.hardDeleteExpense(id)
+                } catch (_: Exception) {
+                    // Best-effort server deletion
+                }
+            }
+            expenseDao.permanentDeleteExpenses(ids)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun restoreAllExpenses(): Result<Unit> {
+        return try {
+            expenseDao.restoreAllExpenses(System.currentTimeMillis())
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun permanentDeleteAllExpenses(): Result<Unit> {
+        return try {
+            expenseDao.permanentDeleteAllExpenses()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
     
     /**
      * Computes aggregate statistics from local expenses matching the given filters.

@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">%d 天后自动删除</string>
     <string name="recycle_bin_permanent_delete_title">永久删除？</string>
     <string name="recycle_bin_permanent_delete_message">此项目将被永久移除且无法恢复。</string>
+    <string name="recycle_bin_select">选择</string>
+    <string name="recycle_bin_select_all">全选</string>
+    <string name="recycle_bin_deselect_all">取消全选</string>
+    <string name="recycle_bin_selected_count">已选 %d 项</string>
+    <string name="recycle_bin_restore_all">全部恢复</string>
+    <string name="recycle_bin_delete_all">全部删除</string>
+    <string name="recycle_bin_restore_selected">恢复</string>
+    <string name="recycle_bin_delete_selected">删除</string>
+    <string name="recycle_bin_restore_all_title">恢复全部项目？</string>
+    <string name="recycle_bin_restore_all_message">全部 %d 个项目将被恢复到支出列表。</string>
+    <string name="recycle_bin_delete_all_title">删除全部项目？</string>
+    <string name="recycle_bin_delete_all_message">全部 %d 个项目将被永久移除且无法恢复。</string>
+    <string name="recycle_bin_restore_selected_title">恢复选中项目？</string>
+    <string name="recycle_bin_restore_selected_message">%d 个选中项目将被恢复到支出列表。</string>
+    <string name="recycle_bin_delete_selected_title">删除选中项目？</string>
+    <string name="recycle_bin_delete_selected_message">%d 个选中项目将被永久移除且无法恢复。</string>
 
 </resources>

@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -48,6 +49,7 @@ import com.chronie.homemoney.ui.sync.IncomingSyncRequestDialog
 import com.chronie.homemoney.data.sync.SyncRequestBus
 import com.chronie.homemoney.ui.scroll.ScrollToTopRegistry
 import com.chronie.homemoney.ui.test.DatabaseTestScreen
+import kotlin.math.abs
 import com.chronie.homemoney.ui.theme.HomeMoneyTheme
 import com.chronie.homemoney.ui.welcome.WelcomeScreen
 import com.chronie.homemoney.ui.membership.MembershipScreen
@@ -56,7 +58,6 @@ import com.chronie.homemoney.service.HealthCheckService
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.math.abs
 import java.util.Locale
 import javax.inject.Inject
 
@@ -128,6 +129,10 @@ class MainActivity : ComponentActivity() {
                 detectDarkMode = { resources.configuration.isNightModeActive }
             )
         )
+
+        // Override: keep content below the status bar so touch events in the
+        // status bar area reach dispatchTouchEvent (scroll-to-top feature).
+        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         // Start health check service
         healthCheckService.start()

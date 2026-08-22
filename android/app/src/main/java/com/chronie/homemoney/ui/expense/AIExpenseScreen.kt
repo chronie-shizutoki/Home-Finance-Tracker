@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.*
@@ -68,6 +69,7 @@ import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import com.chronie.homemoney.ui.components.OutlinedButton
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 
 /**
  * AI Expense Screen
@@ -573,7 +575,10 @@ private fun RecognizedRecordsSection(
         
         Spacer(modifier = Modifier.height(8.dp))
         
+        val listState = rememberLazyListState()
+        RegisterScrollToTop(listState)
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.weight(1f)
         ) {
@@ -876,7 +881,10 @@ private fun ExpenseTypePickerDialog(
                     )
                 }
             } else {
+                val listState = rememberLazyListState()
+                RegisterScrollToTop(listState)
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.heightIn(max = 400.dp)
                 ) {
                     items(filteredTypes.size) { index ->

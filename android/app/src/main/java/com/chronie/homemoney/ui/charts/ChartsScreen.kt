@@ -514,6 +514,7 @@ private fun CategoryBreakdownCard(
             } else {
                 val maxAmount = categoryData.maxOf { it.amount }
                 val scrollState = rememberScrollState()
+                RegisterScrollToTop(scrollState)
                 var isAnimated by remember { mutableStateOf(false) }
                 
                 LaunchedEffect(categoryData) {

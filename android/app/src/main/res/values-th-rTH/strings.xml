@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">ลบอัตโนมัติใน %d วัน</string>
     <string name="recycle_bin_permanent_delete_title">ลบอย่างถาวรหรือไม่?</string>
     <string name="recycle_bin_permanent_delete_message">รายการนี้จะถูกลบออกอย่างถาวรและกู้คืนไม่ได้</string>
+    <string name="recycle_bin_select">เลือก</string>
+    <string name="recycle_bin_select_all">เลือกทั้งหมด</string>
+    <string name="recycle_bin_deselect_all">ยกเลิกการเลือก</string>
+    <string name="recycle_bin_selected_count">เลือก %d รายการ</string>
+    <string name="recycle_bin_restore_all">กู้คืนทั้งหมด</string>
+    <string name="recycle_bin_delete_all">ลบทั้งหมด</string>
+    <string name="recycle_bin_restore_selected">กู้คืน</string>
+    <string name="recycle_bin_delete_selected">ลบ</string>
+    <string name="recycle_bin_restore_all_title">กู้คืนทั้งหมด?</string>
+    <string name="recycle_bin_restore_all_message">ทั้งหมด %1$d รายการจะถูกกู้คืนไปยังรายการค่าใช้จ่าย</string>
+    <string name="recycle_bin_delete_all_title">ลบทั้งหมด?</string>
+    <string name="recycle_bin_delete_all_message">ทั้งหมด %1$d รายการจะถูกลบออกอย่างถาวรและกู้คืนไม่ได้</string>
+    <string name="recycle_bin_restore_selected_title">กู้คืนรายการที่เลือก?</string>
+    <string name="recycle_bin_restore_selected_message">%1$d รายการที่เลือกจะถูกกู้คืนไปยังรายการค่าใช้จ่าย</string>
+    <string name="recycle_bin_delete_selected_title">ลบรายการที่เลือก?</string>
+    <string name="recycle_bin_delete_selected_message">%1$d รายการที่เลือกจะถูกลบออกอย่างถาวรและกู้คืนไม่ได้</string>
 
 </resources>

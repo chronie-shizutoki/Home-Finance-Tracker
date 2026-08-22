@@ -102,6 +102,32 @@ interface ExpenseDao {
     suspend fun permanentDeleteExpense(id: String)
 
     /**
+     * Batch-restores soft-deleted expenses by clearing their tombstones.
+     * Bumps [updatedAt] and resets [isSynced] for each restored record.
+     */
+    @Query("UPDATE expenses SET deleted_at = NULL, updated_at = :now, is_synced = 0 WHERE id IN (:ids) AND deleted_at IS NOT NULL")
+    suspend fun restoreExpenses(ids: List<String>, now: Long)
+
+    /**
+     * Batch-permanently removes soft-deleted expenses.
+     * Only tombstoned rows are affected — active records are never wiped.
+     */
+    @Query("DELETE FROM expenses WHERE id IN (:ids) AND deleted_at IS NOT NULL")
+    suspend fun permanentDeleteExpenses(ids: List<String>)
+
+    /**
+     * Restores ALL soft-deleted expenses in the recycle bin.
+     */
+    @Query("UPDATE expenses SET deleted_at = NULL, updated_at = :now, is_synced = 0 WHERE deleted_at IS NOT NULL")
+    suspend fun restoreAllExpenses(now: Long)
+
+    /**
+     * Permanently deletes ALL soft-deleted expenses in the recycle bin.
+     */
+    @Query("DELETE FROM expenses WHERE deleted_at IS NOT NULL")
+    suspend fun permanentDeleteAllExpenses()
+
+    /**
      * Permanently removes tombstones whose deletion has aged past [threshold]
      * (epoch millis) AND that have already been pushed to the server.
      *

@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">%d 日後に自動削除</string>
     <string name="recycle_bin_permanent_delete_title">完全に削除しますか？</string>
     <string name="recycle_bin_permanent_delete_message">この項目は完全に削除され、復元できなくなります。</string>
+    <string name="recycle_bin_select">選択</string>
+    <string name="recycle_bin_select_all">すべて選択</string>
+    <string name="recycle_bin_deselect_all">選択解除</string>
+    <string name="recycle_bin_selected_count">%d件選択中</string>
+    <string name="recycle_bin_restore_all">すべて復元</string>
+    <string name="recycle_bin_delete_all">すべて削除</string>
+    <string name="recycle_bin_restore_selected">復元</string>
+    <string name="recycle_bin_delete_selected">削除</string>
+    <string name="recycle_bin_restore_all_title">すべて復元しますか？</string>
+    <string name="recycle_bin_restore_all_message">すべての%1$d件を支出リストに復元します。</string>
+    <string name="recycle_bin_delete_all_title">すべて削除しますか？</string>
+    <string name="recycle_bin_delete_all_message">すべての%1$d件を完全に削除します。復元はできません。</string>
+    <string name="recycle_bin_restore_selected_title">選択した項目を復元しますか？</string>
+    <string name="recycle_bin_restore_selected_message">選択した%1$d件を支出リストに復元します。</string>
+    <string name="recycle_bin_delete_selected_title">選択した項目を削除しますか？</string>
+    <string name="recycle_bin_delete_selected_message">選択した%1$d件を完全に削除します。復元はできません。</string>
 
 </resources>

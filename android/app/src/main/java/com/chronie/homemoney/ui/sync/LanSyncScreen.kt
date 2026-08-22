@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import com.chronie.homemoney.domain.sync.DeviceInfo
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.ui.settings.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -656,7 +658,10 @@ fun DeviceSearchDialog(
                         }
                     }
                 } else {
+                    val listState = rememberLazyListState()
+                    RegisterScrollToTop(listState)
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.heightIn(max = 300.dp)
                     ) {
                         items(discoveredDevices) { device ->

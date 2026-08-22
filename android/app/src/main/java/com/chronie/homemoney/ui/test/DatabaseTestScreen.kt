@@ -3,6 +3,7 @@ package com.chronie.homemoney.ui.test
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,6 +19,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.chronie.homemoney.R
 import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
@@ -114,7 +116,10 @@ fun DatabaseTestScreen(
             )
         }
     ) { paddingValues ->
+        val listState = rememberLazyListState()
+        RegisterScrollToTop(listState)
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),

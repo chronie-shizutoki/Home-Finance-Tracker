@@ -404,6 +404,22 @@
     <string name="recycle_bin_expires_in">Auto-deleted in %d days</string>
     <string name="recycle_bin_permanent_delete_title">Delete permanently?</string>
     <string name="recycle_bin_permanent_delete_message">This item will be permanently removed and cannot be restored.</string>
+    <string name="recycle_bin_select">Select</string>
+    <string name="recycle_bin_select_all">Select All</string>
+    <string name="recycle_bin_deselect_all">Deselect All</string>
+    <string name="recycle_bin_selected_count">%d selected</string>
+    <string name="recycle_bin_restore_all">Restore All</string>
+    <string name="recycle_bin_delete_all">Delete All</string>
+    <string name="recycle_bin_restore_selected">Restore</string>
+    <string name="recycle_bin_delete_selected">Delete</string>
+    <string name="recycle_bin_restore_all_title">Restore all items?</string>
+    <string name="recycle_bin_restore_all_message">All %d items will be restored to the expense list.</string>
+    <string name="recycle_bin_delete_all_title">Delete all items?</string>
+    <string name="recycle_bin_delete_all_message">All %d items will be permanently removed and cannot be restored.</string>
+    <string name="recycle_bin_restore_selected_title">Restore selected items?</string>
+    <string name="recycle_bin_restore_selected_message">%d selected items will be restored to the expense list.</string>
+    <string name="recycle_bin_delete_selected_title">Delete selected items?</string>
+    <string name="recycle_bin_delete_selected_message">%d selected items will be permanently removed and cannot be restored.</string>
 
     <!-- Color Picker -->
     <string name="color_picker_title">Select Theme Color</string>
