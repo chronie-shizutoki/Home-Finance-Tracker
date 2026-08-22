@@ -349,6 +349,7 @@
     <string name="membership_title">Tài khoản</string>
     <string name="auth_logged_in">Đã đăng nhập</string>
     <string name="auth_skip_login">Bỏ qua</string>
+    <string name="welcome_server_config_entry">Máy chủ tùy chỉnh</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">Trạng thái kết nối máy chủ</string>
     <string name="health_check_channel_description">Giám sát kết nối máy chủ</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">Dùng mặc định</string>
     <string name="recycle_bin">Thùng rác</string>
     <string name="recycle_bin_entry_summary">Khôi phục hoặc xóa vĩnh viễn các khoản chi đã xóa</string>
-    <string name="recycle_bin_summary">%d mục · tự động xóa sau %d ngày</string>
+    <string name="recycle_bin_summary">%1$d mục · tự động xóa sau %2$d ngày</string>
     <string name="recycle_bin_empty">Thùng rác trống</string>
     <string name="recycle_bin_restore">Khôi phục</string>
     <string name="recycle_bin_deleted">Đã xóa</string>

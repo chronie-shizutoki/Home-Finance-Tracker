@@ -349,6 +349,7 @@
     <string name="membership_title">アカウント</string>
     <string name="auth_logged_in">ログイン済み</string>
     <string name="auth_skip_login">スキップ</string>
+    <string name="welcome_server_config_entry">カスタムサーバー</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">サーバー接続ステータス</string>
     <string name="health_check_channel_description">サーバー接続を監視します</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">デフォルトを使用</string>
     <string name="recycle_bin">ゴミ箱</string>
     <string name="recycle_bin_entry_summary">削除した支出を復元または完全に削除</string>
-    <string name="recycle_bin_summary">%d 件 · %d 日後に完全削除</string>
+    <string name="recycle_bin_summary">%1$d 件 · %2$d 日後に完全削除</string>
     <string name="recycle_bin_empty">ゴミ箱は空です</string>
     <string name="recycle_bin_restore">復元</string>
     <string name="recycle_bin_deleted">削除済み</string>

@@ -349,6 +349,7 @@
     <string name="membership_title">บัญชี</string>
     <string name="auth_logged_in">เข้าสู่ระบบแล้ว</string>
     <string name="auth_skip_login">ข้าม</string>
+    <string name="welcome_server_config_entry">เซิร์ฟเวอร์กำหนดเอง</string>
     <!-- Health Check -->
     <string name="health_check_channel_name">สถานะการเชื่อมต่อเซิร์ฟเวอร์</string>
     <string name="health_check_channel_description">ตรวจสอบการเชื่อมต่อเซิร์ฟเวอร์</string>
@@ -533,7 +534,7 @@
     <string name="server_reset_default">ใช้ค่าเริ่มต้น</string>
     <string name="recycle_bin">ถังรีไซเคิล</string>
     <string name="recycle_bin_entry_summary">กู้คืนหรือลบรายจ่ายที่ถูกลบออกอย่างถาวร</string>
-    <string name="recycle_bin_summary">%d รายการ · ลบอย่างถาวรหลัง %d วัน</string>
+    <string name="recycle_bin_summary">%1$d รายการ · ลบอย่างถาวรหลัง %2$d วัน</string>
     <string name="recycle_bin_empty">ถังรีไซเคิลว่างเปล่า</string>
     <string name="recycle_bin_restore">กู้คืน</string>
     <string name="recycle_bin_deleted">ลบแล้ว</string>
