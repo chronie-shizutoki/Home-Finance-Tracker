@@ -1,5 +1,6 @@
 package com.chronie.homemoney.ui.scroll
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -53,6 +54,24 @@ fun RegisterScrollToTop(state: LazyListState) {
         val handler = {
             if (state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0) {
                 scope.launch { state.animateScrollToItem(0) }
+            }
+        }
+        ScrollToTopRegistry.register(handler)
+        onDispose { ScrollToTopRegistry.unregister(handler) }
+    }
+}
+
+/**
+ * Registers [state]'s scroll-to-top action for a [ScrollState]-based
+ * scrollable container (e.g. a [Column] with [verticalScroll]).
+ */
+@Composable
+fun RegisterScrollToTop(state: ScrollState) {
+    val scope = rememberCoroutineScope()
+    DisposableEffect(state) {
+        val handler = {
+            if (state.value > 0) {
+                scope.launch { state.animateScrollTo(0) }
             }
         }
         ScrollToTopRegistry.register(handler)

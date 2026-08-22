@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">%d 天後自動刪除</string>
     <string name="recycle_bin_permanent_delete_title">永久刪除？</string>
     <string name="recycle_bin_permanent_delete_message">此項目將被永久移除且無法復原。</string>
+    <string name="recycle_bin_select">選擇</string>
+    <string name="recycle_bin_select_all">全選</string>
+    <string name="recycle_bin_deselect_all">取消全選</string>
+    <string name="recycle_bin_selected_count">已選 %d 項</string>
+    <string name="recycle_bin_restore_all">全部恢復</string>
+    <string name="recycle_bin_delete_all">全部刪除</string>
+    <string name="recycle_bin_restore_selected">恢復</string>
+    <string name="recycle_bin_delete_selected">刪除</string>
+    <string name="recycle_bin_restore_all_title">恢復全部項目？</string>
+    <string name="recycle_bin_restore_all_message">全部 %1$d 個項目將被恢復到支出列表。</string>
+    <string name="recycle_bin_delete_all_title">刪除全部項目？</string>
+    <string name="recycle_bin_delete_all_message">全部 %1$d 個項目將被永久移除且無法復原。</string>
+    <string name="recycle_bin_restore_selected_title">恢復選中項目？</string>
+    <string name="recycle_bin_restore_selected_message">%1$d 個選中項目將被恢復到支出列表。</string>
+    <string name="recycle_bin_delete_selected_title">刪除選中項目？</string>
+    <string name="recycle_bin_delete_selected_message">%1$d 個選中項目將被永久移除且無法復原。</string>
 
 </resources>

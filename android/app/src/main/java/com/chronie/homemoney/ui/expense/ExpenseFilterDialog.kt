@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
@@ -97,10 +98,12 @@ fun ExpenseFilterDialog(
         onDismissRequest = onDismiss,
         insideMargin = DpSize(16.dp, 0.dp)
     ) {
+        val scrollState = rememberScrollState()
+        RegisterScrollToTop(scrollState)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -317,11 +320,13 @@ fun ExpenseTypeSelector(
                 )
             }
 
+            val typeScrollState = rememberScrollState()
+            RegisterScrollToTop(typeScrollState)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 320.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(typeScrollState),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (filteredTypes.isEmpty()) {

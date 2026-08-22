@@ -24,6 +24,7 @@ import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -105,11 +106,13 @@ fun AddExpenseScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+        val scrollState = rememberScrollState()
+        RegisterScrollToTop(scrollState)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -296,11 +299,13 @@ fun ExpenseTypeDropdown(
                 }
             }
 
+            val typeScrollState = rememberScrollState()
+            RegisterScrollToTop(typeScrollState)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 300.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(typeScrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (filteredTypes.isEmpty()) {

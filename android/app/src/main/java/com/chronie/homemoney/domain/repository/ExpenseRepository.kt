@@ -63,6 +63,26 @@ interface ExpenseRepository {
      * Permanently delete a single soft-deleted expense from the recycle bin.
      */
     suspend fun permanentDeleteExpense(id: String): Result<Unit>
+
+    /**
+     * Batch-restore selected soft-deleted expenses.
+     */
+    suspend fun restoreExpenses(ids: List<String>): Result<Unit>
+
+    /**
+     * Batch-permanently delete selected soft-deleted expenses.
+     */
+    suspend fun permanentDeleteExpenses(ids: List<String>): Result<Unit>
+
+    /**
+     * Restore ALL soft-deleted expenses in the recycle bin.
+     */
+    suspend fun restoreAllExpenses(): Result<Unit>
+
+    /**
+     * Permanently delete ALL soft-deleted expenses in the recycle bin.
+     */
+    suspend fun permanentDeleteAllExpenses(): Result<Unit>
     
     /**
      * Get Statistics Data

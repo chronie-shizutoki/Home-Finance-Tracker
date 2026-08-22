@@ -18,6 +18,7 @@ import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import java.text.NumberFormat
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
@@ -77,11 +78,13 @@ fun WeekdayDetailScreen(
             )
         }
     ) { paddingValues ->
+        val scrollState = rememberScrollState()
+        RegisterScrollToTop(scrollState)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
             // Total amount and percentage

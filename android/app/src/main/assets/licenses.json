@@ -212,7 +212,7 @@
   {
     "group": "com.google.protobuf",
     "name": "protobuf-javalite",
-    "version": "4.35.1",
+    "version": "4.36.0",
     "fullName": "com.google.protobuf:protobuf-javalite"
   },
   {
@@ -278,7 +278,7 @@
   {
     "group": "net.zetetic",
     "name": "sqlcipher-android",
-    "version": "4.17.0",
+    "version": "4.18.0",
     "fullName": "net.zetetic:sqlcipher-android"
   },
   {

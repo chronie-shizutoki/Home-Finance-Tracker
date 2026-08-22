@@ -540,5 +540,21 @@
     <string name="recycle_bin_expires_in">Tự động xóa sau %d ngày</string>
     <string name="recycle_bin_permanent_delete_title">Xóa vĩnh viễn?</string>
     <string name="recycle_bin_permanent_delete_message">Mục này sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
+    <string name="recycle_bin_select">Chọn</string>
+    <string name="recycle_bin_select_all">Chọn tất cả</string>
+    <string name="recycle_bin_deselect_all">Bỏ chọn</string>
+    <string name="recycle_bin_selected_count">Đã chọn %d</string>
+    <string name="recycle_bin_restore_all">Khôi phục tất cả</string>
+    <string name="recycle_bin_delete_all">Xóa tất cả</string>
+    <string name="recycle_bin_restore_selected">Khôi phục</string>
+    <string name="recycle_bin_delete_selected">Xóa</string>
+    <string name="recycle_bin_restore_all_title">Khôi phục tất cả?</string>
+    <string name="recycle_bin_restore_all_message">Tất cả %1$d mục sẽ được khôi phục vào danh sách chi tiêu.</string>
+    <string name="recycle_bin_delete_all_title">Xóa tất cả?</string>
+    <string name="recycle_bin_delete_all_message">Tất cả %1$d mục sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
+    <string name="recycle_bin_restore_selected_title">Khôi phục mục đã chọn?</string>
+    <string name="recycle_bin_restore_selected_message">%1$d mục đã chọn sẽ được khôi phục vào danh sách chi tiêu.</string>
+    <string name="recycle_bin_delete_selected_title">Xóa mục đã chọn?</string>
+    <string name="recycle_bin_delete_selected_message">%1$d mục đã chọn sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
 
 </resources>
