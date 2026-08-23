@@ -353,51 +353,99 @@ private fun StatisticsSummaryCard(
     currencyFormat: NumberFormat
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = context.getString(R.string.statistics_summary),
-                style = MiuixTheme.textStyles.body1,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatisticItem(
-                    label = context.getString(R.string.total_amount),
-                    value = currencyFormat.format(statistics.totalAmount)
+        // Wrapping the layout body in a BoxWithConstraints lets us react
+        // to the actual card width at composition time. On tablets /
+        // desktop windows >= 600dp we lay the four metrics out in a
+        // single evenly-split row to use the horizontal real estate;
+        // phones keep the original 2x2 grid for readability.
+        //
+        // NOTE: BoxWithConstraints has Box semantics, so all layout
+        // children must live inside a single wrapper Column to avoid
+        // overlaps – the same pitfall we hit in LoginForm's first pass.
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val useSingleRow = maxWidth >= 600.dp
+
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = context.getString(R.string.statistics_summary),
+                    style = MiuixTheme.textStyles.body1,
+                    fontWeight = FontWeight.Bold
                 )
-                StatisticItem(
-                    label = context.getString(R.string.count),
-                    value = "${statistics.count}"
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatisticItem(
-                    label = context.getString(R.string.average_amount),
-                    value = currencyFormat.format(statistics.averageAmount)
-                )
-                StatisticItem(
-                    label = context.getString(R.string.median_amount),
-                    value = currencyFormat.format(statistics.medianAmount)
-                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (useSingleRow) {
+                    // ---- 600dp+: four metrics in a single balanced row ----
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        StatisticItem(
+                            label = context.getString(R.string.total_amount),
+                            value = currencyFormat.format(statistics.totalAmount),
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatisticItem(
+                            label = context.getString(R.string.count),
+                            value = "${statistics.count}",
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatisticItem(
+                            label = context.getString(R.string.average_amount),
+                            value = currencyFormat.format(statistics.averageAmount),
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatisticItem(
+                            label = context.getString(R.string.median_amount),
+                            value = currencyFormat.format(statistics.medianAmount),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                } else {
+                    // ---- <600dp: original two-row / two-column layout ----
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        StatisticItem(
+                            label = context.getString(R.string.total_amount),
+                            value = currencyFormat.format(statistics.totalAmount)
+                        )
+                        StatisticItem(
+                            label = context.getString(R.string.count),
+                            value = "${statistics.count}"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        StatisticItem(
+                            label = context.getString(R.string.average_amount),
+                            value = currencyFormat.format(statistics.averageAmount)
+                        )
+                        StatisticItem(
+                            label = context.getString(R.string.median_amount),
+                            value = currencyFormat.format(statistics.medianAmount)
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun StatisticItem(label: String, value: String) {
-    Column {
+private fun StatisticItem(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
         Text(
             text = label,
             style = MiuixTheme.textStyles.footnote1,
