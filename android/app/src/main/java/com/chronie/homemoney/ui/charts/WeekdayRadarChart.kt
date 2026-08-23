@@ -39,50 +39,123 @@ fun WeekdayRadarChartCard(
     endDate: String,
     onNavigateToWeekdayDetail: (dayOfWeek: Int, amount: Double, count: Int, percentage: Float, startDate: String, endDate: String) -> Unit = { _, _, _, _, _, _ -> }
 ) {
+    // Shared click lambda – wired into both the (newly independent) badge
+    // row and any future radar-vertex taps, so the navigation behavior is
+    // identical regardless of where the user taps.
+    val onWeekdayClick: (WeekdayChartData) -> Unit = { weekday ->
+        onNavigateToWeekdayDetail(
+            weekday.dayOfWeek,
+            weekday.amount,
+            weekday.count,
+            weekday.percentage,
+            startDate,
+            endDate
+        )
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = context.getString(R.string.weekday_analysis),
-                style = MiuixTheme.textStyles.body1,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            if (weekdayData.isEmpty() || weekdayData.all { it.amount == 0.0 }) {
+        // BoxWithConstraints → single child Column (box semantics!)
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val useTwoColumn = maxWidth >= 600.dp
+
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = context.getString(R.string.no_data),
-                    style = MiuixTheme.textStyles.body2,
-                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
-                    modifier = Modifier.padding(vertical = 32.dp)
+                    text = context.getString(R.string.weekday_analysis),
+                    style = MiuixTheme.textStyles.body1,
+                    fontWeight = FontWeight.Bold
                 )
-            } else {
-                // Weekday Radar Chart
-                WeekdayRadarChart(
-                    context = context,
-                    weekdayData = weekdayData,
-                    onWeekdayClick = { weekday ->
-                        onNavigateToWeekdayDetail(
-                            weekday.dayOfWeek,
-                            weekday.amount,
-                            weekday.count,
-                            weekday.percentage,
-                            startDate,
-                            endDate
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(350.dp)
-                )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Weekday data list
-                weekdayData.forEach { data ->
-                    if (data.amount > 0) {
-                        WeekdayDataItem(context, data, currencyFormat)
-                        Spacer(modifier = Modifier.height(8.dp))
+
+                if (weekdayData.isEmpty() || weekdayData.all { it.amount == 0.0 }) {
+                    Text(
+                        text = context.getString(R.string.no_data),
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                        modifier = Modifier.padding(vertical = 32.dp)
+                    )
+                } else if (useTwoColumn) {
+                    // =====================================================
+                    // 600dp+: Left pane = chart + badges, Right = data rows
+                    // =====================================================
+                    //
+                    // Align TOP so a shorter left pane does not force the
+                    // right data list to crop, and vice versa. Each side is
+                    // free to size itself vertically.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        // LEFT: radar chart (square aspect ratio, so it
+                        // never gets stretched into a weird rectangle) +
+                        // the 7 weekday badges directly beneath it.
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            WeekdayRadarChart(
+                                context = context,
+                                weekdayData = weekdayData,
+                                // aspectRatio(1f) + fillMaxWidth = square
+                                // that fills exactly 50% of the card's inner
+                                // width – no fixed height, no measuring
+                                // ambiguity with the Row.
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            WeekdayBadgeRow(
+                                context = context,
+                                weekdayData = weekdayData,
+                                onWeekdayClick = onWeekdayClick
+                            )
+                        }
+
+                        // RIGHT: per-day breakdown rows. No fixed height so
+                        // it can grow to fit all 7 lines without wrapping
+                        // or vertical overflow into the bottom nav.
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            weekdayData.forEach { data ->
+                                if (data.amount > 0) {
+                                    WeekdayDataItem(context, data, currencyFormat)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // =====================================================
+                    // <600dp: stacked layout (phone) – identical to before
+                    // =====================================================
+                    WeekdayRadarChart(
+                        context = context,
+                        weekdayData = weekdayData,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(350.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    WeekdayBadgeRow(
+                        context = context,
+                        weekdayData = weekdayData,
+                        onWeekdayClick = onWeekdayClick
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    weekdayData.forEach { data ->
+                        if (data.amount > 0) {
+                            WeekdayDataItem(context, data, currencyFormat)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             }
@@ -91,19 +164,24 @@ fun WeekdayRadarChartCard(
 }
 
 /**
- * Weekday Radar Chart
+ * Weekday Radar Chart (chart ONLY – the 7 clickable weekday badges have been
+ * extracted to [WeekdayBadgeRow]).
+ *
+ * Decoupling the two pieces is essential for the large-screen two-column
+ * layout, where badges need to live directly below the radar chart (still in
+ * the LEFT column) without being accidentally measured/sized together with a
+ * fixed-height radar inside the same composable.
  */
 @Composable
 private fun WeekdayRadarChart(
     context: Context,
     weekdayData: List<WeekdayChartData>,
-    onWeekdayClick: (WeekdayChartData) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val primaryColor = MiuixTheme.colorScheme.primary
     val textColor = MiuixTheme.colorScheme.onSurface
     val gridColor = MiuixTheme.colorScheme.dividerLine
-    
+
     val weekdayLabels = listOf(
         context.getString(R.string.sunday_short),
         context.getString(R.string.monday_short),
@@ -113,9 +191,9 @@ private fun WeekdayRadarChart(
         context.getString(R.string.friday_short),
         context.getString(R.string.saturday_short)
     )
-    
+
     val maxAmount = weekdayData.maxOfOrNull { it.amount } ?: 1.0
-    
+
     val radarAxisData = weekdayData.mapIndexed { index, data ->
         RadarAxisData(
             label = weekdayLabels[index],
@@ -123,7 +201,7 @@ private fun WeekdayRadarChart(
             maxValue = maxAmount.toFloat()
         )
     }
-    
+
     val dataSets = listOf(
         RadarDataSet(
             label = context.getString(R.string.weekday_analysis),
@@ -132,7 +210,7 @@ private fun WeekdayRadarChart(
             fillAlpha = 0.3f
         )
     )
-    
+
     RadarChart(
         data = { dataSets },
         modifier = modifier,
@@ -161,11 +239,36 @@ private fun WeekdayRadarChart(
             startAngleDegrees = -90f
         )
     )
-    
-    Spacer(modifier = Modifier.height(16.dp))
-    
+}
+
+/**
+ * Standalone row of 7 weekday "pill" buttons (Sun..Sat).
+ *
+ * Extracted so the card layout can position them exactly where needed:
+ *   - Phone layout: directly under the radar chart, above the data rows.
+ *   - Tablet layout: directly under the radar chart, in the LEFT column
+ *     (so the data rows on the right are never reflowed by badges).
+ */
+@Composable
+private fun WeekdayBadgeRow(
+    context: Context,
+    weekdayData: List<WeekdayChartData>,
+    onWeekdayClick: (WeekdayChartData) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val primaryColor = MiuixTheme.colorScheme.primary
+    val weekdayLabels = listOf(
+        context.getString(R.string.sunday_short),
+        context.getString(R.string.monday_short),
+        context.getString(R.string.tuesday_short),
+        context.getString(R.string.wednesday_short),
+        context.getString(R.string.thursday_short),
+        context.getString(R.string.friday_short),
+        context.getString(R.string.saturday_short)
+    )
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -187,7 +290,16 @@ private fun WeekdayRadarChart(
 }
 
 /**
- * Weekday Data Item
+ * Single row in the weekday-breakdown list (e.g. "Wednesday  79.7%  $19,316").
+ *
+ * Re-written NOT to use hard-coded column widths like width(60.dp) /
+ * width(100.dp). Those fixed values force vertical wrapping once the
+ * parent column becomes narrow (e.g. < 220dp on a tight two-column tablet
+ * layout) and result in the "$0 / 0% / Wednesday / 0" one-character-per-
+ * column mess we saw on the first iteration. Instead we use a combination
+ * of weight for the flexible label column and wrap-content-with-minimums
+ * for the percentage / amount columns, with horizontal Bias pulling the
+ * latter two to the right so they still line up across rows.
  */
 @SuppressLint("DefaultLocale")
 @Composable
@@ -198,26 +310,43 @@ private fun WeekdayDataItem(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Label (Sunday … Saturday). Uses remaining space after the two
+        // fixed-right-side columns are measured, so even a very narrow
+        // row still has a readable label area.
         Text(
             text = getWeekdayName(context, data.dayOfWeek),
             style = MiuixTheme.textStyles.body2,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f, fill = true)
         )
-        
+
+        // Percentage column – bold numeric text, right-aligned.
+        // width(IntrinsicSize.Min) + softWrap(false) = always exactly as
+        // wide as it needs to be, never shrinks into a vertical stack.
         Text(
             text = "${String.format("%.1f", data.percentage)}%",
             style = MiuixTheme.textStyles.body2,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(60.dp)
+            softWrap = false,
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            modifier = androidx.compose.ui.Modifier
+                .wrapContentWidth(Alignment.End)
+                .widthIn(min = 56.dp)
         )
-        
+
+        // Amount column – primary color, right-aligned. Same treatment
+        // as the percentage column to avoid breakage on narrow widths.
         Text(
             text = currencyFormat.format(data.amount),
             style = MiuixTheme.textStyles.body2,
             color = MiuixTheme.colorScheme.primary,
-            modifier = Modifier.width(100.dp)
+            softWrap = false,
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            modifier = androidx.compose.ui.Modifier
+                .wrapContentWidth(Alignment.End)
+                .widthIn(min = 80.dp)
         )
     }
 }
