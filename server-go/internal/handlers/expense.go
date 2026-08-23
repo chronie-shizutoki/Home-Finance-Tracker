@@ -443,3 +443,92 @@ func (h *ExpenseHandler) GetExpenseByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, utils.SuccessResponse(expense))
 }
+
+// GetDeletedExpenses retrieves all soft-deleted expenses (recycle bin contents).
+func (h *ExpenseHandler) GetDeletedExpenses(c *gin.Context) {
+	expenses, err := h.expenseRepo.GetDeletedExpenses()
+	if err != nil {
+		utils.ErrorResponseWithStatus(c, "Failed to read recycle bin", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if expenses == nil {
+		expenses = []models.Expense{}
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"expenses": expenses,
+		"count":    len(expenses),
+	}))
+}
+
+// RestoreExpense restores a single soft-deleted expense.
+func (h *ExpenseHandler) RestoreExpense(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.expenseRepo.RestoreExpense(id); err != nil {
+		utils.ErrorResponseWithStatus(c, "Failed to restore record", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"message": "Record restored successfully",
+		"id":      id,
+	}))
+}
+
+// RestoreExpensesBatch batch-restores selected soft-deleted expenses.
+func (h *ExpenseHandler) RestoreExpensesBatch(c *gin.Context) {
+	var req struct {
+		IDs []string `json:"ids" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponseWithStatus(c, "Invalid request parameters", err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.expenseRepo.RestoreExpenses(req.IDs); err != nil {
+		utils.ErrorResponseWithStatus(c, "Batch restore failed", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"message": fmt.Sprintf("Successfully restored %d record(s)", len(req.IDs)),
+		"count":   len(req.IDs),
+	}))
+}
+
+// RestoreAllExpenses restores every soft-deleted expense.
+func (h *ExpenseHandler) RestoreAllExpenses(c *gin.Context) {
+	if err := h.expenseRepo.RestoreAllExpenses(); err != nil {
+		utils.ErrorResponseWithStatus(c, "Restore all failed", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"message": "All records restored successfully",
+	}))
+}
+
+// PermanentDeleteExpensesBatch batch hard-deletes selected soft-deleted expenses.
+func (h *ExpenseHandler) PermanentDeleteExpensesBatch(c *gin.Context) {
+	var req struct {
+		IDs []string `json:"ids" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponseWithStatus(c, "Invalid request parameters", err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.expenseRepo.PermanentDeleteExpenses(req.IDs); err != nil {
+		utils.ErrorResponseWithStatus(c, "Batch permanent delete failed", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"message": fmt.Sprintf("Successfully permanently deleted %d record(s)", len(req.IDs)),
+		"count":   len(req.IDs),
+	}))
+}
+
+// PermanentDeleteAllExpenses hard-deletes every soft-deleted expense.
+func (h *ExpenseHandler) PermanentDeleteAllExpenses(c *gin.Context) {
+	if err := h.expenseRepo.PermanentDeleteAllExpenses(); err != nil {
+		utils.ErrorResponseWithStatus(c, "Empty recycle bin failed", err.Error(), http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, utils.SuccessResponse(gin.H{
+		"message": "All deleted records permanently removed",
+	}))
+}

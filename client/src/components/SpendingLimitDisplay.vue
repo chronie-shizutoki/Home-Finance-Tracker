@@ -423,7 +423,7 @@ onMounted(() => {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .spending-limit-display {
-    background: rgba(30, 30, 30, 0.7);
+    background: rgba(48, 51, 58, 0.80);
     border-color: #333;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }

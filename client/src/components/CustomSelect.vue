@@ -412,13 +412,13 @@ onUnmounted(() => {
 /* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .select-trigger {
-    background: rgba(30, 30, 30, 0.5);
+    background: rgba(48, 51, 58, 0.5);
     border-color: rgba(255, 255, 255, 0.1);
     color: #e5e7eb;
   }
 
   .select-trigger:hover {
-    background: rgba(30, 30, 30, 0.65);
+    background: rgba(48, 51, 58, 0.65);
     border-color: rgba(255, 255, 255, 0.2);
   }
 
@@ -428,7 +428,7 @@ onUnmounted(() => {
   }
 
   .select-dropdown {
-    background: rgba(30, 30, 30, 0.85);
+    background: rgba(48, 51, 58, 0.85);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }

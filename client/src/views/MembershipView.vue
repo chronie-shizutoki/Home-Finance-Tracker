@@ -1,18 +1,11 @@
 <template>
+  <!-- Fixed Header sits outside the form container so the form never
+       overlaps the title bar even with absolute-positioned toolbars. -->
+  <Header :title="$t('membership.title')" :show-back="true" back-route="/" />
+
   <div class="membership-container">
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
-    <Header :title="$t('membership.title')" />
-    
-    <div class="back-button-container">
-      <GlassButton 
-        type="default" 
-        @click="goToHome"
-        class="back-button"
-      >
-        <
-      </GlassButton>
-    </div>
 
     <!-- User login/register form -->
     <div class="login-form" v-if="!isLoggedIn">

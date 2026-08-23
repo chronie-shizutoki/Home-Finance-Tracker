@@ -1,20 +1,14 @@
 <template>
+  <!-- Header sits outside .container to avoid position-fixed sibling / flex
+       gap surprises that caused the chart-control row to overlap the title bar -->
+  <Header :title="t('chart.title')" :show-back="true" back-route="/" />
+
   <div class="container">
     <!-- Loading and error banners -->
     <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
-
-    <!-- Page title -->
-    <Header :title="t('chart.title')" />
-
-    <!-- Back-to-home button -->
-    <div class="back-button-container">
-      <GlassButton type="primary" @click="goBack" size="default">
-       <
-      </GlassButton>
-    </div>
 
     <!-- Expense chart analysis -->
     <ExpenseCharts :expenses="Expenses" />
@@ -129,11 +123,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* Layout is provided by the global .container in main.css (which already includes
+   the header-offset). Only add ChartsView-specific overrides below. */
 
 .loading-alert,
 .error-alert {

@@ -92,12 +92,7 @@
             :key="expense.id" 
             class="expense-card" 
             :data-index="index"
-            @touchstart="startLongPress(expense, $event)"
-            @touchend="endLongPress"
-            @touchcancel="endLongPress"
-            @mousedown="startLongPress(expense, $event)"
-            @mouseup="endLongPress"
-            @mouseleave="endLongPress"
+            @click="handleCardClick(expense, $event)"
           >
             <div class="card-header">
               <div class="date">{{ formatExpenseDate(expense.date) }}</div>
@@ -115,37 +110,18 @@
                 <span class="remark-text">{{ expense.remark }}</span>
               </div>
             </div>
-          </div>
-        
-        <!-- Long press menu -->
-        <transition 
-          name="menu-fade"
-          mode="out-in"
-        >
-          <div 
-            v-if="showMenu && currentMenuExpense" 
-            key="menu"
-            class="long-press-menu"
-            :style="menuStyle"
-          >
-            <div class="menu-content">
-              <button 
-                class="menu-btn menu-edit-btn" 
-                @click.stop="() => { handleEdit(currentMenuExpense); closeMenu() }"
-              >
+            <!-- Inline action buttons (small screens) — shown when this card is the active one -->
+            <div v-if="showMenu && currentMenuExpense && currentMenuExpense.id === expense.id" class="card-actions-inline">
+              <button class="edit-btn" @click.stop="() => { handleEdit(expense); closeMenu() }">
                 <FontAwesomeIcon icon="edit" />
                 {{ $t('common.edit') }}
               </button>
-              <button 
-                class="menu-btn menu-delete-btn" 
-                @click.stop="() => { handleDelete(currentMenuExpense.id); closeMenu() }"
-              >
+              <button class="delete-btn" @click.stop="() => { handleDelete(expense.id); closeMenu() }">
                 <FontAwesomeIcon icon="trash-alt" />
                 {{ $t('common.delete') }}
               </button>
             </div>
           </div>
-        </transition>
         </template>
       </transition-group>
     </div>
@@ -163,7 +139,7 @@
 import { getTypeColor } from '../utils/expenseUtils';
 import { formatRelativeDate } from '../utils/date-utils';
 import { formatDateByLocale } from '../utils/dateFormatter';
-import { ref, computed, onMounted, onUnmounted, watch, toRefs } from 'vue';
+import { ref, onMounted, onUnmounted, watch, toRefs } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useI18n } from 'vue-i18n';
 
@@ -206,72 +182,23 @@ export default {
       return expenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
     };
 
-    // Long press related state
+    // Action menu state
     const showMenu = ref(false);
     const menuExpenseId = ref('');
     const currentMenuExpense = ref(null);
-    const menuPosition = ref({ x: 0, y: 0 });
-    const longPressTimer = ref(null);
-    const LONG_PRESS_DURATION = 500; // Long press trigger duration
 
-    // Menu style calculation
-    const menuStyle = computed(() => {
-      return {
-        top: `${menuPosition.value.y}px`,
-        right: `${menuPosition.value.x}px`
-      };
-    });
-
-    // Start long press
-    const startLongPress = (expense, event) => {
-      // Clear previous timer
-      if (longPressTimer.value) {
-        clearTimeout(longPressTimer.value);
+    // Handle card click (small screens): click to toggle inline edit/delete buttons
+    const handleCardClick = (expense, event) => {
+      // If clicked card is already active, close the menu (toggle)
+      if (currentMenuExpense.value && currentMenuExpense.value.id === expense.id && showMenu.value) {
+        closeMenu();
+        return;
       }
-      
-      // Save target reference to avoid loss in async callbacks
-      const target = event.currentTarget;
-      
-      // Set new timer
-      longPressTimer.value = setTimeout(() => {
-        // Calculate menu position
-        // Add null check to ensure target exists
-        if (!target) {
-          console.warn('Long press target is null or undefined');
-          return;
-        }
-        
-        const rect = target.getBoundingClientRect();
-        // Get coordinates of touch or mouse event
-        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-        
-        // Calculate menu position, near the long press position
-        menuPosition.value = {
-          x: window.innerWidth - clientX - 110, // Adjust menu width
-          y: clientY + 10
-        };
-        
-        // Set menu data first, then show menu
-        menuExpenseId.value = expense.id;
-        currentMenuExpense.value = expense;
-        
-        // Ensure DOM update before showing menu, trigger animation
-        setTimeout(() => {
-          showMenu.value = true;
-          
-          console.log('Long press detected, showing menu for expense:', expense.id);
-          console.log('Menu state:', { showMenu: showMenu.value, menuExpenseId: menuExpenseId.value, menuPosition: menuPosition.value, currentMenuExpense: currentMenuExpense.value });
-        }, 10);
-      }, LONG_PRESS_DURATION);
-    };
-
-    // End long press
-    const endLongPress = () => {
-      if (longPressTimer.value) {
-        clearTimeout(longPressTimer.value);
-        longPressTimer.value = null;
-      }
+      // Open inline action buttons for the clicked card
+      menuExpenseId.value = expense.id;
+      currentMenuExpense.value = expense;
+      showMenu.value = true;
+      console.log('Card clicked, showing inline actions for expense:', expense.id);
     };
 
     // Close menu
@@ -283,7 +210,10 @@ export default {
 
     // Click outside to close menu
     const handleClickOutside = (event) => {
-      if (showMenu.value && !event.target.closest('.long-press-menu')) {
+      if (!showMenu.value) return;
+      const card = event.target.closest('.expense-card');
+      // If clicked outside any expense card, close
+      if (!card) {
         closeMenu();
       }
     };
@@ -308,9 +238,6 @@ export default {
     // Remove global click event listener
     onUnmounted(() => {
       document.removeEventListener('click', handleClickOutside);
-      if (longPressTimer.value) {
-        clearTimeout(longPressTimer.value);
-      }
     });
 
     // Listen for data changes
@@ -329,9 +256,7 @@ export default {
       showMenu,
       menuExpenseId,
       currentMenuExpense,
-      menuStyle,
-      startLongPress,
-      endLongPress,
+      handleCardClick,
       closeMenu,
       sortField,
       sortOrder
@@ -551,6 +476,41 @@ export default {
     margin-top: 10px;
   }
 
+  /* Inline action buttons shown on card click (small screens) */
+  .card-actions-inline {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.2s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-actions-inline .edit-btn,
+  .card-actions-inline .delete-btn {
+    flex: 1;
+    max-width: 48%;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
   .card-edit-btn,
   .card-delete-btn {
     padding: 4px 12px;
@@ -632,9 +592,9 @@ export default {
 
 @media (prefers-color-scheme: dark) {
   .menu-content {
-    background: rgba(30, 41, 59, 0.96);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    background: rgba(42, 45, 53, 0.96);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -675,13 +635,13 @@ export default {
 /* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .menu-content {
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background-color: #2e3138;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   }
   
   .menu-btn {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   }
   
   .menu-btn:hover {
@@ -821,17 +781,17 @@ export default {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .table-view {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 
   .expense-table thead tr {
-    background: rgba(255, 255, 255, 0.08);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
   }
 
   .expense-table td {
-    color: #e0e0e0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #E4E6EB;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   }
 
   .expense-table tr:hover {
@@ -839,60 +799,60 @@ export default {
   }
 
   .amount-cell {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .remark-cell {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .type-tag {
     color: var(--tag-color);
     background-color: transparent;
-    border: 1px solid white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: none;
   }
 
   .no-data-icon {
-    color: #333;
+    color: #5a5f68;
   }
 
   .no-data h3,
   .no-data p {
-    color: #aaa;
+    color: #9EA3AD;
   }
 
   /* Dark mode card styles */
   .expense-card {
-    background: rgba(30, 30, 30, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: rgba(48, 51, 58, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   }
 
   .card-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .date {
-    color: #aaa;
+    color: #9EA3AD;
   }
 
   .amount {
-    color: #60a5fa;
+    color: #7dd3fc;
   }
 
   .remark-text {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .type-label,
   .remark-label {
-    color: #888;
+    color: #8a8f98;
   }
 
   .card-edit-btn,
   .card-delete-btn {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   }
 
   .card-edit-btn:hover,
@@ -900,21 +860,26 @@ export default {
     opacity: 0.9;
   }
 
+  /* Dark mode inline card actions */
+  .card-actions-inline {
+    border-top-color: rgba(255, 255, 255, 0.14);
+  }
+
   /* Dark mode date header styles */
   .date-header-row {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .date-header-row td {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .date-text {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .count-text {
-    color: #aaa;
+    color: #9EA3AD;
   }
 
   .total-amount {
@@ -922,17 +887,17 @@ export default {
   }
 
   .date-header-card {
-    background: rgba(30, 30, 30, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: rgba(48, 51, 58, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   }
 
   .date-header-card .date-text {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .date-header-card .count-text {
-    color: #aaa;
+    color: #9EA3AD;
   }
 
   .date-header-card .total-amount {

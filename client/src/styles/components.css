@@ -114,7 +114,7 @@
   .form-section,
   .data-section,
   .chart-section {
-    background: var(--bg-card, rgba(30, 30, 30, 0.8));
+    background: var(--bg-card, rgba(48, 51, 58, 0.88));
     box-shadow: var(--box-shadow, 0 4px 16px rgba(0,0,0,0.2));
   }
   

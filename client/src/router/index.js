@@ -11,6 +11,7 @@ import NotFoundView from '@/views/NotFoundView.vue';
 
 import ChartsView from '@/views/ChartsView.vue';
 import MembershipView from '@/views/MembershipView.vue';
+import RecycleBinView from '@/views/RecycleBinView.vue';
 
 const router = createRouter({
   history: createWebHistory(), // Enable history mode (remove # from URL)
@@ -34,6 +35,12 @@ const router = createRouter({
       component: MembershipView
     },
     {
+      path: '/recycle-bin',
+      name: 'recycle-bin',
+      meta: { title: 'recycleBin.title' },
+      component: RecycleBinView
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView
@@ -45,7 +52,8 @@ const router = createRouter({
 });
 
 // Global before each guard: unified guard for all route controls
-router.beforeEach(async (to, _from, next) => {
+// NOTE: `next()` callback is deprecated since vue-router 4.10+. Use return-based navigation instead.
+router.beforeEach(async (to) => {
   try {
     const userAgent = navigator.userAgent || 'unknown';
     // Update page title
@@ -55,12 +63,11 @@ router.beforeEach(async (to, _from, next) => {
 
     // Record route access log
     console.log(`[Route Access] ${to.name} route accessed - User-Agent: ${userAgent}`);
-
-    next();
   } catch (error) {
     console.error('Route guard error:', error);
-    next();
   }
+  // Always allow navigation (return true / undefined both work; explicit return for clarity)
+  return true;
 });
 
 export default router;

@@ -87,8 +87,8 @@ button {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #121212 !important;
-    --border-light: #333 !important;
+    --bg-primary: #1e2028 !important;
+    --border-light: rgba(255, 255, 255, 0.12) !important;
   }
 
   html, body {
@@ -97,7 +97,7 @@ button {
   }
   
   .app-container {
-    background: #1e1e1e !important;
+    background: #2a2d35 !important;
   }
 
   header {
@@ -106,8 +106,8 @@ button {
 
   /* ===== Dark mode date picker optimization ===== */
   input[type="date"] {
-    background-color: #1e1e1e !important;
-    border: 1px solid #333 !important;
+    background-color: #2a2d35 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: var(--border-radius) !important;
     padding: 8px 12px !important;
     -webkit-appearance: none !important;
@@ -118,12 +118,12 @@ button {
   }
 
   input[type="date"]:focus {
-    border-color: #4d90fe !important;
-    box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.5) !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4) !important;
   }
 
   input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.8) brightness(1.2) contrast(1.5) !important;
+    filter: invert(0.85) brightness(1.15) contrast(1.4) !important;
     cursor: pointer !important;
     width: 20px !important;
     height: 20px !important;
@@ -134,7 +134,7 @@ button {
   }
 
   input[type="date"]::-webkit-datetime-edit-text {
-    color: #999 !important;
+    color: #9EA3AD !important;
     padding: 0 2px !important;
   }
 }

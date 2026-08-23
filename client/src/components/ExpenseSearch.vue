@@ -694,7 +694,7 @@ defineExpose({
   /* Dark mode adaptation */
   @media (prefers-color-scheme: dark) {
     .search-container {
-      background: rgba(30, 30, 30, 0.7);
+      background: rgba(48, 51, 58, 0.80);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -728,14 +728,14 @@ defineExpose({
     }
 
     .control-input input {
-      background: rgba(30, 30, 30, 0.5);
+      background: rgba(48, 51, 58, 0.65);
       border-color: rgba(255, 255, 255, 0.1);
       color: #e5e7eb;
     }
 
     .control-input input:focus {
       border-color: rgba(67, 97, 238, 0.5);
-      background: rgba(30, 30, 30, 0.65);
+      background: rgba(48, 51, 58, 0.80);
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
     
@@ -823,14 +823,14 @@ defineExpose({
       color: #f472b6;
     }
       .range-input input {
-        background: rgba(30, 30, 30, 0.5);
+        background: rgba(48, 51, 58, 0.65);
         border-color: rgba(255, 255, 255, 0.1);
         color: #e5e7eb;
       }
 
       .range-input input:focus {
         border-color: rgba(67, 97, 238, 0.5);
-        background: rgba(30, 30, 30, 0.65);
+        background: rgba(48, 51, 58, 0.80);
         box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
       }
   }

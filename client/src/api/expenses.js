@@ -219,5 +219,97 @@ export const ExpenseAPI = {
       console.error('[Expense API] Failed to get expense records grouped by date details:', error.response || error.message || error);
       throw error;
     }
+  },
+
+  // ===== Recycle Bin (soft-deleted expenses) =====
+
+  /** Fetch all soft-deleted expenses (recycle bin contents) */
+  async getDeletedExpenses () {
+    try {
+      console.log('[Expense API] Fetching recycle bin contents');
+      const response = await axios.get(`${API_BASE}/expenses/deleted`);
+      // Backend returns { success: true, data: { expenses: [...], count: N } }
+      const payload = response.data?.data ?? response.data ?? {};
+      const expenses = Array.isArray(payload.expenses) ? payload.expenses : [];
+      return { expenses, count: payload.count ?? expenses.length, raw: response.data };
+    } catch (error) {
+      console.error('[Expense API] Failed to get deleted expenses:', error);
+      throw error;
+    }
+  },
+
+  /** Restore a single soft-deleted expense by id */
+  async restoreExpense (id) {
+    try {
+      console.log(`[Expense API] Restoring expense: ${id}`);
+      const response = await axios.post(`${API_BASE}/expenses/${id}/restore`);
+      return response.data;
+    } catch (error) {
+      console.error(`[Expense API] Failed to restore expense ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /** Batch-restore selected soft-deleted expenses */
+  async restoreExpensesBatch (ids) {
+    try {
+      console.log(`[Expense API] Batch restoring ${ids.length} expenses`);
+      const response = await axios.post(`${API_BASE}/expenses/restore/batch`, { ids });
+      return response.data;
+    } catch (error) {
+      console.error('[Expense API] Failed to batch restore expenses:', error);
+      throw error;
+    }
+  },
+
+  /** Restore every soft-deleted expense */
+  async restoreAllExpenses () {
+    try {
+      console.log('[Expense API] Restoring all deleted expenses');
+      const response = await axios.post(`${API_BASE}/expenses/restore/all`);
+      return response.data;
+    } catch (error) {
+      console.error('[Expense API] Failed to restore all expenses:', error);
+      throw error;
+    }
+  },
+
+  /** Permanently hard-delete a single expense (must already be soft-deleted).
+   *  Reuses the existing DELETE /expenses/:id/hard route. */
+  async hardDeleteExpense (id) {
+    try {
+      console.log(`[Expense API] Hard deleting expense: ${id}`);
+      const response = await axios.delete(`${API_BASE}/expenses/${id}/hard`);
+      return response.data;
+    } catch (error) {
+      console.error(`[Expense API] Failed to hard delete expense ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /** Batch permanently hard-delete selected soft-deleted expenses */
+  async permanentDeleteBatch (ids) {
+    try {
+      console.log(`[Expense API] Batch permanently deleting ${ids.length} expenses`);
+      const response = await axios.delete(`${API_BASE}/expenses/deleted/batch`, {
+        data: { ids }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('[Expense API] Failed to batch permanently delete expenses:', error);
+      throw error;
+    }
+  },
+
+  /** Permanently hard-delete every soft-deleted expense (empty recycle bin) */
+  async permanentDeleteAll () {
+    try {
+      console.log('[Expense API] Permanently deleting ALL soft-deleted expenses');
+      const response = await axios.delete(`${API_BASE}/expenses/deleted/all`);
+      return response.data;
+    } catch (error) {
+      console.error('[Expense API] Failed to permanently delete all soft-deleted expenses:', error);
+      throw error;
+    }
   }
 };

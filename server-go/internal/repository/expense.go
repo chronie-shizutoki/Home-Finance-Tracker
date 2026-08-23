@@ -449,3 +449,89 @@ func (r *ExpenseRepository) FindAll() ([]models.Expense, error) {
 	}
 	return expenses, nil
 }
+
+// GetDeletedExpenses retrieves all soft-deleted expenses (deletedAt IS NOT NULL),
+// ordered by deletedAt DESC (newest deletion first).
+func (r *ExpenseRepository) GetDeletedExpenses() ([]models.Expense, error) {
+	var expenses []models.Expense
+	if err := r.db.Where("deletedAt IS NOT NULL").Order("deletedAt DESC").Find(&expenses).Error; err != nil {
+		return nil, err
+	}
+	return expenses, nil
+}
+
+// RestoreExpense restores a single soft-deleted expense by clearing its deletedAt
+// and bumping version / updatedAt so the change propagates through sync.
+func (r *ExpenseRepository) RestoreExpense(id string) error {
+	now := time.Now().UnixMilli()
+	result := r.db.Model(&models.Expense{}).
+		Where("id = ? AND deletedAt IS NOT NULL", id).
+		Updates(map[string]interface{}{
+			"deletedAt": nil,
+			"updatedAt": now,
+			"version":   gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("deleted record not found")
+	}
+	return nil
+}
+
+// RestoreExpenses batch-restores a list of soft-deleted expenses.
+func (r *ExpenseRepository) RestoreExpenses(ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	now := time.Now().UnixMilli()
+	result := r.db.Model(&models.Expense{}).
+		Where("id IN ? AND deletedAt IS NOT NULL", ids).
+		Updates(map[string]interface{}{
+			"deletedAt": nil,
+			"updatedAt": now,
+			"version":   gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// RestoreAllExpenses restores every soft-deleted expense.
+func (r *ExpenseRepository) RestoreAllExpenses() error {
+	now := time.Now().UnixMilli()
+	result := r.db.Model(&models.Expense{}).
+		Where("deletedAt IS NOT NULL").
+		Updates(map[string]interface{}{
+			"deletedAt": nil,
+			"updatedAt": now,
+			"version":   gorm.Expr("version + 1"),
+		})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// PermanentDeleteExpenses batch hard-deletes selected soft-deleted expenses.
+func (r *ExpenseRepository) PermanentDeleteExpenses(ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	result := r.db.Where("id IN ? AND deletedAt IS NOT NULL", ids).Delete(&models.Expense{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// PermanentDeleteAllExpenses hard-deletes every soft-deleted expense.
+func (r *ExpenseRepository) PermanentDeleteAllExpenses() error {
+	result := r.db.Where("deletedAt IS NOT NULL").Delete(&models.Expense{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
