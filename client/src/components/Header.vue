@@ -304,7 +304,7 @@ onUnmounted(() => {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: 99;
   transition: all 0.3s ease;
   box-sizing: border-box;
   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
