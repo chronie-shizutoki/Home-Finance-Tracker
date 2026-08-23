@@ -8,6 +8,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -30,9 +31,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -114,251 +117,596 @@ fun SettingsScreen(
     onLogout: () -> Unit = {},
     onRequireLogin: () -> Unit = {}
 ) {
-    val backStack = rememberNavBackStack(SettingsPage.MAIN)
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        modifier = Modifier.fillMaxSize(),
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<SettingsPage> { key ->
-                when (key) {
-                    SettingsPage.MAIN -> MainSettingsPage(
+    // ============================================================
+    // Two-pane layout support (tablets / desktop windows >= 600dp).
+    // ============================================================
+    //
+    // Phones stay pixel-identical to the previous NavDisplay stack
+    // (MAIN → sub-page slides in). Larger screens switch to a static
+    // Row:
+    //   LEFT  pane (weight 1)   = MainSettingsPage – always visible.
+    //   RIGHT pane (weight 1.4) = selected sub-page content.
+    //
+    // The selected page is hoisted into `selectedPane` so the two
+    // panes can share state. On small screens we hand the full
+    // routing off to the existing NavDisplay.
+    var selectedPane by rememberSaveable { mutableStateOf<SettingsPage?>(null) }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val useTwoPane = maxWidth >= 600.dp
+
+        if (useTwoPane) {
+            // ------- Large screen: Left list + Right detail --------
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // --- LEFT: master list, ~42% of the screen ---
+                // Wrapped in a Surface so the pane split has a subtle
+                // visual divider feel (matches Miuix's preference for
+                // tinted sections).
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    color = MiuixTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                ) {
+                    MainSettingsPage(
                         viewModel = viewModel,
                         context = context,
-                        onNavigate = { backStack.add(it) }
+                        onNavigate = { page ->
+                            // On the master pane we do NOT push onto the
+                            // back stack – that would animate-slide the
+                            // whole screen and break the two-pane layout.
+                            // Instead we simply update `selectedPane` so
+                            // the right panel recomposes.
+                            selectedPane = page
+                        }
                     )
-                    SettingsPage.ACCOUNT -> SettingsSubPage(
-                        title = context.getString(R.string.auth_account_info),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        AccountSettingsPage(
-                            viewModel = viewModel,
+                }
+
+                // Vertical hairline divider between the two panes.
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(1.dp)
+                )
+
+                // --- RIGHT: detail panel, ~58% of the screen ---
+                // weight(1.4) gives the detail page noticeably more
+                // breathing room, which matches the typical Android
+                // Settings + Info master/detail convention.
+                //
+                // Wrapped in a Surface so the layer-backdrop sampler
+                // (used by FloatingBottomBar glass effects) always
+                // sees solid content behind the bar. Without this
+                // opaque surface the AnimatedContent/Scaffold stack
+                // is transparent to the backdrop, which makes the
+                // nav bar think the right pane is empty → muddy
+                // gray (#5F5F61) refraction color.
+                Surface(
+                    modifier = Modifier
+                        .weight(1.4f)
+                        .fillMaxHeight(),
+                    color = MiuixTheme.colorScheme.surface
+                ) {
+                    AnimatedContent(
+                        targetState = selectedPane,
+                        transitionSpec = {
+                            // Mirror the horizontal slide animation used by
+                            // the phone-path NavDisplay exactly:
+                            //   * Forward / open  (anything → non-null page):
+                            //       - new page slides IN from the right edge
+                            //       - previous content slides OUT to the LEFT
+                            //   * Backward / close (a page → null empty state):
+                            //       - page slides OUT to the RIGHT
+                            //       - empty state slides IN from the LEFT
+                            //
+                            // Using the same 320 ms + FastOutSlowInEasing
+                            // constants ensures phone + tablet feel identical.
+                            val openForward = targetState != null &&
+                                (initialState == null ||
+                                    (targetState != null &&
+                                        initialState != null &&
+                                        initialState != targetState))
+
+                            if (openForward) {
+                                slideInHorizontally(
+                                    animationSpec = tween(
+                                        durationMillis = 320,
+                                        easing = FastOutSlowInEasing
+                                    ),
+                                    initialOffsetX = { it }
+                                ) togetherWith slideOutHorizontally(
+                                    animationSpec = tween(
+                                        durationMillis = 320,
+                                        easing = FastOutSlowInEasing
+                                    ),
+                                    targetOffsetX = { -it }
+                                )
+                            } else {
+                                slideInHorizontally(
+                                    animationSpec = tween(
+                                        durationMillis = 320,
+                                        easing = FastOutSlowInEasing
+                                    ),
+                                    initialOffsetX = { -it / 4 }
+                                ) togetherWith slideOutHorizontally(
+                                    animationSpec = tween(
+                                        durationMillis = 320,
+                                        easing = FastOutSlowInEasing
+                                    ),
+                                    targetOffsetX = { it }
+                                )
+                            }
+                        },
+                        contentAlignment = Alignment.TopStart,
+                        modifier = Modifier.fillMaxSize()
+                ) { targetPane ->
+                    if (targetPane == null) {
+                        EmptyDetailPane()
+                    } else {
+                        SettingsPaneContent(
+                            selectedPage = targetPane,
                             context = context,
+                            viewModel = viewModel,
+                            embedMode = true,
+                            onClosePane = { selectedPane = null },
+                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                            onNavigateToLanSync = onNavigateToLanSync,
+                            onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
+                            onLogout = onLogout,
+                            onRequireLogin = onRequireLogin
+                        )
+                    }
+                }
+                }
+            }
+        } else {
+            // ------- Small screen: original stack navigation --------
+            val backStack = rememberNavBackStack(SettingsPage.MAIN)
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                modifier = Modifier.fillMaxSize(),
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()
+                ),
+                entryProvider = entryProvider {
+                    entry<SettingsPage> { key ->
+                        SettingsPaneContent(
+                            selectedPage = key,
+                            context = context,
+                            viewModel = viewModel,
+                            embedMode = false,
+                            onClosePane = { backStack.removeLastOrNull() },
+                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                            onNavigateToLanSync = onNavigateToLanSync,
+                            onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
                             onLogout = onLogout,
                             onRequireLogin = onRequireLogin,
-                            paddingValues = paddingValues
+                            onNavigateSubPage = { page -> backStack.add(page) }
                         )
                     }
-                    SettingsPage.APPEARANCE -> SettingsSubPage(
-                        title = context.getString(R.string.theme_settings),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        AppearanceSettingsPage(
-                            viewModel = viewModel,
-                            context = context,
-                            paddingValues = paddingValues
-                        )
-                    }
-                    SettingsPage.FEATURES -> SettingsSubPage(
-                        title = context.getString(R.string.budget_settings),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        FeaturesSettingsPage(
-                            viewModel = viewModel,
-                            context = context,
-                            paddingValues = paddingValues
-                        )
-                    }
-                    SettingsPage.DATA_SYNC -> SettingsSubPage(
-                        title = context.getString(R.string.sync_title),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        DataSyncSettingsPage(
-                            viewModel = viewModel,
-                            context = context,
-                            onNavigateToLanSync = onNavigateToLanSync,
-                            paddingValues = paddingValues
-                        )
-                    }
-                    SettingsPage.ABOUT -> SettingsSubPage(
-                        title = context.getString(R.string.common_more_functions),
-                        onBack = { backStack.removeLastOrNull() }
-                    ) { paddingValues ->
-                        AboutSettingsPage(
-                            viewModel = viewModel,
-                            context = context,
-                            onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
-                            onNavigateToDatabaseTest = onNavigateToDatabaseTest,
-                            paddingValues = paddingValues
-                        )
-                    }
-                    SettingsPage.RECYCLE_BIN -> {
-                        val recycleBinViewModel: RecycleBinViewModel = hiltViewModel()
-                        val isSelectMode by recycleBinViewModel.isSelectMode.collectAsState()
+                },
+                transitionSpec = {
+                    slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
+                        slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
+                },
+                popTransitionSpec = {
+                    slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                        slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+                },
+                predictivePopTransitionSpec = {
+                    slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
+                        slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+                }
+            )
+        }
+    }
+}
 
-                        SettingsSubPage(
-                            title = context.getString(R.string.recycle_bin),
-                            onBack = { backStack.removeLastOrNull() },
-                            actions = {
-                                if (isSelectMode) {
-                                    WindowIconDropdownMenu(
-                                        entries = listOf(
-                                            DropdownEntry(
-                                                items = listOf(
-                                                    DropdownItem(
-                                                        text = context.getString(R.string.recycle_bin_restore_selected),
-                                                        icon = { modifier ->
-                                                            Icon(
-                                                                Icons.Default.Restore,
-                                                                contentDescription = null,
-                                                                modifier = modifier
-                                                            )
-                                                        },
-                                                        onClick = {
-                                                            recycleBinViewModel.requestBatchAction(
-                                                                BatchAction.RESTORE_SELECTED
-                                                            )
-                                                        }
-                                                    )
+/**
+ * Centralises rendering of every [SettingsPage] so both the single-pane
+ * (phone) NavDisplay path and the two-pane (tablet) Row path can share
+ * one set of page bodies.
+ *
+ * @param selectedPage which page to render. MAIN is special – phones
+ *   render [MainSettingsPage] as a full screen while tablet mode never
+ *   passes MAIN here (it lives permanently on the left pane).
+ * @param embedMode
+ *   * `true`  → tablet / right-pane rendering. Callers MUST have already
+ *               provided an outer Scaffold / top-bar for the overall
+ *               Settings screen; this function shows a lighter-weight
+ *               panel header rather than a second TopAppBar + ← arrow.
+ *               (Nested scaffold would double-inset the status bar.)
+ *   * `false` → phone / full-screen rendering. Each page paints its own
+ *               full [SettingsSubPage] chrome with back button as before.
+ * @param onClosePane invoked when the user requests close for the
+ *   current panel: on phones this pops the Nav stack; on tablets it
+ *   clears the right-pane selection back to the empty state.
+ * @param onNavigateSubPage forwarded onward to [MainSettingsPage] so
+ *   that the phone-path MAIN entry still knows how to push new pages.
+ */
+@Composable
+private fun SettingsPaneContent(
+    selectedPage: SettingsPage,
+    context: Context,
+    viewModel: SettingsViewModel,
+    embedMode: Boolean,
+    onClosePane: () -> Unit,
+    onNavigateToDatabaseTest: () -> Unit,
+    onNavigateToLanSync: () -> Unit,
+    onNavigateToOpenSourceLicenses: () -> Unit,
+    onLogout: () -> Unit,
+    onRequireLogin: () -> Unit,
+    onNavigateSubPage: (SettingsPage) -> Unit = {}
+) {
+    when (selectedPage) {
+        SettingsPage.MAIN -> MainSettingsPage(
+            viewModel = viewModel,
+            context = context,
+            onNavigate = onNavigateSubPage
+        )
+
+        SettingsPage.ACCOUNT -> DecoratedSettingsPane(
+            embedMode = embedMode,
+            title = context.getString(R.string.auth_account_info),
+            onClosePane = onClosePane
+        ) { paddingValues ->
+            AccountSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                onLogout = onLogout,
+                onRequireLogin = onRequireLogin,
+                paddingValues = paddingValues
+            )
+        }
+
+        SettingsPage.APPEARANCE -> DecoratedSettingsPane(
+            embedMode = embedMode,
+            title = context.getString(R.string.theme_settings),
+            onClosePane = onClosePane
+        ) { paddingValues ->
+            AppearanceSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                paddingValues = paddingValues
+            )
+        }
+
+        SettingsPage.FEATURES -> DecoratedSettingsPane(
+            embedMode = embedMode,
+            title = context.getString(R.string.budget_settings),
+            onClosePane = onClosePane
+        ) { paddingValues ->
+            FeaturesSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                paddingValues = paddingValues
+            )
+        }
+
+        SettingsPage.DATA_SYNC -> DecoratedSettingsPane(
+            embedMode = embedMode,
+            title = context.getString(R.string.sync_title),
+            onClosePane = onClosePane
+        ) { paddingValues ->
+            DataSyncSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                onNavigateToLanSync = onNavigateToLanSync,
+                paddingValues = paddingValues
+            )
+        }
+
+        SettingsPage.ABOUT -> DecoratedSettingsPane(
+            embedMode = embedMode,
+            title = context.getString(R.string.common_more_functions),
+            onClosePane = onClosePane
+        ) { paddingValues ->
+            AboutSettingsPage(
+                viewModel = viewModel,
+                context = context,
+                onNavigateToOpenSourceLicenses = onNavigateToOpenSourceLicenses,
+                onNavigateToDatabaseTest = onNavigateToDatabaseTest,
+                paddingValues = paddingValues
+            )
+        }
+
+        SettingsPage.RECYCLE_BIN -> {
+            val recycleBinViewModel: RecycleBinViewModel = hiltViewModel()
+            val isSelectMode by recycleBinViewModel.isSelectMode.collectAsState()
+
+            DecoratedSettingsPane(
+                embedMode = embedMode,
+                title = context.getString(R.string.recycle_bin),
+                onClosePane = onClosePane,
+                actions = {
+                    if (isSelectMode) {
+                        WindowIconDropdownMenu(
+                            entries = listOf(
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = context.getString(R.string.recycle_bin_restore_selected),
+                                            icon = { modifier ->
+                                                Icon(
+                                                    Icons.Default.Restore,
+                                                    contentDescription = null,
+                                                    modifier = modifier
                                                 )
-                                            ),
-                                            DropdownEntry(
-                                                items = listOf(
-                                                    DropdownItem(
-                                                        text = "",
-                                                        icon = { modifier ->
-                                                            Row(
-                                                                modifier = modifier,
-                                                                verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                            ) {
-                                                                Icon(
-                                                                    Icons.Default.Delete,
-                                                                    contentDescription = null,
-                                                                    tint = MiuixTheme.colorScheme.error
-                                                                )
-                                                                Text(
-                                                                    text = context.getString(R.string.recycle_bin_delete_selected),
-                                                                    color = MiuixTheme.colorScheme.error
-                                                                )
-                                                            }
-                                                        },
-                                                        onClick = {
-                                                            recycleBinViewModel.requestBatchAction(
-                                                                BatchAction.DELETE_SELECTED
-                                                            )
-                                                        }
-                                                    )
+                                            },
+                                            onClick = {
+                                                recycleBinViewModel.requestBatchAction(
+                                                    BatchAction.RESTORE_SELECTED
                                                 )
-                                            )
-                                        ),
-                                        dropdownColors = DropdownDefaults.dropdownColors(
-                                            contentColor = MiuixTheme.colorScheme.onSurface,
-                                            summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                                            }
                                         )
-                                    ) {
-                                        Icon(
-                                            Icons.Default.MoreVert,
-                                            contentDescription = context.getString(R.string.common_more_functions)
-                                        )
-                                    }
-                                } else {
-                                    WindowIconDropdownMenu(
-                                        entries = listOf(
-                                            DropdownEntry(
-                                                items = listOf(
-                                                    DropdownItem(
-                                                        text = context.getString(R.string.recycle_bin_select),
-                                                        icon = { modifier ->
-                                                            Icon(
-                                                                Icons.Default.Checklist,
-                                                                contentDescription = null,
-                                                                modifier = modifier
-                                                            )
-                                                        },
-                                                        onClick = { recycleBinViewModel.enterSelectMode() }
+                                    )
+                                ),
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = "",
+                                            icon = { modifier ->
+                                                Row(
+                                                    modifier = modifier,
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = MiuixTheme.colorScheme.error
                                                     )
-                                                )
-                                            ),
-                                            DropdownEntry(
-                                                items = listOf(
-                                                    DropdownItem(
-                                                        text = context.getString(R.string.recycle_bin_restore_all),
-                                                        icon = { modifier ->
-                                                            Icon(
-                                                                Icons.Default.Restore,
-                                                                contentDescription = null,
-                                                                modifier = modifier
-                                                            )
-                                                        },
-                                                        onClick = {
-                                                            recycleBinViewModel.requestBatchAction(
-                                                                BatchAction.RESTORE_ALL
-                                                            )
-                                                        }
+                                                    Text(
+                                                        text = context.getString(R.string.recycle_bin_delete_selected),
+                                                        color = MiuixTheme.colorScheme.error
                                                     )
+                                                }
+                                            },
+                                            onClick = {
+                                                recycleBinViewModel.requestBatchAction(
+                                                    BatchAction.DELETE_SELECTED
                                                 )
-                                            ),
-                                            DropdownEntry(
-                                                items = listOf(
-                                                    DropdownItem(
-                                                        text = "",
-                                                        icon = { modifier ->
-                                                            Row(
-                                                                modifier = modifier,
-                                                                verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                            ) {
-                                                                Icon(
-                                                                    Icons.Default.Delete,
-                                                                    contentDescription = null,
-                                                                    tint = MiuixTheme.colorScheme.error
-                                                                )
-                                                                Text(
-                                                                    text = context.getString(R.string.recycle_bin_delete_all),
-                                                                    color = MiuixTheme.colorScheme.error
-                                                                )
-                                                            }
-                                                        },
-                                                        onClick = {
-                                                            recycleBinViewModel.requestBatchAction(
-                                                                BatchAction.DELETE_ALL
-                                                            )
-                                                        }
+                                            }
+                                        )
+                                    )
+                                )
+                            ),
+                            dropdownColors = DropdownDefaults.dropdownColors(
+                                contentColor = MiuixTheme.colorScheme.onSurface,
+                                summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = context.getString(R.string.common_more_functions)
+                            )
+                        }
+                    } else {
+                        WindowIconDropdownMenu(
+                            entries = listOf(
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = context.getString(R.string.recycle_bin_select),
+                                            icon = { modifier ->
+                                                Icon(
+                                                    Icons.Default.Checklist,
+                                                    contentDescription = null,
+                                                    modifier = modifier
+                                                )
+                                            },
+                                            onClick = { recycleBinViewModel.enterSelectMode() }
+                                        )
+                                    )
+                                ),
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = context.getString(R.string.recycle_bin_restore_all),
+                                            icon = { modifier ->
+                                                Icon(
+                                                    Icons.Default.Restore,
+                                                    contentDescription = null,
+                                                    modifier = modifier
+                                                )
+                                            },
+                                            onClick = {
+                                                recycleBinViewModel.requestBatchAction(
+                                                    BatchAction.RESTORE_ALL
+                                                )
+                                            }
+                                        )
+                                    )
+                                ),
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = "",
+                                            icon = { modifier ->
+                                                Row(
+                                                    modifier = modifier,
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = MiuixTheme.colorScheme.error
                                                     )
+                                                    Text(
+                                                        text = context.getString(R.string.recycle_bin_delete_all),
+                                                        color = MiuixTheme.colorScheme.error
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                recycleBinViewModel.requestBatchAction(
+                                                    BatchAction.DELETE_ALL
                                                 )
-                                            )
-                                        ),
-                                        dropdownColors = DropdownDefaults.dropdownColors(
-                                            contentColor = MiuixTheme.colorScheme.onSurface,
-                                            summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                                            }
                                         )
-                                    ) {
-                                        Icon(
-                                            Icons.Default.MoreVert,
-                                            contentDescription = context.getString(R.string.common_more_functions)
-                                        )
-                                    }
-                                }
-                            }
-                        ) { paddingValues ->
-                            RecycleBinScreen(
-                                context = context,
-                                viewModel = recycleBinViewModel,
-                                paddingValues = paddingValues
+                                    )
+                                )
+                            ),
+                            dropdownColors = DropdownDefaults.dropdownColors(
+                                contentColor = MiuixTheme.colorScheme.onSurface,
+                                summaryColor = MiuixTheme.colorScheme.onSurfaceSecondary
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = context.getString(R.string.common_more_functions)
                             )
                         }
                     }
                 }
+            ) { paddingValues ->
+                RecycleBinScreen(
+                    context = context,
+                    viewModel = recycleBinViewModel,
+                    paddingValues = paddingValues
+                )
             }
+        }
+    }
+}
+
+/**
+ * Switches between the phone-native [SettingsSubPage] (full Scaffold +
+ * back arrow) and the tablet in-panel variant (just a Card title +
+ * close action, without adding a second status-bar chrome).
+ */
+@Composable
+private fun DecoratedSettingsPane(
+    embedMode: Boolean,
+    title: String,
+    onClosePane: () -> Unit,
+    actions: @Composable (RowScope.() -> Unit) = {},
+    content: @Composable (PaddingValues) -> Unit
+) {
+    if (embedMode) {
+        EmbeddedSettingsPane(
+            title = title,
+            onClosePane = onClosePane,
+            actions = actions,
+            content = content
+        )
+    } else {
+        SettingsSubPage(
+            title = title,
+            onBack = onClosePane,
+            actions = actions,
+            content = content
+        )
+    }
+}
+
+/**
+ * Tablet-mode right-panel chrome: a large-title collapsing header +
+ * standard Miuix TopAppBar arrow-back that matches the phone path's
+ * [SettingsSubPage] pixel-for-pixel, but keeps the header constrained
+ * inside the bounds of the right panel rather than spanning the whole
+ * screen.
+ *
+ * Replacing the previous "Close (×) + fixed 56.dp row" with a full
+ * Miuix large-title TopAppBar + scrollBehavior gives:
+ *   - Correct navigation icon (←, not ✕, matches phone behavior).
+ *   - Large title that shrinks into a compact title as the body scrolls
+ *     (exactly the same "适配大小滚动标题" UX as every other page).
+ *   - Same nested-scroll / elevation / divider behaviour, so users see
+ *     a consistent app bar whether they tap a row on phone or tablet.
+ */
+@Composable
+private fun EmbeddedSettingsPane(
+    title: String,
+    onClosePane: () -> Unit,
+    actions: @Composable (RowScope.() -> Unit) = {},
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val scrollBehavior = MiuixScrollBehavior()
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = title,
+                largeTitle = title,
+                scrollBehavior = scrollBehavior,
+                navigationIcon = {
+                    // Arrow-back rather than a close (×) to be
+                    // consistent with the phone / full-screen sub-pages
+                    // ("back to main list" is the same gesture as
+                    // "back in the nav stack" on phones).
+                    CircularIconButton(
+                        onClick = onClosePane,
+                        modifier = Modifier.padding(start = 8.dp, end = 4.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                },
+                actions = {
+                    actions()
+                    Box(modifier = Modifier.padding(end = 8.dp))
+                }
+            )
         },
-        transitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { it } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it }
-        },
-        popTransitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
-        },
-        predictivePopTransitionSpec = {
-            slideInHorizontally(tween(320, easing = FastOutSlowInEasing)) { -it / 4 } togetherWith
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it }
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+            ) {
+                // Pass the scaffold's PaddingValues straight through to
+                // the page body so calculateTopPadding() correctly
+                // accounts for the collapsed/expanded large title.
+                content(paddingValues)
+            }
         }
     )
+}
+
+/**
+ * Tablet-mode right-pane placeholder drawn when the user hasn't tapped
+ * anything on the left yet. Renders the app's launcher icon at very low
+ * opacity, dead-center, as a minimal "no selection" chrome.
+ *
+ * NOTE: We intentionally use `AsyncImage` (Coil3) here instead of
+ * `painterResource(R.mipmap.ic_launcher)`, because `painterResource`
+ * only supports VectorDrawable + raster (PNG/JPG/WEBP) drawables and
+ * will throw `IllegalArgumentException` for modern adaptive launcher
+ * icons defined in `mipmap-anydpi-v26` via `<adaptive-icon>`. Coil3's
+ * built-in `ResourceFetcher` walks through `Resources.getDrawable()`
+ * which correctly resolves both adaptive layers and raster fallbacks.
+ */
+@Composable
+private fun EmptyDetailPane() {
+    // Alpha chosen so the watermark is clearly visible but never
+    // distracts from real detail content once a selection is made.
+    val watermarkAlpha = 0.22f
+    val watermarkSizeDp = 220.dp
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = R.mipmap.ic_launcher,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(watermarkSizeDp)
+                .alpha(watermarkAlpha)
+        )
+    }
 }
 
 @Composable
