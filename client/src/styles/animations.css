@@ -18,6 +18,57 @@
   opacity: 0;
 }
 
+/* ============================================================
+ * Horizontal page-level slide transitions
+ *   slide-left  : forward navigation  (e.g. Home → Charts)
+ *                 enter page slides in from the right,
+ *                 exit page fades out to the left
+ *   slide-right : backward navigation (e.g. Charts → Home)
+ *                 enter page slides in from the left,
+ *                 exit page fades out to the right
+ * ============================================================ */
+
+/* Forward: enter from right */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition:
+    transform var(--transition-time, 0.35s) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   var(--transition-time, 0.35s) cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* slide-left — forward: new comes from right, old exits left */
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(32px);
+}
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-24px);
+}
+
+/* slide-right — back: new comes from left, old exits right */
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-32px);
+}
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+/* During the animation keep the page from jumping vertically.
+   Applied to every route-view slot content via the wrapper below. */
+.page-transition-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
 /* Button interaction animations */
 .btn-scale {
   transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease;
