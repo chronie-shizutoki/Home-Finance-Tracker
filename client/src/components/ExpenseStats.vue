@@ -94,7 +94,7 @@ export default {
 
   @media (prefers-color-scheme: dark) {
     .stats-container {
-      background: rgba(30, 30, 30, 0.7);
+      background: rgba(48, 51, 58, 0.80);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 

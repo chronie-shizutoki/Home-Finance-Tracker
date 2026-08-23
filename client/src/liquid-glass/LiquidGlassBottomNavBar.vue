@@ -443,6 +443,7 @@ onUnmounted(() => {
           v-for="item in items"
           :key="item.id"
           class="navbar-item"
+          :class="{ 'is-active': internalValue === item.id }"
           :style="{
             width: `${itemWidth}px`,
             opacity: internalValue === item.id ? 1 : 0.6,
@@ -452,18 +453,20 @@ onUnmounted(() => {
           <div
             v-if="item.icon"
             class="navbar-icon"
+            :class="{ 'is-active': internalValue === item.id }"
             v-html="item.icon"
             :style="{
-              color: internalValue === item.id ? props.color : 'white',
+              color: internalValue === item.id ? props.color : 'var(--navbar-inactive-color, white)',
               width: `${dimensions.iconSize}px`,
               height: `${dimensions.iconSize}px`
             }"
           ></div>
           <span
             class="navbar-label"
+            :class="{ 'is-active': internalValue === item.id }"
             :style="{
               fontSize: dimensions.fontSize,
-              color: internalValue === item.id ? props.color : 'white'
+              color: internalValue === item.id ? props.color : 'var(--navbar-inactive-color, white)'
             }"
           >{{ item.label }}</span>
         </div>

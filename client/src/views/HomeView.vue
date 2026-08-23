@@ -1,12 +1,13 @@
 <template>
+  <!-- Fixed Header outside .container — avoids flex-gap overlap with first row -->
+  <Header :title="$t('app.title')" />
+
   <div class="container">
     <!-- Main dialogs -->
     <div v-if="isLoading" class="loading-alert">{{ t('app.loading') }}</div>
     <div v-if="error" class="error-alert">{{ error }}</div>
     <MessageTip v-model:message="successMessage" type="success" />
     <MessageTip v-model:message="errorMessage" type="error" />
-
-    <Header :title="$t('app.title')" />
 
     <!-- Function group grid layout -->
     <div class="function-section">
@@ -113,6 +114,10 @@
           <GlassButton type="primary" @click="exportMonthData">
             <template #icon><FontAwesomeIcon icon="download" /></template>
             {{ t('export.monthData') }}
+          </GlassButton>
+          <GlassButton type="secondary" @click="goToRecycleBin">
+            <template #icon><FontAwesomeIcon icon="trash-alt" /></template>
+            {{ t('common.trash') }}
           </GlassButton>
         </div>
       </div>
@@ -749,6 +754,11 @@ const apiKeyForm = reactive({
 // Navigate to the charts page
 const goToCharts = () => {
   router.push('/charts');
+};
+
+// Navigate to the recycle bin page
+const goToRecycleBin = () => {
+  router.push('/recycle-bin');
 };
 
 // Handle editing an expense record
@@ -1565,11 +1575,11 @@ const refreshPage = () => {
 
 @media (prefers-color-scheme: dark) {
 .api-key-prompt {
-  background-color: #2a3142;
+  background-color: #373c45;
 }
 
 .api-key-prompt span {
-  color: #a0aec0;
+  color: #B0B4BD;
 }
 }
 
@@ -1967,9 +1977,9 @@ const refreshPage = () => {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog {
-  background: rgba(30, 41, 59, 0.96);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: rgba(48, 51, 58, 0.96);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #E4E6EB;
 }
 }
 
@@ -2029,7 +2039,7 @@ const refreshPage = () => {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog .dialog-header {
-  border-bottom-color: #4a5568;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 }
 
@@ -2069,8 +2079,8 @@ const refreshPage = () => {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog .dialog-close-btn:hover {
-  background-color: #4a5568;
-  color: #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #E4E6EB;
 }
 }
 
@@ -2195,7 +2205,7 @@ const refreshPage = () => {
 
 @media (prefers-color-scheme: dark) {
 .custom-dialog .dialog-footer {
-  border-top-color: #4a5568;
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 }
 

@@ -1,7 +1,21 @@
 .membership-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  /* Leave space under the fixed title bar so elements never overlap */
+  padding: calc(var(--header-offset-desktop, 96px) + 20px) 20px 20px 20px;
+  box-sizing: border-box;
+}
+
+/* Responsive header offsets for membership page (match main.css variables) */
+@media (max-width: 768px) {
+  .membership-container {
+    padding: calc(var(--header-offset-mobile, 80px) + 12px) 12px 12px 12px;
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .membership-container {
+    padding: calc(var(--header-offset-tablet, 88px) + 20px) 20px 20px 20px;
+  }
 }
 
 .back-button-container {
@@ -54,13 +68,17 @@
 
 @media (prefers-color-scheme: dark) {
   .membership-container {
-    background-color: #141414;
-    color: #ffffff;
+    background-color: #1e2028;
+    color: #E4E6EB;
+  }
+
+  .page-title {
+    color: #E4E6EB;
   }
 
   .user-info-card {
-    background: rgba(30, 41, 59, 0.9);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    background: rgba(48, 51, 58, 0.92);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
   }
 }

@@ -149,7 +149,7 @@
 /* Dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   .message-tip {
-    background: rgba(30, 30, 30, 0.8);
+    background: rgba(48, 51, 58, 0.88);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }

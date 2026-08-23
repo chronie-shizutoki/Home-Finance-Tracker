@@ -22,27 +22,48 @@ func SetupExpenseRoutes(router *gin.Engine, expenseRepo *repository.ExpenseRepos
 			// Get expense records grouped by date
 			expenses.GET("/by-date", expenseHandler.GetExpensesByDate)
 
+			// Get expense statistics
+			expenses.GET("/statistics", expenseHandler.GetExpenseStatistics)
+
+			// ---------- Recycle bin endpoints (soft-deleted records) ----------
+			// List all soft-deleted expenses (recycle bin contents)
+			expenses.GET("/deleted", expenseHandler.GetDeletedExpenses)
+
+			// Restore every soft-deleted expense
+			expenses.POST("/restore/all", expenseHandler.RestoreAllExpenses)
+
+			// Batch-restore selected soft-deleted expenses
+			expenses.POST("/restore/batch", expenseHandler.RestoreExpensesBatch)
+
+			// Restore a single soft-deleted expense
+			expenses.POST("/:id/restore", expenseHandler.RestoreExpense)
+
+			// Permanently delete every soft-deleted expense
+			expenses.DELETE("/deleted/all", expenseHandler.PermanentDeleteAllExpenses)
+
+			// Batch permanently delete selected soft-deleted expenses
+			expenses.DELETE("/deleted/batch", expenseHandler.PermanentDeleteExpensesBatch)
+
 			// Create new expense record
 			expenses.POST("/", expenseHandler.CreateExpense)
 
 			// Sync expense records
 			expenses.POST("/sync", expenseHandler.SyncExpenses)
 
+			// Batch create
+			expenses.POST("/batch", expenseHandler.BatchCreateExpense)
+
 			// Update expense record
 			expenses.PUT("/:id", expenseHandler.UpdateExpense)
+
+			// Get single expense by ID
+			expenses.GET("/:id", expenseHandler.GetExpenseByID)
 
 			// Soft delete expense record
 			expenses.DELETE("/:id", expenseHandler.DeleteExpense)
 
-			// Hard delete expense record
+			// Hard delete expense record (permanently remove from DB)
 			expenses.DELETE("/:id/hard", expenseHandler.HardDeleteExpense)
-		}
-
-		// Expense statistics route group
-		expenseStats := api.Group("/expenses")
-		{
-			// Get expense statistics
-			expenseStats.GET("/statistics", expenseHandler.GetExpenseStatistics)
 		}
 	}
 }

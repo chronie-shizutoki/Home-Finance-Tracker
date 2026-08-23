@@ -287,16 +287,16 @@
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: #fff;
+    --text-primary: #E4E6EB;
   }
   
   .modal-overlay {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.55);
   }
   
   .modal-content {
-    background: var(--dark-bg-primary);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    background: var(--dark-bg-card);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.38);
     color: var(--dark-text-primary);
     
     &::-webkit-scrollbar-track {
@@ -340,9 +340,9 @@
     }
     
     &.glass-effect {
-      background: rgba(30, 30, 30, 0.8);
-      border-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      background: rgba(48, 51, 58, 0.92);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
       
       input[type="date"] {
         background: var(--dark-bg-secondary);

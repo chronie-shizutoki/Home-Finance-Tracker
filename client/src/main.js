@@ -16,14 +16,14 @@ import { createPinia } from 'pinia';
 
 // Import Font Awesome library
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// Import solid-style icons from Font Awesome library
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
-  faEdit, faTrashAlt,
-  faFileExport, faArrowUp, faArrowDown
+  faEdit, faTrashAlt, faFileExport, faArrowUp, faArrowDown,
+  faChevronLeft, faUndo, faCheckSquare, faHourglassHalf,
+  faHome, faExclamationTriangle, faSkull
 } from '@fortawesome/free-solid-svg-icons'
 
 // Add icons to the library
@@ -31,7 +31,9 @@ library.add(
   faPlus, faUpload, faDownload, faMicrochip,
   faFileAlt, faStar, faEnvelope, faQuestionCircle,
   faChartPie, faSyncAlt, faCog, faChartLine, faTimes,
-  faEdit, faTrashAlt, faFileExport, faArrowUp, faArrowDown
+  faEdit, faTrashAlt, faFileExport, faArrowUp, faArrowDown,
+  faChevronLeft, faUndo, faCheckSquare, faHourglassHalf,
+  faHome, faExclamationTriangle, faSkull
 )
 
 import App from './App.vue';

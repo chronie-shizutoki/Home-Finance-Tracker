@@ -133,57 +133,60 @@ const emit = defineEmits(['click'])
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
 .glass-button {
-  background: rgba(30, 41, 59, 0.85);
-  color: #e2e8f0;
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: rgba(48, 51, 58, 0.88);
+  color: #E4E6EB;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .glass-button:hover {
-  background: rgba(30, 41, 59, 0.95);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  background: rgba(55, 58, 66, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .glass-button.primary {
-  background: rgba(59, 130, 246, 0.9);
+  background: rgba(99, 102, 241, 0.85);
+  color: #E4E6EB;
 }
 
 .glass-button.primary:hover {
-  background: rgba(59, 130, 246, 1);
+  background: rgba(99, 102, 241, 0.95);
 }
 
 .glass-button.secondary {
-  background: rgba(51, 65, 85, 0.85);
-  color: #cbd5e1;
+  background: rgba(71, 77, 88, 0.85);
+  color: #D4D7DE;
 }
 
 .glass-button.secondary:hover {
-  background: rgba(51, 65, 85, 0.95);
+  background: rgba(71, 77, 88, 0.95);
 }
 
 .glass-button.success {
-  background: rgba(34, 197, 94, 0.9);
+  background: rgba(34, 197, 94, 0.85);
+  color: #E4E6EB;
 }
 
 .glass-button.success:hover {
-  background: rgba(34, 197, 94, 1);
+  background: rgba(34, 197, 94, 0.95);
 }
 
 .glass-button.warning {
-  background: rgba(234, 179, 8, 0.9);
+  background: rgba(234, 179, 8, 0.85);
   color: #1a202c;
 }
 
 .glass-button.warning:hover {
-  background: rgba(234, 179, 8, 1);
+  background: rgba(234, 179, 8, 0.95);
 }
 
 .glass-button.danger {
-  background: rgba(239, 68, 68, 0.9);
+  background: rgba(239, 68, 68, 0.85);
+  color: #E4E6EB;
 }
 
 .glass-button.danger:hover {
-  background: rgba(239, 68, 68, 1);
+  background: rgba(239, 68, 68, 0.95);
 }
 }
 </style>

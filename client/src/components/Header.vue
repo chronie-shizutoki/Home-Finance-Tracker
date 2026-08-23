@@ -1,6 +1,20 @@
 <template>
-  <div :class="['header']" v-liquid-glass>
+  <div :class="['header', { 'has-back': showBack }]" v-liquid-glass="{ disabled: true }">
+    <!-- Circular glass back button (for secondary pages: charts, membership, recycle-bin, ...) -->
+    <button
+      v-if="showBack"
+      class="back-circle-btn"
+      type="button"
+      @click="handleBackClick"
+      :aria-label="resolvedBackLabel"
+      :title="resolvedBackLabel"
+    >
+      <FontAwesomeIcon icon="chevron-left" />
+    </button>
+
     <h1>{{ title }}</h1>
+
+    <div class="header-spacer" aria-hidden="true"></div>
 
     <div class="header-right">
       <div class="language-dropdown" ref="languageDropdownRef">
@@ -68,15 +82,41 @@ import { useLanguageSwitch } from '@/composables/useLanguageSwitch';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 defineOptions({ name: 'AppHeader' });
-useI18n();
+const { t } = useI18n();
 
 // Define props received by the component
-const props = defineProps({ title: String });
+const props = defineProps({
+  title: { type: String, default: '' },
+  /** Whether to show the circular back button (for secondary pages) */
+  showBack: { type: Boolean, default: false },
+  /** Router path to go back to when back button is clicked. Defaults to "/" (home). */
+  backRoute: { type: String, default: '/' },
+  /** Accessible label for the back button. Defaults to a localized "Back to home". */
+  backLabel: { type: String, default: '' },
+});
+
+// Emits: allow parent to override back behavior if needed
+const emit = defineEmits(['back']);
 
 // Initialize the router
 const router = useRouter();
+
+// Resolve the final accessible label for the back button
+const resolvedBackLabel = computed(() => props.backLabel || t('recycleBin.backToHome') || 'Back');
+
+// Back click: prefer emit override, else navigate to backRoute via router
+const handleBackClick = () => {
+  emit('back');
+  // If no parent handler cancels default via event, also do standard navigation
+  try {
+    router.push(props.backRoute || '/').catch(() => { /* ignore duplicate nav */ });
+  } catch (e) {
+    console.warn('[Header] back navigation failed:', e);
+  }
+};
 
 // Navigate to the membership page when the avatar is clicked
 const goToMembership = () => {
@@ -162,8 +202,28 @@ const getCurrentUserAvatar = () => {
 // Computed property for the avatar URL; returns a default blank avatar when none is set
 const avatarUrl = computed(() => {
   const avatar = getCurrentUserAvatar();
-  // If no avatar is set, return a default blank avatar SVG
-  return avatar || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="%23e0e0e0"/><circle cx="20" cy="15" r="5" fill="%23999999"/><path d="M10 30C10 28.3431 11.3431 27 13 27H27C28.6569 27 30 28.3431 30 30V32C30 33.6569 28.6569 35 27 35H13C11.3431 35 10 33.6569 10 32V30Z" fill="%23999999"/></svg>';
+  // If no avatar is set, return a solid default SVG. A small inline SVG is
+  // preferred over an external file so it works offline; URIs below use
+  // explicit URL-encoded characters to avoid parsing issues.
+  return (
+    avatar ||
+    // Light-gray placeholder: neutral gray circle + body. Stays visible on
+    // both the current light-grey header background and dark mode variants.
+    'data:image/svg+xml;charset=UTF-8,' +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a5b4fc" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#4361ee" stop-opacity="0.95"/>
+            </linearGradient>
+          </defs>
+          <circle cx="40" cy="40" r="40" fill="url(#g)"/>
+          <circle cx="40" cy="31" r="11" fill="white" fill-opacity="0.95"/>
+          <path d="M18 62.5 C18 53.4 25.7 47 40 47 C54.3 47 62 53.4 62 62.5 V68 C62 74.2 57.2 78 51 78 H29 C22.8 78 18 74.2 18 68 V62.5 Z" fill="white" fill-opacity="0.95"/>
+        </svg>`
+      )
+  );
 });
 
 // Fetch user info and avatar from the backend
@@ -211,15 +271,32 @@ onUnmounted(() => {
 
 <style scoped>
 /* Header container. The glass blur is rendered by the WebGL engine through
-   the v-liquid-glass directive on the .header element. */
+   the v-liquid-glass directive on the .header element.
+
+   Clip strategy (why NOT overflow:hidden):
+     - Language dropdown menu is position:absolute below the header
+       (top: calc(100% + 8px)), it MUST be able to paint outside.
+     - `overflow:hidden` would clip it → dropdown not visible.
+     - Instead we use `clip-path: inset(... round R R)` — this clips the
+       element's own background, box-shadow, border AND any child painted
+       inside the normal flow (including WebGL liquid-glass lens rect)
+       to rounded bottom corners. Absolutely-positioned descendants are
+       still clipped by `clip-path`, so we move the dropdown to be a
+       sibling (via Vue Teleport) OR wrap the background clip on an INNER
+       pseudo-element instead. We take approach B: ::bg-inner layer.
+*/
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.9) 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid #e4e7ed;
+  gap: 14px;                 /* space between back button, title, and right area */
+  padding: 1rem 1.5rem;
+  /* Intentionally NO background here: background is drawn by ::bg-inner
+     (which has matching border-radius + clip-path) so that the overflow
+     below the bar (language dropdown) is never clipped. */
+  background: transparent;
+  box-shadow: none;
+  /* NO solid border-bottom at radius corners */
+  border-bottom: none;
   width: 95%;
   max-width: 1200px;
   margin: 0 auto;
@@ -231,12 +308,62 @@ onUnmounted(() => {
   transition: all 0.3s ease;
   box-sizing: border-box;
   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+  overflow: visible;          /* language dropdown must escape below */
+  isolation: isolate;
 }
 
-/* Effect applied while scrolling */
-.header.scrolled {
-  padding: 0.8rem 1.5rem; /* Reduce padding while scrolling */
+/* Inner layer that carries the rounded glass background + shadow.
+   It is clipped with `clip-path: inset(... round ...)` so the two bottom
+   corners are cleanly rounded (no stray corner artifacts from the solid
+   bottom border / CSS gradient) AND the WebGL lens paints within bounds. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0.92) 100%);
+  /* Clip to the exact rounded shape so corners never show a wrong color
+     pixel. `round` syntax is supported in all modern browsers + WebKit. */
+  clip-path: inset(0 0 0 0 round 0 0 var(--border-radius-lg) var(--border-radius-lg));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  z-index: 0;
+}
+.header.scrolled::before {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+}
+
+/* Fake bottom divider that respects border-radius.
+   This replaces the solid `border-bottom` so corners stay clean. */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(228, 231, 237, 0) 0%,
+    rgba(228, 231, 237, 0.8) 15%,
+    rgba(228, 231, 237, 0.8) 85%,
+    rgba(228, 231, 237, 0) 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Effect applied while scrolling — inner shadow / padding tuning already done. */
+.header.scrolled {
+  padding: 0.8rem 1.25rem; /* Reduce padding while scrolling */
+}
+
+/* Middle flexible spacer that pushes .header-right to the far right,
+   while keeping h1 left-aligned next to the back button. */
+.header-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Title styles */
@@ -244,8 +371,10 @@ onUnmounted(() => {
   font-size: 1.8rem; /* Title font size */
   color: #303133; /* Title text color */
   margin: 0; /* Remove default margin */
-  flex-shrink: 0; /* Prevent the title from shrinking */
-  text-align: left; /* Left-align text */
+  flex: 0 1 auto;      /* natural size, can shrink */
+  min-width: 0;
+  text-align: left; /* Explicitly left-align text */
+  align-self: center;
   font-weight: 600; /* Font weight */
   background: linear-gradient(90deg, #409eff, #7928ca); /* Gradient text background */
   -webkit-background-clip: text; /* Clip background to the text */
@@ -254,11 +383,11 @@ onUnmounted(() => {
   letter-spacing: -0.02em; /* Letter spacing */
   transition: all 0.3s ease; /* Transition effect */
   position: relative;
-  z-index: 1;
+  z-index: 3;
   white-space: nowrap; /* Prevent the title from wrapping */
   overflow: hidden;
   text-overflow: ellipsis; /* Show an ellipsis when text overflows */
-  max-width: 50%; /* Maximum width limit */
+  max-width: 55%; /* Relaxed limit — back button now lives inside the flex row */
 }
 
 /* Right-side area container */
@@ -274,26 +403,81 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  z-index: 1;
+}
+
+/* Circular liquid-glass BACK button — shown at start of header for secondary pages */
+.back-circle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(67, 97, 238, 0.35);
+  /* Solid enough white so the chevron is always visible */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  /* Stronger contrast for the icon (FA inherits currentColor via SVG fill) */
+  color: #3a3af5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  box-shadow:
+    0 2px 10px rgba(67, 97, 238, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  line-height: 1;
+  /* Ensure SVG (FontAwesome) fills with currentColor */
+}
+.back-circle-btn :deep(svg) {
+  color: inherit;
+  fill: currentColor;
+}
+.back-circle-btn:hover {
+  transform: translateX(-2px);
+  background: rgba(67, 97, 238, 0.18);
+  color: #4361ee;
+  border-color: rgba(67, 97, 238, 0.5);
+  box-shadow:
+    0 4px 14px rgba(67, 97, 238, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.back-circle-btn:active {
+  transform: translateX(-1px) scale(0.97);
 }
 
 /* User avatar container */
 .user-avatar-container {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Blue gradient ring so the shape is always visible against any header bg */
+  padding: 2px;
+  background: linear-gradient(135deg, #a5b4fc 0%, #4361ee 100%);
+  box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.user-avatar-container:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(67, 97, 238, 0.32);
 }
 
 /* User avatar styles */
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
+  display: block;
   border-radius: 50%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.user-avatar:hover {
-  transform: scale(1.1);
+  background: #fff;
 }
 
 .language-dropdown {
@@ -398,12 +582,15 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .header {
     padding: 0.8rem 1rem;
+    gap: 10px;
   }
 
   .header h1 {
     font-size: 1.4rem;
     max-width: 40%;
   }
+
+  .header-spacer { display: none; }
 
   .header-right {
     gap: 0.5rem;
@@ -434,20 +621,47 @@ onUnmounted(() => {
     height: 12px;
   }
 
-  .user-avatar {
+  .user-avatar-container {
     width: 36px;
     height: 36px;
+  }
+
+  .back-circle-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .header.has-back h1 {
+    flex: 1 1 auto;
+    text-align: center;
+    max-width: none;
   }
 }
 
 @media (max-width: 480px) {
   .header {
     padding: 0.6rem 0.8rem;
+    gap: 8px;
   }
 
   .header h1 {
     font-size: 1.1rem;
     max-width: 35%;
+  }
+
+  .header-spacer { display: none; }
+
+  .back-circle-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .header.has-back h1 {
+    flex: 1 1 auto;
+    text-align: center;
+    max-width: none;
   }
 
   .language-toggle {
@@ -476,7 +690,7 @@ onUnmounted(() => {
     height: 11px;
   }
 
-  .user-avatar {
+  .user-avatar-container {
     width: 32px;
     height: 32px;
   }
@@ -484,27 +698,46 @@ onUnmounted(() => {
 
 @media (prefers-color-scheme: dark) {
   .header {
-    background: linear-gradient(135deg, rgba(30,30,30,0.8) 0%, rgba(24,24,24,0.9) 100%);
-    border-bottom: 1px solid #333;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    background: var(--dark-header-bg);
+    border-bottom: 1px solid var(--dark-header-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .header::before {
+    background: var(--dark-header-bg);
+    clip-path: inset(0 0 0 0 round 0 0 var(--border-radius-lg) var(--border-radius-lg));
+  }
+
+  .header::after {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.14) 15%,
+      rgba(255, 255, 255, 0.14) 85%,
+      rgba(255, 255, 255, 0) 100%
+    );
   }
 
   .header h1 {
-    color: #e0e0e0;
+    color: #E4E6EB;
     background: linear-gradient(90deg, #79bbff, #a78bfa);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
+  .header-spacer {
+    color: #E4E6EB;
+  }
+
   .language-dropdown-menu {
-    background: rgba(30, 30, 30, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(42, 45, 53, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   }
 
   .language-dropdown-item {
-    color: #e0e0e0;
+    color: #E4E6EB;
   }
 
   .language-dropdown-item:hover {
@@ -512,8 +745,26 @@ onUnmounted(() => {
   }
 
   .language-dropdown-item.active {
-    background: rgba(64, 158, 255, 0.2);
-    color: #79bbff;
+    background: rgba(99, 102, 241, 0.22);
+    color: #a5b4fc;
+  }
+
+  .back-circle-btn {
+    background: rgba(48, 51, 58, 0.85);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #a5b4fc;
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .back-circle-btn:hover {
+    background: rgba(99, 102, 241, 0.22);
+    color: #c4b5fd;
+    border-color: rgba(139, 92, 246, 0.55);
+    box-shadow:
+      0 4px 14px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 

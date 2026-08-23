@@ -152,7 +152,7 @@ export default {
   }
 
   .pagination-btn:disabled {
-    background: linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(20, 20, 20, 0.3) 100%);
+    background: linear-gradient(135deg, rgba(48, 51, 58, 0.55) 0%, rgba(42, 45, 53, 0.45) 100%);
     color: var(--dark-text-secondary, #6b7280);
   }
 

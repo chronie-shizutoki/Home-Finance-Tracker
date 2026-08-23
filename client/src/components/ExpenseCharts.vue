@@ -862,39 +862,39 @@ const debounce = (func, wait) => {
         // Adjust colours based on dark mode
         if (isDarkMode) {
           if (options.plugins && options.plugins.tooltip) {
-            options.plugins.tooltip.backgroundColor = 'rgba(30, 30, 30, 0.9)';
-            options.plugins.tooltip.titleColor = '#fff';
-            options.plugins.tooltip.bodyColor = '#ccc';
-            options.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.1)';
+            options.plugins.tooltip.backgroundColor = 'rgba(42, 45, 53, 0.95)';
+            options.plugins.tooltip.titleColor = '#E4E6EB';
+            options.plugins.tooltip.bodyColor = '#B0B4BD';
+            options.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.14)';
           }
           if (options.plugins && options.plugins.legend && options.plugins.legend.labels) {
-            options.plugins.legend.labels.color = '#ccc';
+            options.plugins.legend.labels.color = '#B0B4BD';
           }
           if (options.plugins && options.plugins.title) {
-            options.plugins.title.color = '#fff';
+            options.plugins.title.color = '#E4E6EB';
           }
           if (options.scales) {
             if (options.scales.y) {
-              if (options.scales.y.title) options.scales.y.title.color = '#ccc';
-              if (options.scales.y.ticks) options.scales.y.ticks.color = '#999';
+              if (options.scales.y.title) options.scales.y.title.color = '#B0B4BD';
+              if (options.scales.y.ticks) options.scales.y.ticks.color = '#8a8f98';
             }
             if (options.scales.x) {
-              if (options.scales.x.title) options.scales.x.title.color = '#ccc';
-              if (options.scales.x.ticks) options.scales.x.ticks.color = '#999';
+              if (options.scales.x.title) options.scales.x.title.color = '#B0B4BD';
+              if (options.scales.x.ticks) options.scales.x.ticks.color = '#8a8f98';
             }
             if (options.scales.r) {
               if (options.scales.r.ticks) {
-                options.scales.r.ticks.color = '#999';
-                options.scales.r.ticks.backdropColor = 'rgba(30, 30, 30, 0.8)';
+                options.scales.r.ticks.color = '#8a8f98';
+                options.scales.r.ticks.backdropColor = 'rgba(42, 45, 53, 0.85)';
               }
               if (options.scales.r.pointLabels) {
-                options.scales.r.pointLabels.color = '#ccc';
+                options.scales.r.pointLabels.color = '#B0B4BD';
               }
               if (options.scales.r.grid) {
-                options.scales.r.grid.color = 'rgba(255, 255, 255, 0.05)';
+                options.scales.r.grid.color = 'rgba(255, 255, 255, 0.08)';
               }
               if (options.scales.r.angleLines) {
-                options.scales.r.angleLines.color = 'rgba(255, 255, 255, 0.05)';
+                options.scales.r.angleLines.color = 'rgba(255, 255, 255, 0.08)';
               }
             }
           }
@@ -1092,20 +1092,22 @@ const debounce = (func, wait) => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .charts-container {
   padding: 24px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.55);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
   position: relative;
   overflow: hidden;
 }
@@ -1115,58 +1117,141 @@ const debounce = (func, wait) => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  row-gap: 18px;
+  column-gap: 20px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  /* Ensure a visible gap between this chart-controls panel and the fixed
+     Header title bar above, even when the two panels share similar
+     dark-mode color tones. */
+  margin-top: 60px;
+  /* Larger, softer, more uniform glassy panel */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0.58) 55%,
+    rgba(165, 180, 252, 0.12) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.75);
   box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 6px 22px rgba(67, 97, 238, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   position: relative;
   z-index: 10;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.glass-panel:hover {
+  box-shadow: 
+    0 10px 30px rgba(67, 97, 238, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* ------------------------------
+   Chart selector (LiquidGlass NavBar) polish
+------------------------------ */
+:deep(.chart-type-navbar) {
+  /* Light, frosted-glass track so it matches the overall page aesthetic
+     instead of a dark bar that visually merges with the Header title. */
+  --navbar-glass-bg: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(165,180,252,0.35));
+  /* Use a dark slate for inactive items on the light glass panel. */
+  --navbar-inactive-color: #475569;
+  padding: 3px;
+  border-radius: 999px;
+  /* Never overlap the Header title area — add breathing room above. */
+  margin-top: 8px;
+}
+
+/* Give the selected item an outer "card-like" highlight ring. */
+.chart-type-navbar {
+  isolation: isolate;
+}
+:deep(.chart-type-navbar .navbar-track) {
+  border-radius: 999px;
+}
+:deep(.chart-type-navbar .navbar-thumb-solid) {
+  background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+  box-shadow:
+    0 6px 18px rgba(67,97,238,0.25),
+    0 0 0 2px rgba(67,97,238,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.98);
+  transition: all 0.18s ease;
+}
+:deep(.chart-type-navbar .navbar-thumb-body) {
+  border-radius: 999px !important;
+}
+/* Inactive items: dark slate, slightly dimmed. */
+:deep(.chart-type-navbar .navbar-item) {
+  transition: all 0.18s ease;
+}
+:deep(.chart-type-navbar .navbar-label) {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 1 !important;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.55));
+}
+:deep(.chart-type-navbar .navbar-icon :deep(svg)) {
+  stroke-width: 2.4;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.55));
+}
+/* Active items: bright brand color, full opacity, stronger drop shadow. */
+:deep(.chart-type-navbar .navbar-item.is-active .navbar-label),
+:deep(.chart-type-navbar .navbar-item.is-active .navbar-icon :deep(svg)) {
+  color: #4361ee !important;
+  stroke: #4361ee !important;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8)) drop-shadow(0 2px 6px rgba(67,97,238,0.25));
 }
 
 .glass-input-group {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 6px 10px 6px 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(238,242,255,0.72));
+  border: 1px solid rgba(67,97,238,0.18);
+  border-radius: 999px;
+  box-shadow:
+    0 4px 14px rgba(67,97,238,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.98);
 }
 
 .glass-input {
-  padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 999px;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 150px;
-  color: #333;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #0f172a;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.95);
 }
 
 .glass-input:focus {
   outline: none;
-  border-color: rgba(64, 158, 255, 0.5);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 4px 12px rgba(64, 158, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(67,97,238,0.55);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(67,97,238,0.15),
+    0 4px 12px rgba(67,97,238,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.98);
   transform: translateY(-1px);
 }
 
 .glass-input:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  border-color: rgba(67,97,238,0.28);
+  box-shadow: 0 2px 8px rgba(67,97,238,0.12), inset 0 1px 0 rgba(255,255,255,0.98);
 }
 
 .range-separator {
-  color: #666;
+  color: #475569;
   font-size: 14px;
-  font-weight: 500;
-  opacity: 0.8;
+  font-weight: 600;
+  opacity: 0.9;
+  padding: 0 4px;
 }
 
 .glass-chart-container {
@@ -1212,24 +1297,25 @@ const debounce = (func, wait) => {
     padding: 20px;
     border-radius: 16px;
   }
-  
+
   .glass-panel {
     flex-direction: column;
     align-items: stretch;
     padding: 14px;
+    row-gap: 14px;
   }
-  
+
+  /* On tablet+mobile, center the chart selector so it sits over the column. */
+  :deep(.chart-type-navbar) { align-self: center; }
+
   .glass-chart-container {
     height: 350px;
     padding: 16px;
   }
-  
+
   .glass-input-group {
     width: 100%;
-  }
-  
-  .glass-input {
-    width: 100%;
+    justify-content: space-between;
   }
 }
 
@@ -1239,22 +1325,23 @@ const debounce = (func, wait) => {
     padding: 16px;
     border-radius: 14px;
   }
-  
+
   .glass-chart-container {
     height: 300px;
     padding: 12px;
   }
-  
+
   .glass-panel {
     margin-bottom: 16px;
-    gap: 12px;
+    row-gap: 12px;
+    column-gap: 12px;
     padding: 12px;
   }
-  
+
   .glass-input-group {
     gap: 10px;
   }
-  
+
   .glass-input {
     min-width: auto;
     padding: 8px 12px;
@@ -1268,15 +1355,14 @@ const debounce = (func, wait) => {
     height: 250px;
     padding: 10px;
   }
-  
+
   .glass-input-group {
-    width: 50%;
+    width: 100%;
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .glass-input {
-    width: 100%;
     min-width: auto;
     font-size: 12px;
     padding: 6px 10px;
@@ -1285,61 +1371,92 @@ const debounce = (func, wait) => {
 
 @media (prefers-color-scheme: dark) {
   .charts-container {
-    background: rgba(20, 20, 20, 0.6);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: rgba(42, 45, 53, 0.72);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+    border-color: rgba(255, 255, 255, 0.10);
+    color: #E4E6EB;
   }
-  
+
   .glass-panel {
-    background: rgba(30, 30, 30, 0.5);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      0 4px 16px rgba(0, 0, 0, 0.3),
+    background: linear-gradient(
+      135deg,
+      rgba(48, 51, 58, 0.88),
+      rgba(55, 58, 66, 0.75) 55%,
+      rgba(99, 102, 241, 0.12) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 6px 22px rgba(0, 0, 0, 0.35),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
-  
+
+  :deep(.chart-type-navbar) {
+    --navbar-glass-bg: linear-gradient(135deg, rgba(45, 48, 55, 0.70), rgba(55, 58, 66, 0.55));
+    --navbar-inactive-color: rgba(228, 230, 235, 0.78);
+  }
+  :deep(.chart-type-navbar .navbar-bg) {
+    background: linear-gradient(135deg, rgba(45, 48, 55, 0.85), rgba(55, 58, 66, 0.65)) !important;
+  }
+  :deep(.chart-type-navbar .navbar-thumb-solid) {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.4),
+      0 0 0 2px rgba(99, 102, 241, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  :deep(.chart-type-navbar .navbar-item.is-active .navbar-label),
+  :deep(.chart-type-navbar .navbar-item.is-active .navbar-icon :deep(svg)) {
+    color: #a5b4fc !important;
+    stroke: #a5b4fc !important;
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,0.3)) drop-shadow(0 2px 8px rgba(99,102,241,0.4));
+  }
+
+  .glass-input-group {
+    background: linear-gradient(135deg, rgba(48, 51, 58, 0.92), rgba(40, 43, 50, 0.82));
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
   .glass-input {
-    background: rgba(40, 40, 40, 0.6);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    box-shadow: 
+    background: rgba(48, 51, 58, 0.72);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #E4E6EB;
+    box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
-  
+
   .glass-input:focus {
-    border-color: rgba(64, 158, 255, 0.6);
-    background: rgba(50, 50, 50, 0.7);
-    box-shadow: 
-      0 4px 12px rgba(64, 158, 255, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(99, 102, 241, 0.6);
+    background: rgba(55, 58, 66, 0.80);
+    box-shadow:
+      0 0 0 4px rgba(99, 102, 241, 0.22),
+      0 4px 12px rgba(99, 102, 241, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
-  
+
   .glass-input:hover {
-    background: rgba(45, 45, 45, 0.6);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(52, 55, 62, 0.75);
+    border-color: rgba(99, 102, 241, 0.40);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   }
-  
+
+  .range-separator { color: #B0B4BD; }
+
   .glass-chart-container {
-    background: rgba(30, 30, 30, 0.4);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      0 4px 20px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: rgba(48, 51, 58, 0.55);
+    border-color: rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
-  
+
   .glass-chart-container:hover {
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  }
-  
-  .range-separator {
-    color: #aaa;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
   }
 }
 </style>
