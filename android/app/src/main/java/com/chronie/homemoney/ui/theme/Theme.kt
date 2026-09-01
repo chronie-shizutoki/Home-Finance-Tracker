@@ -190,7 +190,21 @@ fun HomeMoneyTheme(content: @Composable () -> Unit) {
                 ColorSchemeMode.MonetSystem
             } else {
                 ColorSchemeMode.System
-            }
+            },
+            // Default theme: pure white / #242424 page background instead of
+            // Miuix stock #F7F7F7 / pure black. Ignored in Monet and custom-seed modes.
+            // The following 2 lines align the default mode's background color with the 
+            // navigation and status bars. 
+            // However, this may cause the page background to blend with card and other 
+            // element backgrounds. 
+            // If contrast between the page background and child elements (such as cards) 
+            // is needed in the future, consider these approaches:
+            // 1. Adjust card background colors so they have sufficient contrast against 
+            // the page background.
+            // 2. Adjust the navigation and status bar colors to remain consistent with 
+            // the page background.
+            lightColors = lightColorScheme(surface = Color(0xFFFFFFFF)),
+            darkColors = darkColorScheme(surface = Color(0xFF242424)),
         )
     }
 
