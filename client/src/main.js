@@ -3,10 +3,9 @@ import axios from 'axios';
 import { setupAxiosInterceptors } from './utils/offlineDataSync.js';
 import { initGlobalErrorMonitoring, tryReportFailedLogs, initConsoleLogging } from './utils/operationLogger.js';
 
-import './styles/common.css'; // Import common styles
-import './styles/fonts.css'; // Import custom fonts
-import './styles/liquid-glass.css'; // Import liquid glass engine driver styles
-import './styles/app.css'; // Import global app shell styles (kept last so it wins cascade ties)
+// Single stylesheet entry point. styles/index.css imports the global layers in
+// a deliberate order (tokens -> primitives -> layout -> ui -> effects -> app shell).
+import './styles/index.css';
 
 import liquidGlassDirective from './directives/liquidGlass.js';
 

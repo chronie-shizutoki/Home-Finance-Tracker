@@ -62,7 +62,7 @@ import GlassFormItem from '@/components/GlassFormItem.vue';
 import GlassInput from '@/components/GlassInput.vue';
 import MessageTip from '@/components/MessageTip.vue';
 import AvatarUpload from '@/components/AvatarUpload.vue';
-import '../styles/membership.css';
+import '../styles/ui/membership.css';
 
 export default {
   name: 'MembershipView',

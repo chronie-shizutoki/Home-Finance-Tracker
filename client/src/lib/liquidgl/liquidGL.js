@@ -2366,10 +2366,19 @@ const liquidGL = (() => {
       const lens = new liquidGLLens(this, element, options);
       this.lenses.push(lens);
 
-      const maxZ = this._getMaxLensZ();
-      if (maxZ > 0) {
-        this.canvas.style.zIndex = maxZ - 1;
-      }
+      // Keep the shared full-screen refraction canvas strictly BELOW every
+      // lens host. A lens host that lives inside a high-z modal (e.g. the
+      // AI smart-record / AI Q&A / API-key dialogs, all z-index >= 1000)
+      // previously made effectiveZ() return the dialog's z-index, which
+      // pushed this canvas up to `maxZ - 1` and covered the page content and
+      // every other dialog below it. Lens hosts are always promoted to at
+      // least z-index 1 by ensureHostLayer(), so we pin the canvas just
+      // below the lowest lens (and never above 0) to restore correct
+      // layering without trapping it inside any modal's stacking context.
+      // See components/GlassDialog.vue and directives/liquidGlass.js.
+      const lensZs = this.lenses.map((ln) => effectiveZ(ln.el)).filter((z) => z > 0);
+      const minLensZ = lensZs.length ? Math.min(...lensZs) : 1;
+      this.canvas.style.zIndex = String(Math.min(minLensZ - 1, 0));
 
       if (!this.texture) {
         this._pendingReveal.push(lens);
@@ -3569,7 +3578,12 @@ const liquidGL = (() => {
           Object.assign(this._shadowEl.style, {
             position: "fixed",
             pointerEvents: "none",
-            zIndex: effectiveZ(this.el) - 2,
+            // Keep the lens shadow below page content. When the lens lives
+            // inside a high-z modal, effectiveZ() returns the modal's z-index,
+            // which would otherwise lift this fixed, body-appended shadow
+            // above the page. Clamp so it never exceeds 0 (home-page lenses
+            // already resolve to a negative value and are unchanged).
+            zIndex: Math.min(effectiveZ(this.el) - 2, 0),
             boxShadow: SHADOW_VAL,
             willChange: "transform, width, height",
             opacity: this.revealTypeIndex === 1 ? 0 : 1,
@@ -4003,7 +4017,10 @@ const liquidGL = (() => {
         width: "100%",
         height: "100%",
         pointerEvents: "none",
-        zIndex: effectiveZ(this.el) - 1,
+        // Same clamping as the lens shadow: never lift this fixed,
+        // body-appended mirror above page content when the lens is inside a
+        // high-z modal. Home-page lenses resolve to a negative value (unchanged).
+        zIndex: Math.min(effectiveZ(this.el) - 1, 0),
         willChange: "transform",
       });
       this._mirrorCtx = this._mirror.getContext("2d");

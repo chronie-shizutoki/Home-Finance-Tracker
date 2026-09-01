@@ -27,12 +27,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.error-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
-</style>
+<style scoped src="../styles/views/NotFoundView.css"></style>

@@ -41,29 +41,4 @@ watchEffect(() => {
 });
 </script>
 
-<style scoped>
-/* Make the transition container fill the viewport so the slide animation
-   spans the full width and never reveals the page background between frames. */
-.app-root {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* Single-element wrapper that <Transition> actually animates.
-   Must be full-width so translateX() moves the whole page rather than a shrink-wrapped box. */
-.page-root {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-}
-
-/* <Suspense> fallback shown while route-level views are loading. */
-.loading-alert {
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  text-align: center;
-}
-</style>
+<style scoped src="./styles/components/App.css"></style>

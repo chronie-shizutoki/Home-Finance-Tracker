@@ -6,7 +6,7 @@
   box-sizing: border-box;
 }
 
-/* Responsive header offsets for membership page (match main.css variables) */
+/* Responsive header offsets (tokens live in base/variables.css) */
 @media (max-width: 768px) {
   .membership-container {
     padding: calc(var(--header-offset-mobile, 80px) + 12px) 12px 12px 12px;

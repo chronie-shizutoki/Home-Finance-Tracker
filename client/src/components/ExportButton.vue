@@ -32,9 +32,4 @@ const emits = defineEmits(['export-excel']);
 const handleExport = () => { emits('export-excel'); };
 </script>
 
-<style scoped>
-.export-section {
-  display: flex;
-  justify-content: center;
-}
-</style>
+<style scoped src="../styles/components/ExportButton.css"></style>

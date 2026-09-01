@@ -263,15 +263,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-.lg-relative { position: relative; }
-.lg-w-full { width: 100%; }
-.lg-disabled-state { opacity: 0.5; cursor: not-allowed; }
-.lg-absolute { position: absolute; }
-.lg-cursor-pointer { cursor: pointer; }
-.lg-cursor-not-allowed { cursor: not-allowed; }
-.lg-h-full { height: 100%; }
-.lg-overflow-hidden { overflow: hidden; }
-.lg-rounded-full { border-radius: 9999px; }
-.lg-thumb-transition { transition: transform 0.15s ease-out; }
-</style>
+<style scoped src="../styles/components/LiquidGlassSlider.css"></style>

@@ -33,46 +33,4 @@ const props = defineProps({
 })
 </script>
 
-<style scoped>
-.glass-form-item {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.glass-form-item-label {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.glass-form-item-label.required::after {
-  content: '*';
-  color: #e53e3e;
-  margin-left: 4px;
-}
-
-.glass-form-item-content {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-}
-
-.glass-form-item-error {
-  font-size: 12px;
-  color: #e53e3e;
-  margin-top: 4px;
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-.glass-form-item {
-  color: #e2e8f0;
-}
-
-.glass-form-item .glass-form-item-error {
-  color: #fc8181;
-}
-}
-</style>
+<style scoped src="../styles/components/GlassFormItem.css"></style>
