@@ -188,7 +188,7 @@ struct FrameHeader {
     std::uint32_t payloadLen = 0;
     std::uint32_t payloadCrc32 = 0;
 
-    constexpr bool hasFlag(FrameFlag flag) const { return (flags & flag) != 0; }
+    [[nodiscard]] constexpr bool hasFlag(FrameFlag flag) const { return (flags & flag) != 0; }
 };
 
 /// Result of decoding a header: either a header or the reason it was rejected.
@@ -196,7 +196,7 @@ struct FrameHeaderResult {
     SyncErrorCode error = SyncErrorCode::kOk;
     FrameHeader header{};
 
-    constexpr bool ok() const { return error == SyncErrorCode::kOk; }
+    [[nodiscard]] constexpr bool ok() const { return error == SyncErrorCode::kOk; }
 };
 
 using FrameHeaderBytes = std::array<std::uint8_t, kFrameHeaderSize>;

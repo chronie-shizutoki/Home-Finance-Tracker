@@ -27,7 +27,7 @@ import org.intellij.lang.annotations.Language
  * radial gradient radiates from the touch point using an AGSL [RuntimeShader].
  * The effect consists of two layers composited with [BlendMode.Plus]:
  * - A uniform 6% white overlay that brightens the entire area.
- * - A smooth radial falloff (12% at centre, fading to 0 at the edge) centered on
+ * - A smooth radial falloff (12% at center, fading to 0 at the edge) centered on
  *   the touch position, creating a localized "spotlight" highlight.
  *
  * Both layers fade in/out with a spring animation driven by [pressProgress].
@@ -35,7 +35,7 @@ import org.intellij.lang.annotations.Language
  *
  * @param animationScope CoroutineScope owning the animation coroutines.
  * @param position       Optional mapping from (layout size, raw offset) to the
- *                       highlight centre. Default passes through the raw offset.
+ *                       highlight center. Default passes through the raw offset.
  */
 @SuppressLint("NewApi")
 class InteractiveHighlight(
@@ -54,7 +54,7 @@ class InteractiveHighlight(
         Animatable(Offset.Zero, Offset.VectorConverter, Offset.VisibilityThreshold)
 
     private var startPosition = Offset.Zero
-    /** Displacement of the highlight centre from its start position. */
+    /** Displacement of the highlight center from its start position. */
     val offset: Offset get() = positionAnimation.value - startPosition
 
     @Language("AGSL")

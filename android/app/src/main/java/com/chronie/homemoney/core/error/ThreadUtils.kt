@@ -1,8 +1,6 @@
 package com.chronie.homemoney.core.error
 
-import android.os.Build
 import android.os.Looper
-import androidx.annotation.RequiresApi
 
 /**
  * Thread Utils class
@@ -12,16 +10,10 @@ object ThreadUtils {
 
     /**
      * Get thread ID
-     * Compatible with Android versions below 14
+     * Compatible with Android versions at least 16
      */
-    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     fun getThreadId(thread: Thread): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            thread.threadId()
-        } else {
-            @Suppress("DEPRECATION")
-            thread.id
-        }
+        return thread.threadId()
     }
 
     /**

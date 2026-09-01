@@ -65,7 +65,7 @@ object SyncWireProtocol {
     private const val OFFSET_HEADER_CRC = 28
 
     /**
-     * Serialise a header and fill in the header checksum.
+     * Serialize a header and fill in the header checksum.
      *
      * The payload checksum is taken from [header] rather than computed here because the
      * payload is normally hashed while it is being streamed, not held in one buffer.
@@ -115,7 +115,7 @@ object SyncWireProtocol {
         }
 
         val version = source[offset + OFFSET_VERSION].toInt() and 0xFF
-        if (version < MIN_SUPPORTED_VERSION || version > PROTOCOL_VERSION) {
+        if (version !in MIN_SUPPORTED_VERSION..PROTOCOL_VERSION) {
             return FrameDecodeResult.Failure(
                 SyncErrorCode.PROTOCOL_MISMATCH,
                 "peer speaks version $version, this build supports " +
@@ -226,7 +226,7 @@ object SyncWireProtocol {
  * A decoded frame header.
  *
  * [seq] and [payloadCrc32] hold raw 32-bit patterns and [sessionId] a raw 64-bit pattern,
- * so they may read as negative. Use [seqUnsigned] when a human readable value is needed.
+ * so they may read as negative. Use [seqUnsigned] when a human-readable value is needed.
  */
 data class FrameHeader(
     val version: Int = SyncWireProtocol.PROTOCOL_VERSION,
@@ -256,7 +256,7 @@ sealed interface FrameDecodeResult {
     /**
      * @param code the shared error code, whose [SyncErrorCode.retryable] flag decides
      *   whether the transport reconnects or gives up.
-     * @param detail human readable context for the log, never shown to the user.
+     * @param detail human-readable context for the log, never shown to the user.
      */
     data class Failure(val code: SyncErrorCode, val detail: String) : FrameDecodeResult
 

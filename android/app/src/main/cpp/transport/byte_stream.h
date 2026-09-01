@@ -79,8 +79,8 @@ public:
         return IoResult{IoStatus::kOk, take};
     }
 
-    constexpr std::size_t consumed() const { return pos_; }
-    constexpr bool exhausted() const { return pos_ >= size_; }
+    [[nodiscard]] constexpr std::size_t consumed() const { return pos_; }
+    [[nodiscard]] constexpr bool exhausted() const { return pos_ >= size_; }
 
 private:
     const std::uint8_t* data_;
@@ -130,8 +130,8 @@ public:
         return IoResult{IoStatus::kOk, take};
     }
 
-    constexpr const std::uint8_t* data() const { return buffer_.data(); }
-    constexpr std::size_t size() const { return len_; }
+    [[nodiscard]] constexpr const std::uint8_t* data() const { return buffer_.data(); }
+    [[nodiscard]] constexpr std::size_t size() const { return len_; }
 
     constexpr bool equals(const std::uint8_t* expected, std::size_t expectedSize) const {
         if (len_ != expectedSize) {

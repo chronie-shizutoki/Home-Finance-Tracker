@@ -16,16 +16,16 @@ import com.chronie.homemoney.data.sync.protocol.Crc32c
  *  1. **Frame level** - `(sessionId, seq)`. Catches a verbatim retransmission before any
  *     parsing work is done.
  *  2. **Entity level** - `(entityId, updatedAt, entityHash)`. Catches the same revision
- *     arriving through a *different* frame, which is what happens after a resume renumbers
+ *     arriving through a *different* frame, which is what happens after a résumé renumbers
  *     the chunks.
- *  3. **Commit level** - `sessionId` to a cached outcome. Lets COMMIT be replayed safely:
+ *  3. **Commit level** - `sessionId` to a cached outcome. Let's COMMIT be replayed safely:
  *     the peer gets the original answer instead of a second apply.
  *
  * All three are bounded LRU maps. An unbounded set here would be a slow memory leak on a
  * device that syncs often, and the entries lose their value quickly anyway - a duplicate
  * that shows up thousands of frames later is a different problem.
  *
- * Every method is synchronised: the native thread pool dispatches connections from several
+ * Every method is synchronized: the native thread pool dispatches connections from several
  * threads at once, so this is genuinely shared mutable state.
  */
 class IdempotencyGuard(
@@ -113,8 +113,8 @@ class IdempotencyGuard(
      *
      * Called when a session reaches a terminal state, so a long-lived process does not
      * carry frame keys for sessions that can never recur. Entity keys are intentionally
-     * *not* cleared here - they protect against a replay arriving in a brand new session,
-     * which is precisely the case a resume creates.
+     * *not* cleared here - they protect against a replay arriving in a brand-new session,
+     * which is precisely the case a résumé creates.
      */
     fun forgetSession(sessionId: Long) {
         synchronized(lock) {

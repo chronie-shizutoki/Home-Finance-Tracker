@@ -5,12 +5,12 @@ package com.chronie.homemoney.data.sync.auth
  *
  * Pulled out into an interface for two reasons. It keeps the frame handler free of Android
  * types - the production implementation shows a dialog and reads SharedPreferences, neither
- * of which belongs anywhere near protocol code - and it makes the authorisation rules
+ * of which belongs anywhere near protocol code - and it makes the authorization rules
  * testable, since a fake implementation can answer instantly instead of waiting on a human.
  *
  * ### Two independent gates
  *
- * Authorisation is not one decision but two, and conflating them is what left v1 with no
+ * Authorization is not one decision but two, and conflating them is what left v1 with no
  * real protection at all:
  *
  *  - **Pairing** proves the peer holds the shared code. It is cryptographic, automatic, and
@@ -49,7 +49,7 @@ interface SyncAuthorizer {
      * The pairing code both devices share, or null when the user has not set one.
      *
      * Returning null disables the proof exchange entirely, which is the out-of-the-box
-     * behaviour and matches what v1 did. Once a code exists it becomes mandatory: a peer
+     * behavior and matches what v1 did. Once a code exists it becomes mandatory: a peer
      * that cannot present a proof is refused rather than quietly downgraded, because a
      * security control that silently turns itself off is worse than none.
      */

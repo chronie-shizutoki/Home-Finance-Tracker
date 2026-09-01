@@ -26,6 +26,11 @@ fun getLocalProperty(key: String): String? {
 android {
     namespace = "com.chronie.homemoney"
     compileSdk = libs.versions.compileSdk.get().toInt()
+    // NDK r30+ is required for platform 36+ support (r28 maxes out at API 35)
+    ndkVersion = "30.0.15729638"
+    // Use the locally installed build-tools (AGP 9.4 defaults to 36.0.0,
+    // which is not installed on this machine)
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId = "com.chronie.homemoney"

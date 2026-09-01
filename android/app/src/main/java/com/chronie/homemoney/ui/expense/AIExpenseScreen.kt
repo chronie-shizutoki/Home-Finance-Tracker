@@ -1,60 +1,81 @@
 package com.chronie.homemoney.ui.expense
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.foundation.clickable
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
-import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
-import com.chronie.homemoney.ui.components.CircularIconButton
-import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
+import com.chronie.homemoney.data.ocr.OcrHelper
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
-import java.io.File
-import java.io.IOException
-import android.graphics.Bitmap
-import java.io.FileOutputStream
+import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
+import com.chronie.homemoney.ui.components.OutlinedButton
 import com.chronie.homemoney.ui.components.imageeditor.CropShape
 import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
 import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import android.content.Intent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.core.graphics.toColorInt
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -63,13 +84,15 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
 import top.yukonga.miuix.kmp.window.WindowDialog
-import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
-import top.yukonga.miuix.kmp.basic.DropdownEntry
-import top.yukonga.miuix.kmp.basic.DropdownItem
-import com.chronie.homemoney.ui.components.OutlinedButton
-import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * AI Expense Screen
@@ -319,7 +342,7 @@ fun AIExpenseScreen(
     // Save a cropped bitmap to a JPEG file (<= 2MB) and return its content Uri
     fun saveCroppedBitmap(bmp: Bitmap): Uri? {
         return try {
-            val bytes = compressBitmapToBytes(bmp, 2 * 1024 * 1024, android.graphics.Bitmap.CompressFormat.JPEG, 90)
+            val bytes = compressBitmapToBytes(bmp, 2 * 1024 * 1024, Bitmap.CompressFormat.JPEG, 90)
             val image = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "CROP_${System.currentTimeMillis()}.jpg")
             FileOutputStream(image).use { it.write(bytes) }
             androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", image)
@@ -916,9 +939,9 @@ private fun OcrTextBottomSheet(
     context: Context,
     ocrText: String,
     isProcessing: Boolean,
-    ocrLanguage: com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage,
+    ocrLanguage: OcrHelper.OcrLanguage,
     onTextChange: (String) -> Unit,
-    onLanguageChange: (com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage) -> Unit,
+    onLanguageChange: (OcrHelper.OcrLanguage) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -957,14 +980,14 @@ private fun OcrTextBottomSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val languageNames = mapOf(
-                com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.LATIN to context.getString(R.string.ai_expense_language_latin),
-                com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.CHINESE to context.getString(R.string.ai_expense_language_chinese),
-                com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.JAPANESE to context.getString(R.string.ai_expense_language_japanese),
-                com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.KOREAN to context.getString(R.string.ai_expense_language_korean)
+                OcrHelper.OcrLanguage.LATIN to context.getString(R.string.ai_expense_language_latin),
+                OcrHelper.OcrLanguage.CHINESE to context.getString(R.string.ai_expense_language_chinese),
+                OcrHelper.OcrLanguage.JAPANESE to context.getString(R.string.ai_expense_language_japanese),
+                OcrHelper.OcrLanguage.KOREAN to context.getString(R.string.ai_expense_language_korean)
             )
 
             val languageDropdownEntry = DropdownEntry(
-                items = com.chronie.homemoney.data.ocr.OcrHelper.OcrLanguage.values().map { language ->
+                items = OcrHelper.OcrLanguage.entries.map { language ->
                     DropdownItem(
                         text = languageNames[language] ?: language.code,
                         onClick = { onLanguageChange(language) }

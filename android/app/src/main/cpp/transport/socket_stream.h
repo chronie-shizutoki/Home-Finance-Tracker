@@ -34,12 +34,12 @@ public:
     static Deadline afterMs(std::int64_t millis);
     static constexpr Deadline never() { return Deadline{}; }
 
-    bool expired() const;
+    [[nodiscard]] bool expired() const;
 
     /// Milliseconds left, clamped to >= 0. Returns -1 for an infinite deadline.
-    int remainingMs() const;
+    [[nodiscard]] int remainingMs() const;
 
-    constexpr bool infinite() const { return !bounded_; }
+    [[nodiscard]] constexpr bool infinite() const { return !bounded_; }
 
 private:
     constexpr explicit Deadline(std::int64_t at) : at_(at), bounded_(true) {}
@@ -62,7 +62,7 @@ public:
     IoResult writeSome(const std::uint8_t* src, std::size_t size);
 
     void setDeadline(Deadline deadline) { deadline_ = deadline; }
-    int fd() const { return fd_; }
+    [[nodiscard]] int fd() const { return fd_; }
 
 private:
     int fd_;

@@ -242,7 +242,7 @@ private fun WeekdayRadarChart(
 }
 
 /**
- * Standalone row of 7 weekday "pill" buttons (Sun..Sat).
+ * Standalone row of 7 weekday "pill" buttons (Sun to Sat).
  *
  * Extracted so the card layout can position them exactly where needed:
  *   - Phone layout: directly under the radar chart, above the data rows.
@@ -296,7 +296,7 @@ private fun WeekdayBadgeRow(
  * width(100.dp). Those fixed values force vertical wrapping once the
  * parent column becomes narrow (e.g. < 220dp on a tight two-column tablet
  * layout) and result in the "$0 / 0% / Wednesday / 0" one-character-per-
- * column mess we saw on the first iteration. Instead we use a combination
+ * column mess we saw on the first iteration. Instead, we use a combination
  * of weight for the flexible label column and wrap-content-with-minimums
  * for the percentage / amount columns, with horizontal Bias pulling the
  * latter two to the right so they still line up across rows.
@@ -331,7 +331,7 @@ private fun WeekdayDataItem(
             fontWeight = FontWeight.Bold,
             softWrap = false,
             textAlign = androidx.compose.ui.text.style.TextAlign.End,
-            modifier = androidx.compose.ui.Modifier
+            modifier = Modifier
                 .wrapContentWidth(Alignment.End)
                 .widthIn(min = 56.dp)
         )
@@ -344,7 +344,7 @@ private fun WeekdayDataItem(
             color = MiuixTheme.colorScheme.primary,
             softWrap = false,
             textAlign = androidx.compose.ui.text.style.TextAlign.End,
-            modifier = androidx.compose.ui.Modifier
+            modifier = Modifier
                 .wrapContentWidth(Alignment.End)
                 .widthIn(min = 80.dp)
         )
@@ -367,10 +367,10 @@ private fun CategoryDetailItem(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Box(

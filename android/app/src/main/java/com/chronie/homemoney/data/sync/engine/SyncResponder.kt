@@ -199,7 +199,7 @@ class SyncResponder(
 
             // A session that already cleared authorisation is being resumed after the socket
             // dropped. Re-prompting there would be the single most annoying possible
-            // behaviour on a weak link, and re-running the proof would be pointless: the
+            // behavior on a weak link, and re-running the proof would be pointless: the
             // peer's identity was established when the session was opened and the session id
             // is bound into the proof.
             val alreadyAuthorized = session.authorized
@@ -553,10 +553,10 @@ class SyncResponder(
     /**
      * Serves one chunk of this device's own delta.
      *
-     * Gated on authorisation but deliberately *not* on the transfer phase. The state machine
+     * Gated on authorization but deliberately *not* on the transfer phase. The state machine
      * tracks the inbound push; a pull is a read-only side channel that is legitimate both
      * before the push starts and after it has been committed. Only a session that failed or
-     * was cancelled refuses one.
+     * was canceled refuses one.
      */
     private fun onPull(peerAddress: String, sessionId: Long, payload: ByteArray): ByteArray {
         val pull = try {

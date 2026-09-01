@@ -7,7 +7,7 @@ package com.chronie.homemoney.data.sync.session
  *
  * v1 needed none: a connection was a request/response pair, so nothing outlived the socket.
  * v2 must map an incoming frame back to the session it belongs to, and that mapping has to
- * survive the socket, because a resumed transfer arrives on a brand new connection carrying
+ * survive the socket, because a resumed transfer arrives on a brand-new connection carrying
  * the old session id.
  *
  * ### Two failure modes this closes

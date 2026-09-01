@@ -1,6 +1,14 @@
 package com.chronie.homemoney.ui.expense
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -8,8 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
@@ -18,23 +29,22 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.domain.model.ExpenseFilters
-import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.CircularIconButton
 import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Checkbox
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowBottomSheet
-import top.yukonga.miuix.kmp.window.WindowDialog
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import androidx.core.graphics.scale
 
 /**
  * Expense Filter BottomSheet
@@ -384,11 +394,9 @@ fun compressBitmapToBytes(
     var scale = 1f
     var result: ByteArray
     while (true) {
-        val target = if (scale >= 1f) bitmap else android.graphics.Bitmap.createScaledBitmap(
-            bitmap,
+        val target = if (scale >= 1f) bitmap else bitmap.scale(
             (bitmap.width * scale).toInt().coerceAtLeast(1),
-            (bitmap.height * scale).toInt().coerceAtLeast(1),
-            true
+            (bitmap.height * scale).toInt().coerceAtLeast(1)
         )
         val out = java.io.ByteArrayOutputStream()
         target.compress(format, if (format == android.graphics.Bitmap.CompressFormat.PNG) 100 else q, out)

@@ -7,7 +7,7 @@ package com.chronie.homemoney.domain.model
  * as regular [Expense] entries. The [isEdited] and [isValid] flags track
  * whether the user has made corrections and whether the AI result is usable.
  *
- * @property id Unique identifier (may be empty before saving).
+ * @property id Unique identifier (maybe empty before saving).
  * @property type The expense category detected/assigned by AI.
  * @property amount The monetary amount extracted from the receipt.
  * @property date The transaction date in "YYYY-MM-DD" format.

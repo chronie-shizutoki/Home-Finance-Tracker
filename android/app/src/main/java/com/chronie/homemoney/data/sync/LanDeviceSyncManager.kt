@@ -275,6 +275,10 @@ class LanDeviceSyncManager(
     private fun wifiNetwork(): Network? {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return null
         return try {
+            // getAllNetworks has no synchronous replacement (API 36 deprecates it
+            // in favor of registerNetworkCallback, which is async-only); keep using
+            // it until a callback-based refactor lands.
+            @Suppress("DEPRECATION")
             cm.allNetworks.firstOrNull { net ->
                 cm.getNetworkCapabilities(net)?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
             }

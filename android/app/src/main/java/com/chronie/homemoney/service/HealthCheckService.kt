@@ -21,7 +21,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Server health-check daemon that periodically pings the backend.
+ * Server health check daemon that periodically pings the backend.
  *
  * Polls the server every 5 seconds (2-second timeout per request).
  * When network is unavailable, skips the health check to avoid

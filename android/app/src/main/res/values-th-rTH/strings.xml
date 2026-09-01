@@ -244,7 +244,7 @@
     <string name="budget_settings_title">ตั้งค่างบประมาณ</string>
     <string name="budget_monthly_limit">งบประมาณรายเดือน</string>
     <string name="budget_warning_threshold">เปอร์เซ็นต์การแจ้งเตือน (%)</string>
-    <string name="budget_warning_threshold_hint">แจ้งเตือนเมื่อถึงสัดส่วนนี้ (0-100)</string>
+    <string name="budget_warning_threshold_hint">แจ้งเตือนเมื่อถึงสัดส่วนนี้ (0–100)</string>
     <string name="budget_remaining">งบประมาณคงเหลือ</string>
     <string name="budget_daily_average">ใช้จ่ายเฉลี่ยต่อวัน</string>
     <string name="budget_recommended_daily">แนะนำให้ใช้ต่อวัน</string>
@@ -259,7 +259,7 @@
     <string name="common_save">บันทึก</string>
     <string name="common_cancel">ยกเลิก</string>
     <string name="budget_error_invalid_limit">กรุณาป้อนจำนวนเงินงบประมาณที่ถูกต้อง</string>
-    <string name="budget_error_invalid_threshold">เปอร์เซ็นต์การแจ้งเตือนต้องอยู่ระหว่าง 0-100</string>
+    <string name="budget_error_invalid_threshold">เปอร์เซ็นต์การแจ้งเตือนต้องอยู่ระหว่าง 0–100</string>
     <!-- Charts -->
     <string name="charts_title">วิเคราะห์สถิติ</string>
     <string name="statistics_summary">สรุปสถิติ</string>
@@ -502,7 +502,7 @@
     <string name="searching">กำลังค้นหา…</string>
     <string name="no_devices_found">ไม่พบอุปกรณ์</string>
     <string name="device_name_updated">อัปเดตชื่ออุปกรณ์แล้ว</string>
-    <string name="sync_in_progress">กำลังซิงค์...</string>
+    <string name="sync_in_progress">กำลังซิงค์…</string>
     <string name="sync_request_title">คำขอซิงค์</string>
     <string name="sync_request_message">คุณต้องการซิงค์ข้อมูลกับอุปกรณ์นี้หรือไม่?</string>
     <string name="accept">ยอมรับ</string>

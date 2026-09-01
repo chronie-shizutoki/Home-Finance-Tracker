@@ -300,7 +300,7 @@ class ExpenseListViewModel @Inject constructor(
                     // Reload statistics after delete
                     loadStatistics()
 
-                    // Push the delete to the server promptly. Without this, the
+                    // Push delete to the server promptly. Without this, the
                     // tombstone would only be flushed by the hourly periodic sync,
                     // and a network-first list refresh in the meantime could
                     // resurrect the record from the cloud and drop the pending delete.

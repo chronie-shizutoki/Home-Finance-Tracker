@@ -10,6 +10,7 @@ import com.chronie.homemoney.data.remote.interceptor.LoggingInterceptor
 import com.chronie.homemoney.data.remote.interceptor.ServerUrlInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.Strictness
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,7 +54,7 @@ object NetworkModule {
     @Singleton
     fun provideGson(): Gson {
         return GsonBuilder()
-            .setLenient()
+            .setStrictness(Strictness.LENIENT)
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             .create()
     }

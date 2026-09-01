@@ -36,7 +36,7 @@ data class DiscoveredDevice(
  * Time is passed in rather than read from the clock so expiry is testable without sleeping,
  * and so a single receive loop iteration uses one consistent `now`.
  *
- * Thread-safe: the receive loop writes while the UI reads.
+ * Thread-safe: the reception loop writes while the UI reads.
  */
 class DiscoveryRegistry(
     private val ttlMs: Long = DEFAULT_TTL_MS,

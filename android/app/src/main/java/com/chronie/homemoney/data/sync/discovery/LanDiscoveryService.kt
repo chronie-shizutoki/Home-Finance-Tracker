@@ -1,7 +1,9 @@
 package com.chronie.homemoney.data.sync.discovery
 
+import com.chronie.homemoney.data.sync.discovery.LanDiscoveryService.Companion.RECEIVE_POLL_MS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -16,7 +18,7 @@ import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.security.SecureRandom
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Wi-Fi broadcast reception on Android is off unless something holds a lock, because the
@@ -25,7 +27,7 @@ import kotlin.coroutines.coroutineContext
  * v1 took a `MulticastLock` and then never joined a multicast group, which reads like dead
  * code but is not: the lock is also what makes plain *broadcast* reception work. The lock was
  * right; the multicast group it implied never existed. This abstraction keeps the lock, drops
- * the pretence, and lets the service be tested without a WifiManager.
+ * the pretense, and lets the service be tested without a WifiManager.
  */
 fun interface MulticastGate {
 
@@ -56,10 +58,10 @@ interface DiscoveryTelemetry {
  *
  * v1 sent the same plain-text message in both directions on a single well-known port, kept
  * every device it ever saw, guessed the peer's sync port, and polled a 12-second loop that
- * never checked whether it had been cancelled. The field failures that followed: phantom
+ * never checked whether it had been canceled. The field failures that followed: phantom
  * devices from unrelated UDP traffic, ghosts for devices long gone, stale IPs after a Wi-Fi
  * switch, devices that appear but cannot be connected to, self-discovery on multi-NIC phones,
- * and a receive loop that outlived the screen that started it.
+ * and a reception loop that outlived the screen that started it.
  *
  * ### Shape
  *
@@ -71,7 +73,7 @@ interface DiscoveryTelemetry {
  * - Both share one [registry], so a search begins by emitting whatever the responder already
  *   learned while the user was elsewhere in the app. Discovery usually looks instant.
  *
- * Cancellation is honoured within [RECEIVE_POLL_MS]: the blocking receive uses a socket
+ * Cancellation is honored within [RECEIVE_POLL_MS]: the blocking receive uses a socket
  * timeout as its checkpoint, and [closeResponder] can cut that short.
  */
 class LanDiscoveryService(
@@ -89,7 +91,7 @@ class LanDiscoveryService(
     // ------------------------------------------------------------------ responder
 
     /**
-     * Serves discovery until the calling coroutine is cancelled. Returns normally if the port
+     * Serves discovery until the calling coroutine is canceled. Returns normally if the port
      * cannot be bound: another process holding it is a reason for discovery to be unavailable,
      * not a reason to take the sync server down.
      */
@@ -112,7 +114,7 @@ class LanDiscoveryService(
             responderSocket.set(socket)
 
             // Enumerating interfaces per packet would be wasteful, and per process would go
-            // stale the moment Wi-Fi changes. Refreshed on the announce tick instead.
+            // stale the moment Wi-Fi changes. Refreshed on the announcement tick instead.
             val decider = AtomicReference(newDecider())
             announcer = launch { announceLoop(socket, announceIntervalMs, decider) }
 
@@ -155,7 +157,7 @@ class LanDiscoveryService(
         intervalMs: Long,
         decider: AtomicReference<DiscoveryDecider>
     ) {
-        while (coroutineContext.isActive) {
+        while (currentCoroutineContext().isActive) {
             val nics = LocalNetworkAddresses.enumerate()
             decider.set(newDecider(nics))
 
@@ -166,7 +168,7 @@ class LanDiscoveryService(
                     targets.forEach { sendDatagram(socket, payload, it, discoveryPort, STAGE_ANNOUNCE) }
                 }
             }
-            delay(intervalMs)
+            delay(intervalMs.milliseconds)
         }
     }
 
@@ -264,9 +266,9 @@ class LanDiscoveryService(
         val targets = broadcasts.mapNotNull { runCatching { InetAddress.getByName(it) }.getOrNull() }
         repeat(bursts) { round ->
             targets.forEach { target ->
-                query.let { sendDatagram(socket, it, target, discoveryPort, STAGE_QUERY) }
+                sendDatagram(socket, query, target, discoveryPort, STAGE_QUERY)
             }
-            if (round < bursts - 1) delay(intervalMs)
+            if (round < bursts - 1) delay(intervalMs.milliseconds)
         }
     }
 

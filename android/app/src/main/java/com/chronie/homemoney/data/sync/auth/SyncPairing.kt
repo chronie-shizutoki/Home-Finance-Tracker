@@ -63,11 +63,11 @@ object SyncPairing {
         ByteArray(NONCE_SIZE).also(random::nextBytes)
 
     /**
-     * Normalises a human-typed pairing code.
+     * Normalizes a human-typed pairing code.
      *
      * Users read the code off another screen and retype it, so spaces, dashes and case
      * differences are entirely expected and must not cause a mismatch. Both devices
-     * normalise before hashing, so the rule has to be identical on both - it lives here and
+     * normalize before hashing, so the rule has to be identical on both - it lives here and
      * nowhere else.
      */
     fun normalizeCode(raw: String): String =
@@ -120,7 +120,7 @@ object SyncPairing {
      * Length-independent comparison.
      *
      * `ByteArray.contentEquals` returns on the first differing byte, which leaks how much of
-     * a guessed proof was correct. Over a LAN the timing signal is noisy but it is free to
+     * a guessed proof was correct. Over a LAN the timing signal is noisy, but it is free to
      * remove, and the cost here is a handful of XORs.
      */
     fun constantTimeEquals(expected: ByteArray, actual: ByteArray): Boolean {

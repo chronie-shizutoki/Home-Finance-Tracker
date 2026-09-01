@@ -12,15 +12,15 @@ import java.security.MessageDigest
  *
  *  - [hash] is a per-entity CRC-32C that rides in `SyncEntityV2.entity_hash`. Together with
  *    `(entity_id, updated_at)` it forms the idempotency key, so a replayed revision is
- *    recognised and skipped.
- *  - [aggregate] is a SHA-256 over the whole ordered delta, carried in
+ *    recognized and skipped.
+ *  - [aggregate] is an SHA-256 over the whole ordered delta, carried in
  *    `ManifestPayload.content_hash`. Per-frame CRCs cannot catch a transfer that lost or
  *    reordered an entire chunk - every surviving frame still checksums correctly - so the
  *    receiver needs one value covering the set as a whole.
  *
- * ### Why a hand-written encoding instead of the protobuf bytes
+ * ### Why a handwritten encoding instead of the protobuf bytes
  *
- * It is tempting to hash `SyncEntityV2.toByteArray()`. Protobuf serialisation is not
+ * It is tempting to hash `SyncEntityV2.toByteArray()`. Protobuf serialization is not
  * canonical: field ordering, default-value omission and varint padding may all legally
  * differ between runtimes and versions. Two devices would then compute different hashes for
  * identical data and every sync would look corrupted. The encoding below is fully specified
@@ -29,8 +29,8 @@ import java.security.MessageDigest
  * ### Normalisation
  *
  * `remark` is nullable in Room but a plain `string` in proto3, which cannot represent null.
- * A null is therefore normalised to an empty string *before* hashing, so a record keeps the
- * same fingerprint after a round trip through the wire. Hashing the un-normalised form
+ * A null is therefore normalized to an empty string *before* hashing, so a record keeps the
+ * same fingerprint after a round trip through the wire. Hashing the un-normalized form
  * would make every entity with a null remark appear to change on arrival.
  */
 object EntityFingerprint {

@@ -41,7 +41,7 @@ object SyncRequestBus {
         return future
     }
 
-    /** Called from the confirmation dialog's Accept/Reject buttons (main thread). */
+    /** Called from the confirmation dialogs' Accept/Reject buttons (main thread). */
     fun resolve(accepted: Boolean) {
         pending?.complete(accepted)
         pending = null

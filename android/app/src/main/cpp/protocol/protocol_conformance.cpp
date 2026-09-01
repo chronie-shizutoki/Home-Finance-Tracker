@@ -14,6 +14,8 @@
 #include "frame_vectors_generated.h"
 #include "sync_protocol.h"
 
+#include <algorithm>
+
 namespace homemoney::sync::conformance {
 
 namespace {
@@ -63,15 +65,9 @@ constexpr bool decodesToOriginalFields(const FrameVector& v) {
 }
 
 constexpr bool allVectorsRoundTrip() {
-    for (std::size_t i = 0; i < kFrameVectorCount; ++i) {
-        if (!encodesToGoldenBytes(kFrameVectors[i])) {
-            return false;
-        }
-        if (!decodesToOriginalFields(kFrameVectors[i])) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(kFrameVectors, [](const FrameVector& v) {
+        return encodesToGoldenBytes(v) && decodesToOriginalFields(v);
+    });
 }
 
 // ------------------------------------------------------------- rejection checks

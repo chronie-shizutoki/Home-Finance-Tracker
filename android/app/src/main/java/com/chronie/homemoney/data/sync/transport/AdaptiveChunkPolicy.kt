@@ -103,7 +103,7 @@ class AdaptiveChunkPolicy(
     }
 
     /**
-     * The peer asked for a smaller chunk, or a payload was refused as too large. Honoured
+     * The peer asked for a smaller chunk, or a payload was refused as too large. Honored
      * directly rather than treated as congestion — the peer knows its own limit.
      */
     fun onPeerLimit(peerMaxChunkBytes: Int) {

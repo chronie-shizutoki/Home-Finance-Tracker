@@ -244,7 +244,7 @@
     <string name="budget_settings_title">Pengaturan Anggaran</string>
     <string name="budget_monthly_limit">Anggaran Bulanan</string>
     <string name="budget_warning_threshold">Ambang Peringatan (%)</string>
-    <string name="budget_warning_threshold_hint">Peringatan saat mencapai persentase ini (0-100)</string>
+    <string name="budget_warning_threshold_hint">Peringatan saat mencapai persentase ini (0–100)</string>
     <string name="budget_remaining">Sisa Anggaran</string>
     <string name="budget_daily_average">Rata-rata Harian</string>
     <string name="budget_recommended_daily">Saran Pengeluaran Harian</string>
@@ -259,7 +259,7 @@
     <string name="common_save">Simpan</string>
     <string name="common_cancel">Batal</string>
     <string name="budget_error_invalid_limit">Harap masukkan nominal anggaran yang valid</string>
-    <string name="budget_error_invalid_threshold">Ambang peringatan harus antara 0-100</string>
+    <string name="budget_error_invalid_threshold">Ambang peringatan harus antara 0–100</string>
     <!-- Charts -->
     <string name="charts_title">Analisis Statistik</string>
     <string name="statistics_summary">Ikhtisar Statistik</string>
@@ -502,7 +502,7 @@
     <string name="searching">Mencari…</string>
     <string name="no_devices_found">Perangkat tidak ditemukan</string>
     <string name="device_name_updated">Nama perangkat diperbarui</string>
-    <string name="sync_in_progress">Menyinkronkan...</string>
+    <string name="sync_in_progress">Menyinkronkan…</string>
     <string name="sync_request_title">Permintaan Sinkronisasi</string>
     <string name="sync_request_message">Apakah Anda ingin menyinkronkan data dengan perangkat ini?</string>
     <string name="accept">Terima</string>

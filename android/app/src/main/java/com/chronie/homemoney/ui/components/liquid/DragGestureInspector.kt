@@ -24,7 +24,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  *
  * @param onDragStart  Called when the drag begins, receiving the touch-down change.
  * @param onDragEnd    Called when the drag ends normally, receiving the final up change.
- * @param onDragCancel Called when the drag is cancelled (e.g., gesture consumed elsewhere).
+ * @param onDragCancel Called when the drag is canceled (e.g., gesture consumed elsewhere).
  * @param onDrag       Called on each drag delta, receiving the current change and displacement.
  */
 suspend fun PointerInputScope.inspectDragGestures(

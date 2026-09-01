@@ -32,7 +32,7 @@ data class SyncRetryPolicy(
      * Unjittered delay ceiling for a zero-based retry index.
      *
      * The shift is clamped before it is applied so an absurd attempt number yields
-     * [maxDelayMs] instead of a shift overflow, which in C++ would be undefined behaviour
+     * [maxDelayMs] instead of a shift overflow, which in C++ would be undefined behavior
      * and in Kotlin would silently wrap modulo 32.
      */
     fun ceilingMs(retryIndex: UInt): UInt {
@@ -91,7 +91,7 @@ data class SyncRetryPolicy(
         /**
          * Small deterministic PRNG for jitter.
          *
-         * `java.util.Random` is synchronised and `SecureRandom` is far more than jitter
+         * `java.util.Random` is synchronized and `SecureRandom` is far more than jitter
          * needs; xorshift32 is three operations, is pure, and - most usefully - produces
          * the same chain as the native side so a single golden vector covers both.
          */

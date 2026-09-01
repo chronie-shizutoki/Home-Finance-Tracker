@@ -75,11 +75,11 @@ object AIRecordMapper {
     private fun parseDateTime(dateStr: String): LocalDateTime {
         return try {
             LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             try {
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE)
                 date.atStartOfDay()
-            } catch (e2: Exception) {
+            } catch (_: Exception) {
                 LocalDateTime.now()
             }
         }

@@ -23,19 +23,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.RotateRight
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.RotateRight
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,6 +57,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -82,10 +79,10 @@ import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import androidx.core.graphics.scale
 
 /** Crop frame shape of the editor. */
 enum class CropShape { SQUARE, CIRCLE }
@@ -133,6 +130,10 @@ fun ImageEditorDialog(
     val context = LocalContext.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    // Resolve strings at composition time (configuration-aware) instead of
+    // querying via context.getString inside coroutines.
+    val loadFailedText = stringResource(R.string.image_editor_load_failed)
+    val cropFailedPattern = stringResource(R.string.crop_image_failed)
 
     var editBitmap by remember(uri) { mutableStateOf<Bitmap?>(null) }
     var baseBitmap by remember(uri) { mutableStateOf<Bitmap?>(null) }
@@ -168,7 +169,7 @@ fun ImageEditorDialog(
             val image = (result as? SuccessResult)?.image
             val bmp = (image as? BitmapImage)?.bitmap ?: image?.toBitmap()
             if (bmp == null) {
-                Toast.makeText(context, context.getString(R.string.image_editor_load_failed), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, loadFailedText, Toast.LENGTH_SHORT).show()
                 onDismiss()
             } else {
                 val mutable = bmp.copy(Bitmap.Config.ARGB_8888, true)
@@ -187,7 +188,7 @@ fun ImageEditorDialog(
                 }
             }
         } catch (_: Exception) {
-            Toast.makeText(context, context.getString(R.string.image_editor_load_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, loadFailedText, Toast.LENGTH_SHORT).show()
             onDismiss()
         }
     }
@@ -232,7 +233,7 @@ fun ImageEditorDialog(
                 try {
                     onConfirm(cropResult(bmp, rect, maxResultSize))
                 } catch (e: Exception) {
-                    Toast.makeText(context, context.getString(R.string.crop_image_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, cropFailedPattern.format(e.message ?: ""), Toast.LENGTH_SHORT).show()
                     onDismiss()
                 }
             }
@@ -292,12 +293,12 @@ fun ImageEditorDialog(
                             onClick = { dismissWithAnimation() },
                             modifier = Modifier.align(Alignment.CenterStart)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = context.getString(R.string.cancel), tint = MiuixTheme.colorScheme.onBackground)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel), tint = MiuixTheme.colorScheme.onBackground)
                         }
 
                         // Centered title
                         Text(
-                            text = context.getString(R.string.image_editor_title),
+                            text = stringResource(R.string.image_editor_title),
                             style = MiuixTheme.textStyles.title3,
                             modifier = Modifier.align(Alignment.Center),
                             color = MiuixTheme.colorScheme.onBackground
@@ -308,7 +309,7 @@ fun ImageEditorDialog(
                             onClick = { confirmWithAnimation() },
                             modifier = Modifier.align(Alignment.CenterEnd)
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = context.getString(R.string.confirm), tint = MiuixTheme.colorScheme.primary)
+                            Icon(Icons.Default.Check, contentDescription = stringResource(R.string.confirm), tint = MiuixTheme.colorScheme.primary)
                         }
                     }
 
@@ -488,7 +489,7 @@ fun ImageEditorDialog(
                                         )
 
                                         val r = cropDisplayRect()
-                                        // Dim outside of the crop area
+                                        // Dim outside the crop area
                                         val dimPath = Path().apply {
                                             fillType = PathFillType.EvenOdd
                                             addRect(Rect(0f, 0f, size.width, size.height))
@@ -562,7 +563,7 @@ fun ImageEditorDialog(
                         ) {
                             // Rotate 90 degrees clockwise with animation
                             EditorToolButton(
-                                icon = { Icon(Icons.Default.RotateRight, contentDescription = "旋转", tint = MiuixTheme.colorScheme.onBackground) },
+                                icon = { Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = "旋转", tint = MiuixTheme.colorScheme.onBackground) },
                                 onClick = {
                                     if (isRotating) return@EditorToolButton
                                     isRotating = true
@@ -599,7 +600,7 @@ fun ImageEditorDialog(
                             }
                             // Undo last step
                             EditorToolButton(
-                                icon = { Icon(Icons.Default.Undo, contentDescription = "撤销", tint = MiuixTheme.colorScheme.onBackground) },
+                                icon = { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "撤销", tint = MiuixTheme.colorScheme.onBackground) },
                                 onClick = { undoLastStep() }
                             )
                             // Return to initial state
@@ -693,11 +694,9 @@ private fun cropResult(bmp: Bitmap, rect: Rect, maxResultSize: Int): Bitmap {
     val longest = max(out.width, out.height)
     if (longest > maxResultSize) {
         val ratio = maxResultSize.toFloat() / longest
-        out = Bitmap.createScaledBitmap(
-            out,
+        out = out.scale(
             (out.width * ratio).roundToInt().coerceAtLeast(1),
-            (out.height * ratio).roundToInt().coerceAtLeast(1),
-            true
+            (out.height * ratio).roundToInt().coerceAtLeast(1)
         )
     }
     return out
@@ -720,11 +719,9 @@ fun compressBitmapToBytes(
     var scale = 1f
     var result: ByteArray
     while (true) {
-        val target = if (scale >= 1f) bitmap else Bitmap.createScaledBitmap(
-            bitmap,
+        val target = if (scale >= 1f) bitmap else bitmap.scale(
             (bitmap.width * scale).toInt().coerceAtLeast(1),
-            (bitmap.height * scale).toInt().coerceAtLeast(1),
-            true
+            (bitmap.height * scale).toInt().coerceAtLeast(1)
         )
         val out = java.io.ByteArrayOutputStream()
         target.compress(format, if (format == Bitmap.CompressFormat.PNG) 100 else q, out)

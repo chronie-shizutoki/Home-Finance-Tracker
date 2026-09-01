@@ -10,17 +10,13 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -30,43 +26,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.ui.NavDisplay
-import com.chronie.homemoney.ui.navigation.AppRoute
-import com.chronie.homemoney.core.common.LanguageManager
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import com.chronie.homemoney.ui.expense.AddExpenseScreen
-import com.chronie.homemoney.ui.expense.AIExpenseScreen
-import com.chronie.homemoney.ui.main.MainScreen
-import com.chronie.homemoney.ui.settings.SettingsScreen
-import com.chronie.homemoney.ui.settings.OpenSourceLicensesScreen
-import com.chronie.homemoney.ui.sync.LanSyncScreen
-import com.chronie.homemoney.ui.sync.IncomingSyncRequestDialog
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import com.chronie.homemoney.core.common.LanguageManager
 import com.chronie.homemoney.data.sync.SyncRequestBus
-import com.chronie.homemoney.ui.scroll.ScrollToTopRegistry
-import com.chronie.homemoney.ui.test.DatabaseTestScreen
-import kotlin.math.abs
-import com.chronie.homemoney.ui.theme.HomeMoneyTheme
-import com.chronie.homemoney.ui.welcome.WelcomeScreen
-import com.chronie.homemoney.ui.membership.MembershipScreen
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
+import com.chronie.homemoney.ui.expense.AIExpenseScreen
+import com.chronie.homemoney.ui.expense.AddExpenseScreen
+import com.chronie.homemoney.ui.main.MainScreen
+import com.chronie.homemoney.ui.membership.MembershipScreen
+import com.chronie.homemoney.ui.navigation.AppRoute
+import com.chronie.homemoney.ui.scroll.ScrollToTopRegistry
+import com.chronie.homemoney.ui.settings.OpenSourceLicensesScreen
+import com.chronie.homemoney.ui.settings.SettingsScreen
+import com.chronie.homemoney.ui.sync.IncomingSyncRequestDialog
+import com.chronie.homemoney.ui.sync.LanSyncScreen
+import com.chronie.homemoney.ui.test.DatabaseTestScreen
+import com.chronie.homemoney.ui.theme.HomeMoneyTheme
+import com.chronie.homemoney.ui.welcome.WelcomeScreen
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.abs
 
 val LocalLanguageManager = staticCompositionLocalOf<LanguageManager> {
     error("No LanguageManager provided")
@@ -76,7 +67,7 @@ val LocalLanguageManager = staticCompositionLocalOf<LanguageManager> {
  * The single-Activity entry point for the Home Finance Tracker app.
  *
  * This Activity:
- * - Initialises the cloud sync scheduler and triggers an immediate sync on launch.
+ * - Initializes the cloud sync scheduler and triggers an immediate sync on launch.
  * - Configures edge-to-edge rendering with automatic light/dark status bar icons.
  * - Starts the [HealthCheckService] for periodic background system checks.
  * - Observes the current language from [LanguageManager] and applies it to the

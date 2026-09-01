@@ -39,10 +39,10 @@ struct IoResult {
     IoStatus status = IoStatus::kOk;
     std::size_t transferred = 0;
 
-    constexpr bool ok() const { return status == IoStatus::kOk; }
+    [[nodiscard]] constexpr bool ok() const { return status == IoStatus::kOk; }
 
     /// True for statuses where waiting and trying again is the correct response.
-    constexpr bool transient() const {
+    [[nodiscard]] constexpr bool transient() const {
         return status == IoStatus::kWouldBlock || status == IoStatus::kInterrupted;
     }
 };

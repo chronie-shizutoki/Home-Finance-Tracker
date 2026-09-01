@@ -46,6 +46,9 @@ object DatabaseModule {
      * Provides database passphrase instance
      * Uses EncryptedSharedPreferences for secure storage
      */
+    // security-crypto is deprecated as a whole (no Jetpack replacement yet);
+    // migrating away requires a custom Keystore/DataStore solution.
+    @Suppress("DEPRECATION")
     @Provides
     @Singleton
     fun provideDatabasePassphrase(@ApplicationContext context: Context): ByteArray {

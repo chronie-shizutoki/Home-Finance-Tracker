@@ -66,10 +66,10 @@ class WeekdayDetailViewModel @Inject constructor(
                     
                     val dayExpenses = expenses.filter { expense ->
                         try {
-                            val expenseDate = java.time.LocalDate.parse(expense.date)
+                            val expenseDate = LocalDate.parse(expense.date)
                             val expenseDayOfWeek = expenseDate.dayOfWeek.value % 7
                             expenseDayOfWeek == dayOfWeek
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             false
                         }
                     }

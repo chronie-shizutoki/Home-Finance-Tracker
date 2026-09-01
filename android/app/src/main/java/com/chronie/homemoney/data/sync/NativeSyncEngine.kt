@@ -94,7 +94,7 @@ class NativeSyncEngine {
      * Every non-zero handle must reach [closeSyncConnection], including on failure paths,
      * or the file descriptor leaks for the life of the process.
      *
-     * @param connectTimeoutMs 0 or less means "use the value from [configureTransport]".
+     * @param connectTimeoutMs 0 or fewer means "use the value from [configureTransport]".
      * @param netHandle `Network.getNetworkHandle()` of the network the socket must use, or 0
      *   for the app's default network. This is not a nicety: a socket opened natively
      *   inherits the process default network, and a phone that stays on cellular because its

@@ -244,7 +244,7 @@
     <string name="budget_settings_title">預算設定</string>
     <string name="budget_monthly_limit">每月預算上限</string>
     <string name="budget_warning_threshold">警示門檻 (%)</string>
-    <string name="budget_warning_threshold_hint">達到此百分比時顯示警示 (0-100)</string>
+    <string name="budget_warning_threshold_hint">達到此百分比時顯示警示 (0–100)</string>
     <string name="budget_remaining">剩餘預算</string>
     <string name="budget_daily_average">日均消費</string>
     <string name="budget_recommended_daily">建議日均</string>
@@ -259,7 +259,7 @@
     <string name="common_save">儲存</string>
     <string name="common_cancel">取消</string>
     <string name="budget_error_invalid_limit">請輸入有效嘅預算金額</string>
-    <string name="budget_error_invalid_threshold">警示門檻必須喺 0-100 之間</string>
+    <string name="budget_error_invalid_threshold">警示門檻必須喺 0–100 之間</string>
     <!-- Charts -->
     <string name="charts_title">統計分析</string>
     <string name="statistics_summary">統計摘要</string>
@@ -502,7 +502,7 @@
     <string name="searching">正在搜尋…</string>
     <string name="no_devices_found">未找到裝置</string>
     <string name="device_name_updated">裝置名稱已更新</string>
-    <string name="sync_in_progress">正在同步...</string>
+    <string name="sync_in_progress">正在同步…</string>
     <string name="sync_request_title">同步請求</string>
     <string name="sync_request_message">是否要與該裝置同步資料？</string>
     <string name="accept">接受</string>
