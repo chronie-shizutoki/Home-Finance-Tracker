@@ -254,19 +254,19 @@
   {
     "group": "io.grpc",
     "name": "grpc-okhttp",
-    "version": "1.83.1",
+    "version": "1.84.0",
     "fullName": "io.grpc:grpc-okhttp"
   },
   {
     "group": "io.grpc",
     "name": "grpc-protobuf-lite",
-    "version": "1.83.1",
+    "version": "1.84.0",
     "fullName": "io.grpc:grpc-protobuf-lite"
   },
   {
     "group": "io.grpc",
     "name": "grpc-stub",
-    "version": "1.83.1",
+    "version": "1.84.0",
     "fullName": "io.grpc:grpc-stub"
   },
   {
