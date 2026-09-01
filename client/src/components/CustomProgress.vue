@@ -31,32 +31,4 @@ const props = defineProps({
 })
 </script>
 
-<style scoped>
-.custom-progress {
-  width: 100%;
-  height: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.progress-bar-outer {
-  width: 100%;
-  height: var(--stroke-width, 12px);
-  background-color: rgba(75, 85, 99, 0.3);
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.progress-bar-inner {
-  height: 100%;
-  border-radius: 100px;
-  transition: width 0.3s ease;
-}
-
-/* Dark theme styles */
-@media (prefers-color-scheme: dark) {
-.custom-progress .progress-bar-outer {
-  background-color: rgba(75, 85, 99, 0.5);
-}
-}
-</style>
+<style scoped src="../styles/components/CustomProgress.css"></style>

@@ -1,13 +1,4 @@
-/* Global styles entry file, imports all modules */
-@import './variables.css';
-@import './base.css';
-@import './layout.css';
-@import './components.css';
-@import './animations.css';
-@import './messages.css';
-@import './modal.css';
-@import './responsive.css';
-
+/* Shared utility classes (text, spacing, flex, radius, shadow, transition) */
 /* Common utility classes */
 .text-center {
   text-align: center;

@@ -12,6 +12,14 @@
   --border-radius-lg: 20px; /* Larger radius for containers and modals */
   --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12); /* Soft shadow */
   --transition-time: 0.35s; /* Smooth transition time */
+
+  /* Space reserved for the fixed-position Header so page content never
+     overlaps the title bar. Rescued from the old main.css, which was never
+     imported anywhere; its consumers already carried matching fallbacks, so
+     defining the tokens here is behaviour-preserving. */
+  --header-offset-desktop: 96px; /* header height (~64px) + gap + radius shadow */
+  --header-offset-tablet:  88px;
+  --header-offset-mobile:  80px;
   
   /* Backgrounds and effects. CSS glass uses these values directly; the
      liquid-glass engine reads them as tint colours when it is active. */

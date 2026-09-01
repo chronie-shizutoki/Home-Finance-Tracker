@@ -122,19 +122,4 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-/* Layout is provided by the global .container in main.css (which already includes
-   the header-offset). Only add ChartsView-specific overrides below. */
-
-.loading-alert,
-.error-alert {
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.error-alert {
-  color: #d32f2f;
-}
-</style>
+<style scoped src="../styles/views/ChartsView.css"></style>

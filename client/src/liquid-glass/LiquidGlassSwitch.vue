@@ -249,14 +249,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-.lg-inline-block { display: inline-block; }
-.lg-select-none { user-select: none; }
-.lg-touch-none { touch-action: none; }
-.lg-disabled-state { opacity: 0.5; cursor: not-allowed; }
-.lg-relative { position: relative; }
-.lg-cursor-pointer { cursor: pointer; }
-.lg-transition-colors { transition: background-color 0.15s ease; }
-.lg-absolute { position: absolute; }
-.lg-thumb-transition { transition: transform 0.1s ease-out; }
-</style>
+<style scoped src="../styles/components/LiquidGlassSwitch.css"></style>

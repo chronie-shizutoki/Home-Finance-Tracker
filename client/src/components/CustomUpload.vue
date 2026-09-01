@@ -115,15 +115,4 @@ const handleFileChange = async (event) => {
 };
 </script>
 
-<style scoped>
-.custom-upload {
-  display: inline-block;
-}
-
-.file-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-</style>
+<style scoped src="../styles/components/CustomUpload.css"></style>
