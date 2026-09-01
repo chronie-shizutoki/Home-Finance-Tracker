@@ -15,6 +15,14 @@ import pkg from './package.json' with { type: 'json' };
 export default defineConfig({
   build: {
     target: 'esnext', // Target ESNext for modern CSS features (like nested selectors)
+    // Use esbuild for CSS minification. The default lightningcss minifier strips
+    // the standard `backdrop-filter` declaration when a `-webkit-backdrop-filter`
+    // alias is present. Browsers that do not honour the -webkit- alias (e.g.
+    // Firefox) then lose the effect entirely, which breaks paint order
+    // (backdrop-filter creates a stacking context) and containing blocks for
+    // absolutely-positioned children — observed as the invisible header back
+    // button and overlapping dialog buttons in production builds.
+    cssMinify: 'esbuild',
     rollupOptions: {
         input: {
           main: path.resolve(import.meta.dirname, 'index.html'),

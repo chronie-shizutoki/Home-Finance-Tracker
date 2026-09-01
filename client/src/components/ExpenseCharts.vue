@@ -1191,13 +1191,13 @@ const debounce = (func, wait) => {
   opacity: 1 !important;
   filter: drop-shadow(0 1px 0 rgba(255,255,255,0.55));
 }
-:deep(.chart-type-navbar .navbar-icon :deep(svg)) {
+:deep(.chart-type-navbar .navbar-icon svg) {
   stroke-width: 2.4;
   filter: drop-shadow(0 1px 0 rgba(255,255,255,0.55));
 }
 /* Active items: bright brand color, full opacity, stronger drop shadow. */
 :deep(.chart-type-navbar .navbar-item.is-active .navbar-label),
-:deep(.chart-type-navbar .navbar-item.is-active .navbar-icon :deep(svg)) {
+:deep(.chart-type-navbar .navbar-item.is-active .navbar-icon svg) {
   color: #4361ee !important;
   stroke: #4361ee !important;
   filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8)) drop-shadow(0 2px 6px rgba(67,97,238,0.25));
@@ -1408,7 +1408,7 @@ const debounce = (func, wait) => {
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
   :deep(.chart-type-navbar .navbar-item.is-active .navbar-label),
-  :deep(.chart-type-navbar .navbar-item.is-active .navbar-icon :deep(svg)) {
+  :deep(.chart-type-navbar .navbar-item.is-active .navbar-icon svg) {
     color: #a5b4fc !important;
     stroke: #a5b4fc !important;
     filter: drop-shadow(0 1px 0 rgba(0,0,0,0.3)) drop-shadow(0 2px 8px rgba(99,102,241,0.4));
