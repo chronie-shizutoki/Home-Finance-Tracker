@@ -115,7 +115,7 @@ class SyncSessionStateMachine(initial: SyncState = SyncState.IDLE) {
                 SyncEventKind.MANIFEST_AGREED to SyncState.TRANSFERRING
             ),
             SyncState.TRANSFERRING to mapOf(
-                // Cumulative acks keep the session in place; they only move the checkpoint.
+                // Cumulative backs keep the session in place; they only move the checkpoint.
                 SyncEventKind.CHUNK_ACKNOWLEDGED to SyncState.TRANSFERRING,
                 SyncEventKind.TRANSFER_COMPLETE to SyncState.COMMITTING,
                 SyncEventKind.CONNECTION_LOST to SyncState.RECONNECTING
@@ -228,12 +228,12 @@ sealed interface SyncEvent {
 
     val kind: SyncEventKind
 
-    /** Initiator dialled out, or responder accepted a connection. */
+    /** Initiator dialed out, or responder accepted a connection. */
     data object Start : SyncEvent {
         override val kind = SyncEventKind.START
     }
 
-    /** HELLO_ACK arrived and no further authorisation is needed. */
+    /** HELLO_ACK arrived and no further authorization is needed. */
     data class HandshakeAccepted(val negotiatedVersion: Int) : SyncEvent {
         override val kind = SyncEventKind.HANDSHAKE_ACCEPTED
     }
@@ -312,7 +312,7 @@ sealed interface TransitionResult {
     ) : TransitionResult
 
     /**
-     * @param reason human readable context for the structured log. A rejection is not an
+     * @param reason human-readable context for the structured log. A rejection is not an
      *   error on this device; it usually means the peer is out of step.
      */
     data class Rejected(

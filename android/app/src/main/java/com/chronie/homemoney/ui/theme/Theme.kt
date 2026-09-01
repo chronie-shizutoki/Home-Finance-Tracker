@@ -81,7 +81,6 @@ private fun derivePrimary(keyColor: Color, isDark: Boolean, style: PaletteStyle)
         PaletteStyle.Rainbow -> 1.3; PaletteStyle.FruitSalad -> 1.4
         PaletteStyle.Monochrome -> 0.3; PaletteStyle.Fidelity -> 1.1
         PaletteStyle.Content -> 0.8
-        else -> 1.0
     }).coerceAtMost(150.0).coerceAtLeast(0.0)
 
     return if (isDark) PrimaryColors(
@@ -148,7 +147,7 @@ private fun m3colorToMiuix(keyColor: Color, isDark: Boolean, style: PaletteStyle
  * 1. **Monet System** — Material You dynamic color from the device wallpaper
  *    (when [ThemeSettings.useDynamicColor] is true).
  * 2. **Custom** — User-selected key color with one of 9 palette styles,
- *    rendered via the m3color library's HCT color space.
+ *    rendered via the m3 color library's HCT color space.
  *
  * Theme changes are reactive: a SharedPreferences listener detects
  * setting changes and recomposes immediately without restart.
@@ -172,7 +171,7 @@ fun HomeMoneyTheme(content: @Composable () -> Unit) {
     val settings = themeSettings.value
     val isCustom = !settings.useDynamicColor && settings.primaryColor != 0
 
-    // Only control bar icon colours; scrims are transparent (set in MainActivity)
+    // Only control bar icon colors; scrims are transparent (set in MainActivity)
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

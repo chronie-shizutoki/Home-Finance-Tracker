@@ -9,13 +9,13 @@ import kotlinx.coroutines.runBlocking
  * Catches all uncaught exceptions in the app, logs them to a file, and reports them to the server
  */
 class UncaughtExceptionHandler(
-    private val defaultHandler: Thread.UncaughtExceptionHandler,
+    private val defaultHandler: Thread.UncaughtExceptionHandler?,
     private val errorReporter: ErrorReporter
 ) : Thread.UncaughtExceptionHandler {
 
     companion object {
         private const val TAG = "UncaughtExceptionHandler"
-        
+
         /**
          * Initialize the custom uncaught exception handler
          */
@@ -32,15 +32,15 @@ class UncaughtExceptionHandler(
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
         try {
             val errorInfo = createErrorInfo(thread, throwable)
-            
+
             saveErrorToLocal(errorInfo)
-            
+
             reportErrorToServer(errorInfo)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to handle uncaught exception", e)
         } finally {
-            defaultHandler.uncaughtException(thread, throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
         }
     }
 

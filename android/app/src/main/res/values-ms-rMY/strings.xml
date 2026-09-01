@@ -244,7 +244,7 @@
     <string name="budget_settings_title">Tetapan Bajet</string>
     <string name="budget_monthly_limit">Bajet Bulanan</string>
     <string name="budget_warning_threshold">Nisbah Amaran (%)</string>
-    <string name="budget_warning_threshold_hint">Amaran apabila mencapai nisbah ini (0-100)</string>
+    <string name="budget_warning_threshold_hint">Amaran apabila mencapai nisbah ini (0–100)</string>
     <string name="budget_remaining">Sisa Bajet</string>
     <string name="budget_daily_average">Purata Harian</string>
     <string name="budget_recommended_daily">Saranan Harian</string>
@@ -259,7 +259,7 @@
     <string name="common_save">Simpan</string>
     <string name="common_cancel">Batal</string>
     <string name="budget_error_invalid_limit">Sila masukkan amaun bajet yang sah</string>
-    <string name="budget_error_invalid_threshold">Nisbah amaran mestilah antara 0-100</string>
+    <string name="budget_error_invalid_threshold">Nisbah amaran mestilah antara 0–100</string>
     <!-- Charts -->
     <string name="charts_title">Analisis Statistik</string>
     <string name="statistics_summary">Ringkasan Statistik</string>
@@ -502,7 +502,7 @@
     <string name="searching">Mencari…</string>
     <string name="no_devices_found">Tiada peranti ditemui</string>
     <string name="device_name_updated">Nama peranti telah dikemas kini</string>
-    <string name="sync_in_progress">Sedang menyinkronkan...</string>
+    <string name="sync_in_progress">Sedang menyinkronkan…</string>
     <string name="sync_request_title">Permintaan Sinkron</string>
     <string name="sync_request_message">Adakah anda mahu menyinkronkan data dengan peranti ini?</string>
     <string name="accept">Terima</string>

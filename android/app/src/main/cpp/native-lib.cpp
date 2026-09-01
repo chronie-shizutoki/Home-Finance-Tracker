@@ -166,7 +166,7 @@ void recordError(SyncErrorCode code) {
 /// The peer reads these four bytes and can act on the code without needing a protocol parser —
 /// this is what makes a transport-level failure diagnosable by the other phone's log.
 std::vector<std::uint8_t> errorPayload(SyncErrorCode code) {
-    const std::uint32_t value = static_cast<std::uint32_t>(static_cast<std::int32_t>(code));
+    const auto value = static_cast<std::uint32_t>(static_cast<std::int32_t>(code));
     return {
             static_cast<std::uint8_t>((value >> 24) & 0xFFu),
             static_cast<std::uint8_t>((value >> 16) & 0xFFu),
@@ -463,7 +463,7 @@ void serveV2(FdStream& stream,
 
 /// Full lifecycle of one accepted connection, run on a pool worker.
 void handleConnection(const std::shared_ptr<ServerInstance>& instance, int fd,
-                      std::string peer) {
+                      const std::string& peer) {
     JNIEnv* env = t_env;
     if (env == nullptr) {
         LOGE("[%s] worker has no JNIEnv, dropping connection", peer.c_str());
@@ -510,7 +510,7 @@ void rejectBusy(int fd) {
 /// silently dropped — BUSY is retryable and tells the client to back off, which is
 /// infinitely better than the old behaviour of letting the connection sit in the backlog
 /// until the client's own timeout fired with no explanation.
-void acceptLoop(std::shared_ptr<ServerInstance> instance, int listenFd, int port) {
+void acceptLoop(const std::shared_ptr<ServerInstance>& instance, int listenFd, int port) {
     LOGI("sync server accept loop started on port %d", port);
 
     while (instance->running.load(std::memory_order_relaxed)) {
@@ -533,7 +533,7 @@ void acceptLoop(std::shared_ptr<ServerInstance> instance, int listenFd, int port
         g_metrics.connectionsAccepted.fetch_add(1, std::memory_order_relaxed);
         LOGD("accepted %s", peer.c_str());
 
-        std::shared_ptr<ServerInstance> captured = instance;
+        const std::shared_ptr<ServerInstance>& captured = instance;
         const bool posted = instance->pool->tryPost(
                 [captured, clientFd, peer]() { handleConnection(captured, clientFd, peer); });
         if (!posted) {
@@ -877,7 +877,7 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_startServer(JNIEnv* env,
     }
 
     // ---- Phase 2: create the listening socket ----
-    std::uint16_t actualPort = static_cast<std::uint16_t>(port);
+    auto actualPort = static_cast<std::uint16_t>(port);
     SyncErrorCode error = SyncErrorCode::kOk;
     const int listenFd = createListeningSocket(actualPort, kListenBacklog, error);
     if (listenFd < 0) {
@@ -1270,12 +1270,12 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_transportStats(JNIEnv* env
     // Flat JSON so it can go straight into a log line or a debug screen.
     std::string json = "{";
     const auto append = [&json](const char* key, std::uint64_t value, bool last = false) {
-        json += "\"";
+        json += '\"';
         json += key;
         json += "\":";
         json += std::to_string(value);
         if (!last) {
-            json += ",";
+            json += ',';
         }
     };
     append("connectionsAccepted", g_metrics.connectionsAccepted.load());
@@ -1289,6 +1289,6 @@ Java_com_chronie_homemoney_data_sync_NativeSyncEngine_transportStats(JNIEnv* env
     append("timeouts", g_metrics.timeouts.load());
     append("clientRetries", g_metrics.clientRetries.load());
     append("v2Sessions", g_metrics.v2Sessions.load(), true);
-    json += "}";
+    json += '}';
     return env->NewStringUTF(json.c_str());
 }

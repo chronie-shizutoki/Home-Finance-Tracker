@@ -15,7 +15,7 @@ import java.time.LocalDate
  * @property maxAmount Filter expenses with amount <= this value.
  * @property startDate Filter expenses on or after this date.
  * @property endDate Filter expenses on or before this date.
- * @property sortBy The sort order for results, defaults to newest first.
+ * @property sortBy The sort order for results, defaults to the newest first.
  */
 data class ExpenseFilters(
     val keyword: String? = null,

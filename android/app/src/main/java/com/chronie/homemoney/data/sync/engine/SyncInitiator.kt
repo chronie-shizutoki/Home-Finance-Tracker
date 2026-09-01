@@ -245,8 +245,8 @@ class SyncInitiator(
             // means the delta we just pushed comes straight back inside the answer. Applying
             // it would not corrupt anything (the merge is deterministic and would decide to
             // keep what is already there), but it would hand our own revisions to
-            // [EntityApplier] labelled with the *peer's* device id, and that id is the
-            // tie-break when two revisions share an `updatedAt`. Recognising the echo by its
+            // [EntityApplier] labeled with the *peer's* device id, and that id is the
+            // tie-break when two revisions share an `updatedAt`. Recognizing the echo by its
             // exact revision - id, timestamp and fingerprint - drops it before it can reach
             // the merger, and keeps the reported download count honest.
             val pushedRevisions = HashSet<Triple<String, Long, Int>>(delta.entityCount * 2)

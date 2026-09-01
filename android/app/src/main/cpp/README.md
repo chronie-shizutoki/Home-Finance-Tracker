@@ -82,7 +82,7 @@ The native C++ synchronization engine for the Home Finance Tracker Android app.
 
 ### Frame Layout
 
-Every frame consists of a fixed 32-byte header followed by a variable-length payload. All multi-byte fields are **big-endian (network byte order)**:
+Every frame consists of a fixed 32-byte header followed by a variable-length payload. All multibyte fields are **big-endian (network byte order)**:
 
 ```
 Offset  Size  Field           Description
@@ -192,9 +192,9 @@ This abstraction serves two purposes:
 - `SO_KEEPALIVE`: 15s idle + 5s interval + 3 probes = detects departed peer in ~30s
 
 **Android Network Binding**
-- `android_setsocknetwork()` binds the socket to the WiFi interface
+- `android_setsocknetwork()` binds the socket to the Wi-Fi interface
 - Must be called *before* connect() — the routing decision is made when SYN is sent
-- Fixes the case where a phone keeps cellular as the default network (WiFi has no internet), causing all LAN connects to fail with `ENETUNREACH`
+- Fixes the case where a phone keeps cellular as the default network (Wi-Fi has no internet), causing all LAN connects to fail with `ENETUNREACH`
 
 ### Frame Codec
 
@@ -387,22 +387,22 @@ cpp/
 
 ## Code Metrics
 
-All hand-written files maintain a **29.9% comment rate** (1136 comment lines / 2657 code lines + 1136 comment lines), within the 25–30% target. Every function has a doc comment, complex logic has inline explanations, and design decisions document the *why* rather than the *what*.
+All handwritten files maintain a **29.9% comment rate** (1136 comment lines / 2657 code lines + 1136 comment lines), within the 25–30% target. Every function has a doc comment, complex logic has inline explanations, and design decisions document the *why* rather than the *what*.
 
-| File | Code | Comment | Blank | Rate |
-|------|------|---------|-------|------|
-| `native-lib.cpp` | 859 | 326 | 123 | 27.5% |
-| `socket_stream.cpp` | 328 | 187 | 47 | 36.3% |
-| `protocol_conformance.cpp` | 115 | 52 | 24 | 31.1% |
-| `transport_conformance.cpp` | 424 | 99 | 65 | 18.9% |
-| `thread_pool.cpp` | 78 | 61 | 17 | 43.9% |
-| `sync_protocol.h` | 209 | 112 | 47 | 34.9% |
-| `frame_codec.h` | 216 | 73 | 29 | 25.3% |
-| `byte_stream.h` | 110 | 34 | 16 | 23.6% |
-| `retry_policy.h` | 60 | 52 | 12 | 46.4% |
-| `crc32c.h` | 35 | 30 | 14 | 46.2% |
-| `io_result.h` | 39 | 22 | 10 | 36.1% |
-| `socket_stream.h` | 43 | 52 | 25 | 54.7% |
-| `thread_pool.h` | 37 | 21 | 13 | 36.2% |
-| `frame_vectors_generated.h` | 53 | 8 | 8 | — |
-| `retry_vectors_generated.h` | 51 | 7 | 11 | — |
+| File                        | Code | Comment | Blank | Rate  |
+|-----------------------------|------|---------|-------|-------|
+| `native-lib.cpp`            | 859  | 326     | 123   | 27.5% |
+| `socket_stream.cpp`         | 328  | 187     | 47    | 36.3% |
+| `protocol_conformance.cpp`  | 115  | 52      | 24    | 31.1% |
+| `transport_conformance.cpp` | 424  | 99      | 65    | 18.9% |
+| `thread_pool.cpp`           | 78   | 61      | 17    | 43.9% |
+| `sync_protocol.h`           | 209  | 112     | 47    | 34.9% |
+| `frame_codec.h`             | 216  | 73      | 29    | 25.3% |
+| `byte_stream.h`             | 110  | 34      | 16    | 23.6% |
+| `retry_policy.h`            | 60   | 52      | 12    | 46.4% |
+| `crc32c.h`                  | 35   | 30      | 14    | 46.2% |
+| `io_result.h`               | 39   | 22      | 10    | 36.1% |
+| `socket_stream.h`           | 43   | 52      | 25    | 54.7% |
+| `thread_pool.h`             | 37   | 21      | 13    | 36.2% |
+| `frame_vectors_generated.h` | 53   | 8       | 8     | —     |
+| `retry_vectors_generated.h` | 51   | 7       | 11    | —     |

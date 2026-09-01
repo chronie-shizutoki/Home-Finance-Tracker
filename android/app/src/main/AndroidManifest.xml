@@ -5,6 +5,20 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- READ_MEDIA_VISUAL_USER_SELECTED (after READ_MEDIA_IMAGES) declares
+         support for Android 14+ Selected Photos Access (partial grant). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:ignore="PhotoAndVideoPolicy" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
     <application
         android:name=".HomeMoneyApplication"
         android:icon="@mipmap/ic_launcher"
@@ -15,7 +29,7 @@
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"
         android:localeConfig="@xml/locale_config">
-    
+
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
             android:name=".MainActivity"
@@ -37,28 +51,22 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Remove WorkManager default initialization, use custom config -->
+        <!-- Remove WorkManager default initialization, use custom config.
+             tools:ignore: the meta-data removal below is the documented on-demand
+             init setup; lint falsely flags it when analyzing the merged manifest
+             (where tools:node directives are already consumed). -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
-            tools:node="merge">
+            tools:node="merge"
+            tools:ignore="RemoveWorkManagerInitializer">
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
                 tools:node="remove" />
         </provider>
     </application>
-
-    <!-- Permissions -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
-        tools:ignore="PhotoAndVideoPolicy,SelectedPhotoAccess" />
 </manifest>

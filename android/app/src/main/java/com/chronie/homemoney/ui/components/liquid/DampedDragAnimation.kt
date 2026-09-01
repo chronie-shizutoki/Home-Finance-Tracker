@@ -163,7 +163,7 @@ class DampedDragAnimation(
 
     /**
      * Animates to [value] with a press-release cycle: presses in, animates the value,
-     * waits for velocity to settle, then releases. Uses [MutatorMutex] to serialise
+     * waits for velocity to settle, then releases. Uses [MutatorMutex] to serialize
      * concurrent calls.
      *
      * @param value The desired target value (clamped to [valueRange]).

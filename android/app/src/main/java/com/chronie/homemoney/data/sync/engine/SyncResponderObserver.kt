@@ -28,7 +28,7 @@ interface SyncResponderObserver {
     /** The session's state machine moved. Drives the progress indicator. */
     fun onPhaseChanged(session: SyncSession, state: SyncState) = Unit
 
-    /** A peer was refused, or a frame could not be honoured. */
+    /** A peer was refused, or a frame could not be honored. */
     fun onRejected(
         peerAddress: String,
         opcode: SyncOpcode,

@@ -14,6 +14,7 @@
  * This translation unit deliberately emits no code.
  */
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -81,12 +82,9 @@ constexpr bool writeMatchesGolden(const vectors::FrameVector& vector,
 }
 
 constexpr bool allWritesMatchGolden(std::size_t maxChunk, std::uint32_t transientEvery) {
-    for (std::size_t i = 0; i < vectors::kFrameVectorCount; ++i) {
-        if (!writeMatchesGolden(vectors::kFrameVectors[i], maxChunk, transientEvery)) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(vectors::kFrameVectors, [&](const vectors::FrameVector& v) {
+        return writeMatchesGolden(v, maxChunk, transientEvery);
+    });
 }
 
 // ---- writeFrame round-trip: every golden vector must be reproducible ----
@@ -149,12 +147,9 @@ constexpr bool readMatchesGolden(const vectors::FrameVector& vector,
 }
 
 constexpr bool allReadsMatchGolden(std::size_t maxChunk, std::uint32_t transientEvery) {
-    for (std::size_t i = 0; i < vectors::kFrameVectorCount; ++i) {
-        if (!readMatchesGolden(vectors::kFrameVectors[i], maxChunk, transientEvery)) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(vectors::kFrameVectors, [&](const vectors::FrameVector& v) {
+        return readMatchesGolden(v, maxChunk, transientEvery);
+    });
 }
 
 // ---- readFrame must accept every golden vector, even under hostile network conditions ----
@@ -459,32 +454,22 @@ static_assert(isKnownOpcode(static_cast<std::uint8_t>(Opcode::kPullAck)));
 /// golden vectors from retry_vectors.txt. Each vector encodes a specific (baseDelayMs,
 /// retryIndex, randomValue) tuple and the expected jittered delay.
 constexpr bool retryVectorsMatch() {
-    for (std::size_t i = 0; i < vectors::kRetryVectorCount; ++i) {
-        const vectors::RetryVector& v = vectors::kRetryVectors[i];
+    return std::ranges::all_of(vectors::kRetryVectors, [](const auto& v) {
         const RetryPolicy policy{4, v.baseDelayMs, v.maxDelayMs};
-        if (backoffCeilingMs(policy, v.retryIndex) != v.ceilingMs) {
-            return false;
-        }
-        if (jitteredDelayMs(policy, v.retryIndex, v.randomValue) != v.delayMs) {
-            return false;
-        }
-    }
-    return true;
+        return backoffCeilingMs(policy, v.retryIndex) == v.ceilingMs &&
+               jitteredDelayMs(policy, v.retryIndex, v.randomValue) == v.delayMs;
+    });
 }
 
 static_assert(retryVectorsMatch(), "the backoff curve drifted from the golden vectors");
 
 constexpr bool xorshiftVectorsMatch() {
-    for (std::size_t i = 0; i < vectors::kXorshiftVectorCount; ++i) {
-        const vectors::XorshiftVector& v = vectors::kXorshiftVectors[i];
+    return std::ranges::all_of(vectors::kXorshiftVectors, [](const auto& v) {
         const std::uint32_t a = xorshift32(v.seed);
         const std::uint32_t b = xorshift32(a);
         const std::uint32_t c = xorshift32(b);
-        if (a != v.after1 || b != v.after2 || c != v.after3) {
-            return false;
-        }
-    }
-    return true;
+        return a == v.after1 && b == v.after2 && c == v.after3;
+    });
 }
 
 static_assert(xorshiftVectorsMatch(), "the jitter PRNG drifted from the golden vectors");

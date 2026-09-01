@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
  *
  * A parser accepts any `version >= MIN_COMPATIBLE_VERSION` and **ignores trailing bytes**.
  * That is the extension point: a future v3 may append fields after the three strings and
- * this parser will still discover it. The contract a future version must honour is narrow
+ * this parser will still discover it. The contract a future version must honor is narrow
  * but absolute:
  *
  *  - the 24-byte fixed header keeps its layout and meaning;

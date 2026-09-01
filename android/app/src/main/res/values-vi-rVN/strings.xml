@@ -244,7 +244,7 @@
     <string name="budget_settings_title">Cài đặt ngân sách</string>
     <string name="budget_monthly_limit">Ngân sách tháng</string>
     <string name="budget_warning_threshold">Tỷ lệ cảnh báo (%)</string>
-    <string name="budget_warning_threshold_hint">Cảnh báo khi đạt tỷ lệ này (0-100)</string>
+    <string name="budget_warning_threshold_hint">Cảnh báo khi đạt tỷ lệ này (0–100)</string>
     <string name="budget_remaining">Ngân sách còn lại</string>
     <string name="budget_daily_average">Chi tiêu trung bình ngày</string>
     <string name="budget_recommended_daily">Đề xuất mỗi ngày</string>
@@ -259,7 +259,7 @@
     <string name="common_save">Lưu</string>
     <string name="common_cancel">Hủy</string>
     <string name="budget_error_invalid_limit">Vui lòng nhập số tiền ngân sách hợp lệ</string>
-    <string name="budget_error_invalid_threshold">Tỷ lệ cảnh báo phải nằm trong khoảng từ 0-100</string>
+    <string name="budget_error_invalid_threshold">Tỷ lệ cảnh báo phải nằm trong khoảng từ 0–100</string>
     <!-- Charts -->
     <string name="charts_title">Phân tích thống kê</string>
     <string name="statistics_summary">Tổng quan thống kê</string>
@@ -502,7 +502,7 @@
     <string name="searching">Đang tìm kiếm…</string>
     <string name="no_devices_found">Không tìm thấy thiết bị</string>
     <string name="device_name_updated">Đã cập nhật tên thiết bị</string>
-    <string name="sync_in_progress">Đang đồng bộ...</string>
+    <string name="sync_in_progress">Đang đồng bộ…</string>
     <string name="sync_request_title">Yêu cầu đồng bộ</string>
     <string name="sync_request_message">Bạn có muốn đồng bộ dữ liệu với thiết bị này không?</string>
     <string name="accept">Chấp nhận</string>

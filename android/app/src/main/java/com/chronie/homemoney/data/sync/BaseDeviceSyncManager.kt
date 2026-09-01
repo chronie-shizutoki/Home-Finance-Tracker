@@ -49,7 +49,7 @@ abstract class BaseDeviceSyncManager(
      */
     protected open val localDeviceId: String get() = "local_device"
 
-    /** Human readable name of this device, shown to the peer. */
+    /** Human-readable name of this device, shown to the peer. */
     protected open val localDeviceName: String get() = "Local Android Device"
     
     override fun searchDevices(): Flow<DeviceInfo> = flow {
@@ -325,7 +325,7 @@ abstract class BaseDeviceSyncManager(
 
         val effectiveUpdatedAt = if (parsed.updatedAt > 0L) parsed.updatedAt else entity.timestamp
 
-        // Honour an explicit DELETE operation even if the payload forgot to set deletedAt.
+        // Honor an explicit DELETE operation even if the payload forgot to set deletedAt.
         val effectiveDeletedAt = when {
             parsed.deletedAt != null -> parsed.deletedAt
             entity.operation == OP_DELETE -> effectiveUpdatedAt

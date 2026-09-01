@@ -12,10 +12,10 @@ import retrofit2.http.Path
 import com.google.gson.annotations.SerializedName
 
 /**
- * Retrofit API interface for member and health-check endpoints.
+ * Retrofit API interface for member and health check endpoints.
  *
  * Supports member registration/lookup, profile retrieval, and avatar updates.
- * Also exposes a lightweight health-check endpoint for verifying server connectivity.
+ * Also exposes a lightweight health check endpoint for verifying server connectivity.
  */
 interface MemberApi {
 

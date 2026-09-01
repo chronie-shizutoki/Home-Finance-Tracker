@@ -7,7 +7,7 @@ import com.chronie.homemoney.data.sync.protocol.SyncOpcode
  *
  * `serveV2` in native-lib.cpp owns the framing: it validates the magic, both checksums, the
  * version and the payload cap, answers PING itself, and then hands anything that carries
- * application data to this interface. The division of labour is worth stating precisely,
+ * application data to this interface. The division of labor is worth stating precisely,
  * because getting it wrong is how the two layers previously ended up each assuming the other
  * had validated the input:
  *

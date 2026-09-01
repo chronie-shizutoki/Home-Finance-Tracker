@@ -9,58 +9,103 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.ui.NavDisplay
-import kotlinx.serialization.Serializable
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.RestoreFromTrash
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
-import com.chronie.homemoney.ui.components.*
+import com.chronie.homemoney.ui.components.CircularIconButton
+import com.chronie.homemoney.ui.components.ColorPickerBottomSheet
+import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
+import com.chronie.homemoney.ui.components.ExpressiveSwitch
+import com.chronie.homemoney.ui.components.LanguageSelectorBottomSheet
+import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import com.chronie.homemoney.ui.components.imageeditor.CropShape
 import com.chronie.homemoney.ui.components.imageeditor.ImageEditorDialog
+import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.recyclebin.BatchAction
 import com.chronie.homemoney.ui.recyclebin.RecycleBinScreen
 import com.chronie.homemoney.ui.recyclebin.RecycleBinViewModel
+import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.ui.theme.LocalThemeSettings
 import com.chronie.homemoney.ui.theme.ThemeSettings
-import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
-import com.chronie.homemoney.ui.components.imageeditor.compressBitmapToBytes
+import kotlinx.serialization.Serializable
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.DropdownDefaults
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -71,16 +116,11 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.menu.WindowIconDropdownMenu
-import top.yukonga.miuix.kmp.basic.DropdownEntry
-import top.yukonga.miuix.kmp.basic.DropdownItem
-import top.yukonga.miuix.kmp.basic.DropdownDefaults
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowDialog
-import java.io.File
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 @Serializable
 enum class SettingsPage : NavKey {
@@ -159,7 +199,7 @@ fun SettingsScreen(
                             // On the master pane we do NOT push onto the
                             // back stack – that would animate-slide the
                             // whole screen and break the two-pane layout.
-                            // Instead we simply update `selectedPane` so
+                            // Instead, we simply update `selectedPane` so
                             // the right panel recomposes.
                             selectedPane = page
                         }
@@ -309,7 +349,7 @@ fun SettingsScreen(
 }
 
 /**
- * Centralises rendering of every [SettingsPage] so both the single-pane
+ * Centralizes rendering of every [SettingsPage] so both the single-pane
  * (phone) NavDisplay path and the two-pane (tablet) Row path can share
  * one set of page bodies.
  *
@@ -619,7 +659,7 @@ private fun DecoratedSettingsPane(
  *   - Correct navigation icon (←, not ✕, matches phone behavior).
  *   - Large title that shrinks into a compact title as the body scrolls
  *     (exactly the same "适配大小滚动标题" UX as every other page).
- *   - Same nested-scroll / elevation / divider behaviour, so users see
+ *   - Same nested-scroll / elevation / divider behavior, so users see
  *     a consistent app bar whether they tap a row on phone or tablet.
  */
 @Composable
@@ -1487,16 +1527,21 @@ fun DataImportExportSection(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (!permissions.values.all { it }) {
+        // On Android 14+ the user may grant partial photo access
+        // (READ_MEDIA_VISUAL_USER_SELECTED) instead of full READ_MEDIA_IMAGES;
+        // either grant is sufficient.
+        if (permissions.values.none { it }) {
             Toast.makeText(context, context.getString(R.string.permission_storage_required), Toast.LENGTH_LONG).show()
         }
     }
 
     fun checkAndRequestPermissions(onGranted: () -> Unit) {
-        val permissions =
-            arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
-        val allGranted = permissions.all { androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
-        if (allGranted) onGranted() else permissionLauncher.launch(permissions)
+        val permissions = arrayOf(
+            android.Manifest.permission.READ_MEDIA_IMAGES,
+            android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+        )
+        val hasAccess = permissions.any { androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
+        if (hasAccess) onGranted() else permissionLauncher.launch(permissions)
     }
 
     val filePickerLauncher = rememberLauncherForActivityResult(

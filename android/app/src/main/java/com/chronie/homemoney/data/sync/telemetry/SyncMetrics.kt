@@ -67,7 +67,7 @@ class SyncMetrics(private val clock: () -> Long = System::currentTimeMillis) {
      * Why records were dropped.
      *
      * "3 of 120 records were rejected" is a bug report nobody can act on; "3 HASH_MISMATCH"
-     * points straight at a serialisation difference between the two builds.
+     * points straight at a serialization difference between the two builds.
      */
     private val rejectReasons = WireEntityMapper.RejectReason.entries.associateWithAtomic()
 

@@ -67,7 +67,7 @@ class DatabaseTestViewModel @Inject constructor(
     }
     
     /**
-     * Inserts a single [ExpenseEntity] with randomised type, remark, and amount
+     * Inserts a single [ExpenseEntity] with randomized type, remark, and amount
      * (10–200) into the database. Automatically reloads the expense list.
      */
     fun addTestExpense() {

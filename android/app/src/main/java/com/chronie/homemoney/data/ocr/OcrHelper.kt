@@ -19,6 +19,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 /**
  * Singleton wrapper around Google ML Kit's on-device text recognition.
@@ -54,9 +55,9 @@ class OcrHelper @Inject constructor(@param:ApplicationContext private val contex
         KOREAN("ko")
     }
 
-    private val recognizers = ConcurrentHashMap<OcrLanguage, com.google.mlkit.vision.text.TextRecognizer>()
+    private val recognizers = ConcurrentHashMap<OcrLanguage, TextRecognizer>()
 
-    private fun getRecognizer(language: OcrLanguage): com.google.mlkit.vision.text.TextRecognizer {
+    private fun getRecognizer(language: OcrLanguage): TextRecognizer {
         return recognizers.getOrPut(language) {
             when (language) {
                 OcrLanguage.CHINESE -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
@@ -190,7 +191,7 @@ class OcrHelper @Inject constructor(@param:ApplicationContext private val contex
                 mergedLines.add(line)
             } else {
                 val lastLine = mergedLines.last()
-                if (Math.abs(line.centerY - lastLine.centerY) <= LINE_MERGE_THRESHOLD) {
+                if (abs(line.centerY - lastLine.centerY) <= LINE_MERGE_THRESHOLD) {
                     val mergedText = if (line.left > lastLine.right + 5) {
                         "${lastLine.text} ${line.text}"
                     } else {

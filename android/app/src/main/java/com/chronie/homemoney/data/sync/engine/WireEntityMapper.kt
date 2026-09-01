@@ -21,7 +21,7 @@ object WireEntityMapper {
         /** Not an entity type this build knows how to store. */
         UNSUPPORTED_TYPE,
 
-        /** No typed body inside the oneof. */
+        /** No typed body inside the one of. */
         MISSING_PAYLOAD,
 
         /** Neither the envelope nor the body carries an id. */
@@ -81,8 +81,8 @@ object WireEntityMapper {
         val row = ExpenseEntity(
             id = id,
             type = body.type,
-            // proto3 cannot express null, so the sender normalises null to "". Keeping the
-            // empty string is deliberate: EntityFingerprint applies the same normalisation,
+            // proto3 cannot express null, so the sender normalizes null to "". Keeping the
+            // empty string is deliberate: EntityFingerprint applies the same normalization,
             // so the row's fingerprint is stable across a round trip and the record does not
             // look modified every time it crosses the wire.
             remark = body.remark,

@@ -16,19 +16,19 @@ import top.yukonga.miuix.kmp.blur.runtimeShaderEffect
  * displace the backdrop content inward near the edges of the shape.
  *
  * When [depthEffect] is enabled, the displacement gradient blends toward the
- * shape centre, creating a subtle 3D depth illusion.
+ * shape center, creating a subtle 3D depth illusion.
  *
  * When [chromaticAberration] is above 0, the shader samples the backdrop at
  * multiple dispersed offsets (red through purple) and composites them together,
- * simulating colour fringing at the lens edges.
+ * simulating color fringing at the lens edges.
  *
  * @param refractionHeight   The thickness of the refraction band (in pixels)
  *                           inward from the shape edge. Larger = wider effect.
  * @param refractionAmount   Maximum pixel displacement at the shape edge.
  *                           Larger = stronger distortion.
- * @param depthEffect        When true, adds a centre-directed component to the
+ * @param depthEffect        When true, adds a center-directed component to the
  *                           refraction gradient for a 3D lens feel.
- * @param chromaticAberration Intensity of colour dispersion / chromatic
+ * @param chromaticAberration Intensity of color dispersion / chromatic
  *                           aberration. 0 = no dispersion.
  */
 fun BackdropEffectScope.lens(

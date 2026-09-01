@@ -12,7 +12,7 @@ import com.google.protobuf.ByteString
 /**
  * Turns a set of local rows into the chunked delta that goes on the wire.
  *
- * Three things here replace behaviour that was actively broken:
+ * Three things here replace behavior that was actively broken:
  *
  *  1. **Incremental.** v1 shipped the entire table on every sync, so cost grew with history
  *     and a large ledger could not finish over a weak link at all. A watermark limits the

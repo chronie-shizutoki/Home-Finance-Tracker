@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.chronie.homemoney.R
 import com.chronie.homemoney.ui.expense.ExpenseListScreen
 import com.chronie.homemoney.ui.settings.SettingsScreen
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.blur.Backdrop
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -28,11 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
 import androidx.compose.material.icons.filled.Settings
-import com.chronie.homemoney.ui.main.components.FloatingBottomBar
-import com.chronie.homemoney.ui.main.components.FloatingBottomBarDefaults
-import com.chronie.homemoney.ui.main.components.FloatingBottomBarItem
-import com.chronie.homemoney.ui.main.components.FloatingBottomBarMode
-import com.chronie.homemoney.ui.main.components.LocalFloatingBottomBarContentColor
 
 /**
  * The main tabbed screen of the app, hosting the three primary sections:

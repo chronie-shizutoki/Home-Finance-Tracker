@@ -1,6 +1,5 @@
-package com.chronie.homemoney.ui.main.components
+package com.chronie.homemoney.ui.main
 
-import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
@@ -338,7 +337,7 @@ fun FloatingBottomBar(
     }
 
     val interactiveHighlight =
-        if (isLiquidGlassMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (isLiquidGlassMode) {
             remember(animationScope, tabWidthPx) {
                 InteractiveHighlight(
                     animationScope = animationScope,

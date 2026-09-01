@@ -100,7 +100,7 @@ class DiscoveryDecider(
         }
 
         // The address check is not enough on its own: a device behind a second NIC can see
-        // its own broadcast arrive with a source address it does not recognise as local.
+        // its own broadcast arrive with a source address it does not recognize as local.
         if (packet.deviceId == self.deviceId) {
             return DiscoveryAction.Ignore(IgnoreReason.SELF_DEVICE_ID, packet.deviceId)
         }

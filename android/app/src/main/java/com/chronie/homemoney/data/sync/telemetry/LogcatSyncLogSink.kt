@@ -12,8 +12,8 @@ import android.util.Log
  *
  * [SyncLogLevel.DEBUG] maps to `Log.d`, which is stripped from release builds by the log
  * guard below rather than by proguard, because these lines are emitted per frame and the
- * string building — not the write — is what costs. Callers pass an already-built string, so
- * the only saving available here is skipping the write; [minLevel] exists so a release build
+ * string building — not write — is what costs. Callers pass an already-built string, so
+ * the only saving available here is skipping write; [minLevel] exists so a release build
  * can be configured to skip the building too, at the observer's call site, if it ever
  * matters. Today it does not: a sync involves tens of frames, not thousands.
  */

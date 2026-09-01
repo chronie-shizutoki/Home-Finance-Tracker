@@ -244,7 +244,7 @@
     <string name="budget_settings_title">予算設定</string>
     <string name="budget_monthly_limit">月間予算</string>
     <string name="budget_warning_threshold">警告のしきい値 (%)</string>
-    <string name="budget_warning_threshold_hint">この割合に達した時に警告する（0-100）</string>
+    <string name="budget_warning_threshold_hint">この割合に達した時に警告する（0–100）</string>
     <string name="budget_remaining">残りの予算</string>
     <string name="budget_daily_average">1日あたりの平均支出</string>
     <string name="budget_recommended_daily">推奨される1日あたりの支出</string>

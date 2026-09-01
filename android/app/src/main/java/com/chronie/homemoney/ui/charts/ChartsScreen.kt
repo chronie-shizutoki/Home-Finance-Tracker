@@ -2,30 +2,43 @@ package com.chronie.homemoney.ui.charts
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.background
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,9 +53,6 @@ import com.chronie.homemoney.ui.components.MiuixDatePickerSheet
 import com.chronie.homemoney.ui.expense.ExpenseTypeLocalizer
 import com.chronie.homemoney.ui.expense.formatDateByLocale
 import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
-import com.himanshoe.charty.bar.BarChart
-import com.himanshoe.charty.bar.config.BarChartConfig
-import com.himanshoe.charty.bar.data.BarData
 import com.himanshoe.charty.color.ChartyColor
 import com.himanshoe.charty.common.config.ChartScaffoldConfig
 import com.himanshoe.charty.line.LineChart
@@ -61,7 +71,6 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.theme.LocalDismissState
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -70,7 +79,8 @@ import top.yukonga.miuix.kmp.window.WindowListPopup
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class ChartType {
     TREND, CATEGORY, WEEKDAY
@@ -566,7 +576,7 @@ private fun CategoryBreakdownCard(
                 var isAnimated by remember { mutableStateOf(false) }
                 
                 LaunchedEffect(categoryData) {
-                    kotlinx.coroutines.delay(150)
+                    kotlinx.coroutines.delay(150.milliseconds)
                     isAnimated = true
                 }
                 
@@ -600,7 +610,7 @@ private fun CategoryBreakdownCard(
                                     ),
                                     modifier = Modifier.width(yAxisWidth)
                                 )
-                                androidx.compose.foundation.layout.Box(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(0.5.dp)
@@ -622,8 +632,8 @@ private fun CategoryBreakdownCard(
                             )
                         }
                     }
-                    
-                    androidx.compose.foundation.layout.Box(
+
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -654,8 +664,8 @@ private fun CategoryBreakdownCard(
                                     )
                                 )
                                 val animatedBarHeight = (targetBarHeight.value * animatedProgress.value).dp
-                                
-                                androidx.compose.foundation.layout.Box(
+
+                                Box(
                                     modifier = Modifier.width(itemWidth)
                                 ) {
                                     Column(
@@ -664,7 +674,7 @@ private fun CategoryBreakdownCard(
                                         verticalArrangement = Arrangement.Bottom
                                     ) {
                                         Text(
-                                            text = "${String.format("%.1f", category.percentage)}%",
+                                            text = "${String.format(Locale.US, "%.1f", category.percentage)}%",
                                             style = MiuixTheme.textStyles.footnote1.copy(
                                                 color = barColor,
                                                 fontWeight = FontWeight.Bold,
@@ -672,8 +682,8 @@ private fun CategoryBreakdownCard(
                                             ),
                                             modifier = Modifier.padding(bottom = 4.dp)
                                         )
-                                        
-                                        androidx.compose.foundation.layout.Box(
+
+                                        Box(
                                             modifier = Modifier
                                                 .width(barWidth)
                                                 .height(animatedBarHeight)

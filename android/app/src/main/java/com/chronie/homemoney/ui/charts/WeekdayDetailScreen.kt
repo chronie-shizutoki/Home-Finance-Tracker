@@ -37,7 +37,7 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
  * weekday and the time range carried from the charts screen.
  *
  * @param context Android [Context] for string resources and locale formatting.
- * @param dayOfWeek the day index (0 = Sunday … 6 = Saturday) being analysed.
+ * @param dayOfWeek the day index (0 = Sunday … 6 = Saturday) being analyzed.
  * @param amount the total expense amount for this weekday in the selected range.
  * @param count the total number of expense records for this weekday.
  * @param percentage the share of total weekly spending represented by this day.
@@ -231,7 +231,7 @@ private fun CategoryDetailItem(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    androidx.compose.foundation.layout.Box(
+                    Box(
                         modifier = Modifier
                             .width(10.dp)
                             .height(10.dp)

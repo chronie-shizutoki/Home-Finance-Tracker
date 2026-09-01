@@ -252,7 +252,7 @@ constexpr SyncErrorCode writeLegacyMessage(W& writer, const std::uint8_t* payloa
     if (len > kMaxLegacyPayloadSize) {
         return SyncErrorCode::kPayloadTooLarge;
     }
-    const std::uint32_t length = static_cast<std::uint32_t>(len);
+    const auto length = static_cast<std::uint32_t>(len);
     const std::uint8_t prefix[4] = {
             static_cast<std::uint8_t>((length >> 24) & 0xFFu),
             static_cast<std::uint8_t>((length >> 16) & 0xFFu),

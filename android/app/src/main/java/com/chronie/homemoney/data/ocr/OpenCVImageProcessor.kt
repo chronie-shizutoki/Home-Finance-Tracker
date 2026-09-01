@@ -5,9 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
+import com.chronie.homemoney.data.ocr.OpenCVImageProcessor.Companion.MIN_IMAGE_SIZE
+import com.chronie.homemoney.data.ocr.OpenCVImageProcessor.Companion.initialize
 import org.opencv.android.OpenCVLoader
-import org.opencv.core.*
-import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.core.Mat
+import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 
 /**
@@ -95,7 +99,7 @@ class OpenCVImageProcessor(private val context: Context) {
         val newHeight = (height * scaleFactor).toInt()
         
         Log.d(TAG, "Scaling image from ${width}x${height} to ${newWidth}x${newHeight}")
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        return bitmap.scale(newWidth, newHeight)
     }
 
     private fun bitmapToMat(bitmap: Bitmap): Mat {
@@ -106,7 +110,7 @@ class OpenCVImageProcessor(private val context: Context) {
     }
 
     private fun matToBitmap(mat: Mat): Bitmap {
-        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(mat.cols(), mat.rows())
         org.opencv.android.Utils.matToBitmap(mat, bitmap)
         return bitmap
     }

@@ -10,7 +10,7 @@
     <string name="language_settings">Language</string>
     <string name="update_avatar_failed">Failed to update avatar</string>
     <string name="select_language">Select Language</string>
-    <string name="api_key_set">Set: %s...</string>
+    <string name="api_key_set">Set: %s…</string>
     <string name="developer_tools">Developer Tools</string>
     <string name="theme_settings">Theme</string>
     <string name="features_settings">Features</string>
@@ -86,12 +86,12 @@
     <string name="load_success">Loaded</string>
     <string name="load_failed">Load failed: %s</string>
     <string name="device_sync_title">%s Device Sync</string>
-    <string name="device_sync_searching">Searching for %s devices...</string>
-    <string name="device_sync_searching_devices">Searching for devices...</string>
+    <string name="device_sync_searching">Searching for %s devices…</string>
+    <string name="device_sync_searching_devices">Searching for devices…</string>
     <string name="device_sync_found_devices">Found %d devices:</string>
-    <string name="device_sync_connecting">Connecting to %s...</string>
+    <string name="device_sync_connecting">Connecting to %s…</string>
     <string name="device_sync_connect_failed">Connection failed</string>
-    <string name="device_sync_synchronizing">Synchronizing...</string>
+    <string name="device_sync_synchronizing">Synchronizing…</string>
     <string name="device_sync_success">Synchronization completed successfully</string>
     <string name="device_sync_failed">Synchronization failed: %s</string>
     
@@ -262,7 +262,7 @@
     <string name="budget_settings_title">Budget Settings</string>
     <string name="budget_monthly_limit">Monthly Budget</string>
     <string name="budget_warning_threshold">Alert Level (%)</string>
-    <string name="budget_warning_threshold_hint">Show alert at this percentage (0-100)</string>
+    <string name="budget_warning_threshold_hint">Show alert at this percentage (0–100)</string>
     <string name="budget_remaining">Remaining</string>
     <string name="budget_daily_average">Daily Average</string>
     <string name="budget_recommended_daily">Daily Budget</string>
@@ -277,7 +277,7 @@
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
     <string name="budget_error_invalid_limit">Enter valid amount</string>
-    <string name="budget_error_invalid_threshold">Enter 0-100</string>
+    <string name="budget_error_invalid_threshold">Enter 0–100</string>
 
     <!-- Charts -->
     <string name="charts_title">Analytics</string>
@@ -367,7 +367,7 @@
     <string name="auth_login_hint">Enter username to login or register</string>
     <string name="auth_account_info">Account</string>
     <string name="auth_logout_confirm_title">Logout</string>
-    <string name="auth_logout_confirm_message">Are you sure you want to logout?</string>
+    <string name="auth_logout_confirm_message">Are you sure you want to log out?</string>
     <string name="crop_image_failed">Failed to process cropped image: %s</string>
     <string name="membership_title">Account</string>
     <string name="auth_logged_in">Logged in</string>
@@ -424,7 +424,7 @@
 
     <!-- Color Picker -->
     <string name="color_picker_title">Select Theme Color</string>
-    <string name="color_picker_search_hint">Search color names...</string>
+    <string name="color_picker_search_hint">Search color names…</string>
     <string name="current_theme_color">Current Theme Color</string>
     <string name="color_group_default">Default</string>
     <string name="color_group_red">Red</string>
@@ -567,21 +567,21 @@
     <string name="lan_sync_title">LAN Sync</string>
     <string name="sync_options">Sync Options</string>
     <string name="search_nearby_devices">Search Nearby Devices</string>
-    <string name="search_nearby_devices_desc">Discover devices on the same WiFi network</string>
+    <string name="search_nearby_devices_desc">Discover devices on the same Wi-Fi network</string>
     <string name="wait_for_connection">Wait for Connection</string>
     <string name="wait_for_connection_desc">Other devices can discover this device</string>
     <string name="this_device">This Device</string>
     <string name="lan_sync_ready">Ready to sync with other devices on the same network</string>
     <string name="sync_info_title">How LAN Sync Works</string>
-    <string name="sync_info_content">1. Connect all devices to the same WiFi network\n2. Search for nearby devices\n3. Select a device to sync with\n4. Data will be synchronized between devices</string>
+    <string name="sync_info_content">1. Connect all devices to the same Wi-Fi network\n2. Search for nearby devices\n3. Select a device to sync with\n4. Data will be synchronized between devices</string>
     <string name="edit_device_name">Edit Device Name</string>
     <string name="device_name">Device Name</string>
     <string name="searching_devices">Searching Devices</string>
-    <string name="make_sure_same_wifi">Make sure all devices are connected to the same WiFi network</string>
+    <string name="make_sure_same_wifi">Make sure all devices are connected to the same Wi-Fi network</string>
     <string name="searching">Searching…</string>
     <string name="no_devices_found">No devices found</string>
     <string name="device_name_updated">Device name updated</string>
-    <string name="sync_in_progress">Synchronizing...</string>
+    <string name="sync_in_progress">Synchronizing…</string>
     <string name="sync_request_title">Sync Request</string>
     <string name="sync_request_message">Do you want to synchronize data with this device?</string>
     <string name="accept">Accept</string>

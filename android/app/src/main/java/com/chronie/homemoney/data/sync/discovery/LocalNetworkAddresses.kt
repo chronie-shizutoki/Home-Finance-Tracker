@@ -12,7 +12,7 @@ import java.net.NetworkInterface
  * tethering `ap0` and `wlan0` can all be up at once, and the enumeration order is not
  * something the platform promises. Two failures followed from it:
  *
- *  - **Self-discovery.** The receive loop skipped packets whose source equalled "the" local
+ *  - **Self-discovery.** The reception loop skipped packets whose source equaled "the" local
  *    IP. Pick the wrong NIC and your own broadcast no longer matches, so the device lists
  *    itself as a peer.
  *  - **Broadcasting into a tunnel.** Sending discovery down a point-to-point VPN reaches
@@ -43,7 +43,7 @@ object LocalNetworkAddresses {
      * Every IPv4 address this machine holds, including ones on interfaces we would never
      * broadcast on.
      *
-     * Deliberately permissive: this set is used to recognise our own traffic, and a missed
+     * Deliberately permissive: this set is used to recognize our own traffic, and a missed
      * address means a self-discovery loop. An extra address costs nothing.
      */
     fun selectLocalIpv4(nics: List<Nic>): Set<String> =
@@ -109,11 +109,11 @@ object LocalNetworkAddresses {
         val parsed = octets.map { it.toIntOrNull() ?: return false }
         if (parsed.any { it !in 0..255 }) return false
         val (a, b) = parsed
-        return when {
-            a == 10 -> true
-            a == 192 && b == 168 -> true
-            a == 172 && b in 16..31 -> true
-            a == 169 && b == 254 -> true
+        return when (a) {
+            10 -> true
+            192 if b == 168 -> true
+            172 if b in 16..31 -> true
+            169 if b == 254 -> true
             else -> false
         }
     }
