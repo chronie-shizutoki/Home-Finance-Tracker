@@ -54,24 +54,26 @@ import androidx.core.graphics.scale
 @Composable
 fun ExpenseFilterDialog(
     context: android.content.Context,
+    show: Boolean,
     currentFilters: ExpenseFilters,
     onDismiss: () -> Unit,
     onApplyFilters: (ExpenseFilters) -> Unit
 ) {
-    var keyword by remember { mutableStateOf(currentFilters.keyword ?: "") }
-    var selectedTypes by remember { mutableStateOf(currentFilters.type?.let { setOf(it) } ?: emptySet()) }
-    var minAmount by remember { mutableStateOf(currentFilters.minAmount?.toString() ?: "") }
-    var maxAmount by remember { mutableStateOf(currentFilters.maxAmount?.toString() ?: "") }
-    var startDate by remember { mutableStateOf(currentFilters.startDate) }
-    var endDate by remember { mutableStateOf(currentFilters.endDate) }
-    var showTypeSelector by remember { mutableStateOf(false) }
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showEndDatePicker by remember { mutableStateOf(false) }
+    // State is keyed on [show] so it re-initializes from currentFilters each time the sheet opens.
+    var keyword by remember(show) { mutableStateOf(currentFilters.keyword ?: "") }
+    var selectedTypes by remember(show) { mutableStateOf(currentFilters.type?.let { setOf(it) } ?: emptySet()) }
+    var minAmount by remember(show) { mutableStateOf(currentFilters.minAmount?.toString() ?: "") }
+    var maxAmount by remember(show) { mutableStateOf(currentFilters.maxAmount?.toString() ?: "") }
+    var startDate by remember(show) { mutableStateOf(currentFilters.startDate) }
+    var endDate by remember(show) { mutableStateOf(currentFilters.endDate) }
+    var showTypeSelector by remember(show) { mutableStateOf(false) }
+    var showStartDatePicker by remember(show) { mutableStateOf(false) }
+    var showEndDatePicker by remember(show) { mutableStateOf(false) }
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     WindowBottomSheet(
-        show = true,
+        show = show,
         title = context.getString(R.string.expense_list_filter_title),
         startAction = {
             CircularIconButton(onClick = onDismiss) {
