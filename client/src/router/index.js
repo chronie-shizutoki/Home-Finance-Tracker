@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import i18n from '@/locales/i18n';
 import HomeView from '@/views/HomeView.vue';
 import NotFoundView from '@/views/NotFoundView.vue';
+import BrowserUnsupportedView from '@/views/BrowserUnsupportedView.vue';
 
 /**
  * Application router configuration
@@ -54,6 +55,15 @@ const router = createRouter({
       name: 'not-found',
       meta: { depth: 0 },
       component: NotFoundView
+    },
+    {
+      // Reachable in-app notice for environments the bundle can still boot on
+      // but that we want to warn explicitly. The true legacy fallback (engines
+      // that cannot parse the ESNext bundle) is handled in index.html.
+      path: '/unsupported-browser',
+      name: 'unsupported-browser',
+      meta: { title: 'app.browserUnsupported', depth: 0 },
+      component: BrowserUnsupportedView
     }
   ],
   scrollBehavior (_to, _from, savedPosition) {

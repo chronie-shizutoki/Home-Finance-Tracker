@@ -1,233 +1,236 @@
 {
-"app": {
-  "title": "家庭记账本",
-  "export": "汇出资料",
-  "notFound": "找不到页面",
-  "pageNotFound": "您寻找的页面不存在",
-  "backToHome": "返回首页",
-  "firstPage": "第一页",
-  "previousPage": "上一页",
-  "page": "第 {page} 页",
-  "nextPage": "下一页",
-  "lastPage": "最后一页",
-  "loading": "载入中..."
-},
-"home": {
-  "noDataForExport": "没有可供汇出的资料"
-},
-"expense": {
-  "noRecords": "找不到支出记录",
-  "record": "支出记录",
-  "unknownError": "发生错误",
-  "selectType": "选择分类",
-  "inputAmount": "输入金额",
-  "selectDate": "选择日期",
-  "enterRemark": "添加备注（可选）",
-  "confirm": "确认",
-  "serverError": "伺服器错误",
-  "type": "分类",
-  "amount": "金额",
-  "date": "日期",
-  "remark": "备注",
-  "addSuccess": "成功添加 {count} 笔支出",
-  "aiAddRecord": "AI 记账",
-  "aiReport": "AI 问答",
-  "edit": "编辑支出",
-  "updateFailed": "更新支出失败，请稍后再试",
-  "updateSuccess": "支出更新成功",
-  "deleteConfirm": "删除支出",
-  "deleteMessage": "确定要删除这笔支出吗？",
-  "deleteSuccess": "支出删除成功",
-  "deleteFailed": "删除支出失败，请稍后再试",
-  "dailyExpense": "每日支出",
-  "addDialogTitle": "添加支出",
-  "addRecord": "添加新记录",
-  "amountRequired": "金额为必填项",
-  "empty": {
-    "title": "没有支出",
-    "description": "添加新支出或调整筛选条件",
-    "reset": "重设筛选"
+  "app": {
+    "title": "家庭记账本",
+    "export": "汇出资料",
+    "notFound": "找不到页面",
+    "pageNotFound": "您寻找的页面不存在",
+    "backToHome": "返回首页",
+    "browserUnsupported": "浏览器不兼容",
+    "browserUnsupportedMessage": "本应用需要现代浏览器。您当前的浏览器版本过旧，无法正常显示应用。",
+    "upgradeBrowser": "升级您的浏览器",
+    "firstPage": "第一页",
+    "previousPage": "上一页",
+    "page": "第 {page} 页",
+    "nextPage": "下一页",
+    "lastPage": "最后一页",
+    "loading": "载入中..."
   },
-  "search": {
-    "title": "搜寻支出",
-    "minAmountPlaceholder": "最小金额",
-    "maxAmountPlaceholder": "最大金额",
-    "keywordPlaceholder": "搜寻备注...",
-    "month": "月份",
-    "allMonth": "全部月份",
+  "home": {
+    "noDataForExport": "没有可供汇出的资料"
+  },
+  "expense": {
+    "noRecords": "找不到支出记录",
+    "record": "支出记录",
+    "unknownError": "发生错误",
+    "selectType": "选择分类",
+    "inputAmount": "输入金额",
+    "selectDate": "选择日期",
+    "enterRemark": "添加备注（可选）",
+    "confirm": "确认",
+    "serverError": "伺服器错误",
     "type": "分类",
-    "allType": "全部分类",
-    "sort": "排序方式",
-    "amountRange": "金额范围",
-    "keyword": "搜寻",
-    "reset": "重设"
-  },
-  "noDataTitle": "没有结果",
-  "noDataMessage": "尝试调整筛选条件或添加新支出",
-  "sort": {
-    "dateAsc": "日期 ↑",
-    "dateDesc": "日期 ↓",
-    "amountAsc": "金额 ↑",
-    "amountDesc": "金额 ↓"
-  },
-  "stats": {
-    "rowCount": "总记录笔数",
-    "totalAmount": "总金额",
-    "averageAmount": "平均",
-    "medianAmount": "中位数",
-    "amountRange": "金额范围"
-  },
-  "largeExpense": {
-    "warning": "检测到大额支出，请确认是否正确。",
-    "confirm": "我了解"
-  },
-  "common": {
-    "requestCanceled": "请求已取消",
-    "networkError": "网路错误，请检查连线"
-  },
-  "columns": {
-    "time": "时间",
-    "name": "分类"
-  }
-},
-"common": {
-  "action": "操作",
-  "cancel": "取消",
-  "confirm": "确定",
-  "submit": "提交",
-  "loadFailed": "载入资料失败，请稍后再试",
-  "edit": "编辑",
-  "delete": "删除",
-   "trash": "回收站",
-  "to": "至",
-  "currency": "SGD",
-  "currencySymbol": "$",
-  "sunday": "星期日",
-  "monday": "星期一",
-  "tuesday": "星期二",
-  "wednesday": "星期三",
-  "thursday": "星期四",
-  "friday": "星期五",
-  "saturday": "星期六",
-  "date": "日期",
-  "date_today": "今天",
-  "date_yesterday": "昨天",
-  "date_days_ago": "{days} 天前"
-},
-"spending": {
-  "monthlyProgress": "每月支出进度",
-  "exceeded": "超出预算",
-  "dailyAverage": "日均消费",
-  "recommendedDaily": "建议每日支出",
-  "settings": {
-    "title": "预算设定",
-    "on": "启用预算",
-    "enabled": "已启用",
-    "disabled": "已停用",
-    "monthlyLimit": "每月预算",
-    "enterLimit": "输入每月预算",
-    "warningThreshold": "警示界限",
-    "enterThreshold": "输入警示界限",
-    "disabledNotice": "启用预算以追踪每月支出",
-    "pleaseSetLimit": "请设定您的每月预算"
-  },
-  "status": {
-    "disabled": "预算已停用",
-    "normal": "进度正常",
-    "nearLimit": "接近预算上限",
-    "overLimit": "超出预算"
-  },
-  "alert": {
-    "normal": {
-      "title": "进度正常",
-      "description": "剩余：{remaining}（已用 {percentage}%）"
+    "amount": "金额",
+    "date": "日期",
+    "remark": "备注",
+    "addSuccess": "成功添加 {count} 笔支出",
+    "aiAddRecord": "AI 记账",
+    "aiReport": "AI 问答",
+    "edit": "编辑支出",
+    "updateFailed": "更新支出失败，请稍后再试",
+    "updateSuccess": "支出更新成功",
+    "deleteConfirm": "删除支出",
+    "deleteMessage": "确定要删除这笔支出吗？",
+    "deleteSuccess": "支出删除成功",
+    "deleteFailed": "删除支出失败，请稍后再试",
+    "dailyExpense": "每日支出",
+    "addDialogTitle": "添加支出",
+    "addRecord": "添加新记录",
+    "amountRequired": "金额为必填项",
+    "empty": {
+      "title": "没有支出",
+      "description": "添加新支出或调整筛选条件",
+      "reset": "重设筛选"
     },
-    "nearLimit": {
-      "title": "接近预算上限",
-      "description": "剩余：{remaining}（已用 {percentage}%），建议控制支出。"
+    "search": {
+      "title": "搜寻支出",
+      "minAmountPlaceholder": "最小金额",
+      "maxAmountPlaceholder": "最大金额",
+      "keywordPlaceholder": "搜寻备注...",
+      "month": "月份",
+      "allMonth": "全部月份",
+      "type": "分类",
+      "allType": "全部分类",
+      "sort": "排序方式",
+      "amountRange": "金额范围",
+      "keyword": "搜寻",
+      "reset": "重设"
     },
-    "overLimit": {
-      "title": "超出预算",
-      "description": "超支 {amount}，请检视您的支出。"
+    "noDataTitle": "没有结果",
+    "noDataMessage": "尝试调整筛选条件或添加新支出",
+    "sort": {
+      "dateAsc": "日期 ↑",
+      "dateDesc": "日期 ↓",
+      "amountAsc": "金额 ↑",
+      "amountDesc": "金额 ↓"
+    },
+    "stats": {
+      "rowCount": "总记录笔数",
+      "totalAmount": "总金额",
+      "averageAmount": "平均",
+      "medianAmount": "中位数",
+      "amountRange": "金额范围"
+    },
+    "largeExpense": {
+      "warning": "检测到大额支出，请确认是否正确。",
+      "confirm": "我了解"
+    },
+    "common": {
+      "requestCanceled": "请求已取消",
+      "networkError": "网路错误，请检查连线"
+    },
+    "columns": {
+      "time": "时间",
+      "name": "分类"
     }
   },
-  "enablePrompt": {
-    "title": "追踪每月支出",
-    "description": "设定每月预算以追踪支出，并在接近上限时收到提醒。",
-    "button": "启用预算",
-    "enabled": "预算启用成功"
-  }
-},
-"function": {
-  "primary": "主要功能",
-  "aiFeatures": "AI 功能"
-},
-"ai": {
-  "report": {
-    "filterTitle": "资料筛选",
-    "statsPreview": "资料统计预览",
-    "totalCount": "总记录笔数",
-    "totalAmount": "总金额",
-    "averageAmount": "平均",
-    "medianAmount": "中位数",
-    "minAmount": "最低金额",
-    "maxAmount": "最高金额",
-    "loading": "载入中..."
-  }
-},
-"avatar": {
-  "cropTitle": "裁剪头像",
-  "cancel": "取消",
-  "confirm": "确认",
-  "placeholder": "点击上传头像",
-  "error": {
-    "sizeLimit": "头像大小不能超过 {maxSize}MB",
-    "invalidType": "请选择有效的图片档案",
-    "uploadFailed": "头像上传失败，请稍后再试"
-  }
-},
-"membership": {
-  "title": "用户管理",
-  "username": "使用者名称",
-  "loginOrRegister": "登入 / 注册",
-  "logout": "登出",
-  "usernamePlaceholder": "输入您的使用者名称",
-  "error": {
-    "requiredUsername": "请输入使用者名称",
-    "usernameFormat": "使用者名称只能包含英文字母（大小写）",
-    "usernameLength": "使用者名称长度须介于 1 至 20 个字符",
-    "loginFailed": "登入失败，请稍后再试"
+  "common": {
+    "action": "操作",
+    "cancel": "取消",
+    "confirm": "确定",
+    "submit": "提交",
+    "loadFailed": "载入资料失败，请稍后再试",
+    "edit": "编辑",
+    "delete": "删除",
+    "trash": "回收站",
+    "to": "至",
+    "currency": "SGD",
+    "currencySymbol": "$",
+    "sunday": "星期日",
+    "monday": "星期一",
+    "tuesday": "星期二",
+    "wednesday": "星期三",
+    "thursday": "星期四",
+    "friday": "星期五",
+    "saturday": "星期六",
+    "date": "日期",
+    "date_today": "今天",
+    "date_yesterday": "昨天",
+    "date_days_ago": "{days} 天前"
   },
-  "success": {
-    "login": "登入成功",
-    "logout": "已登出",
-    "avatarUploaded": "头像上传成功"
-  }
-},
-"export": {
-  "monthData": "汇出本月资料",
-  "failed": "汇出失败，请稍后再试"
-},
-"error": {
-  "dataInitializationFailed": "初始化资料失败，请重试"
-},
-"chart": {
-  "title": "支出分析",
-  "bar": "长条图",
-  "line": "折线图",
-  "doughnut": "环圈图",
-  "radar": "雷达图",
-  "categoryAnalysis": "各分类支出",
-  "categoryPercentage": "分类占比",
-  "trendAnalysis": "支出趋势",
-  "weekdayAnalysis": "星期分布"
-},
-"import": {
-  "title": "汇入资料",
-  "success": "资料汇入成功",
-  "failed": "资料汇入失败",
-  "refreshNotice": "（3 秒后自动重新整理）"
-},
+  "spending": {
+    "monthlyProgress": "每月支出进度",
+    "exceeded": "超出预算",
+    "dailyAverage": "日均消费",
+    "recommendedDaily": "建议每日支出",
+    "settings": {
+      "title": "预算设定",
+      "on": "启用预算",
+      "enabled": "已启用",
+      "disabled": "已停用",
+      "monthlyLimit": "每月预算",
+      "enterLimit": "输入每月预算",
+      "warningThreshold": "警示界限",
+      "enterThreshold": "输入警示界限",
+      "disabledNotice": "启用预算以追踪每月支出",
+      "pleaseSetLimit": "请设定您的每月预算"
+    },
+    "status": {
+      "disabled": "预算已停用",
+      "normal": "进度正常",
+      "nearLimit": "接近预算上限",
+      "overLimit": "超出预算"
+    },
+    "alert": {
+      "normal": {
+        "title": "进度正常",
+        "description": "剩余：{remaining}（已用 {percentage}%）"
+      },
+      "nearLimit": {
+        "title": "接近预算上限",
+        "description": "剩余：{remaining}（已用 {percentage}%），建议控制支出。"
+      },
+      "overLimit": {
+        "title": "超出预算",
+        "description": "超支 {amount}，请检视您的支出。"
+      }
+    },
+    "enablePrompt": {
+      "title": "追踪每月支出",
+      "description": "设定每月预算以追踪支出，并在接近上限时收到提醒。",
+      "button": "启用预算",
+      "enabled": "预算启用成功"
+    }
+  },
+  "function": {
+    "primary": "主要功能",
+    "aiFeatures": "AI 功能"
+  },
+  "ai": {
+    "report": {
+      "filterTitle": "资料筛选",
+      "statsPreview": "资料统计预览",
+      "totalCount": "总记录笔数",
+      "totalAmount": "总金额",
+      "averageAmount": "平均",
+      "medianAmount": "中位数",
+      "minAmount": "最低金额",
+      "maxAmount": "最高金额",
+      "loading": "载入中..."
+    }
+  },
+  "avatar": {
+    "cropTitle": "裁剪头像",
+    "cancel": "取消",
+    "confirm": "确认",
+    "placeholder": "点击上传头像",
+    "error": {
+      "sizeLimit": "头像大小不能超过 {maxSize}MB",
+      "invalidType": "请选择有效的图片档案",
+      "uploadFailed": "头像上传失败，请稍后再试"
+    }
+  },
+  "membership": {
+    "title": "用户管理",
+    "username": "使用者名称",
+    "loginOrRegister": "登入 / 注册",
+    "logout": "登出",
+    "usernamePlaceholder": "输入您的使用者名称",
+    "error": {
+      "requiredUsername": "请输入使用者名称",
+      "usernameFormat": "使用者名称只能包含英文字母（大小写）",
+      "usernameLength": "使用者名称长度须介于 1 至 20 个字符",
+      "loginFailed": "登入失败，请稍后再试"
+    },
+    "success": {
+      "login": "登入成功",
+      "logout": "已登出",
+      "avatarUploaded": "头像上传成功"
+    }
+  },
+  "export": {
+    "monthData": "汇出本月资料",
+    "failed": "汇出失败，请稍后再试"
+  },
+  "error": {
+    "dataInitializationFailed": "初始化资料失败，请重试"
+  },
+  "chart": {
+    "title": "支出分析",
+    "bar": "长条图",
+    "line": "折线图",
+    "doughnut": "环圈图",
+    "radar": "雷达图",
+    "categoryAnalysis": "各分类支出",
+    "categoryPercentage": "分类占比",
+    "trendAnalysis": "支出趋势",
+    "weekdayAnalysis": "星期分布"
+  },
+  "import": {
+    "title": "汇入资料",
+    "success": "资料汇入成功",
+    "failed": "资料汇入失败",
+    "refreshNotice": "（3 秒后自动重新整理）"
+  },
   "recycleBin": {
     "title": "回收站",
     "empty": "回收站为空",
@@ -264,4 +267,5 @@
     "operationFailed": "操作失败，请稍后重试",
     "backToHome": "返回首页",
     "loading": "加载中..."
-  }}
+  }
+}

@@ -1,233 +1,236 @@
 {
-"app": {
-  "title": "Buku Kas Keluarga",
-  "export": "Ekspor Data",
-  "notFound": "Halaman Tidak Ditemukan",
-  "pageNotFound": "Halaman yang Anda cari tidak tersedia",
-  "backToHome": "Kembali ke Beranda",
-  "firstPage": "Halaman Pertama",
-  "previousPage": "Halaman Sebelumnya",
-  "page": "Halaman {page}",
-  "nextPage": "Halaman Berikutnya",
-  "lastPage": "Halaman Terakhir",
-  "loading": "Memuat..."
-},
-"home": {
-  "noDataForExport": "Tidak ada data yang tersedia untuk diekspor"
-},
-"expense": {
-  "noRecords": "Tidak ada pengeluaran ditemukan",
-  "record": "Catatan Pengeluaran",
-  "unknownError": "Terjadi kesalahan",
-  "selectType": "Pilih Kategori",
-  "inputAmount": "Masukkan Jumlah",
-  "selectDate": "Pilih Tanggal",
-  "enterRemark": "Tambahkan catatan (opsional)",
-  "confirm": "Konfirmasi",
-  "serverError": "Kesalahan server",
-  "type": "Kategori",
-  "amount": "Jumlah",
-  "date": "Tanggal",
-  "remark": "Catatan",
-  "addSuccess": "Berhasil menambahkan {count} pengeluaran",
-  "aiAddRecord": "Catat AI",
-  "aiReport": "Tanya Jawab AI",
-  "edit": "Edit Pengeluaran",
-  "updateFailed": "Gagal memperbarui pengeluaran, silakan coba lagi nanti",
-  "updateSuccess": "Pengeluaran berhasil diperbarui",
-  "deleteConfirm": "Hapus Pengeluaran",
-  "deleteMessage": "Apakah Anda yakin ingin menghapus pengeluaran ini?",
-  "deleteSuccess": "Pengeluaran berhasil dihapus",
-  "deleteFailed": "Gagal menghapus pengeluaran, silakan coba lagi nanti",
-  "dailyExpense": "Pengeluaran Harian",
-  "addDialogTitle": "Tambah Pengeluaran",
-  "addRecord": "Tambah Catatan Baru",
-  "amountRequired": "Jumlah wajib diisi",
-  "empty": {
-    "title": "Tidak Ada Pengeluaran",
-    "description": "Tambah pengeluaran baru atau sesuaikan filter Anda",
-    "reset": "Atur Ulang Filter"
+  "app": {
+    "title": "Buku Kas Keluarga",
+    "export": "Ekspor Data",
+    "notFound": "Halaman Tidak Ditemukan",
+    "pageNotFound": "Halaman yang Anda cari tidak tersedia",
+    "backToHome": "Kembali ke Beranda",
+    "browserUnsupported": "Browser Tidak Didukung",
+    "browserUnsupportedMessage": "Home Finance Tracker membutuhkan browser modern. Browser Anda saat ini sudah usang dan tidak dapat menampilkan aplikasi dengan benar.",
+    "upgradeBrowser": "Perbarui browser Anda",
+    "firstPage": "Halaman Pertama",
+    "previousPage": "Halaman Sebelumnya",
+    "page": "Halaman {page}",
+    "nextPage": "Halaman Berikutnya",
+    "lastPage": "Halaman Terakhir",
+    "loading": "Memuat..."
   },
-  "search": {
-    "title": "Cari Pengeluaran",
-    "minAmountPlaceholder": "Jumlah minimum",
-    "maxAmountPlaceholder": "Jumlah maksimum",
-    "keywordPlaceholder": "Cari catatan...",
-    "month": "Bulan",
-    "allMonth": "Semua Bulan",
+  "home": {
+    "noDataForExport": "Tidak ada data yang tersedia untuk diekspor"
+  },
+  "expense": {
+    "noRecords": "Tidak ada pengeluaran ditemukan",
+    "record": "Catatan Pengeluaran",
+    "unknownError": "Terjadi kesalahan",
+    "selectType": "Pilih Kategori",
+    "inputAmount": "Masukkan Jumlah",
+    "selectDate": "Pilih Tanggal",
+    "enterRemark": "Tambahkan catatan (opsional)",
+    "confirm": "Konfirmasi",
+    "serverError": "Kesalahan server",
     "type": "Kategori",
-    "allType": "Semua Kategori",
-    "sort": "Urutkan Berdasarkan",
-    "amountRange": "Rentang Jumlah",
-    "keyword": "Cari",
-    "reset": "Atur Ulang"
-  },
-  "noDataTitle": "Tidak Ada Hasil",
-  "noDataMessage": "Coba sesuaikan filter atau tambah pengeluaran baru",
-  "sort": {
-    "dateAsc": "Tanggal ↑",
-    "dateDesc": "Tanggal ↓",
-    "amountAsc": "Jumlah ↑",
-    "amountDesc": "Jumlah ↓"
-  },
-  "stats": {
-    "rowCount": "Total Catatan",
-    "totalAmount": "Total Jumlah",
-    "averageAmount": "Rata-rata",
-    "medianAmount": "Median",
-    "amountRange": "Rentang Jumlah"
-  },
-  "largeExpense": {
-    "warning": "Pengeluaran besar terdeteksi. Harap konfirmasi bahwa ini benar.",
-    "confirm": "Saya Mengerti"
-  },
-  "common": {
-    "requestCanceled": "Permintaan dibatalkan",
-    "networkError": "Kesalahan jaringan. Periksa koneksi Anda"
-  },
-  "columns": {
-    "time": "Waktu",
-    "name": "Kategori"
-  }
-},
-"common": {
-  "action": "Tindakan",
-  "cancel": "Batal",
-  "confirm": "OK",
-  "submit": "Kirim",
-  "loadFailed": "Gagal memuat data, silakan coba lagi nanti",
-  "edit": "Edit",
-  "delete": "Hapus",
-   "trash": "Keranjang Sampah",
-  "to": "hingga",
-  "currency": "IDR",
-  "currencySymbol": "Rp",
-  "sunday": "Minggu",
-  "monday": "Senin",
-  "tuesday": "Selasa",
-  "wednesday": "Rabu",
-  "thursday": "Kamis",
-  "friday": "Jumat",
-  "saturday": "Sabtu",
-  "date": "Tanggal",
-  "date_today": "Hari Ini",
-  "date_yesterday": "Kemarin",
-  "date_days_ago": "{days} hari lalu"
-},
-"spending": {
-  "monthlyProgress": "Progres Pengeluaran Bulanan",
-  "exceeded": "Melebihi Anggaran",
-  "dailyAverage": "Rata-rata Harian",
-  "recommendedDaily": "Rekomendasi Harian",
-  "settings": {
-    "title": "Pengaturan Anggaran",
-    "on": "Aktifkan Anggaran",
-    "enabled": "Diaktifkan",
-    "disabled": "Dinonaktifkan",
-    "monthlyLimit": "Anggaran Bulanan",
-    "enterLimit": "Masukkan anggaran bulanan",
-    "warningThreshold": "Ambang Peringatan",
-    "enterThreshold": "Masukkan ambang peringatan",
-    "disabledNotice": "Aktifkan anggaran untuk memantau pengeluaran bulanan Anda",
-    "pleaseSetLimit": "Silakan atur anggaran bulanan Anda"
-  },
-  "status": {
-    "disabled": "Anggaran dinonaktifkan",
-    "normal": "On track",
-    "nearLimit": "Mendekati anggaran",
-    "overLimit": "Melebihi anggaran"
-  },
-  "alert": {
-    "normal": {
-      "title": "On Track",
-      "description": "Sisa: {remaining} ({percentage}% terpakai)"
+    "amount": "Jumlah",
+    "date": "Tanggal",
+    "remark": "Catatan",
+    "addSuccess": "Berhasil menambahkan {count} pengeluaran",
+    "aiAddRecord": "Catat AI",
+    "aiReport": "Tanya Jawab AI",
+    "edit": "Edit Pengeluaran",
+    "updateFailed": "Gagal memperbarui pengeluaran, silakan coba lagi nanti",
+    "updateSuccess": "Pengeluaran berhasil diperbarui",
+    "deleteConfirm": "Hapus Pengeluaran",
+    "deleteMessage": "Apakah Anda yakin ingin menghapus pengeluaran ini?",
+    "deleteSuccess": "Pengeluaran berhasil dihapus",
+    "deleteFailed": "Gagal menghapus pengeluaran, silakan coba lagi nanti",
+    "dailyExpense": "Pengeluaran Harian",
+    "addDialogTitle": "Tambah Pengeluaran",
+    "addRecord": "Tambah Catatan Baru",
+    "amountRequired": "Jumlah wajib diisi",
+    "empty": {
+      "title": "Tidak Ada Pengeluaran",
+      "description": "Tambah pengeluaran baru atau sesuaikan filter Anda",
+      "reset": "Atur Ulang Filter"
     },
-    "nearLimit": {
-      "title": "Mendekati Anggaran",
-      "description": "Sisa: {remaining} ({percentage}% terpakai). Pertimbangkan untuk memperlambat."
+    "search": {
+      "title": "Cari Pengeluaran",
+      "minAmountPlaceholder": "Jumlah minimum",
+      "maxAmountPlaceholder": "Jumlah maksimum",
+      "keywordPlaceholder": "Cari catatan...",
+      "month": "Bulan",
+      "allMonth": "Semua Bulan",
+      "type": "Kategori",
+      "allType": "Semua Kategori",
+      "sort": "Urutkan Berdasarkan",
+      "amountRange": "Rentang Jumlah",
+      "keyword": "Cari",
+      "reset": "Atur Ulang"
     },
-    "overLimit": {
-      "title": "Melebihi Anggaran",
-      "description": "Melebihi anggaran sebesar {amount}. Harap tinjau pengeluaran Anda."
+    "noDataTitle": "Tidak Ada Hasil",
+    "noDataMessage": "Coba sesuaikan filter atau tambah pengeluaran baru",
+    "sort": {
+      "dateAsc": "Tanggal ↑",
+      "dateDesc": "Tanggal ↓",
+      "amountAsc": "Jumlah ↑",
+      "amountDesc": "Jumlah ↓"
+    },
+    "stats": {
+      "rowCount": "Total Catatan",
+      "totalAmount": "Total Jumlah",
+      "averageAmount": "Rata-rata",
+      "medianAmount": "Median",
+      "amountRange": "Rentang Jumlah"
+    },
+    "largeExpense": {
+      "warning": "Pengeluaran besar terdeteksi. Harap konfirmasi bahwa ini benar.",
+      "confirm": "Saya Mengerti"
+    },
+    "common": {
+      "requestCanceled": "Permintaan dibatalkan",
+      "networkError": "Kesalahan jaringan. Periksa koneksi Anda"
+    },
+    "columns": {
+      "time": "Waktu",
+      "name": "Kategori"
     }
   },
-  "enablePrompt": {
-    "title": "Pantau Pengeluaran Bulanan",
-    "description": "Tetapkan anggaran bulanan untuk memantau pengeluaran Anda dan dapatkan peringatan saat mendekati batas.",
-    "button": "Aktifkan Anggaran",
-    "enabled": "Anggaran berhasil diaktifkan"
-  }
-},
-"function": {
-  "primary": "Fitur Utama",
-  "aiFeatures": "Fitur AI"
-},
-"ai": {
-  "report": {
-    "filterTitle": "Filter Data",
-    "statsPreview": "Pratinjau Statistik Data",
-    "totalCount": "Total Catatan",
-    "totalAmount": "Total Jumlah",
-    "averageAmount": "Rata-rata",
-    "medianAmount": "Median",
-    "minAmount": "Jumlah Minimum",
-    "maxAmount": "Jumlah Maksimum",
-    "loading": "Memuat..."
-  }
-},
-"avatar": {
-  "cropTitle": "Pangkas Avatar",
-  "cancel": "Batal",
-  "confirm": "Konfirmasi",
-  "placeholder": "Klik untuk unggah avatar",
-  "error": {
-    "sizeLimit": "Ukuran avatar tidak boleh melebihi {maxSize}MB",
-    "invalidType": "Silakan pilih file gambar yang valid",
-    "uploadFailed": "Unggah avatar gagal, silakan coba lagi nanti"
-  }
-},
-"membership": {
-  "title": "Manajemen Pengguna",
-  "username": "Nama Pengguna",
-  "loginOrRegister": "Masuk / Daftar",
-  "logout": "Keluar",
-  "usernamePlaceholder": "Masukkan nama pengguna Anda",
-  "error": {
-    "requiredUsername": "Silakan masukkan nama pengguna",
-    "usernameFormat": "Nama pengguna hanya boleh mengandung huruf besar dan kecil",
-    "usernameLength": "Panjang nama pengguna harus antara 1-20 karakter",
-    "loginFailed": "Gagal masuk, silakan coba lagi nanti"
+  "common": {
+    "action": "Tindakan",
+    "cancel": "Batal",
+    "confirm": "OK",
+    "submit": "Kirim",
+    "loadFailed": "Gagal memuat data, silakan coba lagi nanti",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "trash": "Keranjang Sampah",
+    "to": "hingga",
+    "currency": "IDR",
+    "currencySymbol": "Rp",
+    "sunday": "Minggu",
+    "monday": "Senin",
+    "tuesday": "Selasa",
+    "wednesday": "Rabu",
+    "thursday": "Kamis",
+    "friday": "Jumat",
+    "saturday": "Sabtu",
+    "date": "Tanggal",
+    "date_today": "Hari Ini",
+    "date_yesterday": "Kemarin",
+    "date_days_ago": "{days} hari lalu"
   },
-  "success": {
-    "login": "Berhasil masuk",
-    "logout": "Berhasil keluar",
-    "avatarUploaded": "Avatar berhasil diunggah"
-  }
-},
-"export": {
-  "monthData": "Ekspor Data Bulan Ini",
-  "failed": "Ekspor gagal, silakan coba lagi nanti"
-},
-"error": {
-  "dataInitializationFailed": "Gagal menginisialisasi data, silakan coba lagi"
-},
-"chart": {
-  "title": "Analisis Pengeluaran",
-  "bar": "Grafik Batang",
-  "line": "Grafik Garis",
-  "doughnut": "Grafik Donat",
-  "radar": "Grafik Radar",
-  "categoryAnalysis": "Pengeluaran per Kategori",
-  "categoryPercentage": "Rincian Kategori",
-  "trendAnalysis": "Tren Pengeluaran",
-  "weekdayAnalysis": "Pengeluaran per Hari"
-},
-"import": {
-  "title": "Impor Data",
-  "success": "Data berhasil diimpor",
-  "failed": "Gagal mengimpor data",
-  "refreshNotice": "(Segarkan otomatis dalam 3 detik)"
-},
+  "spending": {
+    "monthlyProgress": "Progres Pengeluaran Bulanan",
+    "exceeded": "Melebihi Anggaran",
+    "dailyAverage": "Rata-rata Harian",
+    "recommendedDaily": "Rekomendasi Harian",
+    "settings": {
+      "title": "Pengaturan Anggaran",
+      "on": "Aktifkan Anggaran",
+      "enabled": "Diaktifkan",
+      "disabled": "Dinonaktifkan",
+      "monthlyLimit": "Anggaran Bulanan",
+      "enterLimit": "Masukkan anggaran bulanan",
+      "warningThreshold": "Ambang Peringatan",
+      "enterThreshold": "Masukkan ambang peringatan",
+      "disabledNotice": "Aktifkan anggaran untuk memantau pengeluaran bulanan Anda",
+      "pleaseSetLimit": "Silakan atur anggaran bulanan Anda"
+    },
+    "status": {
+      "disabled": "Anggaran dinonaktifkan",
+      "normal": "On track",
+      "nearLimit": "Mendekati anggaran",
+      "overLimit": "Melebihi anggaran"
+    },
+    "alert": {
+      "normal": {
+        "title": "On Track",
+        "description": "Sisa: {remaining} ({percentage}% terpakai)"
+      },
+      "nearLimit": {
+        "title": "Mendekati Anggaran",
+        "description": "Sisa: {remaining} ({percentage}% terpakai). Pertimbangkan untuk memperlambat."
+      },
+      "overLimit": {
+        "title": "Melebihi Anggaran",
+        "description": "Melebihi anggaran sebesar {amount}. Harap tinjau pengeluaran Anda."
+      }
+    },
+    "enablePrompt": {
+      "title": "Pantau Pengeluaran Bulanan",
+      "description": "Tetapkan anggaran bulanan untuk memantau pengeluaran Anda dan dapatkan peringatan saat mendekati batas.",
+      "button": "Aktifkan Anggaran",
+      "enabled": "Anggaran berhasil diaktifkan"
+    }
+  },
+  "function": {
+    "primary": "Fitur Utama",
+    "aiFeatures": "Fitur AI"
+  },
+  "ai": {
+    "report": {
+      "filterTitle": "Filter Data",
+      "statsPreview": "Pratinjau Statistik Data",
+      "totalCount": "Total Catatan",
+      "totalAmount": "Total Jumlah",
+      "averageAmount": "Rata-rata",
+      "medianAmount": "Median",
+      "minAmount": "Jumlah Minimum",
+      "maxAmount": "Jumlah Maksimum",
+      "loading": "Memuat..."
+    }
+  },
+  "avatar": {
+    "cropTitle": "Pangkas Avatar",
+    "cancel": "Batal",
+    "confirm": "Konfirmasi",
+    "placeholder": "Klik untuk unggah avatar",
+    "error": {
+      "sizeLimit": "Ukuran avatar tidak boleh melebihi {maxSize}MB",
+      "invalidType": "Silakan pilih file gambar yang valid",
+      "uploadFailed": "Unggah avatar gagal, silakan coba lagi nanti"
+    }
+  },
+  "membership": {
+    "title": "Manajemen Pengguna",
+    "username": "Nama Pengguna",
+    "loginOrRegister": "Masuk / Daftar",
+    "logout": "Keluar",
+    "usernamePlaceholder": "Masukkan nama pengguna Anda",
+    "error": {
+      "requiredUsername": "Silakan masukkan nama pengguna",
+      "usernameFormat": "Nama pengguna hanya boleh mengandung huruf besar dan kecil",
+      "usernameLength": "Panjang nama pengguna harus antara 1-20 karakter",
+      "loginFailed": "Gagal masuk, silakan coba lagi nanti"
+    },
+    "success": {
+      "login": "Berhasil masuk",
+      "logout": "Berhasil keluar",
+      "avatarUploaded": "Avatar berhasil diunggah"
+    }
+  },
+  "export": {
+    "monthData": "Ekspor Data Bulan Ini",
+    "failed": "Ekspor gagal, silakan coba lagi nanti"
+  },
+  "error": {
+    "dataInitializationFailed": "Gagal menginisialisasi data, silakan coba lagi"
+  },
+  "chart": {
+    "title": "Analisis Pengeluaran",
+    "bar": "Grafik Batang",
+    "line": "Grafik Garis",
+    "doughnut": "Grafik Donat",
+    "radar": "Grafik Radar",
+    "categoryAnalysis": "Pengeluaran per Kategori",
+    "categoryPercentage": "Rincian Kategori",
+    "trendAnalysis": "Tren Pengeluaran",
+    "weekdayAnalysis": "Pengeluaran per Hari"
+  },
+  "import": {
+    "title": "Impor Data",
+    "success": "Data berhasil diimpor",
+    "failed": "Gagal mengimpor data",
+    "refreshNotice": "(Segarkan otomatis dalam 3 detik)"
+  },
   "recycleBin": {
     "title": "Keranjang Sampah",
     "empty": "Keranjang sampah kosong",
@@ -264,4 +267,5 @@
     "operationFailed": "Operasi gagal. Silakan coba lagi nanti.",
     "backToHome": "Kembali ke Beranda",
     "loading": "Memuat..."
-  }}
+  }
+}
