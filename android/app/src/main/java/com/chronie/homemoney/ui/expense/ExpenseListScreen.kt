@@ -419,16 +419,16 @@ fun ExpenseListScreen(
             }
         }
 
-        if (showFilterDialog) {
-            ExpenseFilterDialog(
-                context = context,
-                currentFilters = uiState.filters,
-                onDismiss = { showFilterDialog = false },
-                onApplyFilters = { filters ->
-                    viewModel.updateFilters(filters)
-                }
-            )
-        }
+        // Always composed so WindowBottomSheet can play its exit animation.
+        ExpenseFilterDialog(
+            context = context,
+            show = showFilterDialog,
+            currentFilters = uiState.filters,
+            onDismiss = { showFilterDialog = false },
+            onApplyFilters = { filters ->
+                viewModel.updateFilters(filters)
+            }
+        )
     }
 }
 
