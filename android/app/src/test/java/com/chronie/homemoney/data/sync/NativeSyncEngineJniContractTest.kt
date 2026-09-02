@@ -41,7 +41,7 @@ class NativeSyncEngineJniContractTest {
         // stopped covering is exactly the one worth covering.
         assertEquals(
             "the set of upcalls native resolves has changed",
-            setOf("handleIncomingFrame", "handleIncomingSyncRequest"),
+            setOf("handleIncomingFrame"),
             bindings.keys
         )
 

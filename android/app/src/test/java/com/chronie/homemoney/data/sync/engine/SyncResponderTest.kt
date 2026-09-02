@@ -721,7 +721,7 @@ class SyncResponderTest {
         val sessionId: Long = 0x0123456789ABCDEFL,
         val responder: SyncResponder = SyncResponder(
             store = store,
-            identity = identity,
+            identity = { identity },
             authorizer = authorizer,
             registry = registry,
             guard = IdempotencyGuard()

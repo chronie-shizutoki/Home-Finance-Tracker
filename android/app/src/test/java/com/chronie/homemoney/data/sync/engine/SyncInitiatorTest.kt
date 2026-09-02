@@ -103,7 +103,7 @@ class SyncInitiatorTest {
         // Responder requires the proof (it has the code) and does not trust the initiator yet.
         val responder = SyncResponder(
             store = bStore,
-            identity = SyncIdentity(responderId, "Peer Phone"),
+            identity = { SyncIdentity(responderId, "Peer Phone") },
             authorizer = FakeAuthorizer(code = code, trusted = mutableSetOf()),
             registry = SyncSessionRegistry(),
             guard = IdempotencyGuard(),
@@ -112,7 +112,7 @@ class SyncInitiatorTest {
         // Initiator knows the same code, so it advertises PAIRING and proves it.
         val initiator = SyncInitiator(
             store = aStore,
-            identity = SyncIdentity(initiatorId, "My Phone"),
+            identity = { SyncIdentity(initiatorId, "My Phone") },
             authorizer = FixedCodeAuthorizer(code)
         )
 
@@ -132,7 +132,7 @@ class SyncInitiatorTest {
 
         val responder = SyncResponder(
             store = bStore,
-            identity = SyncIdentity(responderId, "Peer Phone"),
+            identity = { SyncIdentity(responderId, "Peer Phone") },
             authorizer = FakeAuthorizer(code = "RIGHT-CODE", trusted = mutableSetOf()),
             registry = SyncSessionRegistry(),
             guard = IdempotencyGuard(),
@@ -140,7 +140,7 @@ class SyncInitiatorTest {
         )
         val initiator = SyncInitiator(
             store = aStore,
-            identity = SyncIdentity(initiatorId, "My Phone"),
+            identity = { SyncIdentity(initiatorId, "My Phone") },
             authorizer = FixedCodeAuthorizer("WRONG-CODE")
         )
 
@@ -157,7 +157,7 @@ class SyncInitiatorTest {
     private fun newResponder(store: FakeStore): SyncResponder =
         SyncResponder(
             store = store,
-            identity = SyncIdentity(responderId, "Peer Phone"),
+            identity = { SyncIdentity(responderId, "Peer Phone") },
             authorizer = FakeAuthorizer(trusted = mutableSetOf()),
             registry = SyncSessionRegistry(),
             guard = IdempotencyGuard(),
@@ -167,7 +167,7 @@ class SyncInitiatorTest {
     private fun newInitiator(store: FakeStore): SyncInitiator =
         SyncInitiator(
             store = store,
-            identity = SyncIdentity(initiatorId, "My Phone"),
+            identity = { SyncIdentity(initiatorId, "My Phone") },
             authorizer = SyncAuthorizer.DENY_ALL
         )
 
