@@ -53,6 +53,10 @@ class SyncManagerImpl @Inject constructor(
     }
     
     override suspend fun performFullSync(): Result<SyncResult> {
+        // TODO(future): when pendingChanges is empty we still upload every localId
+        // (see localIds below, up to ~1765). Two concurrent SyncWorkers therefore emit
+        // two identical mega-POSTs. Add a single-flight guard and send only a delta
+        // (hash digest) to cut payload size and avoid amplifying failures on slow LANs.
         return try {
             _syncStatus.value = SyncStatus.SYNCING
             Log.d(TAG, "Starting full sync")
@@ -191,6 +195,10 @@ class SyncManagerImpl @Inject constructor(
     override fun observeSyncStatus(): Flow<SyncStatus> = _syncStatus.asStateFlow()
     
     override fun getDeviceSyncManager(): DeviceSyncManager {
+        // The LAN sync server started here opens an inbound TCP socket + UDP responder,
+        // both gated by ACCESS_LOCAL_NETWORK on Android 17. Callers (HomeMoneyApplication /
+        // MainActivity) must have requested the permission first; LanDeviceSyncManager
+        // itself also short-circuits via LocalNetworkPermission.isGranted.
         return deviceSyncManagerFactory.createDeviceSyncManager()
     }
 }

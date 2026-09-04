@@ -35,7 +35,12 @@ class SyncWorker @AssistedInject constructor(
         Log.d(TAG, "Starting background sync")
         
         return try {
-            // Execute full sync
+            // Execute full sync.
+            // TODO(future): two SyncWorker instances can run concurrently and both
+            // call performFullSync(); also when there are 0 pending changes we still
+            // POST all ~1765 localIds, producing two identical giant requests that
+            // amplify failures on slow networks. Add a single-flight lock and switch
+            // to an incremental/delta sync (hash digests) before shipping.
             val syncResult = syncManager.performFullSync()
             
             if (syncResult.isSuccess) {

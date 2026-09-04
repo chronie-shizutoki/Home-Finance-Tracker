@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+        Android 17 deprecates android:usesCleartextTraffic. This file is the forward-compatible
+        replacement for cleartext LAN traffic.
+
+        Forward-compat plan: once all non-LAN traffic moves to HTTPS, flip the base-config to
+        cleartextTrafficPermitted="false" and keep only the 192.168.10.9 domain-config below.
+        Until then the base-config preserves the current (global) cleartext behaviour so nothing
+        regresses.
+
+        192.168.10.9 is the user's self-hosted LAN sync server (e.g. :3010). Cleartext HTTP is
+        required there because the server presents a self-signed / no certificate on the LAN.
+    -->
+    <base-config cleartextTrafficPermitted="true" />
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.168.10.9</domain>
+    </domain-config>
+</network-security-config>

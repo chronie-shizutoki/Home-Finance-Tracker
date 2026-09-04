@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">Xóa mục đã chọn?</string>
     <string name="recycle_bin_delete_selected_message">%1$d mục đã chọn sẽ bị xóa vĩnh viễn và không thể khôi phục.</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">Truy cập mạng cục bộ đã bị chặn. Hãy cấp quyền "Mạng cục bộ" để ứng dụng có thể kết nối tới máy chủ đồng bộ LAN và phát hiện các thiết bị cùng Wi-Fi.</string>
+    <string name="lan_permission_rationale">Chúng tôi cần quyền truy cập mạng cục bộ để đồng bộ với máy chủ và các thiết bị cùng Wi-Fi.</string>
 </resources>

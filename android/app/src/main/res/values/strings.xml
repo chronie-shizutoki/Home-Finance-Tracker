@@ -383,6 +383,10 @@
     <string name="server_connection_error_message">Unable to connect to server. Check network connection</string>
     <string name="server_connection_restored">Server connection restored</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">Local network access is blocked. Grant \"Local network\" permission so the app can reach your LAN sync server and discover nearby devices.</string>
+    <string name="lan_permission_rationale">We need local network access to sync with the server and nearby devices on the same Wi-Fi.</string>
+
     <!-- Server Config -->
     <string name="server_settings">Server</string>
     <string name="server_address">Server Address</string>

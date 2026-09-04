@@ -358,6 +358,10 @@
     <string name="server_connection_error">连接失败</string>
     <string name="server_connection_error_message">无法连接服务器，请检查网络</string>
     <string name="server_connection_restored">连接已恢复</string>
+
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">局域网访问已被拦截。请授予“本地网络”权限，应用才能连接你的局域网同步服务器并发现同 Wi-Fi 下的设备。</string>
+    <string name="lan_permission_rationale">此应用需要局域网访问权限，以便与服务器及同网络下的设备进行同步。</string>
     <!-- Color Picker -->
     <string name="color_picker_title">选择主题色</string>
     <string name="color_picker_search_hint">搜索颜色…</string>

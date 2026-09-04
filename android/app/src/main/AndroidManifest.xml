@@ -19,6 +19,17 @@
         tools:ignore="PhotoAndVideoPolicy" />
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
+    <!-- Android 17 (API 37) Local Network Protection (LNP):
+         required so LAN TCP (inbound sync server + outbound to the self-hosted
+         server at 192.168.10.9:3010) and UDP discovery broadcasts are not silently
+         blocked. Belongs to the NEARBY_DEVICES group and is a runtime-dangerous
+         permission, requested from MainActivity / the sync screens. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+    <!-- Forward-looking: cross-app loopback communication (if a future feature talks
+         to another local process over 127.0.0.1) needs this on Android 17+. Declared
+         now so it is merged and ready when that code lands. -->
+    <uses-permission android:name="android.permission.USE_LOOPBACK_INTERFACE" />
+
     <application
         android:name=".HomeMoneyApplication"
         android:icon="@mipmap/ic_launcher"
@@ -27,6 +38,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:enableOnBackInvokedCallback="true"
         android:localeConfig="@xml/locale_config">
 

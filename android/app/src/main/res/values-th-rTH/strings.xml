@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">ลบรายการที่เลือก?</string>
     <string name="recycle_bin_delete_selected_message">%1$d รายการที่เลือกจะถูกลบออกอย่างถาวรและกู้คืนไม่ได้</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">การเข้าถึงเครือข่ายท้องถิ่นถูกบล็อก กรุณาอนุญาตสิทธิ์ "เครือข่ายท้องถิ่น" เพื่อให้แอปเชื่อมต่อเซิร์ฟเวอร์ซิงค์ LAN และค้นพบอุปกรณ์บน Wi-Fi เดียวกันได้</string>
+    <string name="lan_permission_rationale">เราต้องการสิทธิ์การเข้าถึงเครือข่ายท้องถิ่นเพื่อซิงค์กับเซิร์ฟเวอร์และอุปกรณ์บน Wi-Fi เดียวกัน</string>
 </resources>

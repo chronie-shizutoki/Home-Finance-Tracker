@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">刪除選中項目？</string>
     <string name="recycle_bin_delete_selected_message">%1$d 個選中項目將被永久移除且無法復原。</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">區域網路存取已被封鎖。請授予「本地網路」權限，應用程式才能連線至你的區域網路同步伺服器並發現同 Wi-Fi 下的裝置。</string>
+    <string name="lan_permission_rationale">此應用程式需要區域網路存取權限，以便與伺服器及同網路下的裝置進行同步。</string>
 </resources>

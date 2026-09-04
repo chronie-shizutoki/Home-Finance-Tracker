@@ -9,6 +9,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import com.chronie.homemoney.core.error.ErrorReporter
 import com.chronie.homemoney.data.sync.DeviceSyncManagerFactory
+import com.chronie.homemoney.data.sync.LocalNetworkPermission
 import com.chronie.homemoney.service.FairMemoryManager
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -80,12 +81,28 @@ class HomeMoneyApplication : Application(), Configuration.Provider, SingletonIma
         // log on the receiver, because the receiver genuinely never saw the connection.
         //
         // Off the main thread so a cold start is not charged for building the sync stack.
+        //
+        // Android 17 (API 37) LNP: the inbound TCP server and UDP responder require the
+        // ACCESS_LOCAL_NETWORK permission. The Application class cannot show a runtime
+        // permission dialog, so we only start the server here when the permission is ALREADY
+        // granted (e.g. from a previous launch). If it is not granted yet, MainActivity requests
+        // it at launch and starts the server in its permission-result callback. Starting here
+        // without the permission is a silent no-op (see LanDeviceSyncManager.startSyncServer).
         appScope.launch {
-            try {
-                deviceSyncManagerFactory.createDeviceSyncManager()
-                Log.d("HomeMoneyApplication", "LAN sync server started at app launch")
-            } catch (e: Exception) {
-                Log.e("HomeMoneyApplication", "Failed to start LAN sync server", e)
+            if (LocalNetworkPermission.isGranted(applicationContext)) {
+                try {
+                    deviceSyncManagerFactory.createDeviceSyncManager()
+                    Log.d("HomeMoneyApplication", "LAN sync server started at app launch")
+                } catch (e: Exception) {
+                    Log.e("HomeMoneyApplication", "Failed to start LAN sync server", e)
+                }
+            } else {
+                Log.w(
+                    "HomeMoneyApplication",
+                    "Skipping LAN sync server start: ACCESS_LOCAL_NETWORK not granted yet " +
+                        "(Android 17 Local Network Protection). MainActivity will request it and " +
+                        "start the server once the user grants it."
+                )
             }
         }
     }

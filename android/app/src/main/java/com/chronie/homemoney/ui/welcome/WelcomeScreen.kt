@@ -1,11 +1,13 @@
 package com.chronie.homemoney.ui.welcome
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
+import com.chronie.homemoney.ui.permissions.rememberLocalNetworkPermissionRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -310,6 +312,15 @@ private fun WelcomeServerConfigDialog(
     val input by viewModel.serverUrlInput.collectAsState()
     val testState by viewModel.serverTestState.collectAsState()
 
+    // Android 17 LNP guard: request ACCESS_LOCAL_NETWORK before saving a
+    // custom server address (LAN/loopback). On denial we show an explicit
+    // hint rather than letting the connection fail with a silent timeout.
+    val lanPermissionRequester = rememberLocalNetworkPermissionRequester(
+        onDenied = {
+            Toast.makeText(context, R.string.lan_permission_denied, Toast.LENGTH_LONG).show()
+        }
+    )
+
     WindowDialog(
         show = show,
         title = context.getString(R.string.server_address),
@@ -406,9 +417,11 @@ private fun WelcomeServerConfigDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     CircularIconButton(
                         onClick = {
-                            if (viewModel.saveServerUrl()) {
-                                viewModel.clearServerTestState()
-                                onDismiss()
+                            lanPermissionRequester.ensure {
+                                if (viewModel.saveServerUrl()) {
+                                    viewModel.clearServerTestState()
+                                    onDismiss()
+                                }
                             }
                         },
                         enabled = input.isNotBlank()

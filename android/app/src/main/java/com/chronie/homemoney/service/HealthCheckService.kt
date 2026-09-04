@@ -43,6 +43,12 @@ class HealthCheckService @Inject constructor(
 
     companion object {
         private const val CHECK_INTERVAL = 5000L // 5 seconds
+        // TODO(future): 2s is too aggressive. On Android 17 (LNP) a missing
+        // ACCESS_LOCAL_NETWORK yields a silent socket timeout that this window
+        // masks as a plain "server unreachable", hiding the real cause. Once the
+        // permission flow is wired, distinguish NOT_CONNECTED from PERMISSION_BLOCKED
+        // (e.g. via android_getnetworkblockedreason(sockFd)) and surface a targeted
+        // message. Consider raising this or classifying the failure before retry.
         private const val HEALTH_CHECK_TIMEOUT = 2000L // 2 seconds timeout
     }
 
@@ -81,7 +87,9 @@ class HealthCheckService @Inject constructor(
         try {
             android.util.Log.d("HealthCheckService", "Checking server health...")
             
-            // Use timeout mechanism to avoid long blocking
+            // Use timeout mechanism to avoid long blocking. NOTE: the 2s ceiling
+            // (HEALTH_CHECK_TIMEOUT) currently swallows LNP permission errors as
+            // generic timeouts - see the TODO on that constant.
             val response = withTimeout(HEALTH_CHECK_TIMEOUT.milliseconds) {
                 memberApi.checkHealth()
             }

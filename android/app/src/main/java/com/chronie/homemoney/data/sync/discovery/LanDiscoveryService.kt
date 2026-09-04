@@ -179,6 +179,12 @@ class LanDiscoveryService(
      * or capability set — v1 kept the first sighting forever, so after a network change the
      * only entry the user could see was the one guaranteed to be stale.
      */
+    // NOTE: this method sends UDP broadcasts, which on Android 17 (API 37) require the
+    // ACCESS_LOCAL_NETWORK permission (Local Network Protection). This class holds no
+    // Activity Context, so it cannot request the permission itself - the caller
+    // (DeviceSearchDialog via rememberLocalNetworkPermissionRequester) MUST ensure the
+    // permission is granted before invoking search(). Without it the socket send fails
+    // silently with EPERM.
     fun search(
         timeoutMs: Long = DEFAULT_SEARCH_TIMEOUT_MS,
         queryBursts: Int = DEFAULT_QUERY_BURSTS,

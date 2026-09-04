@@ -1,15 +1,18 @@
 package com.chronie.homemoney
 
 import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -35,6 +38,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.chronie.homemoney.core.common.LanguageManager
+import com.chronie.homemoney.data.sync.DeviceSyncManagerFactory
+import com.chronie.homemoney.data.sync.LocalNetworkPermission
 import com.chronie.homemoney.data.sync.SyncRequestBus
 import com.chronie.homemoney.domain.usecase.CheckLoginStatusUseCase
 import com.chronie.homemoney.service.HealthCheckService
@@ -89,6 +94,28 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var healthCheckService: HealthCheckService
+
+    @Inject
+    lateinit var deviceSyncManagerFactory: DeviceSyncManagerFactory
+
+    // Android 17 (API 37) Local Network Protection (LNP):
+    // the inbound LAN sync server (started via DeviceSyncManagerFactory) and any outbound LAN
+    // traffic require ACCESS_LOCAL_NETWORK. The Application class cannot show a runtime dialog,
+    // so we request it here at launch and (re)start the sync server only after it is granted.
+    // If already granted (e.g. from a previous launch) the launcher simply reports granted and
+    // the server starts immediately.
+    private val lanPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startLanSyncServer()
+        } else {
+            // User denied (or "don't ask again"): LAN features stay disabled. The save-server-URL
+            // and device-search screens will re-prompt and surface an explicit hint on denial,
+            // so we do not need a blocking dialog here.
+            Log.w("MainActivity", "ACCESS_LOCAL_NETWORK denied; LAN sync/discovery disabled until granted")
+        }
+    }
 
     // ========================================================================
     // TAP-THE-TOP-TO-SCROLL (Activity-level dispatchTouchEvent implementation)
@@ -257,6 +284,12 @@ class MainActivity : ComponentActivity() {
         // Start health check service
         healthCheckService.start()
 
+        // Android 17 LNP: request ACCESS_LOCAL_NETWORK before the LAN sync server is brought up.
+        // If already granted, this immediately starts the server; otherwise it shows the runtime
+        // dialog and starts the server in the launcher callback. See lanPermissionLauncher above
+        // and HomeMoneyApplication's guarded start.
+        ensureLanPermissionAndStartServer()
+
         setContent {
             val currentLanguage by languageManager.currentLanguage.collectAsState()
 
@@ -296,6 +329,37 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         languageManager.checkAndApplySystemLanguage()
+    }
+
+    // ---------------------------------------------------------------------------------
+    // Android 17 (API 37) Local Network Protection entry point.
+    // ---------------------------------------------------------------------------------
+
+    /**
+     * Ensures the ACCESS_LOCAL_NETWORK permission is held, then brings up the LAN sync server.
+     *
+     * If the permission is already granted this starts the server immediately. Otherwise it
+     * launches the runtime dialog; the actual start happens in [lanPermissionLauncher]'s
+     * callback once the user accepts. Calling startLanSyncServer() more than once is safe -
+     * DeviceSyncManagerFactory.createDeviceSyncManager() returns a singleton and
+     * LanDeviceSyncManager.startSyncServer() is idempotent.
+     */
+    private fun ensureLanPermissionAndStartServer() {
+        if (LocalNetworkPermission.isGranted(this)) {
+            startLanSyncServer()
+        } else {
+            lanPermissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+        }
+    }
+
+    /** Brings up the inbound LAN sync server (TCP listener + UDP discovery responder). */
+    private fun startLanSyncServer() {
+        try {
+            deviceSyncManagerFactory.createDeviceSyncManager()
+            Log.d("MainActivity", "LAN sync server started after permission grant")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to start LAN sync server", e)
+        }
     }
 
     override fun onDestroy() {

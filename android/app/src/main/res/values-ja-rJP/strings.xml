@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">選択した項目を削除しますか？</string>
     <string name="recycle_bin_delete_selected_message">選択した%1$d件を完全に削除します。復元はできません。</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">ローカルネットワークへのアクセスがブロックされました。「ローカルネットワーク」の権限を付与すると、アプリは LAN 同期サーバーに接続し、同じ Wi-Fi 上のデバイスを検出できるようになります。</string>
+    <string name="lan_permission_rationale">同じ Wi-Fi 上のサーバーやデバイスと同期するために、ローカルネットワークへのアクセス権限が必要です。</string>
 </resources>

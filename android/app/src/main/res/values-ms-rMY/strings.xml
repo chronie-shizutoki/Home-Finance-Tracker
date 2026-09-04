@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">Padam item yang dipilih?</string>
     <string name="recycle_bin_delete_selected_message">%1$d item yang dipilih akan dibuang secara kekal dan tidak boleh dipulihkan.</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">Akses rangkaian setempat disekat. Berikan kebenaran "Rangkaian setempat" supaya apl boleh mencapai pelayan segerak LAN dan mengesan peranti pada Wi-Fi yang sama.</string>
+    <string name="lan_permission_rationale">Kami memerlukan akses rangkaian setempat untuk segerak dengan pelayan dan peranti pada Wi-Fi yang sama.</string>
 </resources>

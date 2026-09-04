@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.chronie.homemoney.data.local.dao.ExpenseDao
+import com.chronie.homemoney.data.sync.LocalNetworkPermission
 import com.chronie.homemoney.data.sync.auth.SyncAuthorizer
 import com.chronie.homemoney.data.sync.discovery.DiscoveredDevice
 import com.chronie.homemoney.data.sync.discovery.DiscoveryIdentity
@@ -310,6 +311,17 @@ class LanDeviceSyncManager(
     }
 
     fun startSyncServer() {
+        // Android 17 (API 37) Local Network Protection (LNP):
+        // the inbound TCP listener and the UDP discovery responder are both local-network
+        // sockets and are silently blocked until ACCESS_LOCAL_NETWORK is granted. Do NOT attempt
+        // to bind/listen before that - the native call would fail and we would leave isServerRunning
+        // in a bad state. Returning early (without flipping isServerRunning) keeps the manager
+        // eligible to retry the next time this is called after the permission is granted.
+        // The caller (MainActivity / sync screens) is responsible for requesting the permission.
+        if (!LocalNetworkPermission.isGranted(context)) {
+            Log.w(TAG, "startSyncServer skipped: ACCESS_LOCAL_NETWORK not granted (Android 17 LNP)")
+            return
+        }
         if (!isServerRunning.compareAndSet(false, true)) return
         
         nativeSyncEngine.setFrameHandler(syncResponder)

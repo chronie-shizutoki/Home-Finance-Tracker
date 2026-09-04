@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
+import com.chronie.homemoney.ui.permissions.rememberLocalNetworkPermissionRequester
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -1722,6 +1723,15 @@ fun ServerConfigDialog(
     var input by remember(show, currentUrl) { mutableStateOf(currentUrl) }
     val testState by viewModel.serverTestState.collectAsState()
 
+    // Android 17 LNP guard: ACCESS_LOCAL_NETWORK is required before any LAN
+    // access. If the user refuses we show an explicit hint rather than failing
+    // with a silent socket timeout.
+    val lanPermissionRequester = rememberLocalNetworkPermissionRequester(
+        onDenied = {
+            Toast.makeText(context, R.string.lan_permission_denied, Toast.LENGTH_LONG).show()
+        }
+    )
+
     WindowDialog(
         show = show,
         title = context.getString(R.string.server_address),
@@ -1812,9 +1822,11 @@ fun ServerConfigDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     CircularIconButton(
                         onClick = {
-                            if (viewModel.saveServerUrl(input)) {
-                                viewModel.clearServerTestState()
-                                onDismiss()
+                            lanPermissionRequester.ensure {
+                                if (viewModel.saveServerUrl(input)) {
+                                    viewModel.clearServerTestState()
+                                    onDismiss()
+                                }
                             }
                         },
                         enabled = input.isNotBlank()

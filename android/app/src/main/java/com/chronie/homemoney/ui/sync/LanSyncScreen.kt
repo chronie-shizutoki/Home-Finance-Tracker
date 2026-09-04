@@ -65,6 +65,8 @@ import com.chronie.homemoney.ui.components.ExpressiveLinearProgressIndicator
 import com.chronie.homemoney.ui.components.ExpressiveLoadingIndicator
 import com.chronie.homemoney.ui.scroll.RegisterScrollToTop
 import com.chronie.homemoney.ui.settings.SettingsViewModel
+import android.widget.Toast
+import com.chronie.homemoney.ui.permissions.rememberLocalNetworkPermissionRequester
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.Card
@@ -570,11 +572,26 @@ fun DeviceSearchDialog(
     var searchProgress by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
     val searchDuration = 30000L // 30s search timeout
-    
-    // Start device search
+    var searchStarted by remember { mutableStateOf(false) }
+
+    // Android 17 LNP guard: the UDP broadcast inside LanDiscoveryService.search()
+    // requires ACCESS_LOCAL_NETWORK. Request it up front and only begin scanning
+    // once granted; on denial the onDenied Toast explains the block and no
+    // broadcast is ever sent (avoiding a silent EPERM failure).
+    val lanPermissionRequester = rememberLocalNetworkPermissionRequester(
+        onDenied = {
+            Toast.makeText(context, R.string.lan_permission_denied, Toast.LENGTH_LONG).show()
+        }
+    )
     LaunchedEffect(Unit) {
+        lanPermissionRequester.ensure(onGranted = { searchStarted = true })
+    }
+
+    // Start device search only after local-network access is permitted.
+    LaunchedEffect(searchStarted) {
+        if (!searchStarted) return@LaunchedEffect
         val startTime = System.currentTimeMillis()
-        
+
         // Progress update coroutine
         val progressJob = coroutineScope.launch {
             while (isSearching && searchProgress < 0.95f) {
@@ -584,12 +601,12 @@ fun DeviceSearchDialog(
                 delay(100.milliseconds)
             }
         }
-        
-        // Device search
+
+        // Device search (UDP broadcast under the hood)
         viewModel.searchDevices().collect { device ->
             discoveredDevices = discoveredDevices.filterNot { it.deviceId == device.deviceId } + device
         }
-        
+
         progressJob.cancel()
         isSearching = false
         searchProgress = 1f

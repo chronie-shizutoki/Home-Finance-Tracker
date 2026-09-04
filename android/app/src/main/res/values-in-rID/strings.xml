@@ -558,4 +558,7 @@
     <string name="recycle_bin_delete_selected_title">Hapus item yang dipilih?</string>
     <string name="recycle_bin_delete_selected_message">%1$d item yang dipilih akan dihapus secara permanen dan tidak dapat dipulihkan.</string>
 
+    <!-- Local Network Protection (Android 17 / API 37) -->
+    <string name="lan_permission_denied">Akses jaringan lokal diblokir. Berikan izin "Jaringan lokal" agar aplikasi dapat menjangkau server sinkronisasi LAN dan menemukan perangkat di Wi-Fi yang sama.</string>
+    <string name="lan_permission_rationale">Kami memerlukan akses jaringan lokal untuk menyinkronkan dengan server dan perangkat di Wi-Fi yang sama.</string>
 </resources>
