@@ -251,6 +251,29 @@
     <string name="settings_ai_get_api_key">Haven\'t got an API key? Get one here</string>
     <string name="settings_ai_api_key_saved">API Key saved</string>
     <string name="ai_expense_entry_description">Scan receipts or enter text to add expenses</string>
+    <string name="ai_expense_model_not_ready">On-device AI model is not downloaded. Go to Settings > AI to download it (~5.5 GB)</string>
+    <string name="settings_ai_model">On-device AI Model</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B runs fully offline on your device. Download size is about 5.5 GB</string>
+    <string name="settings_ai_model_status_ready">Ready (%1$s used). Tap to delete</string>
+    <string name="settings_ai_model_status_not_downloaded">Not downloaded. Tap to download (~5.5 GB)</string>
+    <string name="settings_ai_model_status_downloading">Downloading… %1$d%% (%2$s / %3$s). Tap to cancel</string>
+    <string name="settings_ai_model_status_failed">Download failed: %1$s. Tap to retry</string>
+    <string name="settings_ai_model_delete_hint">Deleting frees the storage used by the model</string>
+    <string name="settings_ai_model_cancel_hint">Partial data is kept so the download can resume</string>
+    <string name="settings_ai_model_deleted">On-device AI model deleted</string>
+
+    <!-- Model Download Notification -->
+    <string name="model_download_channel_name">Model Download</string>
+    <string name="model_download_channel_description">Shows progress of the on-device AI model download</string>
+    <string name="model_download_notification_title">Downloading AI model…</string>
+    <string name="model_download_notification_progress">Downloading AI model… %1$d%%</string>
+    <string name="model_download_notification_eta">~%1$s left</string>
+    <string name="model_download_notification_eta_calculating">Calculating time remaining…</string>
+    <string name="model_download_complete_title">AI model ready</string>
+    <string name="model_download_failed_title">AI model download failed</string>
+    <string name="model_download_eta_hours_minutes">%1$dh %2$dm</string>
+    <string name="model_download_eta_minutes">%1$dm</string>
+    <string name="model_download_eta_seconds">%1$ds</string>
 
     <!-- Budget Management -->
     <string name="budget_enable_title">Budget</string>

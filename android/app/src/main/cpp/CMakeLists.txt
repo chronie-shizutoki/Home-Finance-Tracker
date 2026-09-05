@@ -51,3 +51,77 @@ target_link_libraries(sync_engine
         ${log-lib}
         ${android-lib}
 )
+
+# ---------------------------------------------------------------------------
+# On-device multimodal LLM bridge (MNN / Qwen3-VL)
+# ---------------------------------------------------------------------------
+#
+# The bridge links the MNN prebuilt shared libraries when they have been
+# placed under cpp/mnn/prebuilt/<abi>/ by scripts/build-mnn-android.ps1.
+# When the prebuilts are absent (e.g. on a clean checkout, or on a CI
+# machine that only needs to validate Kotlin), a stub implementation is
+# compiled instead so libmnn_bridge.so always loads and every call reports
+# "runtime missing" rather than crashing with UnsatisfiedLinkError.
+#
+# With MNN_SEP_BUILD=ON (the script default) four shared libraries exist:
+#   libMNN.so          — core inference engine
+#   libMNN_Express.so  — expression / session API
+#   libllm.so          — transformer LLM engine (Qwen3-VL)
+#   libMNNOpenCV.so    — vision preprocessor (image decode + resize)
+# All are required for multimodal recognition to work.
+
+set(MNN_PREBUILT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mnn/prebuilt/${ANDROID_ABI})
+set(MNN_INCLUDE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/mnn/include)
+
+if(EXISTS "${MNN_PREBUILT_DIR}/libMNN.so" AND EXISTS "${MNN_PREBUILT_DIR}/libllm.so")
+    message(STATUS "mnn_bridge: MNN prebuilts found -> building real bridge")
+
+    # --- imported shared libraries ---
+    add_library(MNN SHARED IMPORTED)
+    set_target_properties(MNN PROPERTIES
+            IMPORTED_LOCATION "${MNN_PREBUILT_DIR}/libMNN.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${MNN_INCLUDE_DIR}")
+
+    add_library(mnn_llm SHARED IMPORTED)
+    set_target_properties(mnn_llm PROPERTIES
+            IMPORTED_LOCATION "${MNN_PREBUILT_DIR}/libllm.so")
+
+    # libMNN_Express.so exists when MNN_SEP_BUILD=ON (default for the script).
+    if(EXISTS "${MNN_PREBUILT_DIR}/libMNN_Express.so")
+        add_library(mnn_express SHARED IMPORTED)
+        set_target_properties(mnn_express PROPERTIES
+                IMPORTED_LOCATION "${MNN_PREBUILT_DIR}/libMNN_Express.so")
+    endif()
+
+    # libMNNOpenCV.so exists when vision is enabled (MNN_BUILD_OPENCV + MNN_IMGCODECS).
+    if(EXISTS "${MNN_PREBUILT_DIR}/libMNNOpenCV.so")
+        add_library(mnn_opencv SHARED IMPORTED)
+        set_target_properties(mnn_opencv PROPERTIES
+                IMPORTED_LOCATION "${MNN_PREBUILT_DIR}/libMNNOpenCV.so")
+    endif()
+
+    # --- bridge target ---
+    add_library(mnn_bridge SHARED mnn/mnn_bridge.cpp)
+    target_include_directories(mnn_bridge PRIVATE ${MNN_INCLUDE_DIR})
+    target_compile_features(mnn_bridge PRIVATE cxx_std_23)
+    target_compile_options(mnn_bridge PRIVATE -Wall -Wextra -fexceptions)
+
+    # Link order: core → express → llm → opencv.  All are optional except MNN
+    # and llm (the guard above ensures they exist).
+    set(MNN_LINK_LIBS MNN mnn_llm)
+    if(TARGET mnn_express)
+        list(APPEND MNN_LINK_LIBS mnn_express)
+    endif()
+    if(TARGET mnn_opencv)
+        list(APPEND MNN_LINK_LIBS mnn_opencv)
+    endif()
+    target_link_libraries(mnn_bridge ${MNN_LINK_LIBS} ${log-lib})
+
+    message(STATUS "mnn_bridge: linking ${MNN_LINK_LIBS}")
+else()
+    message(WARNING "mnn_bridge: MNN prebuilts NOT found under ${MNN_PREBUILT_DIR} "
+            "-> building stub. Run scripts/build-mnn-android.ps1 to enable on-device AI.")
+    add_library(mnn_bridge SHARED mnn/mnn_bridge_stub.cpp)
+    target_compile_features(mnn_bridge PRIVATE cxx_std_23)
+    target_link_libraries(mnn_bridge ${log-lib})
+endif()

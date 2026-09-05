@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notification ProgressStyle segment colours (Android 16+ Live Update).
+         The "done" segment uses the app's primary tint; "remaining" is a
+         neutral grey that works on both light and dark themes. -->
+    <color name="progress_segment_done">#FF4CAF50</color>
+    <color name="progress_segment_remaining">#FFBDBDBD</color>
+</resources>

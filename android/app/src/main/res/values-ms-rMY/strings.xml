@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">Akses rangkaian setempat disekat. Berikan kebenaran "Rangkaian setempat" supaya apl boleh mencapai pelayan segerak LAN dan mengesan peranti pada Wi-Fi yang sama.</string>
     <string name="lan_permission_rationale">Kami memerlukan akses rangkaian setempat untuk segerak dengan pelayan dan peranti pada Wi-Fi yang sama.</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">Model AI pada peranti belum dimuat turun. Pergi ke Tetapan > AI untuk memuat turun (kira-kira 5.5 GB)</string>
+    <string name="settings_ai_model">Model AI Pada Peranti</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B berjalan sepenuhnya luar talian pada peranti anda. Saiz muat turun kira-kira 5.5 GB</string>
+    <string name="settings_ai_model_status_ready">Sedia (%1$s digunakan). Ketuk untuk memadam</string>
+    <string name="settings_ai_model_status_not_downloaded">Belum dimuat turun. Ketuk untuk memuat turun (kira-kira 5.5 GB)</string>
+    <string name="settings_ai_model_status_downloading">Memuat turun… %1$d%% (%2$s / %3$s). Ketuk untuk membatalkan</string>
+    <string name="settings_ai_model_status_failed">Muat turun gagal: %1$s. Ketuk untuk cuba lagi</string>
+    <string name="settings_ai_model_delete_hint">Memadam akan membebaskan storan yang digunakan oleh model</string>
+    <string name="settings_ai_model_cancel_hint">Data separuh disimpan supaya muat turun boleh disambung</string>
+    <string name="settings_ai_model_deleted">Model AI pada peranti dipadam</string>
+    <string name="model_download_channel_name">Muat Turun Model</string>
+    <string name="model_download_channel_description">Menunjukkan kemajuan muat turun model AI pada peranti</string>
+    <string name="model_download_notification_title">Memuat turun model AI…</string>
+    <string name="model_download_notification_progress">Memuat turun model AI… %1$d%%</string>
+    <string name="model_download_notification_eta">Kira-kira %1$s lagi</string>
+    <string name="model_download_notification_eta_calculating">Mengira masa yang tinggal…</string>
+    <string name="model_download_complete_title">Model AI sedia</string>
+    <string name="model_download_failed_title">Muat turun model AI gagal</string>
+    <string name="model_download_eta_hours_minutes">%1$d jam %2$d minit</string>
+    <string name="model_download_eta_minutes">%1$d minit</string>
+    <string name="model_download_eta_seconds">%1$d saat</string>
 </resources>

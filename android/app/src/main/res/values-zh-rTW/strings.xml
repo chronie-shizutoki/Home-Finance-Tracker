@@ -561,4 +561,29 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">區域網路存取已被封鎖。請授予「本地網路」權限，應用程式才能連線至你的區域網路同步伺服器並發現同 Wi-Fi 下的裝置。</string>
     <string name="lan_permission_rationale">此應用程式需要區域網路存取權限，以便與伺服器及同網路下的裝置進行同步。</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">裝置端AI模型尚未下載，請前往 設定 > AI 下載（約5.5 GB）</string>
+    <string name="settings_ai_model">裝置端AI模型</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B 大模型完全在裝置本機執行，無需聯網。下載大小約5.5 GB</string>
+    <string name="settings_ai_model_status_ready">已就緒（佔用 %1$s），點擊刪除</string>
+    <string name="settings_ai_model_status_not_downloaded">未下載，點擊開始下載（約5.5 GB）</string>
+    <string name="settings_ai_model_status_downloading">下載中… %1$d%%（%2$s / %3$s），點擊取消</string>
+    <string name="settings_ai_model_status_failed">下載失敗：%1$s，點擊重試</string>
+    <string name="settings_ai_model_delete_hint">刪除後將釋放模型佔用的儲存空間</string>
+    <string name="settings_ai_model_cancel_hint">已下載的部分會保留，可隨時繼續</string>
+    <string name="settings_ai_model_deleted">裝置端AI模型已刪除</string>
+
+    <!-- Model Download Notification -->
+    <string name="model_download_channel_name">模型下載</string>
+    <string name="model_download_channel_description">顯示裝置端AI模型下載進度</string>
+    <string name="model_download_notification_title">正在下載AI模型…</string>
+    <string name="model_download_notification_progress">正在下載AI模型… %1$d%%</string>
+    <string name="model_download_notification_eta">剩餘約 %1$s</string>
+    <string name="model_download_notification_eta_calculating">正在計算剩餘時間…</string>
+    <string name="model_download_complete_title">AI模型已就緒</string>
+    <string name="model_download_failed_title">AI模型下載失敗</string>
+    <string name="model_download_eta_hours_minutes">%1$d小時%2$d分</string>
+    <string name="model_download_eta_minutes">%1$d分鐘</string>
+    <string name="model_download_eta_seconds">%1$d秒</string>
 </resources>

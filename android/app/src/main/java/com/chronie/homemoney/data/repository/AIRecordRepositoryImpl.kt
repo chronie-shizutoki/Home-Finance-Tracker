@@ -1,8 +1,8 @@
 package com.chronie.homemoney.data.repository
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import com.chronie.homemoney.data.local.dao.ExpenseDao
 import com.chronie.homemoney.data.local.dao.SyncQueueDao
@@ -10,9 +10,10 @@ import com.chronie.homemoney.data.local.entity.ExpenseEntity
 import com.chronie.homemoney.data.local.entity.SyncQueueEntity
 import com.chronie.homemoney.data.mapper.AIRecordMapper
 import com.chronie.homemoney.data.mapper.ExpenseMapper
-import com.chronie.homemoney.data.ocr.OcrHelper
-import com.chronie.homemoney.data.remote.api.AIRecordApi
-import com.chronie.homemoney.data.remote.dto.*
+import com.chronie.homemoney.data.ocr.DocumentScanProcessor
+import com.chronie.homemoney.data.remote.dto.AIExpenseRecordDto
+import com.chronie.homemoney.data.vlm.MnnVlmEngine
+import com.chronie.homemoney.data.vlm.OnDeviceModelManager
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.repository.AIRecordRepository
 import com.google.gson.Gson
@@ -20,145 +21,131 @@ import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * AI Record Repository Implementation
+ * AI Record Repository Implementation — fully on-device recognition.
+ *
+ * Pipeline:
+ *   1. [DocumentScanProcessor] rectifies and enhances each photo (OpenCV).
+ *   2. Cleaned pages are written to cache JPEGs and referenced from the
+ *      prompt via `<img>` markers.
+ *   3. [MnnVlmEngine] (Qwen3-VL 8B, MNN runtime) reads the images and
+ *      emits a JSON array of expense records.
+ *   4. [AIRecordMapper] validates and converts them to domain models.
+ *
+ * No network access is performed anywhere in this class.
  */
 @Singleton
 class AIRecordRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val aiRecordApi: AIRecordApi,
+    private val documentScanProcessor: DocumentScanProcessor,
+    private val vlmEngine: MnnVlmEngine,
+    private val modelManager: OnDeviceModelManager,
     private val expenseDao: ExpenseDao,
     private val syncQueueDao: SyncQueueDao,
-    private val gson: Gson,
-    private val ocrHelper: OcrHelper
+    private val gson: Gson
 ) : AIRecordRepository {
-    
+
     companion object {
         private const val TAG = "AIRecordRepository"
-        private const val TEXT_MODEL = "Qwen/Qwen3-8B"
+
+        /** Cache subdirectory holding the document-scanned pages for the VLM. */
+        private const val VLM_CACHE_DIR = "vlm_pages"
+
+        /** JPEG quality for the scanned pages fed into the vision model. */
+        private const val PAGE_JPEG_QUALITY = 90
     }
-    
+
     override suspend fun parseTextToRecords(text: String): Result<List<AIExpenseRecord>> {
         return try {
-            Log.d(TAG, "Parsing text to records")
-            
-            val prompt = buildTextPrompt(text)
-            val request = AIRecordRequest(
-                model = TEXT_MODEL,
-                messages = listOf(
-                    AIMessage(
-                        role = "system",
-                        content = "你是一个智能消费记录解析助手，能够从文本中提取消费信息并格式化输出。"
-                    ),
-                    AIMessage(
-                        role = "user",
-                        content = prompt
-                    )
-                ),
-                temperature = 0.2,
-                stream = false
-            )
-            
-            val response = aiRecordApi.parseRecord(request)
+            Log.d(TAG, "Parsing text to records with on-device LLM")
 
-            if (!response.isSuccessful) {
-                val errorBody = response.errorBody()?.string()
-                val errorMessage = when (response.code()) {
-                    400 -> "请求参数错误 (400): ${errorBody ?: "请检查输入内容"}"
-                    401 -> "API密钥无效或已过期 (401): ${errorBody ?: "请检查API Key设置"}"
-                    403 -> "请求被拒绝 (403): ${errorBody ?: "可能没有权限访问该模型"}"
-                    404 -> "API端点不存在 (404): ${errorBody ?: "请检查API地址配置"}"
-                    429 -> "请求过于频繁 (429): ${errorBody ?: "请稍后再试"}"
-                    500 -> "服务器内部错误 (500): ${errorBody ?: "AI服务暂时不可用"}"
-                    502 -> "网关错误 (502): ${errorBody ?: "服务器维护中"}"
-                    503 -> "服务不可用 (503): ${errorBody ?: "服务器过载或维护中"}"
-                    else -> "HTTP错误 (${response.code()}): ${errorBody ?: "未知错误"}"
-                }
-                Log.e(TAG, "API request failed: $errorMessage")
-                throw Exception(errorMessage)
-            }
-            
-            val content = response.body()?.choices?.firstOrNull()?.message?.content
-                ?: throw Exception("Empty response from AI")
-            
-            val records = parseAIResponse(content)
+            val loadResult = ensureEngineReady()
+            if (loadResult != null) return Result.failure(loadResult)
+
+            val prompt = buildPrompt(text = text, hasImages = false)
+            val response = vlmEngine.generate(prompt).getOrElse { throw it }
+
+            val records = parseAIResponse(response)
             Log.d(TAG, "Parsed ${records.size} records from text")
-            
             Result.success(records)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse text", e)
             Result.failure(e)
         }
     }
-    
-    override suspend fun parseImagesToRecords(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<List<AIExpenseRecord>> {
+
+    override suspend fun parseImagesToRecords(imageUris: List<Uri>): Result<List<AIExpenseRecord>> {
         return try {
-            Log.d(TAG, "Parsing ${imageUris.size} images to records with language: ${language.code}")
-            
-            val ocrText = ocrImagesToText(imageUris, language)
-                .onFailure { throw it }
-                .getOrThrow()
-            
-            if (ocrText.isBlank()) {
-                throw Exception("OCR failed to extract text from images")
+            Log.d(TAG, "Parsing ${imageUris.size} images with document scan + on-device VLM")
+
+            val loadResult = ensureEngineReady()
+            if (loadResult != null) return Result.failure(loadResult)
+
+            // Stage 1: documentize every image (OpenCV) and persist as JPEG.
+            val imageFiles = withContext(Dispatchers.IO) {
+                imageUris.mapNotNull { uri ->
+                    val scan = documentScanProcessor.processUri(uri) ?: run {
+                        Log.w(TAG, "Skipping undecodable image: $uri")
+                        return@mapNotNull null
+                    }
+                    Log.d(
+                        TAG,
+                        "Document scan done: detected=${scan.documentDetected}, " +
+                            "enhanced=${scan.enhanced}, size=${scan.bitmap.width}x${scan.bitmap.height}"
+                    )
+                    savePageBitmap(scan.bitmap)
+                }
             }
-            
-            parseTextToRecords(ocrText)
+            if (imageFiles.isEmpty()) {
+                throw IllegalStateException("No readable images in the selection")
+            }
+
+            // Stage 2: one multimodal request over all pages.
+            val imagePathList = imageFiles.map { it.absolutePath }
+            val prompt = buildPrompt(text = null, hasImages = true)
+
+            val response = vlmEngine.generate(prompt, imagePathList).getOrElse { throw it }
+
+            // Clean up the cache pages; the model has consumed them.
+            withContext(Dispatchers.IO) {
+                imageFiles.forEach { it.delete() }
+            }
+
+            val records = parseAIResponse(response)
+            Log.d(TAG, "Parsed ${records.size} records from images")
+            Result.success(records)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse images", e)
             Result.failure(e)
         }
     }
-    
-    override suspend fun ocrImagesToText(imageUris: List<Uri>, language: OcrHelper.OcrLanguage): Result<String> {
-        return try {
-            Log.d(TAG, "Performing OCR on ${imageUris.size} images with language: ${language.code}")
-            
-            val texts = mutableListOf<String>()
-            
-            imageUris.forEach { uri ->
-                val text = ocrHelper.recognizeTextFromUri(uri, language)
-                if (text.isNotBlank()) {
-                    texts.add(text)
-                }
-            }
-            
-            val combinedText = texts.joinToString("\n\n")
-            Log.d(TAG, "OCR completed, extracted ${combinedText.length} characters")
-            
-            Result.success(combinedText)
-        } catch (e: Exception) {
-            Log.e(TAG, "OCR failed", e)
-            Result.failure(e)
-        }
-    }
-    
+
     override suspend fun saveRecords(records: List<AIExpenseRecord>): Result<Unit> {
         return try {
             Log.d(TAG, "Saving ${records.size} AI records")
-            
+
             val validRecords = records.filter { it.isValid }
             if (validRecords.isEmpty()) {
                 Log.d(TAG, "No valid records to save")
                 return Result.success(Unit)
             }
-            
+
             val expenses = validRecords.map { aiRecord ->
                 val uuid = java.util.UUID.randomUUID().toString()
                 aiRecord.copy(id = uuid).toExpense()
             }
-            
+
             val entities = expenses.map { ExpenseMapper.toEntity(it).copy(isSynced = false) }
             expenseDao.insertExpenses(entities)
-            
+
             entities.forEach { entity ->
                 addToSyncQueue("expense", entity.id, "CREATE", entity)
             }
-            
+
             Log.d(TAG, "Successfully saved all ${validRecords.size} records")
             Result.success(Unit)
         } catch (e: Exception) {
@@ -166,20 +153,67 @@ class AIRecordRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
+    // ------------------------------------------------------------------
+    // On-device engine lifecycle
+    // ------------------------------------------------------------------
+
     /**
-     * Build text prompt for parsing text records
+     * Verifies the model package is on disk and the native engine is loaded.
+     * @return null when ready; otherwise the throwable to fail with.
      */
-    private fun buildTextPrompt(text: String): String {
+    private suspend fun ensureEngineReady(): Throwable? {
+        if (!modelManager.isModelReady()) {
+            val e = IllegalStateException(
+                "The on-device AI model is not downloaded yet. Open Settings > AI to download it (~5.5 GB)."
+            )
+            return e
+        }
+        val loaded = vlmEngine.ensureLoaded(modelManager.modelDir())
+        return loaded.exceptionOrNull()
+    }
+
+    /**
+     * Persists a scanned page for the VLM and returns its file.
+     * The vision model reads images from a plain filesystem path, so the
+     * cleaned bitmap must be materialized as a JPEG in cache storage.
+     */
+    private fun savePageBitmap(bitmap: Bitmap): File? {
+        return try {
+            val dir = File(context.cacheDir, VLM_CACHE_DIR).apply { mkdirs() }
+            val file = File(dir, "page_${System.currentTimeMillis()}_${(0..999).random()}.jpg")
+            file.outputStream().use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, PAGE_JPEG_QUALITY, out)
+            }
+            file
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to cache scanned page", e)
+            null
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Prompt & response parsing
+    // ------------------------------------------------------------------
+
+    /**
+     * Builds the instruction prompt for the multimodal model.
+     * When [hasImages] is true, the C++ bridge will prepend <img> tags
+     * automatically; the prompt just needs to reference "上方账单图片".
+     */
+    private fun buildPrompt(text: String?, hasImages: Boolean): String {
         val today = java.time.LocalDate.now()
         val dayOfWeek = today.dayOfWeek.getDisplayName(
             java.time.format.TextStyle.FULL,
             java.util.Locale.SIMPLIFIED_CHINESE
         )
         val dateStr = today.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        
+
+        val contentPart = text?.let { "文本内容：$text" }
+            ?: if (hasImages) "请阅读上方账单图片。" else ""
+
         return """
-今天是 $dateStr，星期$dayOfWeek。请分析以下文本，提取其中的所有消费信息，并尝试修复可能的OCR错别字。文本可能包含任何语言（中文、英文、日语、韩语、越南语、印尼语、马来语等），请根据文本内容智能识别消费信息。
+今天是 $dateStr，星期$dayOfWeek。$contentPart 请提取其中的所有消费信息。
 
 如果有多个消费记录，请以JSON数组的形式输出。每个记录应包含：
 {
@@ -190,19 +224,17 @@ class AIRecordRepositoryImpl @Inject constructor(
 }
 
 请注意：
-1. 如果文本中有多个消费记录，请返回JSON数组格式
+1. 如果有多个消费记录，请返回JSON数组格式
 2. 如果只有一个消费记录，请返回单个JSON对象或只有一个元素的数组
 3. 消费类型字段必须是上面列出的中文类型之一，不要使用其他语言或自定义类型
 4. 如果没有明确的日期，请使用今天日期（$dateStr）
 5. 只返回JSON数据，不要添加其他无关内容，不要使用markdown代码块
-
-文本内容：$text
         """.trimIndent()
     }
-    
+
     /**
-     * Parse AI response to extract expense records
-     * @param content The response content from AI model
+     * Parse the model output to extract expense records.
+     * @param content The response text from the on-device model
      * @return A list of AIExpenseRecord objects
      */
     private fun parseAIResponse(content: String): List<AIExpenseRecord> {
@@ -212,7 +244,7 @@ class AIRecordRepositoryImpl @Inject constructor(
                 .replace("```json", "")
                 .replace("```", "")
                 .trim()
-            
+
             // Try to parse as array
             val listType = object : TypeToken<List<AIExpenseRecordDto>>() {}.type
             val dtoList: List<AIExpenseRecordDto> = try {
@@ -222,33 +254,14 @@ class AIRecordRepositoryImpl @Inject constructor(
                 val singleDto = gson.fromJson(cleanContent, AIExpenseRecordDto::class.java)
                 listOf(singleDto)
             }
-            
+
             dtoList.map { AIRecordMapper.toDomain(it) }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to parse AI response", e)
+            Log.e(TAG, "Failed to parse model response", e)
             emptyList()
         }
     }
-    
-    /**
-     * Convert URI to Base64 string
-     */
-    private suspend fun uriToBase64(uri: Uri): String = withContext(Dispatchers.IO) {
-        val inputStream = context.contentResolver.openInputStream(uri)
-            ?: throw Exception("Cannot open image")
-        
-        val bytes = ByteArrayOutputStream()
-        inputStream.use { input ->
-            val buffer = ByteArray(8192)
-            var read: Int
-            while (input.read(buffer).also { read = it } != -1) {
-                bytes.write(buffer, 0, read)
-            }
-        }
-        
-        Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)
-    }
-    
+
     /**
      * Add to sync queue for later processing
      */
@@ -262,7 +275,7 @@ class AIRecordRepositoryImpl @Inject constructor(
             is ExpenseEntity -> ExpenseMapper.toDto(ExpenseMapper.toDomain(data))
             else -> data
         }
-        
+
         val jsonData = gson.toJson(dto)
         val syncItem = SyncQueueEntity(
             entityType = entityType,

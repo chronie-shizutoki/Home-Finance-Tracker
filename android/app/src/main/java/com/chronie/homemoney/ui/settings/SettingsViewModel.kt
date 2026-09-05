@@ -36,7 +36,7 @@ import androidx.core.content.edit
  * - Developer mode toggle
  * - Dynamic color / palette theme settings
  * - Manual and device-to-device LAN sync
- * - AI API key management
+ * - On-device AI model management (download/delete)
  * - Expense export/import
  * - Avatar management
  * - Device name configuration
@@ -59,6 +59,7 @@ class SettingsViewModel @Inject constructor(
     private val preferencesManager: com.chronie.homemoney.data.local.PreferencesManager,
     private val serverConfigManager: com.chronie.homemoney.data.local.ServerConfigManager,
     private val serverConnectionTester: com.chronie.homemoney.service.ServerConnectionTester,
+    private val aiModelManager: com.chronie.homemoney.data.vlm.OnDeviceModelManager,
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel(), com.chronie.homemoney.domain.sync.SyncRequestCallback {
 
@@ -76,8 +77,9 @@ class SettingsViewModel @Inject constructor(
 
     val isDeveloperMode: Flow<Boolean> = developerMode.isDeveloperModeEnabled
 
-    private val _aiApiKey = MutableStateFlow("")
-    val aiApiKey: StateFlow<String> = _aiApiKey.asStateFlow()
+    // On-device AI model lifecycle, surfaced to the settings UI.
+    val aiModelState: StateFlow<com.chronie.homemoney.data.vlm.OnDeviceModelManager.ModelState> =
+        aiModelManager.state
 
     val syncStatus: StateFlow<SyncStatus> = syncManager.observeSyncStatus()
         .stateIn(
@@ -162,7 +164,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         loadSyncInfo()
-        loadAIApiKey()
+        aiModelManager.refreshState()
         loadCurrentUser()
         loadDynamicColorSettings()
         loadAvatar()
@@ -511,19 +513,37 @@ class SettingsViewModel @Inject constructor(
         _serverTestState.value = ServerTestUiState.Idle
     }
 
-    fun setAIApiKey(apiKey: String) {
-        viewModelScope.launch {
-            val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit { putString("siliconflow_api_key", apiKey) }
-            _aiApiKey.value = apiKey
-            _syncMessage.value = context.getString(R.string.settings_ai_api_key_saved)
+    /**
+     * Starts (or resumes) downloading the on-device AI model (~5.5 GB).
+     *
+     * Uses a [ModelDownloadService] foreground service so the download
+     * survives the app being backgrounded (Android restricts network
+     * access for backgrounded apps in Doze/app-standby).
+     */
+    fun downloadAiModel() {
+        val intent = android.content.Intent(
+            context,
+            com.chronie.homemoney.service.ModelDownloadService::class.java
+        ).apply {
+            action = com.chronie.homemoney.service.ModelDownloadService.ACTION_START
         }
+        context.startForegroundService(intent)
     }
 
-    private fun loadAIApiKey() {
+    /**
+     * Cancels an in-flight model download.
+     */
+    fun cancelAiModelDownload() {
+        aiModelManager.cancelDownload()
+    }
+
+    /**
+     * Deletes the on-device AI model and frees its storage.
+     */
+    fun deleteAiModel() {
         viewModelScope.launch {
-            val prefs = context.getSharedPreferences("ai_settings", android.content.Context.MODE_PRIVATE)
-            _aiApiKey.value = prefs.getString("siliconflow_api_key", "") ?: ""
+            aiModelManager.deleteModel()
+            _syncMessage.value = context.getString(R.string.settings_ai_model_deleted)
         }
     }
 

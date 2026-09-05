@@ -108,6 +108,16 @@ android {
         }
     }
 
+    // Package the MNN prebuilt .so files (vision-enabled) alongside the
+    // CMake-built sync_engine / mnn_bridge libraries. The directory is
+    // populated by scripts/build-mnn-android.ps1; when absent the bridge
+    // builds as a stub and the app still installs.
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDir("src/main/cpp/mnn/prebuilt")
+        }
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -147,7 +157,6 @@ dependencies {
 
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -208,10 +217,6 @@ dependencies {
     implementation(libs.xz)
 
     implementation(libs.opencv)
-    implementation(libs.mlkit.text.recognition)
-    implementation(libs.mlkit.text.recognition.chinese)
-    implementation(libs.mlkit.text.recognition.japanese)
-    implementation(libs.mlkit.text.recognition.korean)
 
     implementation(libs.grpc.okhttp)
     implementation(libs.grpc.protobuf.lite)

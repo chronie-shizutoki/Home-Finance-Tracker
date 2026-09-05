@@ -59,7 +59,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.chronie.homemoney.R
-import com.chronie.homemoney.data.ocr.OcrHelper
 import com.chronie.homemoney.domain.model.AIExpenseRecord
 import com.chronie.homemoney.domain.model.ExpenseType
 import com.chronie.homemoney.ui.components.CircularIconButton
@@ -283,20 +282,19 @@ fun AIExpenseScreen(
             Button(
                 onClick = { viewModel.startRecognition() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading && !uiState.isOcrProcessing &&
+                enabled = !uiState.isLoading &&
                          (uiState.selectedImages.isNotEmpty() || uiState.textInput.isNotBlank()),
                 colors = ButtonDefaults.buttonColorsPrimary()
             ) {
-                if (uiState.isLoading || uiState.isOcrProcessing) {
+                if (uiState.isLoading) {
                     ExpressiveLoadingIndicator(containerVisible = false)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    when {
-                        uiState.isOcrProcessing -> context.getString(R.string.ai_expense_ocr_processing)
-                        uiState.isLoading -> context.getString(R.string.ai_expense_recognizing)
-                        else -> context.getString(R.string.ai_expense_start_recognition)
-                    }
+                    if (uiState.isLoading)
+                        context.getString(R.string.ai_expense_recognizing)
+                    else
+                        context.getString(R.string.ai_expense_start_recognition)
                 )
             }
             
@@ -325,19 +323,6 @@ fun AIExpenseScreen(
             }
         }
     }
-
-    // OCR Text Edit BottomSheet
-    OcrTextBottomSheet(
-        show = uiState.showOcrBottomSheet,
-        context = context,
-        ocrText = uiState.ocrText,
-        isProcessing = uiState.isOcrProcessing,
-        ocrLanguage = uiState.ocrLanguage,
-        onTextChange = viewModel::updateOcrText,
-        onLanguageChange = viewModel::updateOcrLanguage,
-        onConfirm = viewModel::confirmOcrText,
-        onDismiss = viewModel::closeOcrBottomSheet
-    )
 
     // Save a cropped bitmap to a JPEG file (<= 2MB) and return its content Uri
     fun saveCroppedBitmap(bmp: Bitmap): Uri? {
@@ -930,122 +915,3 @@ private fun ExpenseTypePickerDialog(
     }
 }
 
-/**
- * OCR Text Edit BottomSheet
- */
-@Composable
-private fun OcrTextBottomSheet(
-    show: Boolean,
-    context: Context,
-    ocrText: String,
-    isProcessing: Boolean,
-    ocrLanguage: OcrHelper.OcrLanguage,
-    onTextChange: (String) -> Unit,
-    onLanguageChange: (OcrHelper.OcrLanguage) -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    WindowBottomSheet(
-        show = show,
-        title = context.getString(R.string.ai_expense_ocr_title),
-        startAction = {
-            CircularIconButton(onClick = { if (!isProcessing) onDismiss() }) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = context.getString(R.string.cancel),
-                    tint = MiuixTheme.colorScheme.onBackground
-                )
-            }
-        },
-        endAction = {
-            if (!isProcessing) {
-                CircularIconButton(
-                    onClick = onConfirm,
-                    enabled = ocrText.isNotBlank()
-                ) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = context.getString(R.string.ai_expense_ocr_confirm),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                }
-            }
-        },
-        onDismissRequest = { if (!isProcessing) onDismiss() }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            val languageNames = mapOf(
-                OcrHelper.OcrLanguage.LATIN to context.getString(R.string.ai_expense_language_latin),
-                OcrHelper.OcrLanguage.CHINESE to context.getString(R.string.ai_expense_language_chinese),
-                OcrHelper.OcrLanguage.JAPANESE to context.getString(R.string.ai_expense_language_japanese),
-                OcrHelper.OcrLanguage.KOREAN to context.getString(R.string.ai_expense_language_korean)
-            )
-
-            val languageDropdownEntry = DropdownEntry(
-                items = OcrHelper.OcrLanguage.entries.map { language ->
-                    DropdownItem(
-                        text = languageNames[language] ?: language.code,
-                        onClick = { onLanguageChange(language) }
-                    )
-                }
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = context.getString(R.string.ai_expense_ocr_language),
-                    style = MiuixTheme.textStyles.body2,
-                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
-                    modifier = Modifier.weight(1f)
-                )
-
-                WindowIconDropdownMenu(entry = languageDropdownEntry, enabled = !isProcessing) {
-                    Text(
-                        text = languageNames[ocrLanguage] ?: ocrLanguage.code,
-                        style = MiuixTheme.textStyles.body1,
-                        color = MiuixTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            if (isProcessing) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    ExpressiveLoadingIndicator(containerVisible = false)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = context.getString(R.string.ai_expense_ocr_processing),
-                        style = MiuixTheme.textStyles.body1
-                    )
-                }
-            } else {
-                Text(
-                    text = context.getString(R.string.ai_expense_ocr_editing),
-                    style = MiuixTheme.textStyles.body2,
-                    color = MiuixTheme.colorScheme.onSurfaceSecondary
-                )
-
-                TextField(
-                    value = ocrText,
-                    onValueChange = onTextChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 280.dp, max = 400.dp),
-                    label = "",
-                    useLabelAsPlaceholder = false,
-                    maxLines = 20
-                )
-            }
-        }
-    }
-}

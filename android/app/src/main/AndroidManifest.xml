@@ -12,6 +12,14 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Android 16+ (API 36): allows model-download notifications to be
+         promoted as Live Updates (prominent position in shade, lock screen
+         chip, countdown timer). No runtime prompt — the user controls this
+         from system notification settings. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- READ_MEDIA_VISUAL_USER_SELECTED (after READ_MEDIA_IMAGES) declares
          support for Android 14+ Selected Photos Access (partial grant). -->
@@ -65,6 +73,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- Foreground service for large model downloads (~5.5 GB).
+             Declared as dataSync so Android 14+ grants the required
+             foreground-service type automatically. -->
+        <service
+            android:name=".service.ModelDownloadService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
 
         <!-- Remove WorkManager default initialization, use custom config.
              tools:ignore: the meta-data removal below is the documented on-demand

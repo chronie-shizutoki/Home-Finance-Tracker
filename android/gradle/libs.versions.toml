@@ -55,10 +55,6 @@ xz = "1.12"
 charty = "3.2.0"
 
 opencv = "5.0.0.1"
-mlkit-text-recognition = "16.0.1"
-mlkit-text-recognition-chinese = "16.0.1"
-mlkit-text-recognition-japanese = "16.0.1"
-mlkit-text-recognition-korean = "16.0.1"
 
 grpc = "1.84.0"
 protobuf = "4.36.1"
@@ -144,10 +140,6 @@ aalto-xml = { group = "com.fasterxml", name = "aalto-xml", version.ref = "aalto-
 xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
 
 opencv = { group = "org.opencv", name = "opencv", version.ref = "opencv" }
-mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit-text-recognition" }
-mlkit-text-recognition-chinese = { group = "com.google.mlkit", name = "text-recognition-chinese", version.ref = "mlkit-text-recognition-chinese" }
-mlkit-text-recognition-japanese = { group = "com.google.mlkit", name = "text-recognition-japanese", version.ref = "mlkit-text-recognition-japanese" }
-mlkit-text-recognition-korean = { group = "com.google.mlkit", name = "text-recognition-korean", version.ref = "mlkit-text-recognition-korean" }
 
 grpc-okhttp = { group = "io.grpc", name = "grpc-okhttp", version.ref = "grpc" }
 grpc-protobuf-lite = { group = "io.grpc", name = "grpc-protobuf-lite", version.ref = "grpc" }

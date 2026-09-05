@@ -358,6 +358,52 @@ externalNativeBuild {
 
 ---
 
+## On-Device AI Bridge (`libmnn_bridge.so`)
+
+A second native library links the Kotlin layer (`MnnVlmEngine`) to the MNN-LLM
+runtime for fully on-device multimodal bill recognition (Qwen3-VL 8B).
+
+### Pipeline
+
+```
+Photo ─► DocumentScanProcessor.kt (OpenCV: edge detect → warp → CLAHE)
+      ─► cache JPEG
+      ─► MnnVlmEngine.generate("<img>path</img> + instruction")
+      ─► libmnn_bridge.so ──JNI──► MNN::Transformer::Llm::chat()
+      ─► JSON expense records ─► AIRecordMapper ─► Room
+```
+
+### Build modes
+
+`CMakeLists.txt` selects the implementation based on whether the MNN prebuilt
+shared libraries are present under `cpp/mnn/prebuilt/<abi>/`:
+
+| State                              | Source               | Behaviour                                            |
+|------------------------------------|----------------------|------------------------------------------------------|
+| `libMNN.so` + `libllm.so` present  | `mnn/mnn_bridge.cpp` | Real inference; vision model loaded from config.json |
+| Prebuilts absent                   | `mnn_bridge_stub.cpp`| Loads fine, every call returns "runtime missing"     |
+
+With `MNN_SEP_BUILD=ON` (the script default), four shared libraries are
+produced and all are linked when present:
+
+| Library            | Role                                   | Required |
+|--------------------|----------------------------------------|----------|
+| `libMNN.so`        | Core inference engine                  | yes      |
+| `libllm.so`        | Transformer LLM engine (Qwen3-VL)     | yes      |
+| `libMNN_Express.so`| Expression / session API               | optional |
+| `libMNNOpenCV.so`  | Vision preprocessor (decode + resize)  | optional |
+
+This keeps the APK buildable on any machine; run
+`scripts/build-mnn-android.ps1` once to fetch/build the MNN prebuilts and
+switch the bridge from stub to real.
+
+### C++ standard
+
+Both targets compile with `cxx_std_23`, matching the rest of the native tree
+(`CMAKE_CXX_STANDARD 23`).
+
+---
+
 ## File Index
 
 ```
@@ -381,6 +427,9 @@ cpp/
     ├── thread_pool.h               # Fixed-size thread pool declaration
     ├── thread_pool.cpp             # Thread pool implementation
     └── transport_conformance.cpp   # Transport compile-time checks (96 static_assert)
+└── mnn/
+    ├── mnn_bridge.cpp              # JNI bridge → MNN::Transformer::Llm (real build)
+    └── mnn_bridge_stub.cpp         # Fallback when MNN prebuilts are absent
 ```
 
 ---

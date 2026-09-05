@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">Akses jaringan lokal diblokir. Berikan izin "Jaringan lokal" agar aplikasi dapat menjangkau server sinkronisasi LAN dan menemukan perangkat di Wi-Fi yang sama.</string>
     <string name="lan_permission_rationale">Kami memerlukan akses jaringan lokal untuk menyinkronkan dengan server dan perangkat di Wi-Fi yang sama.</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">Model AI on-device belum diunduh. Buka Pengaturan > AI untuk mengunduh (sekitar 5.5 GB)</string>
+    <string name="settings_ai_model">Model AI On-device</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B berjalan sepenuhnya offline di perangkat Anda. Ukuran unduhan sekitar 5.5 GB</string>
+    <string name="settings_ai_model_status_ready">Siap (%1$s digunakan). Ketuk untuk menghapus</string>
+    <string name="settings_ai_model_status_not_downloaded">Belum diunduh. Ketuk untuk mengunduh (sekitar 5.5 GB)</string>
+    <string name="settings_ai_model_status_downloading">Mengunduh… %1$d%% (%2$s / %3$s). Ketuk untuk membatalkan</string>
+    <string name="settings_ai_model_status_failed">Unduhan gagal: %1$s. Ketuk untuk mencoba lagi</string>
+    <string name="settings_ai_model_delete_hint">Menghapus akan membebaskan penyimpanan yang digunakan model</string>
+    <string name="settings_ai_model_cancel_hint">Data parsial disimpan sehingga unduhan dapat dilanjutkan</string>
+    <string name="settings_ai_model_deleted">Model AI on-device dihapus</string>
+    <string name="model_download_channel_name">Unduhan Model</string>
+    <string name="model_download_channel_description">Menampilkan progres unduhan model AI on-device</string>
+    <string name="model_download_notification_title">Mengunduh model AI…</string>
+    <string name="model_download_notification_progress">Mengunduh model AI… %1$d%%</string>
+    <string name="model_download_notification_eta">Sekitar %1$s tersisa</string>
+    <string name="model_download_notification_eta_calculating">Menghitung waktu tersisa…</string>
+    <string name="model_download_complete_title">Model AI siap</string>
+    <string name="model_download_failed_title">Unduhan model AI gagal</string>
+    <string name="model_download_eta_hours_minutes">%1$d jam %2$d menit</string>
+    <string name="model_download_eta_minutes">%1$d menit</string>
+    <string name="model_download_eta_seconds">%1$d detik</string>
 </resources>

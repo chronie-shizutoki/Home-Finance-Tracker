@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">ローカルネットワークへのアクセスがブロックされました。「ローカルネットワーク」の権限を付与すると、アプリは LAN 同期サーバーに接続し、同じ Wi-Fi 上のデバイスを検出できるようになります。</string>
     <string name="lan_permission_rationale">同じ Wi-Fi 上のサーバーやデバイスと同期するために、ローカルネットワークへのアクセス権限が必要です。</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">オンデバイスAIモデルが未ダウンロードです。設定 > AI からダウンロードしてください（約5.5 GB）</string>
+    <string name="settings_ai_model">オンデバイスAIモデル</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8Bは端末上で完全にオフライン動作します。ダウンロードサイズは約5.5 GBです</string>
+    <string name="settings_ai_model_status_ready">準備完了（%1$s使用中）。タップで削除</string>
+    <string name="settings_ai_model_status_not_downloaded">未ダウンロード。タップでダウンロード（約5.5 GB）</string>
+    <string name="settings_ai_model_status_downloading">ダウンロード中… %1$d%%（%2$s / %3$s）。タップでキャンセル</string>
+    <string name="settings_ai_model_status_failed">ダウンロード失敗：%1$s。タップでリトライ</string>
+    <string name="settings_ai_model_delete_hint">削除するとモデルのストレージが解放されます</string>
+    <string name="settings_ai_model_cancel_hint">一部のデータは保持され、ダウンロードを再開できます</string>
+    <string name="settings_ai_model_deleted">オンデバイスAIモデルを削除しました</string>
+    <string name="model_download_channel_name">モデルダウンロード</string>
+    <string name="model_download_channel_description">オンデバイスAIモデルのダウンロード進捗を表示</string>
+    <string name="model_download_notification_title">AIモデルをダウンロード中…</string>
+    <string name="model_download_notification_progress">AIモデルをダウンロード中… %1$d%%</string>
+    <string name="model_download_notification_eta">残り約%1$s</string>
+    <string name="model_download_notification_eta_calculating">残り時間を計算中…</string>
+    <string name="model_download_complete_title">AIモデルの準備完了</string>
+    <string name="model_download_failed_title">AIモデルのダウンロードに失敗</string>
+    <string name="model_download_eta_hours_minutes">%1$d時間%2$d分</string>
+    <string name="model_download_eta_minutes">%1$d分</string>
+    <string name="model_download_eta_seconds">%1$d秒</string>
 </resources>

@@ -135,7 +135,7 @@ enum class SettingsPage : NavKey {
  * - **Main** — profile card, theme, features, sync, and about entry points.
  * - **Account** — avatar upload, username display, logout/login.
  * - **Appearance** — language selection, dynamic color toggle, manual color picker.
- * - **Features** — AI API key configuration and monthly budget settings.
+ * - **Features** — on-device AI model management and monthly budget settings.
  * - **Data Sync** — cloud/LAN sync status, manual trigger, data export/import.
  * - **About** — feedback link, open-source licenses, developer options, version info.
  *
@@ -1389,8 +1389,7 @@ fun AISettingsSection(
     viewModel: SettingsViewModel,
     context: Context
 ) {
-    val apiKey by viewModel.aiApiKey.collectAsState()
-    var showApiKeyDialog by remember { mutableStateOf(false) }
+    val modelState by viewModel.aiModelState.collectAsState()
 
     Column {
         Text(
@@ -1399,80 +1398,75 @@ fun AISettingsSection(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        ArrowPreference(
-            title = context.getString(R.string.settings_ai_api_key),
-            summary = if (apiKey.isNotEmpty()) context.getString(R.string.api_key_set, apiKey.take(8)) else context.getString(R.string.settings_ai_api_key_description),
-            onClick = { showApiKeyDialog = true }
-        )
-    }
+        when (val state = modelState) {
+            is com.chronie.homemoney.data.vlm.OnDeviceModelManager.ModelState.Ready -> {
+                ArrowPreference(
+                    title = context.getString(R.string.settings_ai_model),
+                    summary = context.getString(
+                        R.string.settings_ai_model_status_ready,
+                        formatGigabytes(state.totalBytes)
+                    ),
+                    onClick = { viewModel.deleteAiModel() }
+                )
+                Text(
+                    text = context.getString(R.string.settings_ai_model_delete_hint),
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
-    var inputApiKey by remember(showApiKeyDialog, apiKey) { mutableStateOf(apiKey) }
-    WindowDialog(
-        show = showApiKeyDialog,
-        title = context.getString(R.string.settings_ai_api_key),
-        onDismissRequest = { showApiKeyDialog = false }
-    ) {
-        Column {
-            Text(
-                text = context.getString(R.string.settings_ai_api_key_description),
-                style = MiuixTheme.textStyles.body2,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            TextField(
-                value = inputApiKey,
-                onValueChange = { inputApiKey = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = context.getString(R.string.settings_ai_api_key_hint),
-                useLabelAsPlaceholder = true,
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = context.getString(R.string.settings_ai_get_api_key),
-                style = MiuixTheme.textStyles.body2,
-                color = MiuixTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW,
-                            "https://cloud.siliconflow.cn/me/account/ak".toUri())
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Browser Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            )
+            is com.chronie.homemoney.data.vlm.OnDeviceModelManager.ModelState.Downloading -> {
+                ArrowPreference(
+                    title = context.getString(R.string.settings_ai_model),
+                    summary = context.getString(
+                        R.string.settings_ai_model_status_downloading,
+                        (state.progress * 100).toInt(),
+                        formatGigabytes(state.downloadedBytes),
+                        formatGigabytes(state.totalBytes)
+                    ),
+                    onClick = { viewModel.cancelAiModelDownload() }
+                )
+                Text(
+                    text = context.getString(R.string.settings_ai_model_cancel_hint),
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            is com.chronie.homemoney.data.vlm.OnDeviceModelManager.ModelState.Failed -> {
+                ArrowPreference(
+                    title = context.getString(R.string.settings_ai_model),
+                    summary = context.getString(
+                        R.string.settings_ai_model_status_failed,
+                        state.reason
+                    ),
+                    onClick = { viewModel.downloadAiModel() }
+                )
+            }
 
-            // Top header with X (cancel) and Check (save) icons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularIconButton(onClick = { showApiKeyDialog = false }) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = context.getString(R.string.cancel),
-                        tint = MiuixTheme.colorScheme.onBackground
-                    )
-                }
-                CircularIconButton(
-                    onClick = {
-                        viewModel.setAIApiKey(inputApiKey)
-                        showApiKeyDialog = false
-                    }
-                ) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = context.getString(R.string.save),
-                        tint = MiuixTheme.colorScheme.primary
-                    )
-                }
+            else -> {
+                // NotDownloaded (or transient states): tap to start the download.
+                ArrowPreference(
+                    title = context.getString(R.string.settings_ai_model),
+                    summary = context.getString(R.string.settings_ai_model_status_not_downloaded),
+                    onClick = { viewModel.downloadAiModel() }
+                )
+                Text(
+                    text = context.getString(R.string.settings_ai_model_description),
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
             }
         }
     }
+}
+
+/** Formats a byte count as a compact GB figure for settings summaries. */
+private fun formatGigabytes(bytes: Long): String {
+    return String.format(java.util.Locale.US, "%.1f GB", bytes / (1024f * 1024f * 1024f))
 }
 
 @Composable

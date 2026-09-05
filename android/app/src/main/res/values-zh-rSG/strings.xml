@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">局域网访问已被拦截。请授予"本地网络"权限，应用才能连接你的局域网同步服务器并发现同 Wi-Fi 下的设备。</string>
     <string name="lan_permission_rationale">此应用需要局域网访问权限，以便与服务器及同网络下的设备进行同步。</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">端侧AI模型尚未下载，请前往 设置 > AI 下载（约5.5 GB）</string>
+    <string name="settings_ai_model">端侧AI模型</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B 大模型完全在设备本地运行，无需联网。下载体积约5.5 GB</string>
+    <string name="settings_ai_model_status_ready">已就绪（占用 %1$s），点击删除</string>
+    <string name="settings_ai_model_status_not_downloaded">未下载，点击开始下载（约5.5 GB）</string>
+    <string name="settings_ai_model_status_downloading">下载中… %1$d%%（%2$s / %3$s），点击取消</string>
+    <string name="settings_ai_model_status_failed">下载失败：%1$s，点击重试</string>
+    <string name="settings_ai_model_delete_hint">删除后将释放模型占用的存储空间</string>
+    <string name="settings_ai_model_cancel_hint">已下载的部分会保留，可随时继续</string>
+    <string name="settings_ai_model_deleted">端侧AI模型已删除</string>
+    <string name="model_download_channel_name">模型下载</string>
+    <string name="model_download_channel_description">显示端侧AI模型下载进度</string>
+    <string name="model_download_notification_title">正在下载AI模型…</string>
+    <string name="model_download_notification_progress">正在下载AI模型… %1$d%%</string>
+    <string name="model_download_notification_eta">剩余约 %1$s</string>
+    <string name="model_download_notification_eta_calculating">正在计算剩余时间…</string>
+    <string name="model_download_complete_title">AI模型已就绪</string>
+    <string name="model_download_failed_title">AI模型下载失败</string>
+    <string name="model_download_eta_hours_minutes">%1$d小时%2$d分</string>
+    <string name="model_download_eta_minutes">%1$d分钟</string>
+    <string name="model_download_eta_seconds">%1$d秒</string>
 </resources>

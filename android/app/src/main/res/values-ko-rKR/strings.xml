@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">로컬 네트워크 접근이 차단되었습니다. "로컬 네트워크" 권한을 허용하면 앱이 LAN 동기화 서버에 연결하고 동일한 Wi-Fi의 기기를 찾을 수 있습니다.</string>
     <string name="lan_permission_rationale">서버 및 동일한 네트워크의 기기와 동기화하려면 로컬 네트워크 접근 권한이 필요합니다.</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">온디바이스 AI 모델이 다운로드되지 않았습니다. 설정 > AI에서 다운로드하세요(약 5.5 GB)</string>
+    <string name="settings_ai_model">온디바이스 AI 모델</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B은 기기에서 완전히 오프라인으로 실행됩니다. 다운로드 크기는 약 5.5 GB입니다</string>
+    <string name="settings_ai_model_status_ready">준비 완료(%1$s 사용 중). 탭하여 삭제</string>
+    <string name="settings_ai_model_status_not_downloaded">다운로드 안 됨. 탭하여 다운로드(약 5.5 GB)</string>
+    <string name="settings_ai_model_status_downloading">다운로드 중… %1$d%%(%2$s / %3$s). 탭하여 취소</string>
+    <string name="settings_ai_model_status_failed">다운로드 실패: %1$s. 탭하여 재시도</string>
+    <string name="settings_ai_model_delete_hint">삭제하면 모델이 사용한 저장 공간이 해제됩니다</string>
+    <string name="settings_ai_model_cancel_hint">부분 데이터는 보존되어 다운로드를 이어서 진행할 수 있습니다</string>
+    <string name="settings_ai_model_deleted">온디바이스 AI 모델이 삭제되었습니다</string>
+    <string name="model_download_channel_name">모델 다운로드</string>
+    <string name="model_download_channel_description">온디바이스 AI 모델 다운로드 진행 상태 표시</string>
+    <string name="model_download_notification_title">AI 모델 다운로드 중…</string>
+    <string name="model_download_notification_progress">AI 모델 다운로드 중… %1$d%%</string>
+    <string name="model_download_notification_eta">약 %1$s 남음</string>
+    <string name="model_download_notification_eta_calculating">남은 시간 계산 중…</string>
+    <string name="model_download_complete_title">AI 모델 준비 완료</string>
+    <string name="model_download_failed_title">AI 모델 다운로드 실패</string>
+    <string name="model_download_eta_hours_minutes">%1$d시간 %2$d분</string>
+    <string name="model_download_eta_minutes">%1$d분</string>
+    <string name="model_download_eta_seconds">%1$d초</string>
 </resources>

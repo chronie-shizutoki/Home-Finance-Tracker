@@ -561,4 +561,27 @@
     <!-- Local Network Protection (Android 17 / API 37) -->
     <string name="lan_permission_denied">การเข้าถึงเครือข่ายท้องถิ่นถูกบล็อก กรุณาอนุญาตสิทธิ์ "เครือข่ายท้องถิ่น" เพื่อให้แอปเชื่อมต่อเซิร์ฟเวอร์ซิงค์ LAN และค้นพบอุปกรณ์บน Wi-Fi เดียวกันได้</string>
     <string name="lan_permission_rationale">เราต้องการสิทธิ์การเข้าถึงเครือข่ายท้องถิ่นเพื่อซิงค์กับเซิร์ฟเวอร์และอุปกรณ์บน Wi-Fi เดียวกัน</string>
+
+    <!-- On-device AI Model -->
+    <string name="ai_expense_model_not_ready">ยังไม่ได้ดาวน์โหลดโมเดล AI บนอุปกรณ์ ไปที่ การตั้งค่า > AI เพื่อดาวน์โหลด (ประมาณ 5.5 GB)</string>
+    <string name="settings_ai_model">โมเดล AI บนอุปกรณ์</string>
+    <string name="settings_ai_model_description">Qwen3-VL 8B ทำงานแบบออฟไลน์บนอุปกรณ์ของคุณ ขนาดดาวน์โหลดประมาณ 5.5 GB</string>
+    <string name="settings_ai_model_status_ready">พร้อมใช้งาน (ใช้ %1$s) แตะเพื่อลบ</string>
+    <string name="settings_ai_model_status_not_downloaded">ยังไม่ได้ดาวน์โหลด แตะเพื่อดาวน์โหลด (ประมาณ 5.5 GB)</string>
+    <string name="settings_ai_model_status_downloading">กำลังดาวน์โหลด… %1$d%% (%2$s / %3$s) แตะเพื่อยกเลิก</string>
+    <string name="settings_ai_model_status_failed">ดาวน์โหลดล้มเหลว: %1$s แตะเพื่อลองอีกครั้ง</string>
+    <string name="settings_ai_model_delete_hint">การลบจะปลดปล่อยพื้นที่จัดเก็บที่โมเดลใช้</string>
+    <string name="settings_ai_model_cancel_hint">ข้อมูลบางส่วนจะถูกเก็บไว้เพื่อดาวน์โหลดต่อได้</string>
+    <string name="settings_ai_model_deleted">ลบโมเดล AI บนอุปกรณ์แล้ว</string>
+    <string name="model_download_channel_name">ดาวน์โหลดโมเดล</string>
+    <string name="model_download_channel_description">แสดงความคืบหน้าการดาวน์โหลดโมเดล AI บนอุปกรณ์</string>
+    <string name="model_download_notification_title">กำลังดาวน์โหลดโมเดล AI…</string>
+    <string name="model_download_notification_progress">กำลังดาวน์โหลดโมเดล AI… %1$d%%</string>
+    <string name="model_download_notification_eta">เหลือประมาณ %1$s</string>
+    <string name="model_download_notification_eta_calculating">กำลังคำนวณเวลาที่เหลือ…</string>
+    <string name="model_download_complete_title">โมเดล AI พร้อมใช้งาน</string>
+    <string name="model_download_failed_title">ดาวน์โหลดโมเดล AI ล้มเหลว</string>
+    <string name="model_download_eta_hours_minutes">%1$d ชม. %2$d นาที</string>
+    <string name="model_download_eta_minutes">%1$d นาที</string>
+    <string name="model_download_eta_seconds">%1$d วินาที</string>
 </resources>
